@@ -1,0 +1,160 @@
+<style>
+    .tile-lut-editor-container {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        width: max-content;
+        top: 10%;
+        right: 0;
+        background-color: black;
+        border-radius: 3px;
+        padding: 5px;
+    }
+
+    .tile-lut-editor-filter-container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        width: 100%;
+    }
+
+    .tile-lut-editor-container label {
+        color: white;
+    }
+
+    .tile-lut-editor-tiles {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        max-width: 356px;
+        max-height: 512px;
+        overflow-y: auto;
+        background-color: #60b3f6;
+        border: 5px solid rgb(92, 92, 92);
+        margin: 5px;
+    }
+
+    .tile-lut-editor-tiles-setcontainer {
+        color: white;
+        max-width: 110px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        margin: 2px;
+        height: max-content;
+    }
+
+    .tile-lut-editor-tiles-setcontainer[data-tileset$='Corner'] {
+        max-width: 80px;
+    }
+
+    .tile-lut-editor-filter-container {
+        color: white;
+        margin: 3px;
+        max-width: 356px;
+        flex-wrap: wrap;
+    }
+
+    .tile-lut-editor-filter-container legend:hover {
+        cursor: pointer;
+    }
+
+    .tile-lut-editor-filter-container label {
+        font-size: 9px;
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
+        margin: 1px;
+    }
+
+    .tile-lut-editor-tiles-selected {
+        outline: 2px solid #f3c52f;
+        z-index: 1;
+    }
+
+    .selected-tiles-editor-entry {
+        display: flex;
+        flex-wrap: nowrap;
+        flex-direction: column;
+        border: 5px solid rgb(92, 92, 92);
+        margin: 5px;
+    }
+
+    .selected-tiles-editor-entry label {
+        font-size: 11px;
+    }
+
+    .selected-tiles-editor-entry-first label {
+        text-align: right;
+    }
+
+    .selected-tiles-editor-entry-label-container {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 45%;
+        margin-right: 2px;
+        margin-left: 2px;
+    }
+</style>
+<template id="template-tile-lut-editor">
+    <div class="tile-lut-editor-container">
+        <input type="text" id="tile-lut-editor-name" placeholder="Select a tile">
+        <label id="tile-lut-editor-selection">Nothing Selected</label>
+        <label id="tile-lut-editor-atlas">No Atlas Selected</label>
+        <label id="tile-lut-editor-transparent">No Atlas Selected</label>
+        <input type="text" id="tile-lut-editor-tileset">
+        <select name="tileULDR" id="tile-lut-editor-tileuldr"></select>
+        <select name="tiletype" id="tile-lut-editor-tiletype"></select>
+        <select name="tileterrain" id="tile-lut-editor-tileterrain"></select>
+        <button id="tile-lut-editor-collision-editor">Collision Editor</button>
+        <button id="tile-lut-editor-prop-editor">Prop Editor</button>
+        <button id="tile-lut-editor-add">New Tile LUT</button>
+        <button id="tile-lut-editor-export">Export LUT</button>
+        <div class="tile-lut-editor-filter-container">
+            <fieldset id="tile-lut-editor-filter-bool-tiletype" class="tile-lut-editor-filter-container">
+                <legend id="tile-lut-editor-filter-bool-tiletype-legend">Tile Type</legend>
+            </fieldset>
+            <fieldset id="tile-lut-editor-filter-bool-tileterrain" class="tile-lut-editor-filter-container">
+                <legend id="tile-lut-editor-filter-bool-tileterrain-legend">Tile Terrain</legend>
+            </fieldset>
+        </div>
+        <div id="tile-lut-editor-tiles" class="tile-lut-editor-tiles"></div>
+    </div>
+</template>
+<template id="template-selected-tiles-editor">
+    <div id="tile-selected-tiles-editor" class="tile-lut-editor-container" style="left:0;right:unset;max-height:512px;max-width: 256px;width:100%; overflow-y: auto;">
+    </div>
+</template>
+<template id="template-selected-tiles-editor-entry">
+    <div class="selected-tiles-editor-entry">
+        <label class="selected-tiles-editor-atlas" style="align-self: center;">Nothing Selected</label>
+        <canvas class="selected-tiles-editor-sprite" style="max-width:64px;max-height:64px;align-self: center;"></canvas>
+        <div style="display:flex;flex-direction: row;justify-content: center;">
+            <div class="selected-tiles-editor-entry-label-container selected-tiles-editor-entry-first">
+                <label>Position:</label>
+                <label>Atlas Position:</label>
+                <label>Transparent:</label>
+                <label>Tile Set:</label>
+                <label>Tile ULDR:</label>
+                <label>Tile Type:</label>
+                <label>Tile Terrain:</label>
+            </div>
+            <div class="selected-tiles-editor-entry-label-container">
+                <label class="selected-tiles-editor-position">Nothing Selected</label>
+                <label class="selected-tiles-editor-tileposition">Nothing Selected</label>
+                <label class="selected-tiles-editor-transparent">Nothing Selected</label>
+                <label class="selected-tiles-editor-tileset">Nothing Selected</label>
+                <label class="selected-tiles-editor-tileuldr">Nothing Selected</label>
+                <label class="selected-tiles-editor-tiletype">Nothing Selected</label>
+                <label class="selected-tiles-editor-tileterrain">Nothing Selected</label>
+            </div>
+        </div>
+        <button class="selected-tiles-editor-remove">Remove Tile</button>
+    </div>
+</template>
