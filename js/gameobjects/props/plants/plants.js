@@ -100,11 +100,11 @@ class Plant extends Prop {
             }
 
             let frame = this.currentAnimation.GetFrame();
-            this.CreateDrawOperation(frame, this.position, true, this.canvas);
+            this.CreateDrawOperation(frame, this.GetPosition(), true, this.canvas);
             this.currentAnimation.SetSpeed(this.plantData.growthSpeed);
 
-            CanvasDrawer.GCD.UIDrawer.DrawUIElement(this.plantData.plantIcon, '+' + gatherAmount, this.position);
-            super.NeedsRedraw(this.position);
+            CanvasDrawer.GCD.UIDrawer.DrawUIElement(this.plantData.plantIcon, '+' + gatherAmount, this.GetPosition());
+            super.NeedsRedraw(this.GetPosition());
         }
     }
 

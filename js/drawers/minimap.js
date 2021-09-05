@@ -25,8 +25,8 @@ class Minimap extends Cobject {
         this.minimapCanvasCtx.drawImage(CanvasDrawer.GCD.frameBufferTerrain, 0, 0, CanvasDrawer.GCD.frameBufferTerrain.width, CanvasDrawer.GCD.frameBufferTerrain.height, 0, 0, this.minimapCanvas.width, this.minimapCanvas.height);
         this.minimapCanvasCtx.fillStyle = 'red';
         this.minimapCanvasCtx.fillRect(
-            this.parentObject.position.x / (CanvasDrawer.GCD.frameBufferTerrain.width / this.minimapCanvas.width),
-            this.parentObject.position.y / (CanvasDrawer.GCD.frameBufferTerrain.height / this.minimapCanvas.height),
+            this.parentObject.GetPosition().x / (CanvasDrawer.GCD.frameBufferTerrain.width / this.minimapCanvas.width),
+            this.parentObject.GetPosition().y / (CanvasDrawer.GCD.frameBufferTerrain.height / this.minimapCanvas.height),
             2, 2
         );
         super.FixedUpdate();

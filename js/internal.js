@@ -5,7 +5,7 @@ export { CMath } from './classes/math/customMath.js';
 
 export { PageFetcher } from './classes/utility/pageFetcher.js';
 
-export { Collision, BoxCollision, CollisionHandler, PolygonCollision } from './gameobjects/collision/collision.js';
+export { Collision, BoxCollision, CollisionHandler, PolygonCollision, OverlapCheckEnum, OverlapOICheck, OverlapOverlapsCheck } from './gameobjects/collision/collision.js';
 
 export { GUI } from './gui/gui.js';
 export { HTMLInfo } from './gui/htmlinfo.js';

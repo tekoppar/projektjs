@@ -9,18 +9,15 @@ class CustomEventData {
     }
 }
 
-class CustomEventHandler extends Cobject {
+class CustomEventHandler {
     static GCEH = new CustomEventHandler();
 
     constructor() {
-        super();
         this.registeredListeners = [];
         this.customEvents = [];
     }
 
     FixedUpdate() {
-        super.FixedUpdate();
-
         if (this.customEvents.length > 0) {
             for (let y = 0; y < this.customEvents.length; y++) {
                 for (let i = 0; i < this.registeredListeners.length; i++) {

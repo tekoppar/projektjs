@@ -1,20 +1,22 @@
 //import { Vector2D } from '../../classes/vectors.js';
 
-import { Vector2D } from '../../internal.js';
+import { Vector2D, Rectangle } from '../../internal.js';
 
 const OperationType = {
     terrain: 0,
     gameObjects: 1,
     gui: 2,
     previewTerrain: 3,
+    shadow: 4,
 }
 
 class Operation {
-    constructor(drawingCanvas) {
-        this.oldPosition = undefined;
+    constructor(drawingCanvas, operationType = OperationType.terrain) {
+        this.oldPosition = new Vector2D(0, 0);
         this.isVisible = false;
         this.shouldDelete = false;
         this.drawingCanvas = drawingCanvas;
+        this.operationType = operationType;
     }
 
     Delete() {
@@ -22,14 +24,18 @@ class Operation {
     }
 
     Update(position) {
-        if (position !== undefined)
-            this.oldPosition = position.Clone();
+        if (position !== undefined) {
+            this.oldPosition.Set(position);
+        }
 
         this.isVisible = false;
     }
 
     GetPreviousPosition() {
 
+    }
+
+    UpdateDrawState(state) {
     }
 
     DrawState() {
@@ -43,7 +49,7 @@ class Operation {
 
 class TextOperation extends Operation {
     constructor(text, pos, clear, drawingCanvas, font = 'sans-serif', size = 18, color = 'rgb(243, 197, 47)', drawIndex = 0) {
-        super(drawingCanvas);
+        super(drawingCanvas, OperationType.gui);
         this.text = text;
         this.pos = new Vector2D(pos.x, pos.y + (size / 2) - 5);
         this.clear = clear;
@@ -72,6 +78,10 @@ class TextOperation extends Operation {
         super.Update(pos === undefined ? this.pos : pos);
     }
 
+    UpdateDrawState(state) {
+        this.needsToBeRedrawn = state;
+    }
+
     GetPreviousPosition() {
         return this.oldPosition === undefined ? this.pos : this.oldPosition;
     }
@@ -82,8 +92,8 @@ class TextOperation extends Operation {
 }
 
 class RectOperation extends Operation {
-    constructor(pos, size = new Vector2D(32, 32), drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, alpha = 0.3) {
-        super(drawingCanvas);
+    constructor(pos, size = new Vector2D(32, 32), drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, alpha = 0.3, fillOrOutline = false) {
+        super(drawingCanvas, OperationType.gui);
         this.position = pos;
         this.clear = clear;
         this.size = size;
@@ -92,6 +102,7 @@ class RectOperation extends Operation {
         this.needsToBeRedrawn = true;
         this.lifeTime = lifetime;
         this.alpha = alpha;
+        this.fillOrOutline = fillOrOutline;
     }
 
     GetDrawIndex() {
@@ -119,6 +130,10 @@ class RectOperation extends Operation {
         super.Update(pos === undefined ? this.position : pos);
     }
 
+    UpdateDrawState(state) {
+        this.needsToBeRedrawn = state;
+    }
+
     GetPreviousPosition() {
         return this.oldPosition === undefined ? this.position : this.oldPosition;
     }
@@ -137,11 +152,12 @@ class RectOperation extends Operation {
 }
 
 class DrawingOperation extends Operation {
-    constructor(tile, drawingCanvas, targetCanvas) {
-        super(drawingCanvas);
+    constructor(tile, drawingCanvas, targetCanvas, operationType = OperationType.gameObjects) {
+        super(drawingCanvas, operationType);
         this.tile = tile;
         this.targetCanvas = targetCanvas;
         this.collisionSize = undefined;
+        this.updateRects = undefined;
     }
 
     Clone() {
@@ -153,8 +169,28 @@ class DrawingOperation extends Operation {
     }
 
     Update(position) {
-        this.tile.needsToBeRedrawn = true;
         super.Update(position);
+        this.tile.needsToBeRedrawn = true;
+        this.updateRects = undefined;
+    }
+
+    UpdateDrawState(state) {
+        this.tile.needsToBeRedrawn = state;
+        this.updateRects = undefined;
+    }
+
+    AddUpdateRect(rect) {
+        if (this.tile.needsToBeRedrawn === false) {
+            if (this.updateRects === undefined)
+                this.updateRects = [];
+
+            for (let i = 0; i < this.updateRects.length; i++) {
+                if (this.updateRects[i].GetOverlappingCorners(rect).length >= 4)
+                    return;
+            }
+
+            this.updateRects.push(rect);
+        }
     }
 
     GetDrawIndex() {
@@ -163,6 +199,10 @@ class DrawingOperation extends Operation {
 
     GetPosition() {
         return this.tile.position;
+    }
+
+    GetSize() {
+        return this.collisionSize !== undefined ? this.collisionSize : this.tile.size;
     }
 
     GetDrawPosition() {

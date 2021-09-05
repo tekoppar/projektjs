@@ -19,14 +19,12 @@ class Seed extends Item {
         let overlap = CollisionHandler.GCH.GetOverlap(ownerCollision);
         let a = ownerCollision.collisionOwner.BoxCollision.GetCenterPosition();
         a.SnapToGrid(32);
-        let b = ownerCollision.position.Clone();
+        let b = ownerCollision.GetPosition().Clone();
         b.SnapToGrid(32);
 
-        CanvasDrawer.GCD.AddDebugOperation(a, 5);
-        CanvasDrawer.GCD.AddDebugOperation(b, 5, 'orange');
         if (overlap === false && a.CheckInRange(b, 96)) {
 
-            let checkPos = ownerCollision.position.Clone();
+            let checkPos = ownerCollision.GetPosition().Clone();
             checkPos.ToGrid(32);
             let tiles = CanvasDrawer.GCD.GetTileAtPosition(checkPos, false);
 

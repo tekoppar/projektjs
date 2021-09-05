@@ -20,7 +20,7 @@ class PlayerController extends Controller {
     }
 
     FixedUpdate() {
-        this.playerCamera.SetCameraPosition(this.playerCharacter.position);
+        this.playerCamera.SetCameraPosition(this.playerCharacter.GetPosition());
         super.FixedUpdate();
     }
 

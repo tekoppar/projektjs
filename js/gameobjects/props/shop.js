@@ -12,7 +12,7 @@ import { PolygonCollision } from '../collision/collision.js'; */
 import { CFrame, CanvasDrawer, OperationType, InputHandler, Item, Prop, Vector2D, GUI, HTMLInfo, PolygonCollision } from '../../internal.js'; 
 
 let ShopCollisions = {
-    seedShop: [new Vector2D(0, 0), new Vector2D(95, 0), new Vector2D(95, 105), new Vector2D(0, 105)],
+    seedShop: [new Vector2D(-2, -2), new Vector2D(97, -2), new Vector2D(97, 107), new Vector2D(-2, 107)],
     seedShopBlocking: [new Vector2D(1, 104), new Vector2D(0, 85.33333333333333), new Vector2D(95, 85.33333333333333), new Vector2D(95, 104) ],
 }
 
@@ -110,17 +110,18 @@ class Shop extends Prop {
                     this.shopSpriteSize.x,
                     this.shopSpriteSize.y
                 ),
-                this.position,
+                this.GetPosition(),
                 false,
                 CanvasDrawer.GCD.canvasAtlases[this.canvasName].canvas,
                 OperationType.gameObjects
             );
+
             this.BoxCollision.size = this.shopSpriteSize.Clone();
-            this.shopHTML.style.top = (this.position.y - 352) + 'px';
-            this.shopHTML.style.left = (this.position.x + 32) + 'px';
+            this.shopHTML.style.top = (this.GetPosition().y - 352) + 'px';
+            this.shopHTML.style.left = (this.GetPosition().x + 32) + 'px';
 
             this.NewCollision(new PolygonCollision(
-                this.position.Clone(),
+                this.GetPosition().Clone(),
                 this.size.Clone(),
                 ShopCollisions[this.name],
                 false,
@@ -129,7 +130,7 @@ class Shop extends Prop {
             ));
 
             this.BlockingCollision = new PolygonCollision(
-                this.position.Clone(),
+                this.GetPosition().Clone(),
                 this.size.Clone(),
                 ShopCollisions[this.name + 'Blocking'],
                 true,
@@ -137,6 +138,9 @@ class Shop extends Prop {
                 true
             );
             this.BlockingCollision.UpdatePoints();
+            this.BlockingCollision.CalculateBoundingBox();
+            this.BlockingCollision.UpdatePosition();
+            this.BlockingCollision.UpdateCollision();
 
             this.shopSetupDone = true;
     }
@@ -196,12 +200,16 @@ class Shop extends Prop {
         this.SetupMarket();
     }
 
+    FlagDrawingUpdate(position) {
+        super.FlagDrawingUpdate(position);
+    }
+
     FixedUpdate() {
         if (this.didShopChange === true && this.shopSetupDone === true) {
             this.DisplayShop();
         }
         if (this.gameObjectUsing !== undefined) {
-            if (this.position.CheckInRange(this.gameObjectUsing.position, 75.0) === false) {
+            if (this.GetPosition().CheckInRange(this.gameObjectUsing.GetPosition(), 75.0) === false) {
                 this.ShowShop();
                 this.gameObjectUsing = undefined;
             }

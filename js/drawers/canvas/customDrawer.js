@@ -11,9 +11,9 @@ import { SelectedTileEditor } from '../tiles/selectedTiles.js';
 import { UIDrawer } from '../canvas/uielements/uiDrawer.js';
  */
 
-import { Vector2D, Tile, TileData, InputHandler, CollisionHandler, BoxCollision, PolygonCollision, Collision, worldTiles, Brush, BrushDrawState, brushTypes, RectOperation, TextOperation, DrawingOperation, OperationType, TileLUT, CanvasAtlas, SelectedTileEditor, UIDrawer, MasterObject } from '../../internal.js';
+import { Vector2D, Tile, OverlapOICheck, OverlapOverlapsCheck, TileData, InputHandler, CollisionHandler, BoxCollision, PolygonCollision, Collision, worldTiles, Brush, BrushDrawState, brushTypes, RectOperation, TextOperation, DrawingOperation, OperationType, TileLUT, CanvasAtlas, SelectedTileEditor, UIDrawer, MasterObject, CMath, Rectangle } from '../../internal.js';
 
-let mouseToAtlasRectMap = { };
+let mouseToAtlasRectMap = {};
 function correctMouse(event) {
     let rect;
     if (mouseToAtlasRectMap[event.target.id] === undefined) {
@@ -58,10 +58,10 @@ function sortCollisions(a, b) {
 };
 
 class CanvasSave {
-    constructor(operations = { }, canvasDrawer) {
+    constructor(operations = {}, canvasDrawer) {
         this.drawingOperations = operations;
         this.CanvasDrawer = canvasDrawer;
-        this.loadOperationsDone = { };
+        this.loadOperationsDone = {};
 
         if (window.indexedDB === undefined)
             window.indexedDB = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.OIndexedDB || window.msIndexedDB,
@@ -124,7 +124,7 @@ class CanvasSave {
         }*/
 
         for (let y = 0; y < Math.ceil(this.CanvasDrawer.mainCanvas.height / 32); y++) {
-            this.drawingOperations[y] = { };
+            this.drawingOperations[y] = {};
             for (let x = 0; x < Math.ceil(this.CanvasDrawer.mainCanvas.width / 32); x++) {
                 this.drawingOperations[y][x] = [];
                 let transaction = this.db.transaction([y], "readwrite");
@@ -141,7 +141,7 @@ class CanvasSave {
     SaveOperations() {
         if (this.drawingOperations.length < 1)
             return;
-        let tempSavedOperations = { };
+        let tempSavedOperations = {};
         this.drawingOperations = CanvasDrawer.GCD.drawingOperations;
         let keysY = Object.keys(this.drawingOperations);
         for (let y = 0; y < keysY.length; y++) {
@@ -149,7 +149,7 @@ class CanvasSave {
             let keysX = Object.keys(this.drawingOperations[keysY[y]]);
             for (let x = 0; x < keysX.length; x++) {
                 if (tempSavedOperations[keysY[y]] === undefined)
-                    tempSavedOperations[keysY[y]] = { };
+                    tempSavedOperations[keysY[y]] = {};
 
                 this.putElephantInDb(JSON.stringify(this.drawingOperations[keysY[y]][keysX[x]]), y, x);
             }
@@ -249,7 +249,7 @@ class CanvasDrawer {
         this.canvasOffset = new Vector2D(0, 0);
         this.Brush = new Brush();
 
-        this.atlasesUrl = { };
+        this.atlasesUrl = {};
 
         this.gridMouse = document.getElementById('grid-mouse');
 
@@ -262,6 +262,7 @@ class CanvasDrawer {
         this.frameBuffer = document.createElement('canvas');
         this.frameBuffer.setAttribute('width', this.mainCanvas.width);
         this.frameBuffer.setAttribute('height', this.mainCanvas.width);
+        document.body.appendChild(this.frameBuffer);
         this.frameBufferCtx = this.frameBuffer.getContext('2d');
         this.frameBufferCtx.webkitImageSmoothingEnabled = false;
         this.frameBufferCtx.msImageSmoothingEnabled = false;
@@ -270,7 +271,7 @@ class CanvasDrawer {
         this.frameBufferTerrain = document.createElement('canvas');
         this.frameBufferTerrain.setAttribute('width', this.mainCanvas.width);
         this.frameBufferTerrain.setAttribute('height', this.mainCanvas.width);
-        document.body.appendChild(this.frameBufferTerrain);
+        //document.body.appendChild(this.frameBufferTerrain);
         this.frameBufferTerrainCtx = this.frameBufferTerrain.getContext('2d');
         this.frameBufferTerrainCtx.webkitImageSmoothingEnabled = false;
         this.frameBufferTerrainCtx.msImageSmoothingEnabled = false;
@@ -279,7 +280,7 @@ class CanvasDrawer {
         this.gameDebugCanvas = document.createElement('canvas');
         this.gameDebugCanvas.setAttribute('width', this.mainCanvas.width);
         this.gameDebugCanvas.setAttribute('height', this.mainCanvas.width);
-        document.body.appendChild(this.gameDebugCanvas);
+        //document.body.appendChild(this.gameDebugCanvas);
         this.gameDebugCanvasCtx = this.gameDebugCanvas.getContext('2d');
         this.gameDebugCanvasCtx.webkitImageSmoothingEnabled = false;
         this.gameDebugCanvasCtx.msImageSmoothingEnabled = false;
@@ -304,23 +305,24 @@ class CanvasDrawer {
         this.gameGuiCanvasCtx.msImageSmoothingEnabled = false;
         this.gameGuiCanvasCtx.imageSmoothingEnabled = false;
 
-        this.drawingOperations = { };
+        this.drawingOperations = {};
         this.terrainPreviewOperations = [];
         this.terrainNeedsRedrawOperations = [];
 
         for (let y = 0; y < Math.ceil(this.mainCanvas.height / 32); y++) {
-            this.drawingOperations[y] = { };
+            this.drawingOperations[y] = {};
             for (let x = 0; x < Math.ceil(this.mainCanvas.width / 32); x++) {
                 this.drawingOperations[y][x] = [];
             }
         }
 
         this.gameObjectDrawingOperations = [];
+        this.gameObjectDrawingOperationsUpdate = [];
         this.guiDrawingOperations = [];
 
-        this.canvasAtlases = { };
+        this.canvasAtlases = {};
         this.loadedImages = [];
-        this.hasLoadedAllImages = { };
+        this.hasLoadedAllImages = {};
         this.isLoadingFinished = false;
 
         this.selectedSprite;
@@ -354,7 +356,7 @@ class CanvasDrawer {
         let keysY = Object.keys(worldTiles);
         let tileSize = new Vector2D(32, 32);
 
-        let fixDuplicates = { };
+        let fixDuplicates = {};
 
         for (let y = 0; y < keysY.length; y++) {
             let keysX = Object.keys(worldTiles[keysY[y]]);
@@ -393,7 +395,7 @@ class CanvasDrawer {
 
                         if (fixDuplicates[check] == undefined) {
                             if (this.drawingOperations[drawingOperationTemp.tile.position.y / 32] === undefined)
-                                this.drawingOperations[drawingOperationTemp.tile.position.y / 32] = { };
+                                this.drawingOperations[drawingOperationTemp.tile.position.y / 32] = {};
 
                             if (this.drawingOperations[drawingOperationTemp.tile.position.y / 32][drawingOperationTemp.tile.position.x / 32] === undefined)
                                 this.drawingOperations[drawingOperationTemp.tile.position.y / 32][drawingOperationTemp.tile.position.x / 32] = [];
@@ -575,12 +577,18 @@ class CanvasDrawer {
     DrawGameObjectsLoop(delta) {
         this.gameObjectDrawingOperations.sort(sortDrawOperations);
 
-        for (let gameOperation of this.gameObjectDrawingOperations) {
-            if (gameOperation instanceof DrawingOperation && gameOperation.tile !== undefined && gameOperation.DrawState() === true && gameOperation.oldPosition !== undefined || gameOperation.shouldDelete === true)
-                this.ClearCanvas(gameOperation);
-            else if (gameOperation instanceof RectOperation && gameOperation.DrawState() === true && gameOperation.oldPosition !== undefined || gameOperation.shouldDelete === true)
-                this.ClearCanvas(gameOperation);
+        let keys = Object.keys(this.gameObjectDrawingOperations);
+        for (let i = 0; i < keys.length; i++) {
+            if (this.gameObjectDrawingOperations[keys[i]] instanceof DrawingOperation && this.gameObjectDrawingOperations[keys[i]].tile !== undefined && this.gameObjectDrawingOperations[keys[i]].DrawState() === true && this.gameObjectDrawingOperations[keys[i]].oldPosition !== undefined || this.gameObjectDrawingOperations[keys[i]].shouldDelete === true)
+                this.ClearCanvas(this.gameObjectDrawingOperations[keys[i]]);
+            else if (this.gameObjectDrawingOperations[keys[i]] instanceof RectOperation && this.gameObjectDrawingOperations[keys[i]].DrawState() === true && this.gameObjectDrawingOperations[keys[i]].oldPosition !== undefined || this.gameObjectDrawingOperations[keys[i]].shouldDelete === true)
+                this.ClearCanvas(this.gameObjectDrawingOperations[keys[i]]);
         }
+
+        for (let i = 0; i < this.gameObjectDrawingOperationsUpdate.length; i++) {
+            this.ClearCanvasUpdateRects(this.gameObjectDrawingOperationsUpdate[i]);
+        }
+        this.gameObjectDrawingOperationsUpdate = [];
 
         for (let i = 0; i < this.gameObjectDrawingOperations.length; i++) {
             if (this.gameObjectDrawingOperations[i].shouldDelete === true) {
@@ -588,7 +596,7 @@ class CanvasDrawer {
                 i--;
             } else {
                 if (this.gameObjectDrawingOperations[i].tile !== undefined) {
-                    if (this.gameObjectDrawingOperations[i].DrawState() === true) {
+                    if (this.gameObjectDrawingOperations[i].DrawState() === true || this.gameObjectDrawingOperations[i].updateRects !== undefined) {
                         this.DrawOnCanvas(this.gameObjectDrawingOperations[i]);
                     }
                 } else if (this.gameObjectDrawingOperations[i] instanceof TextOperation) {
@@ -668,6 +676,14 @@ class CanvasDrawer {
         //this.canvasSave.UpdateOperation(operations);
     }
 
+    ClearCanvasUpdateRects(drawingOperation) {
+        if (drawingOperation.updateRects !== undefined) {
+            for (let i = 0; i < drawingOperation.updateRects.length; i++) {
+                this.frameBufferCtx.clearRect(drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y, drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h);
+            }
+        }
+    }
+
     ClearCanvas(drawingOperation) {
         if (drawingOperation instanceof DrawingOperation) {
             if (drawingOperation.tile === undefined || (drawingOperation.tile !== undefined && this.canvasAtlases[drawingOperation.tile.atlas] === undefined)) {
@@ -676,32 +692,65 @@ class CanvasDrawer {
         }
 
         drawingOperation.isVisible = false;
-        let context = drawingOperation.drawingCanvas.getContext('2d'),
-            oldPosition = drawingOperation.GetPreviousPosition();
+        let oldPosition = drawingOperation.GetPreviousPosition(),
+            size = new Vector2D(0, 0);
 
         if (drawingOperation instanceof DrawingOperation) {
-            context.clearRect(oldPosition.x - 0.5, oldPosition.y - 0.5, drawingOperation.tile.size.x + 1, drawingOperation.tile.size.y + 1);
-            this.CheckClearOverlapping(drawingOperation.tile.position, drawingOperation.tile.size);
+            size.Set(drawingOperation.tile.size);
+            //this.AddDebugRectOperation(new Rectangle(oldPosition.x, oldPosition.y, drawingOperation.tile.size.x, drawingOperation.tile.size.y), 0.1, 'brown');
+            drawingOperation.drawingCanvas.getContext('2d').clearRect(oldPosition.x, oldPosition.y, size.x, size.y);
+            this.CheckClearOverlapping(oldPosition, size);
+            //size.Set(drawingOperation.GetSize());
+            //size.Add(2);
+            //this.CheckClearOverlapping(oldPosition, size);
+            //this.CheckClearOverlapping(drawingOperation.position, drawingOperation.tile.size);
         } else if (drawingOperation instanceof TextOperation) {
-            let size = drawingOperation.GetSize();
-            context.clearRect(oldPosition.x, oldPosition.y, size.x, size.y);
+            size.Set(drawingOperation.GetSize());
+            drawingOperation.drawingCanvas.getContext('2d').clearRect(oldPosition.x - 5, oldPosition.y - 5, size.x + 5, size.y + 5);
             //this.CheckClearOverlapping(drawingOperation.pos, size);
         } else if (drawingOperation instanceof RectOperation) {
-            let size = drawingOperation.GetSize();
-            context.clearRect(oldPosition.x, oldPosition.y, size.x, size.y);
+            size.Set(drawingOperation.GetSize());
+            drawingOperation.drawingCanvas.getContext('2d').clearRect(oldPosition.x, oldPosition.y, size.x, size.y);
+            drawingOperation.drawingCanvas.getContext('2d').clearRect(drawingOperation.position.x, drawingOperation.position.y, size.x, size.y);
         }
     }
 
     CheckClearOverlapping(position, size) {
+        if (position === undefined || size === undefined)
+            return;
+
         this.ClearBoxCollision.position = position;
         this.ClearBoxCollision.size = size;
+        this.ClearBoxCollision.position.Sub(8);
+        this.ClearBoxCollision.size.Add(16);
+        this.ClearBoxCollision.CalculateBoundingBox();
 
-        let overlaps = CollisionHandler.GCH.GetOverlaps(this.ClearBoxCollision);//new BoxCollision(position, this.BoxCollision.size, this.enableCollision, this));
+        let overlaps = CollisionHandler.GCH.GetOverlaps(this.ClearBoxCollision, false, { Intersect: false, Overlaps: true, Inside: true });//new BoxCollision(position, this.BoxCollision.size, this.enableCollision, this));
 
         for (let overlap of overlaps) {
-            if (overlap.collisionOwner !== undefined && overlap.collisionOwner.drawingOperation !== undefined && overlap.collisionOwner.drawingOperation !== null && overlap.collisionOwner.drawingOperation.DrawState() === false) {
-                overlap.collisionOwner.FlagDrawingUpdate(overlap.collisionOwner.position);
-                //overlaps[i].collisionOwner.NeedsRedraw(overlaps[i].collisionOwner.position);
+            if (overlap.collisionOwner !== undefined && overlap.collisionOwner !== null && overlap.collisionOwner.drawingOperation !== undefined && overlap.collisionOwner.drawingOperation !== null) {
+                //overlap.collisionOwner.FlagDrawingUpdate(overlap.collisionOwner.GetPosition());
+
+                let rectA = new Rectangle(position.x, position.y, size.x, size.y),
+                    rectB = overlap.GetBoundingBox().Clone();
+
+                if (rectA !== undefined && rectB !== undefined) {
+                    let intersection = rectA.GetIntersection(rectB);
+
+                    if (intersection !== undefined) {
+                        overlap.collisionOwner.drawingOperation.AddUpdateRect(intersection);
+                        this.gameObjectDrawingOperationsUpdate.push(overlap.collisionOwner.drawingOperation);
+                        //this.AddDebugRectOperation(intersection, 0.1, CMath.CSS_COLOR_NAMES[20]);
+                    }
+                }
+
+                /*let secondaryOverlaps = CollisionHandler.GCH.GetOverlaps(overlap, true, {Intersect:false, Overlaps:true, Inside:false});
+
+                for (let secondaryOverlap of secondaryOverlaps) {
+                    if (secondaryOverlap.collisionOwner !== undefined && secondaryOverlap.collisionOwner !== null && secondaryOverlap.collisionOwner.drawingOperation !== undefined && secondaryOverlap.collisionOwner.drawingOperation !== null) {
+                        secondaryOverlap.collisionOwner.FlagDrawingUpdate(secondaryOverlap.collisionOwner.position);
+                    }
+                }*/
             }
         }
     }
@@ -714,8 +763,8 @@ class CanvasDrawer {
         }
 
         if (collision instanceof BoxCollision) {
-            this.gameDebugCanvasCtx.clearRect(collision.position.x, collision.position.y, collision.size.x, collision.size.y);
-            this.gameDebugCanvasCtx.fillRect(collision.position.x, collision.position.y, collision.size.x, collision.size.y);
+            this.gameDebugCanvasCtx.clearRect(collision.boundingBox.x, collision.boundingBox.y, collision.boundingBox.w, collision.boundingBox.h);
+            this.gameDebugCanvasCtx.fillRect(collision.boundingBox.x, collision.boundingBox.y, collision.boundingBox.w, collision.boundingBox.h);
         } else if (collision instanceof PolygonCollision) {
             this.gameDebugCanvasCtx.beginPath();
             this.gameDebugCanvasCtx.moveTo(collision.points[0].x, collision.points[0].y);
@@ -727,7 +776,8 @@ class CanvasDrawer {
             this.gameDebugCanvasCtx.closePath();
             this.gameDebugCanvasCtx.fill();
         } else if (collision instanceof Collision) {
-            this.gameDebugCanvasCtx.fillRect(collision.position.x, collision.position.y, collision.size.x, collision.size.y);
+            this.gameDebugCanvasCtx.clearRect(collision.boundingBox.x, collision.boundingBox.y, collision.boundingBox.w, collision.boundingBox.h);
+            this.gameDebugCanvasCtx.fillRect(collision.boundingBox.x, collision.boundingBox.y, collision.boundingBox.w, collision.boundingBox.h);
         }
     }
 
@@ -753,33 +803,56 @@ class CanvasDrawer {
 
         drawingOperation.isVisible = true;
         if (drawingOperation instanceof DrawingOperation) {
-            drawingOperation.tile.needsToBeRedrawn = false;
-            context.drawImage(
-                drawingOperation.targetCanvas,
-                drawingOperation.tile.GetPosX(),
-                drawingOperation.tile.GetPosY(),
-                drawingOperation.tile.size.x,
-                drawingOperation.tile.size.y,
-                drawingOperation.tile.position.x,
-                drawingOperation.tile.position.y,
-                drawingOperation.tile.size.x,
-                drawingOperation.tile.size.y
-            );
+            if (drawingOperation.updateRects !== undefined) {
+                for (let i = 0; i < drawingOperation.updateRects.length; i++) {
+                    context.drawImage(
+                        drawingOperation.targetCanvas,
+                        drawingOperation.tile.GetPosX() + (drawingOperation.updateRects[i].x - drawingOperation.tile.position.x),
+                        drawingOperation.tile.GetPosY() + (drawingOperation.updateRects[i].y - drawingOperation.tile.position.y),
+                        drawingOperation.updateRects[i].w,
+                        drawingOperation.updateRects[i].h,
+                        drawingOperation.updateRects[i].x,
+                        drawingOperation.updateRects[i].y,
+                        drawingOperation.updateRects[i].w,
+                        drawingOperation.updateRects[i].h
+                    );
+                }
+            } else {
+                context.drawImage(
+                    drawingOperation.targetCanvas,
+                    drawingOperation.tile.GetPosX(),
+                    drawingOperation.tile.GetPosY(),
+                    drawingOperation.tile.size.x,
+                    drawingOperation.tile.size.y,
+                    drawingOperation.tile.position.x,
+                    drawingOperation.tile.position.y,
+                    drawingOperation.tile.size.x,
+                    drawingOperation.tile.size.y
+                );
+            }
+            drawingOperation.UpdateDrawState(false);
         } else if (drawingOperation instanceof TextOperation) {
-            drawingOperation.needsToBeRedrawn = false;
+            drawingOperation.UpdateDrawState(false);
             context.font = drawingOperation.size + 'px ' + drawingOperation.font;
             context.fillStyle = drawingOperation.color;
             context.fillText(drawingOperation.text, drawingOperation.pos.x, drawingOperation.pos.y);
         } else if (drawingOperation instanceof RectOperation) {
             this.gameDebugCanvasCtx.globalAlpha = drawingOperation.alpha;
 
-            drawingOperation.needsToBeRedrawn = false;
-            context.fillStyle = drawingOperation.color;
-            context.fillRect(drawingOperation.position.x, drawingOperation.position.y, drawingOperation.size.x, drawingOperation.size.y);
-
             if (drawingOperation.lifeTime !== -1) {
                 drawingOperation.Tick(delta);
+
+                if (drawingOperation.lifeTime < 0)
+                    return;
             }
+
+            drawingOperation.UpdateDrawState(false);
+            context.fillStyle = drawingOperation.color;
+
+            if (drawingOperation.fillOrOutline === false)
+                context.fillRect(drawingOperation.position.x, drawingOperation.position.y, drawingOperation.size.x, drawingOperation.size.y);
+            else
+                context.strokeRect(drawingOperation.position.x, drawingOperation.position.y, drawingOperation.size.x, drawingOperation.size.y);
 
             this.gameDebugCanvasCtx.globalAlpha = 0.3;
         }
@@ -825,7 +898,11 @@ class CanvasDrawer {
     }
 
     AddDebugOperation(position, lifetime = 5, color = 'purple') {
-        this.gameObjectDrawingOperations.push(new RectOperation(position, new Vector2D(5, 5), this.gameDebugCanvas, color, false, 0, lifetime, 1.0))
+        this.gameObjectDrawingOperations.push(new RectOperation(position, new Vector2D(5, 5), this.gameDebugCanvas, color, false, 0, lifetime, 1.0));
+    }
+
+    AddDebugRectOperation(rect, lifetime = 5, color = 'purple', fillOrOutline = false) {
+        this.gameObjectDrawingOperations.push(new RectOperation(new Vector2D(rect.x, rect.y), new Vector2D(rect.w, rect.h), this.gameDebugCanvas, color, false, 0, lifetime, 1.0, fillOrOutline));
     }
 
     AddDrawOperation(operation, operationType = OperationType.terrain, brushDrawState = BrushDrawState.Normal) {
@@ -839,7 +916,7 @@ class CanvasDrawer {
 
             case OperationType.terrain:
                 if (this.drawingOperations[operation.tile.GetDrawPosY()] === undefined)
-                    this.drawingOperations[operation.tile.GetDrawPosY()] = { };
+                    this.drawingOperations[operation.tile.GetDrawPosY()] = {};
 
                 if (this.drawingOperations[operation.tile.GetDrawPosY()][operation.tile.GetDrawPosX()] === undefined)
                     this.drawingOperations[operation.tile.GetDrawPosY()][operation.tile.GetDrawPosX()] = [];
@@ -883,6 +960,7 @@ class CanvasDrawer {
                 }
                 break;
 
+            case OperationType.shadow:
             case OperationType.gameObjects:
                 this.gameObjectDrawingOperations.push(operation);
                 break;

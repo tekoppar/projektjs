@@ -444,6 +444,8 @@ class Matrix {
 }
 
 class Rectangle {
+    static OVERLAP_RANGE = 0;
+
     constructor(x, y, w, h) {
         this.x = x;
         this.y = y;
@@ -451,8 +453,157 @@ class Rectangle {
         this.h = h;
     }
 
+    Add(a) {
+        if (a.x !== undefined) {
+            this.x += a.x;
+            this.y += a.y;
+            this.w += a.w;
+            this.h += a.h;
+        } else {
+            this.x += a;
+            this.y += a;
+            this.w += a;
+            this.h += a;
+        }
+    }
+
+    Sub(a) {
+        if (a.x !== undefined) {
+            this.x -= a.x;
+            this.y -= a.y;
+            this.w -= a.w;
+            this.h -= a.h;
+        } else {
+            this.x -= a;
+            this.y -= a;
+            this.w -= a;
+            this.h -= a;
+        }
+    }
+
+    Mult(a) {
+        this.x = this.x * a.x;
+        this.y = this.y * a.y;
+        this.w = this.w * a.w;
+        this.h = this.h * a.h;
+    }
+
+    Div(a) {
+        this.x /= a.x;
+        this.y /= a.y;
+        this.w /= a.w;
+        this.h /= a.h;
+    }
+
     Inside(position) {
-        return position.x > this.x && position.x < this.x + this.w && position.y > this.y && position.y < this.y + this.h;
+        return position.x >= this.x && position.x <= this.x + this.w && position.y >= this.y && position.y <= this.y + this.h;
+    }
+
+    Outside(rect) {
+        return !(this.x < rect.x && this.y < rect.y && this.x + this.w > rect.x + rect.w && this.y + this.h > rect.y + rect.h);
+    }
+
+    IsOverlaping1D(aMin, aMax, bMin, bMax) {
+        return aMax > bMin && bMax > aMin;
+    }
+
+    Overlaps(a) {
+        return this.IsOverlaping1D(this.x - Rectangle.OVERLAP_RANGE, (this.x - Rectangle.OVERLAP_RANGE) + (this.w + Rectangle.OVERLAP_RANGE), a.x - Rectangle.OVERLAP_RANGE, (a.x - Rectangle.OVERLAP_RANGE) + (a.w + Rectangle.OVERLAP_RANGE)) && this.IsOverlaping1D(this.y - Rectangle.OVERLAP_RANGE, (this.y - Rectangle.OVERLAP_RANGE) + (this.h + Rectangle.OVERLAP_RANGE), a.y - Rectangle.OVERLAP_RANGE, (a.y - Rectangle.OVERLAP_RANGE) + (a.h + Rectangle.OVERLAP_RANGE));
+    }
+
+    GetCorners() {
+        return {
+            topLeft: new Vector2D(this.x, this.y),
+            topRight: new Vector2D(this.x + this.w, this.y),
+            bottomLeft: new Vector2D(this.x, this.y + this.h),
+            bottomRight: new Vector2D(this.x + this.w, this.y + this.h)
+        };
+    }
+
+    GetOverlappingCorners(a) {
+        let corners = a.GetCorners();
+        let insideCorners = [];
+
+        if (this.Inside(corners.topLeft))
+            insideCorners.push(corners.topLeft);
+        if (this.Inside(corners.topRight))
+            insideCorners.push(corners.topRight);
+        if (this.Inside(corners.bottomLeft))
+            insideCorners.push(corners.bottomLeft);
+        if (this.Inside(corners.bottomRight))
+            insideCorners.push(corners.bottomRight);
+
+        return insideCorners;
+    }
+
+    GetIntersection(a) {
+        let insideCorners = this.GetOverlappingCorners(a);
+
+        if (insideCorners.length === 0)
+            insideCorners = a.GetOverlappingCorners(this);
+
+        if (insideCorners.length === 1) {
+            let insideCornersA = a.GetOverlappingCorners(this);
+
+            if (insideCornersA.length > 0) {
+                let minX, maxX, minY, maxY;
+                minX = Math.min(insideCorners[0].x, insideCornersA[0].x);
+                maxX = Math.max(insideCorners[0].x, insideCornersA[0].x);
+                minY = Math.min(insideCorners[0].y, insideCornersA[0].y);
+                maxY = Math.max(insideCorners[0].y, insideCornersA[0].y);
+
+                if (minX === maxX && minY !== maxY) {
+                    if (this.x <= a.x && a.x <= this.x + this.w)
+                        return new Rectangle(a.x, minY, (this.x + this.w) - a.x, maxY - minY);
+                    else
+                        return new Rectangle(this.x, minY, (a.x + a.w) - this.x, maxY - minY);
+                } else if (minY === maxY && minX !== maxX) {
+                    if (this.y <= a.y && a.y <= this.y + this.h)
+                        return new Rectangle(minX, a.y, maxX - minX, (this.y + this.h) - a.y);
+                    else
+                        return new Rectangle(minX, this.y, maxX - minX, (a.y + a.h) - this.y);
+                } else if (minX === maxX && minY === maxY) {
+                    if (this.w < a.w && this.h < a.h)
+                        return this;
+                    else
+                        return a;
+                } else {
+                    return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+                }
+            } else
+                return this;
+        } else if (insideCorners.length === 2) {
+            let minX, maxX, minY, maxY;
+            minX = Math.min(insideCorners[0].x, insideCorners[1].x);
+            maxX = Math.max(insideCorners[0].x, insideCorners[1].x);
+            minY = Math.min(insideCorners[0].y, insideCorners[1].y);
+            maxY = Math.max(insideCorners[0].y, insideCorners[1].y);
+
+            if (minX === maxX && minY !== maxY) {
+                if (this.x <= a.x && a.x <= this.x + this.w)
+                    return new Rectangle(a.x, minY, (this.x + this.w) - a.x, maxY - minY);
+                else
+                    return new Rectangle(this.x, minY, (a.x + a.w) - this.x, maxY - minY);
+            } else if (minY === maxY && minX !== maxX) {
+                if (this.y <= a.y && a.y <= this.y + this.h)
+                    return new Rectangle(minX, a.y, maxX - minX, (this.y + this.h) - a.y);
+                else
+                    return new Rectangle(minX, this.y, maxX - minX, (a.y + a.h) - this.y);
+            }
+        } else if (insideCorners.length > 2) {
+            if (this.x <= a.x && this.y <= a.y)
+                return a;
+            else if (a.x <= this.x && a.y <= this.y)
+                return this;
+            else
+                return this;
+        }
+
+        return undefined;
+    }
+
+    Equal(a) {
+        return this.x == a.x && this.y == a.y && this.w == a.w && this.h == a.h;
     }
 
     Clone() {

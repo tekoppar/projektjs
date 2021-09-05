@@ -5,13 +5,26 @@ import { Vector2D } from '../../internal.js';
 class Cobject {
     static AllCobjects = { };
 
-    constructor() {
-        this.position = new Vector2D(256, 256);
+    constructor(position = new Vector2D(0, 0)) {
+        this.position = position;
+        this.fakePosition = new Vector2D(0,0);
         this.size = new Vector2D(1, 1);
         this.name = '';
         this.UID;
 
         Cobject.AddObject(this);
+    }
+
+    GetPosition() {
+        this.fakePosition.x = this.position.x - this.size.x / 2;
+        this.fakePosition.y = this.position.y - this.size.y;
+        return this.fakePosition;//new Vector2D(this.position.x - this.size.x / 2, this.position.y - this.size.y);
+    }
+
+    SetPosition(position) {
+        this.position.Set(position);
+        //this.position.x += this.size.x / 2;
+        //this.position.y += this.size.y;
     }
 
     static GetObjectFromUID(uid) {

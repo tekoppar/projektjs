@@ -9,7 +9,7 @@ import { CanvasDrawer } from '../../drawers/canvas/customDrawer.js';
 import { OperationType } from '../../drawers/canvas/operation.js';
 import { MasterObject } from '../../classes/masterObject.js'; */
 
-import { GameObject, Inventory, Item, Vector2D, femaleAnimations, BoxCollision, CollisionHandler, CustomEventHandler, CanvasDrawer, OperationType, MasterObject } from '../../internal.js';
+import { GameObject, Inventory, Rectangle, Vector2D, femaleAnimations, BoxCollision, CollisionHandler, CustomEventHandler, CanvasDrawer, OperationType, MasterObject } from '../../internal.js';
 
 const FacingDirection = {
     Left: 0,
@@ -20,11 +20,10 @@ const FacingDirection = {
 
 class CharacterAttachments extends GameObject {
     constructor(spriteSheet, name, drawIndex = 0) {
-        super(name, new Vector2D(0, 0), false, drawIndex);
+        super(name, new Vector2D(0, 0), undefined, drawIndex);
         this.spriteSheet = spriteSheet;
         this.currentAnimation = undefined;
         this.name = name;
-        this.BoxCollision.overlapEvents = false;
     }
 
     ChangeAnimation(animation) {
@@ -50,7 +49,7 @@ class Character extends GameObject {
         this.isRunning = false;
         this.inventory = new Inventory(this);
         this.activeItem;
-        this.BlockingCollision = new BoxCollision(this.position.Clone(), new Vector2D(16, 16), true, this, true);
+        this.BlockingCollision = new BoxCollision(this.GetPosition(), new Vector2D(16, 16), true, this, true);
     }
 
     AddAttachment(atlas, name, drawIndex) {
@@ -61,7 +60,9 @@ class Character extends GameObject {
         if (this.currentAnimation === undefined || this.currentAnimation.name != animation.name) {
             this.currentAnimation = animation;
             this.shadowAttachment.ChangeAnimation(animation.Clone());
-            this.BoxCollision.size = new Vector2D(animation.h, animation.w);
+            this.size = this.BoxCollision.size = new Vector2D(animation.h, animation.w);
+            this.BoxCollision.CalculateBoundingBox();
+            this.BoxCollision.position = this.GetPosition();
 
             let keys = Object.keys(this.attachments);
             for (let i = 0; i < keys.length; i++) {
@@ -89,24 +90,25 @@ class Character extends GameObject {
         if (this.drawingOperation !== undefined)
             this.FlagDrawingUpdate(position);
 
-        if (this.shadowAttachment.drawingOperation !== undefined)
-            this.shadowAttachment.FlagDrawingUpdate(position);
+        //if (this.shadowAttachment.drawingOperation !== undefined)
+            //this.shadowAttachment.FlagDrawingUpdate(position);
 
-        let keys = Object.keys(this.attachments);
-        for (let i = 0; i < keys.length; i++) {
-            if (this.attachments[keys[i]].drawingOperation !== undefined)
-                this.attachments[keys[i]].FlagDrawingUpdate(position);
-        }
+        //let keys = Object.keys(this.attachments);
+        //for (let i = 0; i < keys.length; i++) {
+            //if (this.attachments[keys[i]].drawingOperation !== undefined)
+                //this.attachments[keys[i]].FlagDrawingUpdate(position);
+        //}
     }
 
     PlayAnimation() {
         let frame = this.currentAnimation.GetFrame();
 
         if (frame !== null) {
-            this.NeedsRedraw(this.position);
+            this.NeedsRedraw(this.GetPosition());
 
-            this.shadowAttachment.CreateDrawOperation(this.shadowAttachment.currentAnimation.GetFrame(), this.position, false, this.shadowAttachment.canvas, OperationType.gameObjects);
-            this.CreateDrawOperation(frame, this.position, false, this.canvas, OperationType.gameObjects);
+            this.shadowAttachment.position = this.position.Clone();
+            this.shadowAttachment.CreateDrawOperation(this.shadowAttachment.currentAnimation.GetFrame(), this.GetPosition(), false, this.shadowAttachment.canvas, OperationType.gameObjects);
+            this.CreateDrawOperation(frame, this.GetPosition(), true, this.canvas, OperationType.gameObjects);
 
             let facingDirection = this.GetFacingDirection();
 
@@ -120,9 +122,10 @@ class Character extends GameObject {
 
             let keys = Object.keys(this.attachments);
             for (let i = 0; i < keys.length; i++) {
+                this.attachments[keys[i]].position = this.position.Clone();
                 this.attachments[keys[i]].CreateDrawOperation(
                     this.attachments[keys[i]].currentAnimation.GetFrame(),
-                    this.position,
+                    this.GetPosition(),
                     false,
                     this.attachments[keys[i]].canvas,
                     OperationType.gameObjects
@@ -174,19 +177,19 @@ class Character extends GameObject {
     UpdateMovement() {
         if (this.Velocity.x !== 0 || this.Velocity.y !== 0) {
             if (this.drawingOperation !== undefined)
-                this.NeedsRedraw(this.previousPosition.Clone());
+                this.NeedsRedraw(this.previousPosition);
 
-            this.BoxCollision.position = this.position.Clone();
+            this.BoxCollision.position = this.GetPosition();
             this.BoxCollision.position.Add(Vector2D.Mult(this.MovementSpeed, this.Velocity));
 
             this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
             this.BlockingCollision.position.Sub({x:this.BlockingCollision.size.x + this.BlockingCollision.size.x / 2, y: this.BlockingCollision.size.y - this.BlockingCollision.size.y });
 
             if (this.CheckCollision() === true) {
-                this.previousPosition = this.position.Clone();
+                this.previousPosition = this.GetPosition();
                 this.position.Add(Vector2D.Mult(this.MovementSpeed, this.Velocity));
             } else {
-                this.BoxCollision.position = this.position;
+                this.BoxCollision.position = this.GetPosition();
                 this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
                 this.BlockingCollision.position.Sub({x:this.BlockingCollision.size.x + this.BlockingCollision.size.x / 2, y: this.BlockingCollision.size.y - this.BlockingCollision.size.y });
             }
@@ -235,12 +238,12 @@ class Character extends GameObject {
                 break;
         }
 
-        this.NeedsRedraw(this.position.Clone());
+        this.NeedsRedraw(this.GetPosition());
     }
 
     StopMovement() {
         this.Velocity.x = this.Velocity.y = 0;
-        this.NeedsRedraw(this.position.Clone());
+        this.NeedsRedraw(this.GetPosition());
     }
 
     SetMovement(type, speed) {
@@ -250,7 +253,7 @@ class Character extends GameObject {
         }
 
         this.MovementSpeed = new Vector2D(speed, speed);
-        this.NeedsRedraw(this.position.Clone());
+        this.NeedsRedraw(this.GetPosition());
     }
 
     Interact() {

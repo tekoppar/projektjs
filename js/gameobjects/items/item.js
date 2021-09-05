@@ -146,7 +146,7 @@ class Hoe extends Item {
         let overlap = CollisionHandler.GCH.GetOverlap(ownerCollision);
 
         if (overlap !== false) {
-            if (overlap.collisionOwner.plantData !== undefined && ownerCollision.collisionOwner.BoxCollision.CheckInRealRange(overlap, 112)) {
+            if (overlap.collisionOwner !== undefined && overlap.collisionOwner.plantData !== undefined && ownerCollision.collisionOwner.BoxCollision.CheckInRealRange(overlap, 112)) {
                 overlap.collisionOwner.Delete();
             }
         }
@@ -195,7 +195,6 @@ class Axe extends Item {
         let overlap = CollisionHandler.GCH.GetOverlap(ownerCollision);
 
         if (overlap !== undefined && overlap !== false && ownerCollision.DoOverlap(overlap.collisionOwner.BlockingCollision, true)) { // ownerCollision.CheckInRealRange(ownerCollision.collisionOwner.BoxCollision, 112)) {
-            console.log(overlap.collisionOwner);
             let objPrototype = Object.getPrototypeOf(overlap.collisionOwner);
             if (objPrototype.constructor.name === 'Tree') {
                 overlap.OnHit(20, ownerCollision);

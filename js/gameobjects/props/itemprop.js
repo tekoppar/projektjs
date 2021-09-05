@@ -13,7 +13,7 @@ class ItemProp extends ExtendedProp {
     }
 
     GameBegin() {
-        super.GameBegin(undefined, this.position.Clone(), new Vector2D(32, 32), this.currentAnimation.GetFrame(), false);
+        super.GameBegin(undefined, this.GetPosition().Clone(), new Vector2D(32, 32), this.currentAnimation.GetFrame(), false);
     }
 
     Delete() {
