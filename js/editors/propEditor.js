@@ -3,7 +3,7 @@ import { CanvasDrawer } from '../drawers/canvas/customDrawer.js';
 import { TileMaker } from '../drawers/tiles/tilemaker.js';
 import { Cobject } from '../classes/baseClasses/object.js'; */
 
-import { Vector2D, CanvasDrawer, TileMaker, Cobject, Tree, MasterObject } from '../internal.js';
+import { Vector2D, CanvasDrawer, CollisionEditor, TileMaker, Cobject, Tree, MasterObject, correctMouse } from '../internal.js';
 
 class PropEditor extends Cobject {
     static GPEditor = new PropEditor();
@@ -17,8 +17,9 @@ class PropEditor extends Cobject {
         this.gridSize = 32;
         this.isDrawing = false;
         this.collisionPositions = [];
-        this.positionMap = { };
+        this.positionMap = {};
         this.copyProp;
+        this.selectedProp;
     }
 
     GameBegin() {
@@ -64,6 +65,7 @@ class PropEditor extends Cobject {
                 let newImage = new Image(CanvasDrawer.GCD.canvasAtlases[keys[i]].width, CanvasDrawer.GCD.canvasAtlases[keys[i]].height);
                 newImage.src = CanvasDrawer.GCD.canvasAtlases[keys[i]].canvas.toDataURL('image/png');
                 newImage.dataset.atlasName = CanvasDrawer.GCD.canvasAtlases[keys[i]].canvas.id;
+                newImage.dataset.propName = keys[i];
                 this.gridHTML.appendChild(newImage);
             }
         }
@@ -74,13 +76,26 @@ class PropEditor extends Cobject {
     handleEvent(e) {
         switch (e.type) {
             case 'click':
-                if (e.target.id === 'prop-editor-copy')
-                    this.LogPoints();
+                if (e.target.id === 'prop-editor-copy') {
+                    if (this.selectedProp !== undefined && this.selectedProp.dataset.atlasName !== undefined && CanvasDrawer.GCD.canvasAtlases[this.selectedProp.dataset.atlasName] !== undefined) {
+                        let newTree = new Tree(this.selectedProp.dataset.propName, MasterObject.MO.playerController.playerCharacter.position.Clone(), undefined, this.selectedProp.dataset.atlasName);
+                        newTree.GameBegin();
+                    }
+                }
+                else if (e.target.id === 'prop-editor-collision') {
+                    if (CanvasDrawer.GCD.selectedSprite !== undefined)
+                        CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite);
+                }
                 else if (e.target.id === 'prop-editor-close') {
                     this.container.style.visibility = 'collapse';
                 } else if (e.target.dataset.atlasName !== undefined && CanvasDrawer.GCD.canvasAtlases[e.target.dataset.atlasName] !== undefined) {
-                    let newTree = new Tree('treeBirch', MasterObject.MO.playerController.playerCharacter.position.Clone(), undefined, e.target.dataset.atlasName);
-                    newTree.GameBegin();
+                    if (this.selectedProp !== undefined)
+                        this.selectedProp.classList.remove('prop-editor-grid-selected');
+
+                    this.selectedProp = e.target;
+                    this.selectedProp.classList.add('prop-editor-grid-selected');
+
+                    CanvasDrawer.GCD.canvasAtlases[e.target.dataset.atlasName].SetSelection(MasterObject.MO.playerController.playerCharacter.position.Clone());
                 }
                 break;
 

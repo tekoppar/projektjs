@@ -1,8 +1,3 @@
-/* import { Vector2D } from '../../../classes/vectors.js';
-import { Tile } from '../../tiles/tile.js';
-import { TextOperation, DrawingOperation, OperationType } from '../operation.js';
-import { UIElement } from '../uielements/uiElement.js'; */
-
 import { Vector2D, Tile, TextOperation, DrawingOperation, OperationType, UIElement } from '../../../internal.js';
 
 class UIDrawer {
@@ -12,10 +7,10 @@ class UIDrawer {
         this.uiElements = [];
     }
 
-    AddUIElements() {
+    AddUIElements(delta) {
         if (this.uiElements.length > 0) {
             for (let i = 0; i < this.uiElements.length; i++) {
-                this.uiElements[i].AddOperations();
+                this.uiElements[i].AddOperations(delta);
             }
 
             let tempUIElements = this.uiElements;

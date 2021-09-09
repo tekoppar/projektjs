@@ -13,6 +13,14 @@ class CMath {
         return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
     }
 
+    static RandomFloat(min, max) {
+        return Math.random() * (max - min) + min; //The maximum is exclusive and the minimum is inclusive
+    }
+
+    static Clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+    }
+
     static LineSlope(a, b) {
         let x = Math.abs(a.y - b.y);
         let y =  Math.abs(a.x - b.x)

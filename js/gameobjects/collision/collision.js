@@ -231,10 +231,12 @@ class CollisionHandler {
     }
 
     GetInRange(collision, range) {
-        let inRange = [];
-        for (let i = 0; i < this.Collisions.length; i++) {
-            if (this.Collisions[i].collisionOwner !== undefined && collision.collisionOwner !== this.Collisions[i].collisionOwner && collision.CheckInCenterRangeB(this.Collisions[i], range) === true) {
-                inRange.push(this.Collisions[i].collisionOwner);
+        let inRange = [],
+            quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox());
+
+        for (let i = 0; i < quadOverlaps.length; i++) {
+            if (quadOverlaps[i].collisionOwner !== undefined && collision.collisionOwner !== quadOverlaps[i].collisionOwner && collision.CheckInRealRange(quadOverlaps[i], range) === true && inRange.indexOf(quadOverlaps[i].collisionOwner) === -1) {
+                inRange.push(quadOverlaps[i].collisionOwner);
             }
         }
 
@@ -242,16 +244,50 @@ class CollisionHandler {
     }
 
     GetOverlap(collision) {
-        let quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox());
+        let quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox()),
+            overlaps = [],
+            overlapsRange = [];
 
+        let realPos = collision.GetRealCenterPosition();
         for (let i = 0; i < quadOverlaps.length; i++) {
             if (collision.DoIntersect(quadOverlaps[i], true) === true && collision.collisionOwner !== quadOverlaps[i].collisionOwner && quadOverlaps[i].overlapEvents === true) {
-                return quadOverlaps[i];
+                overlaps.push(quadOverlaps[i]);
+                overlapsRange.push({ d: realPos.Distance(quadOverlaps[i].GetRealCenterPosition()), i: overlapsRange.length });
             }
         }
 
-        quadOverlaps = null;
-        return false;
+        if (overlapsRange.length > 0 && overlaps.length > 0) {
+            overlapsRange.sort((a, b) => a.d - b.d);
+            return overlaps[overlapsRange[0].i];
+        } else {
+            quadOverlaps = null;
+            return false;
+        }
+    }
+
+    GetOverlapByClass(collision, className) {
+        let quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox()),
+            overlaps = [],
+            overlapsRange = [];
+
+        let realPos = collision.collisionOwner.GetPosition();
+        for (let i = 0; i < quadOverlaps.length; i++) {
+            if (quadOverlaps[i].collisionOwner !== undefined) {
+                let objPrototype = Object.getPrototypeOf(quadOverlaps[i].collisionOwner);
+                if (objPrototype.constructor.name === className && collision.DoOverlap(quadOverlaps[i], true) === true && collision.collisionOwner !== quadOverlaps[i].collisionOwner && quadOverlaps[i].enableCollision === false && quadOverlaps[i].overlapEvents === true) {
+                    overlaps.push(quadOverlaps[i]);
+                    overlapsRange.push({ d: realPos.Distance(quadOverlaps[i].GetRealCenterPosition()), i: overlapsRange.length });
+                }
+            }
+        }
+
+        if (overlapsRange.length > 0 && overlaps.length > 0) {
+            overlapsRange.sort((a, b) => a.d - b.d);
+            return overlaps[overlapsRange[0].i];
+        } else {
+            quadOverlaps = null;
+            return false;
+        }
     }
 
     GetOverlaps(collision, debugDraw = false, OverlapCheckType = DefaultOverlapCheck) {
@@ -383,7 +419,7 @@ class Collision {
 
     DoOverlap(b, overlap = false) {
         if (this.enableCollision === true || overlap == true) {
-            if (b.boundingBox === null)
+            if (b === undefined || b.boundingBox === null)
                 return false;
 
             let ABB = this.GetBoundingBox(),

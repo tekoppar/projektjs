@@ -1,7 +1,3 @@
-//import { CAnimation, AnimationType } from './animations.js';
-/* import { CAnimation, AnimationType } from '../animations/animations.js';
-import { Vector2D } from '../classes/vectors.js'; */
-
 import { CAnimation, AnimationType, Vector2D } from '../internal.js';
 
 export let femaleAnimations = {

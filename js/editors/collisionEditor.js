@@ -1,7 +1,13 @@
 /* import { CanvasDrawer } from '../drawers/canvas/customDrawer.js';
 import { Vector2D } from '../classes/vectors.js'; */
 
-import { CanvasDrawer, Vector2D } from '../internal.js';
+import { CanvasDrawer, Vector2D, AllCollisions } from '../internal.js';
+
+let CollisionEditorToolEnum = {
+    None: 0,
+    Drawing: 1,
+    Moving: 2,
+}
 
 class CollisionEditor {
     static GCEditor;
@@ -15,9 +21,12 @@ class CollisionEditor {
         this.SetupHTML();
         this.gridSize = 32;
         this.isDrawing = false;
+        this.isMoving = false;
         this.collisionPositions = [];
+        this.selectedPixel = undefined;
         this.positionMap = {};
         this.copyCollision;
+        this.collisionEditorTool = CollisionEditorToolEnum.None;
     }
 
     SetupHTML() {
@@ -60,8 +69,8 @@ class CollisionEditor {
         this.container.setAttribute('height', spriteSize.y * 4);
         this.gridHTML.style.backgroundSize = this.canvas.width / spriteSize.x + 'px ' + this.canvas.height / spriteSize.y + 'px';
         this.gridSize = new Vector2D(this.canvas.width / spriteSize.x, this.canvas.height / spriteSize.y);
-        this.collisionPositions = new Array(spriteSize.x * spriteSize.y);
-        this.collisionPositions.fill(null, 0, spriteSize.x * spriteSize.y);
+        //this.collisionPositions = new Array(spriteSize.x * spriteSize.y);
+        //this.collisionPositions.fill(null, 0, spriteSize.x * spriteSize.y);
     }
 
     DrawSprite() {
@@ -69,6 +78,15 @@ class CollisionEditor {
             let ctx = this.canvas.getContext('2d');
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             ctx.drawImage(CanvasDrawer.GCD.canvasAtlases[this.sprite.atlas].canvas, this.sprite.GetPosX(), this.sprite.GetPosY(), this.sprite.size.x, this.sprite.size.y, 0, 0, this.canvas.width, this.canvas.height);
+
+            if (AllCollisions[this.sprite.atlas] !== undefined) {
+                for (let i = 0; i < AllCollisions[this.sprite.atlas].length; i++) {
+                    let pos = AllCollisions[this.sprite.atlas][i].Clone();
+                    pos.Mult(this.gridSize);
+                    this.AddCollisionPixels(pos);
+                }
+            }
+            this.DrawCollisionPixel();
         }
     }
 
@@ -90,12 +108,14 @@ class CollisionEditor {
         let first = false;
         for (let position of this.collisionPositions) {
             if (position !== null && position !== undefined) {
+                ctx.globalAlpha = 0.3;
                 if (first === false) {
                     ctx.moveTo(position.x, position.y);
                     first = true;
                 }
                 ctx.lineTo(position.x, position.y);
 
+                ctx.globalAlpha = 1.0;
                 ctx.fillRect(position.x, position.y, this.gridSize.x, this.gridSize.y);
             }
         }
@@ -120,9 +140,20 @@ class CollisionEditor {
         if (sprite !== undefined) {
             this.container.style.visibility = 'visible';
             this.sprite = sprite;
+            this.collisionPositions = [];
+            this.positionMap = {};
             this.SetGridSize(this.sprite.size);
             this.DrawSprite();
         }
+    }
+
+    PixelExists(position) {
+        for (let i = 0; i < this.collisionPositions.length; i++) {
+            if (this.collisionPositions[i].x - 5 <= position.x && position.x <= this.collisionPositions[i].x + 5 && this.collisionPositions[i].y - 5 <= position.y && position.y <= this.collisionPositions[i].y + 5)
+                return i;
+        }
+
+        return false;
     }
 
     LogPoints() {
@@ -146,17 +177,38 @@ class CollisionEditor {
                 if (this.isDrawing === true) {
                     this.AddCollisionPixels(new Vector2D(e.layerX, e.layerY));
                     this.DrawCollisionPixel();
+                } else if (this.isMoving === true) {
+                    delete this.collisionPositions[this.selectedPixel].x + '-' + this.collisionPositions[this.selectedPixel].y;
+                    this.positionMap[mousePosition.x + '-' + mousePosition.y] = this.selectedPixel;
+                    this.collisionPositions[this.selectedPixel].x = mousePosition.x;
+                    this.collisionPositions[this.selectedPixel].y = mousePosition.y;
+                    this.DrawCollisionPixel();
                 }
                 break;
 
             case 'mousedown':
-                this.isDrawing = true;
-                this.AddCollisionPixels(new Vector2D(e.layerX, e.layerY));
-                this.DrawCollisionPixel();
+                let position = new Vector2D(e.layerX, e.layerY);
+
+                switch (this.collisionEditorTool) {
+                    case CollisionEditorToolEnum.Moving:
+                        if (this.PixelExists(position) !== false) {
+                            this.selectedPixel = this.PixelExists(position);
+                            this.isMoving = true;
+                        }
+                        break;
+
+                    case CollisionEditorToolEnum.Drawing:
+                        this.isDrawing = true;
+                        this.AddCollisionPixels(position);
+                        this.DrawCollisionPixel();
+                        break;
+                }
                 break;
 
             case 'mouseup':
                 this.isDrawing = false;
+                this.isMoving = false;
+                this.selectedPixel = undefined;
                 this.DrawCollisionPixel();
                 break;
 
@@ -165,6 +217,10 @@ class CollisionEditor {
                     this.LogPoints();
                 else if (e.target.id === 'collision-editor-close')
                     this.container.style.visibility = 'collapse';
+                else if (e.target.id === 'collision-editor-draw')
+                    this.collisionEditorTool = CollisionEditorToolEnum.Drawing;
+                else if (e.target.id === 'collision-editor-move')
+                    this.collisionEditorTool = CollisionEditorToolEnum.Moving;
                 break;
 
         }

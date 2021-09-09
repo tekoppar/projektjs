@@ -1,3 +1,5 @@
+import { ToggleObjectsHasBeenInitialized } from "../internalVariables.js";
+
 class Vector2D {
     constructor(x, y) {
         this.x = Number(x);
@@ -537,6 +539,11 @@ class Rectangle {
     }
 
     GetIntersection(a) {
+        /*let xVals = [this.x, this.x + this.w, a.x, a.x + a.w],
+            yVals = [this.y, this.y + this.h, a.y, a.y + a.h];
+
+        return new Rectangle(xVals[1], yVals[1], xVals[2] - xVals[1], yVals[2] - yVals[1]);*/
+
         let insideCorners = this.GetOverlappingCorners(a);
 
         if (insideCorners.length === 0)
@@ -602,12 +609,28 @@ class Rectangle {
         return undefined;
     }
 
+    Set(a) {
+        this.x = a.x;
+        this.y = a.y;
+        this.w = a.w;
+        this.h = a.h;
+    }
+
     Equal(a) {
         return this.x == a.x && this.y == a.y && this.w == a.w && this.h == a.h;
     }
 
     Clone() {
         return new Rectangle(this.x, this.y, this.w, this.h);
+    }
+
+    toJSON() {
+        return {
+            x: this.x,
+            y: this.y,
+            w: this.w,
+            h: this.h
+        };
     }
 }
 

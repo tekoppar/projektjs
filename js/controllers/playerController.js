@@ -1,21 +1,13 @@
-/* import { Vector2D } from '../classes/vectors.js';
-import { CustomEventHandler } from '../eventHandlers/customEvents.js';
-import { Hoe, Shovel, Axe } from '../gameobjects/items/item.js';
-import { Seed } from '../gameobjects/props/plants/plantitem.js';
-import { Controller } from './controller.js';
-import { Camera } from './camera.js';
-import { CanvasDrawer } from '../drawers/canvas/customDrawer.js';
-import { Minimap } from '../drawers/minimap.js'; */
-
-import { Vector2D, CustomEventHandler, Hoe, Shovel, Axe, Seed, Controller, Camera, CanvasDrawer, Minimap } from '../internal.js';
+import { Vector2D, Hoe, Shovel, Axe, Seed, Controller, Camera, CanvasDrawer, Minimap, Pickaxe, Crafting } from '../internal.js';
 
 class PlayerController extends Controller {
     constructor(player) {
         super();
         this.playerCharacter = player;
+        this.crafting = new Crafting();
         this.playerCamera = new Camera(this, new Vector2D(CanvasDrawer.GCD.mainCanvas.width, CanvasDrawer.GCD.mainCanvas.height));
         this.minimap = new Minimap(player);
-        this.mouseToAtlasRectMap = { };
+        this.mouseToAtlasRectMap = {};
         this.mousePosition = new Vector2D(0, 0);
     }
 
@@ -34,8 +26,11 @@ class PlayerController extends Controller {
         this.playerCharacter.inventory.AddItem(new Shovel('shovel', 0));
         this.playerCharacter.inventory.AddItem(new Hoe('hoe', 0));
         this.playerCharacter.inventory.AddItem(new Axe('axe', 0));
+        this.playerCharacter.inventory.AddItem(new Pickaxe('pickaxe', 0));
         this.playerCharacter.inventory.AddItem(new Seed('cornSeed', 1));
         this.playerCharacter.inventory.AddMoney(5000);
+        this.crafting.characterOwner = this.playerCharacter;
+        this.crafting.SetupCrafting();
 
         window.addEventListener('mousemove', this);
     }
@@ -104,13 +99,15 @@ class PlayerController extends Controller {
     handleEvent(e) {
         switch (e.type) {
             case 'mousemove':
-                let objPos = this.MouseToScreen(e);
-                this.mousePosition.x = objPos.x;
-                this.mousePosition.y = objPos.y;
+                if (e.target.getBoundingClientRect !== undefined) {
+                    let objPos = this.MouseToScreen(e);
+                    this.mousePosition.x = objPos.x;
+                    this.mousePosition.y = objPos.y;
 
-                let temp = this.playerCharacter.BoxCollision.GetCenterPosition();
-                temp.SnapToGrid(32);
-                CanvasDrawer.GCD.UpdateTilePreview(temp, this.mousePosition.Clone());
+                    let temp = this.playerCharacter.BoxCollision.GetCenterPosition();
+                    temp.SnapToGrid(32);
+                    CanvasDrawer.GCD.UpdateTilePreview(temp, this.mousePosition.Clone());
+                }
                 break;
         }
     }

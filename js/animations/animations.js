@@ -15,6 +15,10 @@ class CFrame {
         this.w = w;
         this.h = h;
     }
+
+    Clone() {
+        return new CFrame(this.x, this.y, this.w, this.h);
+    }
 }
 
 class TileOffset {

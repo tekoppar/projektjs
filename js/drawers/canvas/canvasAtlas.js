@@ -2,7 +2,7 @@
 import { Tile } from '../tiles/tile.js';
 import { correctMouse } from '../canvas/customDrawer.js'; */
 
-import { Vector2D, Tile, correctMouse } from '../../internal.js';
+import { Vector2D, Tile, TileType, TileTerrain, correctMouse } from '../../internal.js';
 
 class CanvasAtlas {
     constructor(CanvasDrawer, url, width = 0, height = 0, atlasSize = 32, name = 'default') {
@@ -105,6 +105,21 @@ class CanvasAtlas {
 class CanvasAtlasObject extends CanvasAtlas {
     constructor(CanvasDrawer, url, width = 0, height = 0, atlasSize = 32, name = 'default') {
         super(CanvasDrawer, url, width, height, atlasSize, name);
+    }
+
+    SetSelection(position) {
+        this.CanvasDrawer.SetSelection(
+            new Tile(
+                position,
+                new Vector2D(0, 0),
+                new Vector2D(this.width, this.height),
+                false,
+                this.name,
+                0,
+                TileType.Prop,
+                TileTerrain.Ground
+            )
+        );
     }
 
     handleEvent(e) {

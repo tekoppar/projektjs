@@ -1,4 +1,4 @@
-import { Cobject, MasterObject, Item, InputHandler } from '../internal.js';
+import { Cobject, MasterObject, Item, InputHandler, UsableItem, ItemStats } from '../internal.js';
 //import { Cobject } from '../classes/baseClasses/object.js';
 //import { MasterObject } from '../classes/masterObject.js';
 //import { Item } from '../gameobjects/items/item.js';
@@ -32,6 +32,7 @@ class GameToolbar extends Cobject {
         if (this.didToolbarChange === true) {
             this.DisplayToolbar();
         }
+        this.UpdateProgressbars();
 
         super.FixedUpdate();
     }
@@ -79,6 +80,18 @@ class GameToolbar extends Cobject {
             this.activeToolbar.classList.remove('toolbar-item-active');
     }
 
+    UpdateProgressbars() {
+        let keys = Object.keys(this.toolbarItems);
+        for (let i = 0; i < keys.length; i++) {
+            let item = this.toolbarItems[keys[i]];
+            let div = this.toolbar.children[keys[i]].querySelector('div.toolbar-item-sprite');
+
+            if (div.parentNode.querySelector('div.progress-bar-mini') !== null) {
+                div.parentNode.querySelector('div.progress-bar-progress-mini').style.width = (item.durability / ItemStats[item.name].durability) * 100 + '%';
+            }
+        }
+    }
+
     DisplayToolbar() {
         let keys = Object.keys(this.toolbarItems);
         for (let i = 0; i < keys.length; i++) {
@@ -87,6 +100,15 @@ class GameToolbar extends Cobject {
             div.style.backgroundPosition = '-' + (item.sprite.x * item.sprite.z) * 1.35 + 'px -' + (item.sprite.y * item.sprite.a) * 1.5 + 'px';
             div.style.backgroundSize = item.atlas.x * 1.35 + 'px ' + item.atlas.y * 1.5 + 'px';
             div.style.backgroundImage = 'url(' + item.url + ')';
+            
+            if (item instanceof UsableItem && div.parentNode.querySelector('div.rogress-bar-mini') === null) {
+                let clone = document.getElementById('template-progress-bar').content.cloneNode(true);
+                clone.id = 'toolbar-item-progress-bar-' + i;
+                clone.children[0].style.position = 'absolute';
+                clone.children[0].style.top = '100%';
+                clone.querySelector('div.progress-bar-progress-mini').style.width = (item.durability / ItemStats[item.name].durability) * 100 + '%';
+                div.parentNode.appendChild(clone);
+            }
         }
 
         this.didToolbarChange = false;

@@ -70,6 +70,38 @@ class TileMaker {
         return null;
     }
 
+    static CanvasPortionToImage2(tile) {
+        if (CanvasDrawer.GCD.canvasAtlases[tile.atlas] !== undefined) {
+            let canvas = CanvasDrawer.GCD.canvasAtlases[tile.atlas].canvas;
+            let tempCanvas = document.createElement('canvas');
+            tempCanvas.width = tile.size.x;
+            tempCanvas.height = tile.size.y;
+
+            tempCanvas.getContext('2d').drawImage(canvas, tile.GetPosX(), tile.GetPosY(), tile.size.x, tile.size.y, 0, 0, tile.size.x, tile.size.y);
+
+            let newImage = new Image(tile.size.x, tile.size.y);
+            newImage.src = tempCanvas.toDataURL('image/png');
+            tempCanvas.remove();
+
+            return newImage;
+        }
+        return null;
+    }
+
+    static ResizeImage(image, size) {
+        let tempCanvas = document.createElement('canvas');
+        tempCanvas.width = size.x;
+        tempCanvas.height = size.y;
+
+        tempCanvas.getContext('2d').drawImage(image, 0, 0, image.width, image.height, 0, 0, size.x, size.y);
+
+        let newImage = new Image(size.x, size.y);
+        newImage.src = tempCanvas.toDataURL('image/png');
+        tempCanvas.remove();
+
+        return newImage;
+    }
+
     static GenerateCustomTiles() {
         TileMaker.CustomTiles = {
             seedStand: {
@@ -335,6 +367,45 @@ class TileMaker {
                 tileLayout: [
                     [0, 1, 2],
                     [3, 4, 5]
+                ]
+            },
+            rockStone1: {
+                name: 'rockStone1',
+                tiles: [
+                    new Tile(new Vector2D(0, 0,), new Vector2D(18, 12), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                    new Tile(new Vector2D(0, 0,), new Vector2D(19, 12), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                    new Tile(new Vector2D(0, 0,), new Vector2D(18, 13), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                    new Tile(new Vector2D(0, 0,), new Vector2D(19, 13), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                ],
+                tileLayout: [
+                    [0, 1],
+                    [2, 3]
+                ]
+            },
+            rockStone2: {
+                name: 'rockStone2',
+                tiles: [
+                    new Tile(new Vector2D(0, 0,), new Vector2D(27, 23), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                    new Tile(new Vector2D(0, 0,), new Vector2D(28, 23), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                    new Tile(new Vector2D(0, 0,), new Vector2D(27, 24), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                    new Tile(new Vector2D(0, 0,), new Vector2D(28, 24), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                ],
+                tileLayout: [
+                    [0, 1],
+                    [2, 3]
+                ]
+            },
+            rockStone3: {
+                name: 'rockStone3',
+                tiles: [
+                    new Tile(new Vector2D(0, 0,), new Vector2D(27, 26), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                    new Tile(new Vector2D(0, 0,), new Vector2D(28, 26), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                    new Tile(new Vector2D(0, 0,), new Vector2D(27, 27), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                    new Tile(new Vector2D(0, 0,), new Vector2D(28, 27), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Rock),
+                ],
+                tileLayout: [
+                    [0, 1],
+                    [2, 3]
                 ]
             },
         };

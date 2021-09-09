@@ -1,14 +1,14 @@
 class UIElement {
     constructor(lifeTime = 1) {
         this.drawingOperations = [];
-        this.lifeTime = lifeTime * 60;
+        this.lifeTime = lifeTime;
     }
 
-    AddOperations() {
+    AddOperations(delta) {
         for (let i = 0; i < this.drawingOperations.length; i++) {
             this.drawingOperations[i].Update();
         }
-        this.lifeTime--;
+        this.lifeTime -= delta;
     }
 
     RemoveUI() {

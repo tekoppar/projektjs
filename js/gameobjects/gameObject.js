@@ -1,11 +1,3 @@
-/* import { Vector2D, Vector4D } from '../classes/vectors.js';
-import { Cobject } from '../classes/baseClasses/object.js';
-import { BoxCollision, CollisionHandler, PolygonCollision } from './collision/collision.js';
-import { CanvasDrawer } from '../drawers/canvas/customDrawer.js';
-import { DrawingOperation, OperationType } from '../drawers/canvas/operation.js';
-import { MasterObject } from '../classes/masterObject.js';
-import { Tile } from '../drawers/tiles/tile.js'; */
-
 import { Vector2D, Cobject, CMath, BoxCollision, CollisionHandler, PolygonCollision, CanvasDrawer, DrawingOperation, OperationType, ObjectsHasBeenInitialized, Tile, Rectangle } from '../internal.js'
 
 class Pawn extends Cobject {
@@ -23,17 +15,19 @@ class Pawn extends Cobject {
     }
 
     Delete() {
-        if (this.BoxCollision !== undefined)
-            this.BoxCollision.Delete();
-
         super.Delete();
         this.canvas = undefined;
-        this.BoxCollision = undefined;
 
         if (this.drawingOperation !== undefined) {
+            CanvasDrawer.GCD.AddClearOperation(this.drawingOperation.drawingCanvas, this.BoxCollision.GetBoundingBox().Clone());
             this.drawingOperation.shouldDelete = true;
             this.drawingOperation = undefined;
         }
+
+        if (this.BoxCollision !== undefined)
+            this.BoxCollision.Delete();
+
+        this.BoxCollision = undefined;
     }
 
     GameBegin() {
@@ -50,25 +44,6 @@ class Pawn extends Cobject {
     NeedsRedraw(position) {
         if (this.drawingOperation !== undefined && this.drawingOperation.DrawState() === false) {
             this.FlagDrawingUpdate(position);
-            /*let overlaps = CollisionHandler.GCH.GetOverlaps(this.BoxCollision, false, { Intersect: false, Overlaps: true, Inside: false });
-
-            for (let i = 0; i < overlaps.length; i++) {
-                if (overlaps[i].collisionOwner !== undefined && overlaps[i].collisionOwner !== null && overlaps[i].collisionOwner !== false && overlaps[i].collisionOwner.drawingOperation !== undefined) {
-                    let rectA = this.BoxCollision.GetBoundingBox().Clone(),
-                        rectB = overlaps[i].GetBoundingBox().Clone();
-
-                    if (rectA !== undefined && rectB !== undefined) {
-                        let intersection = rectA.GetIntersection(rectB);
-
-                        if (intersection !== undefined) {
-                            //overlaps[i].collisionOwner.drawingOperation.AddUpdateRect(intersection);
-                            //CanvasDrawer.GCD.AddDebugRectOperation(intersection, 0.1, CMath.CSS_COLOR_NAMES[20]);
-                        }
-                    }
-
-                    //overlaps[i].collisionOwner.FlagDrawingUpdate(overlaps[i].collisionOwner.GetPosition());
-                }
-            }*/
         }
     }
 
@@ -199,44 +174,6 @@ class GameObject extends Pawn {
     CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.GameObject) {
         super.CreateDrawOperation(frame, position, clear, canvas, operationType);
     }
-
-    CreateDrawOperations(frames, position, clear, canvas, operationType = OperationType.GameObject, tileOffsets = [new Vector2D(0, 0)]) {
-        if (this.drawingOperations.length < 1) {
-            for (let i = 0; i < frames.length; i++) {
-                this.drawingOperations.push(
-                    new DrawingOperation(
-                        new Tile(
-                            position,
-                            new Vector2D(frames[i].x, frames[i].y),
-                            new Vector2D(frames[i].w, frames[i].h),
-                            clear,
-                            this.canvasName,
-                            this.drawIndex
-                        ),
-                        CanvasDrawer.GCD.frameBuffer,//document.getElementById('sprite-objects-canvas'),
-                        canvas
-                    )
-                );
-            }
-            CanvasDrawer.GCD.AddDrawOperations(this.drawingOperations, operationType);
-        } else {
-            for (let i = 0; i < frames.length; i++) {
-                this.drawingOperations[i].tile.position = position;
-
-                if (frames[i] !== undefined && frames[i] !== null) {
-                    this.drawingOperations[i].tile.tilePosition = new Vector2D(frames[i].x, frames[i].y);
-                    this.drawingOperations[i].tile.size = new Vector2D(frames[i].w, frames[i].h);
-                }
-                this.drawingOperations[i].tile.clear = clear;
-                this.drawingOperations[i].tile.atlas = this.canvasName;
-                this.drawingOperations[i].tile.drawIndex = this.drawIndex;
-                this.drawingOperations[i].targetCanvas = canvas;
-                this.drawingOperations[i].Update();
-            }
-        }
-
-        this.NeedsRedraw(this.GetPosition());
-    }
 }
 
 class Shadow extends Pawn {
@@ -278,7 +215,7 @@ class Shadow extends Pawn {
 
             this.BoxCollision.UpdateCollision();
         }
-
+    
         this.CreateDrawOperation({ x: 0, y: 0, w: this.size.x, h: this.size.y }, new Vector2D(this.position.x - this.size.x / 2, this.position.y - this.size.y / 2), true, this.canvas, OperationType.shadow);
         this.drawingOperation.collisionSize = new Vector2D(this.size.x, 1);
     }

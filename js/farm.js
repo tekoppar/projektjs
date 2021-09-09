@@ -27,6 +27,18 @@ Object.defineProperty(Array.prototype, 'CloneObjects', {
     }
 });
 
+Object.defineProperty(String.prototype, 'hashCode', {
+    value: function () {
+        var hash = 0, i, chr;
+        for (i = 0; i < this.length; i++) {
+            chr = this.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash |= 0; // Convert to 32bit integer
+        }
+        return hash;
+    }
+});
+
 Object.defineProperty(String.prototype, 'chopLeft', {
     value() {
         return this.slice(1, this.length);
@@ -89,6 +101,7 @@ PageFetcher.GPF.AddRequest(includeTemplates, '/html/inventory.html');
 PageFetcher.GPF.AddRequest(includeTemplates, '/html/tileLUTEditor.html');
 PageFetcher.GPF.AddRequest(includeGUI, '/html/collisionEditor.html');
 PageFetcher.GPF.AddRequest(includeGUI, '/html/propEditor.html');
+PageFetcher.GPF.AddRequest(includeTemplates, '/html/craftingWindow.html');
 
 window.onload = function () {
     window.requestAnimationFrame(() => MasterObject.MO.GameStart());

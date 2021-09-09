@@ -32,32 +32,32 @@
         background-size: 100% 7px;
         flex-basis: auto;
         position: relative;
-        margin-left:7px;
-        margin-right:7px;
-        height:max-content;
+        margin-left: 7px;
+        margin-right: 7px;
+        height: max-content;
         min-height: 7px;
     }
 
     .panel-topmiddle::before {
-        content:'';
-        width:7px;
-        height:7px;
-        display:block;
+        content: '';
+        width: 7px;
+        height: 7px;
+        display: block;
         position: absolute;
         background-image: url(/content/sprites/ui/panel/panel_topleft.png);
-        left:-7px;
-        background-size:7px 7px;
+        left: -7px;
+        background-size: 7px 7px;
     }
 
     .panel-topmiddle::after {
-        content:'';
-        width:7px;
-        height:7px;
-        display:block;
+        content: '';
+        width: 7px;
+        height: 7px;
+        display: block;
         position: absolute;
         background-image: url(/content/sprites/ui/panel/panel_topright.png);
-        right:-7px;
-        background-size:7px 7px;
+        right: -7px;
+        background-size: 7px 7px;
     }
 
     .panel-middle {
@@ -67,10 +67,10 @@
         background-size: 100% 100%;
         flex-basis: auto;
         position: relative;
-        margin-left:7px;
-        margin-right:7px;
-        height:calc(100% - 14px);
-        min-height:calc(100% - 14px);
+        margin-left: 7px;
+        margin-right: 7px;
+        height: calc(100% - 14px);
+        min-height: calc(100% - 14px);
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
@@ -78,27 +78,27 @@
     }
 
     .panel-middle::before {
-        content:'';
-        width:7px;
-        height:100%;
-        min-height:100%;
-        display:block;
+        content: '';
+        width: 7px;
+        height: 100%;
+        min-height: 100%;
+        display: block;
         position: absolute;
         background-image: url(/content/sprites/ui/panel/panel_middleleft.png);
-        left:-7px;
-        background-size:7px 100%;
+        left: -7px;
+        background-size: 7px 100%;
     }
 
     .panel-middle::after {
-        content:'';
-        width:7px;
-        height:100%;
-        min-height:100%;
-        display:block;
+        content: '';
+        width: 7px;
+        height: 100%;
+        min-height: 100%;
+        display: block;
         position: absolute;
         background-image: url(/content/sprites/ui/panel/panel_middleright.png);
-        right:-7px;
-        background-size:7px 100%;
+        right: -7px;
+        background-size: 7px 100%;
     }
 
     .panel-bottommiddle {
@@ -108,32 +108,32 @@
         background-size: 100% 7px;
         flex-basis: auto;
         position: relative;
-        margin-left:7px;
-        margin-right:7px;
-        height:max-content;
+        margin-left: 7px;
+        margin-right: 7px;
+        height: max-content;
         min-height: 7px;
     }
 
     .panel-bottommiddle::before {
-        content:'';
-        width:7px;
-        height:7px;
-        display:block;
+        content: '';
+        width: 7px;
+        height: 7px;
+        display: block;
         position: absolute;
         background-image: url(/content/sprites/ui/panel/panel_bottomleft.png);
-        left:-7px;
-        background-size:7px 7px;
+        left: -7px;
+        background-size: 7px 7px;
     }
 
     .panel-bottommiddle::after {
-        content:'';
-        width:7px;
-        height:7px;
-        display:block;
+        content: '';
+        width: 7px;
+        height: 7px;
+        display: block;
         position: absolute;
         background-image: url(/content/sprites/ui/panel/panel_bottomright.png);
-        right:-7px;
-        background-size:7px 7px;
+        right: -7px;
+        background-size: 7px 7px;
     }
 
     .inventory-item {
@@ -154,6 +154,24 @@
         align-items: center;
     }
 
+    .inventory-item-32 {
+        background-image: url(/content/sprites/ui/panel_slot.png);
+        background-position: 0 0;
+        background-size: 32px 32px;
+        background-repeat: no-repeat;
+        background-color: transparent;
+        min-width: 32px;
+        min-height: 32px;
+        width: 32px;
+        height: 32px;
+        margin: 0px;
+        padding: 0px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     .inventory-item:hover {
         cursor: pointer;
         filter: brightness(1.2);
@@ -165,9 +183,36 @@
         pointer-events: none;
     }
 
+    .inventory-item-sprite-32 {
+        width: 26px;
+        height: 26px;
+        pointer-events: none;
+    }
+
     .inventory-item-text {
         color: #f3c52f;
         font-size: 18px;
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: black;
+        position: absolute;
+        font-weight: 800;
+        bottom: 10%;
+        right: 20%;
+        pointer-events: none;
+        -webkit-user-select: none;
+        /* Safari */
+        -moz-user-select: none;
+        /* Firefox */
+        -ms-user-select: none;
+        /* IE10+/Edge */
+        user-select: none;
+        /* Standard */
+
+    }
+
+    .inventory-item-text-32 {
+        color: #f3c52f;
+        font-size: 14px;
         -webkit-text-stroke-width: 1px;
         -webkit-text-stroke-color: black;
         position: absolute;
@@ -230,11 +275,10 @@
         color: #f3c52f;
         margin-left: 24px;
         margin-right: 24px;
-        filter: brightness(0.8);
     }
 
     .button:hover {
-        filter: brightness(1.0);
+        filter: brightness(1.2);
         cursor: pointer;
     }
 
@@ -242,7 +286,7 @@
         content: '';
         position: absolute;
         background-image: url(/content/sprites/ui/buttonLeft.png);
-        background-size: cover;
+        background-size: 100% 100%;
         background-repeat: no-repeat;
         background-color: transparent;
         height: 100%;
@@ -254,7 +298,7 @@
         content: '';
         position: absolute;
         background-image: url(/content/sprites/ui/buttonRight.png);
-        background-size: cover;
+        background-size: 100% 100%;
         background-repeat: no-repeat;
         background-color: transparent;
         height: 100%;
@@ -276,9 +320,6 @@
         border: none;
         font-size: 24px;
         color: #f3c52f;
-        margin-left: 24px;
-        margin-right: 24px;
-        filter: brightness(0.8);
     }
 
     .input:hover {
@@ -290,23 +331,23 @@
         content: '';
         position: absolute;
         background-image: url(/content/sprites/ui/inputLeft.png);
-        background-size: cover;
+        background-size: 100% 100%;
         background-repeat: no-repeat;
         background-color: transparent;
         height: 100%;
-        width: 32px;
-        right: 100%;
+        width: 16px;
+        left: -16px;
     }
 
     .input::after {
         content: '';
         position: absolute;
         background-image: url(/content/sprites/ui/inputRight.png);
-        background-size: cover;
+        background-size: 100% 100%;
         background-repeat: no-repeat;
         background-color: transparent;
         height: 100%;
-        width: 32px;
+        width: 16px;
         left: 100%;
     }
 
@@ -335,7 +376,6 @@
         color: #f3c52f;
         margin-left: 24px;
         margin-right: 24px;
-        filter: brightness(0.8);
         width: max-content;
         justify-self: center;
     }
@@ -380,11 +420,11 @@
         visibility: hidden;
     }
 
-    .container-ui > .container-ui-horizontal {
+    .container-ui>.container-ui-horizontal {
         visibility: inherit;
     }
 
-    .container-ui > .container-ui {
+    .container-ui>.container-ui {
         visibility: inherit;
     }
 
@@ -424,17 +464,31 @@
         width: 100%;
         text-align: center;
     }
+
     .paragraph {
         color: #f3c52f;
         font-size: 14px;
         width: 100%;
         margin-bottom: 2px;
     }
+
+    .center-absolute {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+    }
 </style>
 <template id="inventory-panel-item">
     <div class="inventory-item">
         <div class="inventory-item-sprite"></div>
         <label class="inventory-item-text"></label>
+    </div>
+</template>
+<template id="inventory-panel-item-32">
+    <div class="inventory-item-32">
+        <div class="inventory-item-sprite-32"></div>
+        <label class="inventory-item-text-32"></label>
     </div>
 </template>
 <template id="inventory-panel">

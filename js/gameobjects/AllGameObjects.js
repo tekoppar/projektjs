@@ -1,14 +1,18 @@
-/* import { Vector2D, Vector4D } from "../classes/vectors.js";
-import { Tree } from "./props/tree.js";
-import { ExtendedProp } from "./props/props.js";
-import { CAnimation, AnimationType } from "../animations/animations.js"; */
-
-import { Vector2D, Vector4D, Tree, ExtendedProp, CAnimation, AnimationType } from '../internal.js';
+import { Vector2D, Vector4D, Tree, ExtendedProp, CAnimation, AnimationType, Rock, Rectangle } from '../internal.js';
 
 let Props = [
     new Tree('treeBirch', new Vector2D(12.5 * 32, 18 * 32), undefined, 'treeBirch1'),
-    new Tree('treeBirch', new Vector2D(25.5 * 32, 18 * 32), undefined, 'treeBirch2'),
-    new Tree('treePine', new Vector2D(15.5 * 32, 18 * 32), undefined, 'treePine1'),
+    new Tree('treeBirch', new Vector2D(45.5 * 32, 18 * 32), undefined, 'treeBirch2'),
+    new Tree('treePine', new Vector2D(17.5 * 32, 18 * 32), undefined, 'treePine1'),
+    new Tree('treePine', new Vector2D(23.5 * 32, 18 * 32), undefined, 'treePine2'),
+    new Tree('treePine', new Vector2D(28.5 * 32, 18 * 32), undefined, 'treePine1v2'),
+    new Tree('treePine', new Vector2D(33.5 * 32, 18 * 32), undefined, 'treePine2v2'),
+    new Tree('treePine', new Vector2D(37.5 * 32, 18 * 32), undefined, 'treePine3'),
+
+    new Rock('rockStone', new Vector2D(13.5 * 32, 11 * 32), undefined, 'rockStone1', 0, new Vector4D(64, 32, 0, 0), 'stonePiece', new Rectangle(13.5, 25, 64, 32)),
+    new Rock('rockStone', new Vector2D(15.5 * 32, 12 * 32), undefined, 'rockStone2', 0, new Vector4D(64, 32, 0, 0), 'stonePiece', new Rectangle(13.5, 25, 64, 32)),
+    new Rock('rockStone', new Vector2D(14.5 * 32, 11 * 32), undefined, 'rockStone3', 0, new Vector4D(64, 32, 0, 0), 'stonePiece', new Rectangle(13.5, 25, 64, 32)),
+
     new Tree('treePine', new Vector2D(57.5 * 32, 6 * 32), undefined, 'treePine1'),
     new Tree('treePine', new Vector2D(56.5 * 32, 9 * 32), undefined, 'treePine2'),
     new Tree('treePine', new Vector2D(58.5 * 32, 21 * 32), undefined, 'treePine2'),

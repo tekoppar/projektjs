@@ -1,11 +1,3 @@
-/*import { GameObject } from '../gameObject.js';
-import { Vector2D, Vector4D } from '../../classes/vectors.js';
-import { CanvasDrawer } from '../../drawers/canvas/customDrawer.js';
-import { OperationType } from '../../drawers/canvas/operation.js';
-import { PolygonCollision, BoxCollision } from '../collision/collision.js';
-import { Shadow } from '../gameObject.js';
-import { CAnimation } from '../../animations/animations.js';*/
-
 import { GameObject, Vector2D, Vector4D, CanvasDrawer, OperationType, PolygonCollision, BoxCollision, Shadow, CAnimation, Rectangle } from '../../internal.js';
 
 class Prop extends GameObject {
@@ -50,6 +42,7 @@ class Prop extends GameObject {
                 this.BoxCollision.boundingBox.h = frame.h;
 
                 this.CreateDrawOperation(frame, this.GetPosition(), true, this.canvas, OperationType.gameObjects);
+                this.drawingOperation.Update(this.GetPosition());
                 this.NeedsRedraw(this.BoxCollision.boundingBox);
                 this.BoxCollision.UpdateCollision();
 

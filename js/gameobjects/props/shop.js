@@ -234,7 +234,9 @@ class Shop extends Prop {
     CEvent(eventType, key, data) {
         switch (eventType) {
             case 'use':
-                if (this.BoxCollision.CheckInCenterRangeB(key.BoxCollision, 75.0) === true) {
+                CanvasDrawer.GCD.AddDebugOperation(this.BoxCollision.GetRealCenterPosition(), 5, 'orange');
+                CanvasDrawer.GCD.AddDebugOperation(key.BoxCollision.GetRealCenterPosition(), 5, 'purple');
+                if (this.BoxCollision.GetRealCenterPosition().CheckInRange(key.BoxCollision.GetRealCenterPosition().Clone(), 75.0) === true) {
                     this.ShowShop();
                     key.inventory.ShowInventory(!this.isVisible);
                     this.gameObjectUsing = this.isVisible === false ? key : undefined;

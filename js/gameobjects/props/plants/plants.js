@@ -1,10 +1,4 @@
-/* import { CMath } from '../../../classes/math/customMath.js';
-import { Prop } from '../props.js';
-import { Item } from '../../items/item.js';
-import { CanvasDrawer } from '../../../drawers/canvas/customDrawer.js';
-import { CanvasSprite } from '../../../drawers/canvas/canvasSprite.js'; */
-
-import { CMath, Prop, Item, CanvasDrawer, CanvasSprite } from '../../../internal.js'
+import { CMath, Prop, Item, CanvasDrawer, CanvasSprite, Rectangle, OperationType } from '../../../internal.js'
 
 class PlantData {
     constructor(growthSpeed, regrowthSpeed, gatherRange = { low: 1, high: 4 }, plantIcon = new CanvasSprite(29, 10, 32, 32, 'fruitsveggies', true)) {
@@ -70,6 +64,11 @@ class Plant extends Prop {
         this.growthSpeed
     }
 
+    GameBegin() {
+        super.GameBegin();
+        this.CreateDrawOperation(new Rectangle(this.GetPosition().x, this.GetPosition().y, this.currentAnimation.w, this.currentAnimation.h), this.GetPosition(), true, this.canvas, OperationType.gameObjects);
+    }
+
     PlayAnimation() {
         if (this.currentAnimation !== null && this.currentAnimation !== undefined) {
             if (this.animations !== null && this.animations.grow !== undefined && this.currentAnimation.name === 'picked' && this.currentAnimation.animationFinished === true) {
@@ -100,7 +99,7 @@ class Plant extends Prop {
             }
 
             let frame = this.currentAnimation.GetFrame();
-            this.CreateDrawOperation(frame, this.GetPosition(), true, this.canvas);
+            this.CreateDrawOperation(frame, new Rectangle(this.GetPosition().x, this.GetPosition().y, 32, 32), true, this.canvas);
             this.currentAnimation.SetSpeed(this.plantData.growthSpeed);
 
             CanvasDrawer.GCD.UIDrawer.DrawUIElement(this.plantData.plantIcon, '+' + gatherAmount, this.GetPosition());

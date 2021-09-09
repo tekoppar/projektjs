@@ -11,7 +11,8 @@ import { SelectedTileEditor } from '../tiles/selectedTiles.js';
 import { UIDrawer } from '../canvas/uielements/uiDrawer.js';
  */
 
-import { Vector2D, Tile, OverlapOICheck, OverlapOverlapsCheck, TileData, InputHandler, CollisionHandler, BoxCollision, PolygonCollision, Collision, worldTiles, Brush, BrushDrawState, brushTypes, RectOperation, TextOperation, DrawingOperation, OperationType, TileLUT, CanvasAtlas, SelectedTileEditor, UIDrawer, MasterObject, CMath, Rectangle } from '../../internal.js';
+import { Vector2D, Tile, OverlapOICheck, OverlapOverlapsCheck, ClearOperation, TileData, InputHandler, CollisionHandler, BoxCollision, PolygonCollision, Collision, worldTiles, Brush, BrushDrawState, brushTypes, RectOperation, TextOperation, DrawingOperation, OperationType, TileLUT, CanvasAtlas, SelectedTileEditor, UIDrawer, MasterObject, CMath, Rectangle } from '../../internal.js';
+import { UIElement } from './uielements/uiElement.js';
 
 let mouseToAtlasRectMap = {};
 function correctMouse(event) {
@@ -318,6 +319,7 @@ class CanvasDrawer {
 
         this.gameObjectDrawingOperations = [];
         this.gameObjectDrawingOperationsUpdate = [];
+        this.clearOperations = [];
         this.guiDrawingOperations = [];
 
         this.canvasAtlases = {};
@@ -462,6 +464,8 @@ class CanvasDrawer {
         this.hasLoadedAllImages["terrainoutside"] = false;
         this.LoadSpriteAtlas("/content/sprites/items/items1.png", 512, 512, 32, "items1");
         this.hasLoadedAllImages["items1"] = false;
+        this.LoadSpriteAtlas("/content/sprites/clouds-small.png", 224, 64, 32, "clouds");
+        this.hasLoadedAllImages["clouds"] = false;
     }
 
     AddAtlas(atlas, name) {
@@ -577,6 +581,11 @@ class CanvasDrawer {
     DrawGameObjectsLoop(delta) {
         this.gameObjectDrawingOperations.sort(sortDrawOperations);
 
+        for (let i = 0; i < this.clearOperations.length; i++) {
+            this.ClearCanvas(this.clearOperations[i]);
+        }
+        this.clearOperations = [];
+
         let keys = Object.keys(this.gameObjectDrawingOperations);
         for (let i = 0; i < keys.length; i++) {
             if (this.gameObjectDrawingOperations[keys[i]] instanceof DrawingOperation && this.gameObjectDrawingOperations[keys[i]].tile !== undefined && this.gameObjectDrawingOperations[keys[i]].DrawState() === true && this.gameObjectDrawingOperations[keys[i]].oldPosition !== undefined || this.gameObjectDrawingOperations[keys[i]].shouldDelete === true)
@@ -596,7 +605,7 @@ class CanvasDrawer {
                 i--;
             } else {
                 if (this.gameObjectDrawingOperations[i].tile !== undefined) {
-                    if (this.gameObjectDrawingOperations[i].DrawState() === true || this.gameObjectDrawingOperations[i].updateRects !== undefined) {
+                    if (this.gameObjectDrawingOperations[i].DrawState() === true && this.gameObjectDrawingOperations[i].shouldDelete === false || this.gameObjectDrawingOperations[i].updateRects !== undefined) {
                         this.DrawOnCanvas(this.gameObjectDrawingOperations[i]);
                     }
                 } else if (this.gameObjectDrawingOperations[i] instanceof TextOperation) {
@@ -609,8 +618,9 @@ class CanvasDrawer {
     }
 
     DrawGUILoop(delta) {
-        for (let operation of this.guiDrawingOperations)
-            this.ClearCanvas(operation);
+        this.UIDrawer.AddUIElements(delta);
+
+        this.gameGuiCanvasCtx.clearRect(0, 0, this.gameGuiCanvas.width, this.gameGuiCanvas.height);
 
         for (let i = 0; i < this.guiDrawingOperations.length; i++) {
             if (this.guiDrawingOperations[i].shouldDelete === true) {
@@ -676,6 +686,10 @@ class CanvasDrawer {
         //this.canvasSave.UpdateOperation(operations);
     }
 
+    AddClearOperation(drawingCanvas, rect) {
+        this.clearOperations.push(new ClearOperation(drawingCanvas, rect));
+    }
+
     ClearCanvasUpdateRects(drawingOperation) {
         if (drawingOperation.updateRects !== undefined) {
             for (let i = 0; i < drawingOperation.updateRects.length; i++) {
@@ -690,7 +704,6 @@ class CanvasDrawer {
                 return;
             }
         }
-
         drawingOperation.isVisible = false;
         let oldPosition = drawingOperation.GetPreviousPosition(),
             size = new Vector2D(0, 0);
@@ -712,6 +725,9 @@ class CanvasDrawer {
             size.Set(drawingOperation.GetSize());
             drawingOperation.drawingCanvas.getContext('2d').clearRect(oldPosition.x, oldPosition.y, size.x, size.y);
             drawingOperation.drawingCanvas.getContext('2d').clearRect(drawingOperation.position.x, drawingOperation.position.y, size.x, size.y);
+        } else if (drawingOperation instanceof ClearOperation) {
+            drawingOperation.drawingCanvas.getContext('2d').clearRect(drawingOperation.rectangle.x, drawingOperation.rectangle.y, drawingOperation.rectangle.w, drawingOperation.rectangle.h);
+            this.CheckClearOverlapping(new Vector2D(drawingOperation.rectangle.x, drawingOperation.rectangle.y), new Vector2D(drawingOperation.rectangle.w, drawingOperation.rectangle.h));
         }
     }
 
@@ -721,11 +737,11 @@ class CanvasDrawer {
 
         this.ClearBoxCollision.position = position;
         this.ClearBoxCollision.size = size;
-        this.ClearBoxCollision.position.Sub(8);
-        this.ClearBoxCollision.size.Add(16);
+        this.ClearBoxCollision.position.Sub(1);
+        this.ClearBoxCollision.size.Add(2);
         this.ClearBoxCollision.CalculateBoundingBox();
 
-        let overlaps = CollisionHandler.GCH.GetOverlaps(this.ClearBoxCollision, false, { Intersect: false, Overlaps: true, Inside: true });//new BoxCollision(position, this.BoxCollision.size, this.enableCollision, this));
+        let overlaps = CollisionHandler.GCH.GetOverlaps(this.ClearBoxCollision, false, OverlapOICheck);//new BoxCollision(position, this.BoxCollision.size, this.enableCollision, this));
 
         for (let overlap of overlaps) {
             if (overlap.collisionOwner !== undefined && overlap.collisionOwner !== null && overlap.collisionOwner.drawingOperation !== undefined && overlap.collisionOwner.drawingOperation !== null) {
@@ -740,12 +756,12 @@ class CanvasDrawer {
                     if (intersection !== undefined) {
                         overlap.collisionOwner.drawingOperation.AddUpdateRect(intersection);
                         this.gameObjectDrawingOperationsUpdate.push(overlap.collisionOwner.drawingOperation);
-                        //this.AddDebugRectOperation(intersection, 0.1, CMath.CSS_COLOR_NAMES[20]);
+                        //this.AddDebugRectOperation(intersection, 0.016, CMath.CSS_COLOR_NAMES[20]);
                     }
                 }
 
                 /*let secondaryOverlaps = CollisionHandler.GCH.GetOverlaps(overlap, true, {Intersect:false, Overlaps:true, Inside:false});
-
+    
                 for (let secondaryOverlap of secondaryOverlaps) {
                     if (secondaryOverlap.collisionOwner !== undefined && secondaryOverlap.collisionOwner !== null && secondaryOverlap.collisionOwner.drawingOperation !== undefined && secondaryOverlap.collisionOwner.drawingOperation !== null) {
                         secondaryOverlap.collisionOwner.FlagDrawingUpdate(secondaryOverlap.collisionOwner.position);

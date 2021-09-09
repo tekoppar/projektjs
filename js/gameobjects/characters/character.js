@@ -1,14 +1,3 @@
-/* import { GameObject } from '../gameObject.js';
-import { Inventory } from '../characters/inventory.js';
-import { Item } from '../items/item.js';
-import { Vector2D } from '../../classes/vectors.js';
-import { femaleAnimations } from '../../animations/AllAnimations.js';
-import { BoxCollision, CollisionHandler } from '../collision/collision.js';
-import { CustomEventHandler } from '../../eventHandlers/customEvents.js';
-import { CanvasDrawer } from '../../drawers/canvas/customDrawer.js';
-import { OperationType } from '../../drawers/canvas/operation.js';
-import { MasterObject } from '../../classes/masterObject.js'; */
-
 import { GameObject, Inventory, Rectangle, Vector2D, femaleAnimations, BoxCollision, CollisionHandler, CustomEventHandler, CanvasDrawer, OperationType, MasterObject } from '../../internal.js';
 
 const FacingDirection = {
@@ -20,7 +9,7 @@ const FacingDirection = {
 
 class CharacterAttachments extends GameObject {
     constructor(spriteSheet, name, drawIndex = 0) {
-        super(name, new Vector2D(0, 0), undefined, drawIndex);
+        super(name, new Vector2D(0, 0), false, drawIndex);
         this.spriteSheet = spriteSheet;
         this.currentAnimation = undefined;
         this.name = name;
@@ -67,6 +56,9 @@ class Character extends GameObject {
             let keys = Object.keys(this.attachments);
             for (let i = 0; i < keys.length; i++) {
                 this.attachments[keys[i]].ChangeAnimation(animation.Clone());
+                this.attachments[keys[i]].BoxCollision.CalculateBoundingBox();
+                this.attachments[keys[i]].BoxCollision.position = this.GetPosition();
+                this.attachments[keys[i]].size = this.attachments[keys[i]].BoxCollision.size = new Vector2D(animation.h, animation.w);
             }
         }
     }
@@ -90,14 +82,14 @@ class Character extends GameObject {
         if (this.drawingOperation !== undefined)
             this.FlagDrawingUpdate(position);
 
-        //if (this.shadowAttachment.drawingOperation !== undefined)
-            //this.shadowAttachment.FlagDrawingUpdate(position);
+        if (this.shadowAttachment.drawingOperation !== undefined)
+            this.shadowAttachment.FlagDrawingUpdate(position);
 
-        //let keys = Object.keys(this.attachments);
-        //for (let i = 0; i < keys.length; i++) {
-            //if (this.attachments[keys[i]].drawingOperation !== undefined)
-                //this.attachments[keys[i]].FlagDrawingUpdate(position);
-        //}
+        let keys = Object.keys(this.attachments);
+        for (let i = 0; i < keys.length; i++) {
+            if (this.attachments[keys[i]].drawingOperation !== undefined)
+                this.attachments[keys[i]].FlagDrawingUpdate(position);
+        }
     }
 
     PlayAnimation() {
@@ -257,7 +249,7 @@ class Character extends GameObject {
     }
 
     Interact() {
-        let overlaps = CollisionHandler.GCH.GetInRange(this.BoxCollision, 64);
+        let overlaps = CollisionHandler.GCH.GetInRange(this.BoxCollision, 100);
 
         for (let overlap of overlaps) {
             if (overlap.CEvent !== undefined)

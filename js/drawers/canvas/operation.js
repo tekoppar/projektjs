@@ -171,7 +171,7 @@ class DrawingOperation extends Operation {
     Update(position) {
         super.Update(position);
         this.tile.needsToBeRedrawn = true;
-        this.updateRects = undefined;
+        //this.updateRects = undefined;
     }
 
     UpdateDrawState(state) {
@@ -236,4 +236,11 @@ class DrawingOperation extends Operation {
     }
 }
 
-export { Operation, RectOperation, TextOperation, DrawingOperation, OperationType };
+class ClearOperation extends Operation {
+    constructor(drawingCanvas, rectangle, operationType = OperationType.gameObjects) {
+        super(drawingCanvas, operationType);
+        this.rectangle = rectangle;
+    }
+}
+
+export { Operation, RectOperation, TextOperation, DrawingOperation, OperationType, ClearOperation };

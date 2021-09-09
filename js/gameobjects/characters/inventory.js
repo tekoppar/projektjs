@@ -1,21 +1,16 @@
-/* import { Cobject } from '../../classes/baseClasses/object.js';
-import { Item, Shovel, Hoe } from '../items/item.js';
-import { InputHandler } from '../../eventHandlers/inputEvents.js';
-import { GameToolbar } from '../../gui/toolbar.js';
-import { GUI } from '../../gui/gui.js';
-import { CanvasDrawer } from '../../drawers/canvas/customDrawer.js';
-import { Vector2D, Vector4D } from '../../classes/vectors.js';
-import { ItemProp } from '../../gameobjects/props/itemprop.js';
-import { CAnimation, AnimationType } from '../../animations/animations.js';
-import { CMath } from '../../classes/math/customMath.js';
-import { MasterObject } from '../../classes/masterObject.js'; */
+import { Cobject, Item, Shovel, Hoe, InputHandler, GameToolbar, GUI, CanvasDrawer, Vector2D, Vector4D, ItemProp, CAnimation, AnimationType, CMath, MasterObject, ItemPrototypeList, Dictionary } from '../../internal.js';
 
-import { Cobject, Item, Shovel, Hoe, InputHandler, GameToolbar, GUI, CanvasDrawer, Vector2D, Vector4D, ItemProp, CAnimation, AnimationType, CMath, MasterObject } from '../../internal.js';
+class InventorySlot {
+    constructor(slot, item) {
+        this.slot = slot;
+        this.item = item;
+    }
+}
 
 class Inventory extends Cobject {
     constructor(owner) {
         super();
-        this.inventory = { };
+        this.inventory = {};
         this.characterOwner = owner;
         this.isVisible = false;
         this.inventoryHTML;
@@ -25,6 +20,7 @@ class Inventory extends Cobject {
         this.inventorySetupDone = false;
         this.selectedItem = undefined;
         this.moneyAmount = 0;
+        this.inventoryDictionary = new Dictionary('name');
     }
 
     SetupInventory() {
@@ -55,6 +51,22 @@ class Inventory extends Cobject {
         return this.moneyAmount !== 0 && this.moneyAmount >= amount;
     }
 
+    HasItemAmount(name, amount) {
+        let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
+        if (found !== undefined && found.HasAmount(amount)) {
+            return true;
+        } else
+            return false;
+    }
+
+    GetItemAmount(name) {
+        let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
+        if (found !== undefined) {
+            return found.GetAmount();
+        } else
+            return 0;
+    }
+
     SubtractMoney(amount) {
         this.moneyAmount -= amount;
 
@@ -70,48 +82,95 @@ class Inventory extends Cobject {
     }
 
     AddItem(item) {
-        if (this.inventory[item.name] !== undefined) {
-            this.inventory[item.name].AddAmount(Number(item.amount));
+        let found = this.inventoryDictionary.GetValueByProperty(item.name, 'name');
+        if (found !== undefined) {
+            if (found.isStackable === true) {
+                found.AddAmount(Number(item.amount));
+            } else {
+                this.inventoryDictionary.AddValue(item, 'UID');
+            }
         } else {
             item.inventory = this;
-            this.inventory[item.name] = item;
+            this.inventoryDictionary.AddValue(item, 'UID');
         }
+
         this.didInventoryChange = true;
     }
 
     AddNewItem(name, amount = 0) {
-        if (this.inventory[name] === undefined) {
-            let newItem = new Item(name, 0);
+        let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
+        if (found === undefined) {
+            let newItem = undefined;
+
+            if (ItemPrototypeList[name] !== undefined) {
+                newItem = new ItemPrototypeList[name](name, amount);
+            } else {
+                newItem = new Item(name, 0);
+            }
 
             if (newItem.isStackable === true)
                 newItem.AddAmount(1);
 
-            this.AddItem(newItem);
+            this.inventoryDictionary.AddValue(newItem, 'UID');
+        } else if (found !== undefined && found.isStackable === false) {
+            let newItem = undefined;
+
+            if (ItemPrototypeList[name] !== undefined) {
+                newItem = new ItemPrototypeList[name](name, amount);//, {name:{value:name}, amount:{value:amount}});
+            } else {
+                newItem = new Item(name, 0);
+            }
+
+            if (newItem.isStackable === true)
+                found.AddAmount(1);
+            else
+                this.inventoryDictionary.AddValue(newItem, 'UID');
+        } else if (found.isStackable === true) {
+            found.AddAmount(1);
         } else {
             this.inventory[name].AddAmount(1);
-            this.didInventoryChange = true;
+
         }
+
+        this.didInventoryChange = true;
+    }
+
+    RemoveAmount(name, amount) {
+        let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
+
+        if (found !== undefined) {
+            if (found.GetAmount() > 1)
+                found.RemoveAmount(Number(amount));
+            else {
+                this.inventoryDictionary.RemoveValue(this.inventoryDictionary.GetHashByProperty(found.UID, 'UID'));
+            }
+        }
+
+        this.didInventoryChange = true;
     }
 
     RemoveItem(item) {
-        if (this.inventory[item.name] !== undefined) {
-            if (this.inventory[item.name].GetAmount() > 1)
-                this.inventory[item.name].RemoveAmount(Number(item.amount));
+        if (this.inventoryDictionary.GetHashByProperty(item.UID, 'UID')) {
+            let found = this.inventoryDictionary.GetValueByProperty(item.UID, 'UID');
 
-            if (this.inventory[item.name].GetAmount() <= 1) {
-                delete this.inventory[item.name];
+            if (found.GetAmount() > 1) {
+                found.RemoveAmount(Number(item.amount));
+            } else {
+                this.inventoryDictionary.RemoveValue(this.inventoryDictionary.GetHashByProperty(item.UID, 'UID'));
                 GameToolbar.RemoveToolbarItem(item);
             }
-        } else {
-            delete this.inventory[item.name];
-            GameToolbar.RemoveToolbarItem(item);
         }
         this.didInventoryChange = true;
     }
 
     DropItem(item) {
-        if (this.inventory[item.name] !== undefined) {
-            delete this.inventory[item.name];
+        if (this.inventoryDictionary.GetHashByProperty(item.UID, 'UID')) {
+
+            let found = this.inventoryDictionary.GetHashByProperty(item.UID, 'UID');
+            if (found !== undefined)
+                this.inventoryDictionary.RemoveValue(found);
+
+            //delete this.inventory[item.name];
             GameToolbar.RemoveToolbarItem(item);
             this.didInventoryChange = true;
         }
@@ -120,27 +179,27 @@ class Inventory extends Cobject {
     DisplayInventory() {
         let keys = Object.keys(this.inventory);
         this.inventoryHTMLList.innerHTML = '';
-        for (let i = 0; i < keys.length; i++) {
+
+        for (let value of this.inventoryDictionary) {
             let template = document.getElementById('inventory-panel-item');
             let clone = template.content.cloneNode(true);
 
-            if (this.inventory[keys[i]] !== null) {
+            if (value !== null) {
 
                 let div = clone.querySelector('div.inventory-item-sprite');
-                div.style.backgroundPosition = '-' + (this.inventory[keys[i]].sprite.x * this.inventory[keys[i]].sprite.z) * 1.35 + 'px -' + (this.inventory[keys[i]].sprite.y * this.inventory[keys[i]].sprite.a) * 1.5 + 'px';
-                div.style.backgroundSize = this.inventory[keys[i]].atlas.x * 1.35 + 'px ' + this.inventory[keys[i]].atlas.y * 1.5 + 'px';
-                div.style.backgroundImage = 'url(' + this.inventory[keys[i]].url + ')';
+                div.style.backgroundPosition = '-' + (value.sprite.x * value.sprite.z) * 1.35 + 'px -' + (value.sprite.y * value.sprite.a) * 1.5 + 'px';
+                div.style.backgroundSize = value.atlas.x * 1.35 + 'px ' + value.atlas.y * 1.5 + 'px';
+                div.style.backgroundImage = 'url(' + value.url + ')';
 
-                if (this.inventory[keys[i]].amount > 0)
-                    clone.querySelector('label.inventory-item-text').innerHTML = this.inventory[keys[i]].GetAmount();
+                if (value.amount > 0)
+                    clone.querySelector('label.inventory-item-text').innerHTML = value.GetAmount();
 
-                clone.querySelector('div.inventory-item').dataset.inventoryItem = this.inventory[keys[i]].name;
+                clone.querySelector('div.inventory-item').dataset.inventoryItem = value.name;
                 clone.querySelector('div.inventory-item').setAttribute('draggable', true);
                 clone.querySelector('div.inventory-item').addEventListener('dragstart', this);
                 this.inventoryHTMLList.appendChild(clone);
             }
         }
-
         this.didInventoryChange = false;
     }
 
@@ -173,15 +232,18 @@ class Inventory extends Cobject {
         switch (e.type) {
             case 'click':
                 if (e.target.classList.contains('inventory-item') === true) {
-                    this.selectedItem = this.inventory[e.target.dataset.inventoryItem];
+                    let found = this.inventoryDictionary.GetValueByProperty(item.name, 'name');
+                    if (found !== undefined) {
+                        this.selectedItem = found;// this.inventory[e.target.dataset.inventoryItem];
+                    }
                 }
                 break;
 
             case 'dragend':
                 if (e.dataTransfer.dropEffect === 'none') {
                     let canvasBB = CanvasDrawer.GCD.mainCanvas.getBoundingClientRect();
-                    canvasBB = new Vector4D(canvasBB.x, canvasBB.y, canvasBB.width, canvasBB.height);
-                    let mousePos = MasterObject.MO.playerController.MouseToScreen({target: CanvasDrawer.GCD.mainCanvas, x: e.screenX, y: e.screenY - 80});
+                    canvasBB = new Vector4D(0, 0, canvasBB.width, canvasBB.height);
+                    let mousePos = MasterObject.MO.playerController.MouseToScreen({ target: CanvasDrawer.GCD.mainCanvas, x: e.screenX, y: e.screenY - 80 });
                     let characterPos = this.characterOwner.BoxCollision.GetRealCenterPosition();
 
                     if (mousePos.Distance(characterPos) > 72)
@@ -229,9 +291,12 @@ class Inventory extends Cobject {
 
             case 'dragstart':
                 e.target.id = 'draggingItem';
-                let json = JSON.stringify({ id: e.target.id, item: this.inventory[e.target.dataset.inventoryItem].UID });
-                e.dataTransfer.setData('text/plain', json);
-                e.dataTransfer.dropEffect = 'copy';
+                let found = this.inventoryDictionary.GetValueByProperty(e.target.dataset.inventoryItem, 'name');
+                if (found !== undefined) {
+                    let json = JSON.stringify({ id: e.target.id, item: found.UID });// this.inventory[e.target.dataset.inventoryItem].UID });
+                    e.dataTransfer.setData('text/plain', json);
+                    e.dataTransfer.dropEffect = 'copy';
+                }
                 break;
         }
     }
