@@ -1,5 +1,3 @@
-/* import { Vector2D } from '../classes/vectors.js'; */
-
 import { Vector2D } from '../internal.js';
 
 var AnimationType = {
@@ -65,10 +63,27 @@ class CAnimation {
     }
 
     SetSpeed(speed) {
-        this.cooldown = this.animationSpeed = speed;
+        if (Array.isArray(this.animationSpeed) === true) {
+            this.cooldown = this.animationSpeed[Math.min(this.currentFrame, this.animationSpeed.length)] = speed;
+        } else
+            this.cooldown = this.animationSpeed = speed;
+    }
+
+    GetSpeed() {
+        if (Array.isArray(this.animationSpeed) === true) {
+            return this.animationSpeed[Math.min(this.currentFrame, this.animationSpeed.length)];
+        } else
+            return this.animationSpeed;
+    }
+
+    AnimationLocked() {
+        return this.animationType === AnimationType.Single && this.animationFinished === false;
     }
 
     GetFrame() {
+        if (this.currentFrame > this.frames.length && this.animationFinished)
+            return null;
+
         let frameIndex = this.currentFrame;
 
         if (this.cooldown === 0 && this.animationFinished !== true) {
@@ -77,22 +92,20 @@ class CAnimation {
 
             switch (this.animationType) {
                 case AnimationType.Cycle:
-                case AnimationType.Idle:
-                    if (this.currentFrame == this.frames.length) {
+                    if (this.currentFrame === this.frames.length) {
                         this.currentFrame = 0;
                         frameIndex = 0;
                         this.animationFinished = false;
                     }
                     else {
-                        this.currentFrame++;
-                        this.cooldown = this.animationSpeed;
+                        this.cooldown = this.GetSpeed();
                     }
                     break;
 
+                case AnimationType.Idle:
                 case AnimationType.Single:
-                    if (this.currentFrame < this.frames.length - 1) {
-                        this.currentFrame++;
-                        this.cooldown = this.animationSpeed;
+                    if (this.currentFrame < this.frames.length) {
+                        this.cooldown = this.GetSpeed();
                     } else {
                         this.animationFinished = true;
                     }
@@ -102,6 +115,9 @@ class CAnimation {
             return this.frames[frameIndex];
         } else {
             this.cooldown--;
+
+            if (this.cooldown <= 0)
+                this.currentFrame++;
         }
 
         return null;
@@ -112,7 +128,7 @@ class CAnimation {
 
         if (start.x !== end.x) {
             if (start.x > end.x) {
-                for (let x = start.x; x > start.x - 1; x--) {
+                for (let x = start.x; x > end.x - 1; x--) {
                     this.frames.push(new CFrame(start.x - index, start.y, w, h));
                     index++;
                 }

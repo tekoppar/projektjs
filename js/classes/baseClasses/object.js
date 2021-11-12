@@ -1,5 +1,3 @@
-/* import { Vector2D } from '../vectors.js'; */
-
 import { Vector2D } from '../../internal.js';
 
 class Cobject {

@@ -34,7 +34,7 @@ class Prop extends GameObject {
         if (this.currentAnimation !== undefined) {
             let frame = this.currentAnimation.GetFrame();
 
-            if (frame !== null) {
+            if (frame !== null && frame !== undefined) {
                 this.BoxCollision.size = this.currentAnimation.GetSize();
                 this.BoxCollision.position = this.GetPosition();
 

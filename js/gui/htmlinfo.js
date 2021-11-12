@@ -1,5 +1,3 @@
-//import { GUI } from '../gui/gui.js';
-
 import { GUI } from '../internal.js';
 
 class HTMLInfo {

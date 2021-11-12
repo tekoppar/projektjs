@@ -1,6 +1,3 @@
-/* import { Cobject } from '../classes/baseClasses/object.js';
-import { Vector2D } from '../classes/vectors.js'; */
-
 import { CanvasDrawer, Vector2D } from '../internal.js';
 
 const InputState = {

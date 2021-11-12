@@ -1,9 +1,4 @@
-/* import { CanvasDrawer } from '../canvas/customDrawer.js';
-import { CanvasAtlasObject } from '../canvas/canvasAtlas.js';
-import { TileData, Tile, TileType, TileTerrain } from '../tiles/tile.js';
-import { Vector2D } from '../../classes/vectors.js'; */
-
-import { CanvasDrawer, CanvasAtlasObject, TileData, Tile, TileType, TileTerrain, Vector2D } from '../../internal.js';
+import { CanvasDrawer, CanvasAtlasObject, TileData, Tile, TileType, TileTerrain, Vector2D, CMath } from '../../internal.js';
 
 class TileMaker {
     static CustomTiles;
@@ -46,6 +41,99 @@ class TileMaker {
         }
 
         let newCanvasAtlas = new CanvasAtlasObject(CanvasDrawer.GCD, tempCanvas.toDataURL('image/png'), imageSize.x + 1, imageSize.y + 1, 32, objectName);
+        CanvasDrawer.GCD.AddAtlas(newCanvasAtlas, objectName);
+    }
+
+    static SplitAtlasToTiles(atlas, tileSize) {
+        let splitPosition = new Vector2D(0, 0),
+            loopX = atlas.width / tileSize.x,
+            loopY = atlas.height / tileSize.y;
+
+        let canvas = atlas.canvas;
+        let ctx = canvas.getContext('2d');
+        let tempCanvas = document.createElement('canvas');
+        tempCanvas.width = tileSize.x;
+        tempCanvas.height = tileSize.y;
+
+        for (let x = 0; x < loopX + 1; x++) {
+            for (let y = 0; y < loopY + 1; y++) {
+                tempCanvas.getContext('2d').clearRect(0, 0, tileSize.x, tileSize.y);
+                tempCanvas.getContext('2d').drawImage(canvas, x * tileSize.x, y * tileSize.y, tileSize.x, tileSize.y, 0, 0, tileSize.x, tileSize.y);
+                let base64 = tempCanvas.toDataURL('image/png');
+
+                if (base64.length > 256)
+                    TileMaker.SaveAsFile(base64, y + '-' + x + '_' + atlas.name);
+            }
+        }
+    }
+
+    static SaveAsFile(base64, fileName) {
+        var link = document.createElement("a");
+
+        document.body.appendChild(link); // for Firefox
+
+        link.setAttribute("href", base64);
+        link.setAttribute("download", fileName);
+        link.click();
+    }
+
+    static TileBonesToCanvas(tile, bones, objectName = 'default') {
+        let tempCanvas = document.createElement('canvas');
+        let imageSize = new Vector2D(bones.bones.length * bones.size.x, bones.size.y);
+        tempCanvas.setAttribute('height', imageSize.y);
+        tempCanvas.setAttribute('width', imageSize.x);
+
+        let rotationCanvas = document.createElement('canvas');
+        rotationCanvas.setAttribute('height', tile.size.y);
+        rotationCanvas.setAttribute('width', tile.size.x);
+
+        console.log(bones);
+
+        for (let i = 0; i < bones.bones.length; i++) {
+            rotationCanvas.getContext('2d').save();
+
+            rotationCanvas.getContext('2d').translate(rotationCanvas.width / 2, rotationCanvas.height / 2);
+            let rotation = ((bones.bones[i].forward * Math.PI / 180) - (180 * Math.PI / 180) + (90 * Math.PI / 180));
+            let test = new Vector2D(26, 16);
+            let center = new Vector2D(16, 16);
+            test.Rotate(center, bones.bones[i].forward - 180);
+            console.log(test);
+            rotationCanvas.getContext('2d').rotate(rotation);
+
+            rotationCanvas.getContext('2d').drawImage(
+                CanvasDrawer.GCD.canvasAtlases[tile.atlas].canvas,
+                tile.tilePosition.x,
+                tile.tilePosition.y,
+                tile.size.x,
+                tile.size.y,
+                -tile.size.x / 2,//(-rotationCanvas.width / 2),// + ((bones.size.y - bones.bones[i].y) / 2),
+                -tile.size.y / 2,//(-rotationCanvas.width / 2),// + ((bones.size.x - bones.bones[i].x) / 2),
+                tile.size.x,
+                tile.size.y
+            );
+
+            let base64 = rotationCanvas.toDataURL('image/png');
+            if (base64.length > 256) {
+                //TileMaker.SaveAsFile(base64, 0 + '-' + i + '_' + tile.name);
+            }
+
+            tempCanvas.getContext('2d').drawImage(
+                rotationCanvas,
+                0,
+                0,
+                tile.size.x,
+                tile.size.y,
+                (i * bones.size.x),
+                0,
+                tile.size.x,
+                tile.size.y,
+            );
+
+            rotationCanvas.getContext('2d').restore();
+            rotationCanvas.getContext('2d').clearRect(0, 0, bones.size.x, bones.size.y);
+        }
+
+        let newCanvasAtlas = new CanvasAtlasObject(CanvasDrawer.GCD, tempCanvas.toDataURL('image/png'), imageSize.x + 1, imageSize.y + 1, bones.size.x, objectName);
         CanvasDrawer.GCD.AddAtlas(newCanvasAtlas, objectName);
     }
 

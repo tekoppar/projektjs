@@ -1,5 +1,4 @@
 import { Vector2D, ExtendedProp, CanvasDrawer } from '../../internal.js';
-//import { Vector2D } from '../../classes/vectors.js';
 
 class ItemProp extends ExtendedProp {
     constructor(name, position, animations, canvasName, drawIndex = 0, item = undefined) {

@@ -1,6 +1,3 @@
-/* import { CanvasDrawer } from '../drawers/canvas/customDrawer.js';
-import { Vector2D } from '../classes/vectors.js'; */
-
 import { CanvasDrawer, Vector2D, AllCollisions } from '../internal.js';
 
 let CollisionEditorToolEnum = {

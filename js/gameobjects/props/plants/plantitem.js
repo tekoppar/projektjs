@@ -1,4 +1,4 @@
-import { Item, plantAnimations, Plant, AllPlantData, CollisionHandler, CustomEventHandler, GUI, Vector2D, CanvasDrawer } from '../../../internal.js';
+import { Item, AllAnimationsList, Plant, AllPlantData, CollisionHandler, CustomEventHandler, GUI, Vector2D, CanvasDrawer } from '../../../internal.js';
 
 class Seed extends Item {
     constructor(name, amount, seedType) {
@@ -27,7 +27,7 @@ class Seed extends Item {
 
                 let plantName = this.name.replace('Seed', '');
                 b.y -= 32;
-                let newPlant = new Plant("/content/sprites/crops.png", 'crops', plantName, b, plantAnimations[plantName], AllPlantData[plantName]);
+                let newPlant = new Plant("/content/sprites/crops.png", 'crops', plantName, b, AllAnimationsList.plantAnimations[plantName], AllPlantData[plantName]);
                 CustomEventHandler.AddListener(newPlant);
 
                 super.UseItem(ownerCollision);

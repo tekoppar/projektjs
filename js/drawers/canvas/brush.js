@@ -1,7 +1,3 @@
-/* import { Vector2D } from '../../classes/vectors.js';
-import { Tile } from '../tiles/tile.js';
-import { DrawingOperation } from './operation.js'; */
-
 import { Vector2D, Tile, DrawingOperation } from "../../internal.js";
 
 const brushTypes = {

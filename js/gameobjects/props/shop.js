@@ -1,14 +1,3 @@
-/* import { CFrame } from '../../animations/animations.js';
-import { CanvasDrawer } from '../../drawers/canvas/customDrawer.js';
-import { OperationType } from '../../drawers/canvas/operation.js';
-import { InputHandler } from '../../eventHandlers/inputEvents.js';
-import { Item } from '../items/item.js';
-import { Prop } from '../props/props.js';
-import { Vector2D } from '../../classes/vectors.js';
-import { GUI } from '../../gui/gui.js';
-import { HTMLInfo } from '../../gui/htmlinfo.js';
-import { PolygonCollision } from '../collision/collision.js'; */
-
 import { CFrame, CanvasDrawer, OperationType, InputHandler, Item, Prop, Vector2D, GUI, HTMLInfo, PolygonCollision } from '../../internal.js'; 
 
 let ShopCollisions = {

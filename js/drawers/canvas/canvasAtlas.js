@@ -1,7 +1,3 @@
-/* import { Vector2D } from '../../classes/vectors.js';
-import { Tile } from '../tiles/tile.js';
-import { correctMouse } from '../canvas/customDrawer.js'; */
-
 import { Vector2D, Tile, TileType, TileTerrain, correctMouse } from '../../internal.js';
 
 class CanvasAtlas {

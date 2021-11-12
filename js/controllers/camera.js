@@ -1,6 +1,3 @@
-/* import { Cobject } from "../classes/baseClasses/object.js";
-import { Vector4D } from "../classes/vectors.js"; */
-
 import { Cobject, Vector4D } from '../internal.js';
 
 class Camera extends Cobject {

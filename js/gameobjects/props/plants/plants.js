@@ -102,7 +102,7 @@ class Plant extends Prop {
             this.CreateDrawOperation(frame, new Rectangle(this.GetPosition().x, this.GetPosition().y, 32, 32), true, this.canvas);
             this.currentAnimation.SetSpeed(this.plantData.growthSpeed);
 
-            CanvasDrawer.GCD.UIDrawer.DrawUIElement(this.plantData.plantIcon, '+' + gatherAmount, this.GetPosition());
+            CanvasDrawer.GCD.UIDrawer.DrawUIElement(this.plantData.plantIcon, ' +' + gatherAmount, this.GetPosition());
             super.NeedsRedraw(this.GetPosition());
         }
     }

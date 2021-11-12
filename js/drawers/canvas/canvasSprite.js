@@ -1,10 +1,10 @@
 class CanvasSprite {
-    constructor(x, y, width, height, canvas, isTransparent = undefined) {
+    constructor(x, y, width, height, atlas, isTransparent = undefined) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        this.canvas = canvas;
+        this.atlas = atlas;
         this.isTransparent = isTransparent;
     }
 
@@ -18,7 +18,7 @@ class CanvasSprite {
 
     IsTransparent() {
         if (this.isTransparent == undefined) {
-            let pixels = document.getElementById(this.canvas).getContext('2d').getImageData(this.GetPosX(), this.GetPosY(), this.width, this.height).data;
+            let pixels = document.getElementById(this.atlas).getContext('2d').getImageData(this.GetPosX(), this.GetPosY(), this.width, this.height).data;
 
             for (let i = 0; i < pixels.length; i += 4) {
                 if (pixels[i + 3] < 255) {
@@ -40,13 +40,13 @@ class CanvasSprite {
             y: this.y,
             width: this.width,
             height: this.height,
-            canvas: this.canvas,
+            canvas: this.atlas,
             isTransparent: this.isTransparent
         }
     }
 
     Clone() {
-        return new CanvasSprite(this.x, this.y, this.width, this.height, this.canvas, this.isTransparent);
+        return new CanvasSprite(this.x, this.y, this.width, this.height, this.atlas, this.isTransparent);
     }
 }
 

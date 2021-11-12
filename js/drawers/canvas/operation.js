@@ -1,5 +1,3 @@
-//import { Vector2D } from '../../classes/vectors.js';
-
 import { Vector2D, Rectangle } from '../../internal.js';
 
 const OperationType = {
@@ -8,6 +6,8 @@ const OperationType = {
     gui: 2,
     previewTerrain: 3,
     shadow: 4,
+    particles: 5,
+    lighting: 6
 }
 
 class Operation {
@@ -32,6 +32,14 @@ class Operation {
     }
 
     GetPreviousPosition() {
+
+    }
+
+    GetDrawSize() {
+
+    }
+
+    GetBoundingBox() {
 
     }
 
@@ -96,6 +104,7 @@ class RectOperation extends Operation {
         super(drawingCanvas, OperationType.gui);
         this.position = pos;
         this.clear = clear;
+        this.updateRects = undefined;
         this.size = size;
         this.color = color;
         this.drawIndex = drawIndex;
@@ -125,6 +134,10 @@ class RectOperation extends Operation {
         return this.size;
     }
 
+    GetBoundingBox() {
+        return new Rectangle(this.position.x, this.position.y, this.size.x, this.size.y);
+    }
+
     Update(pos) {
         this.needsToBeRedrawn = true;
         super.Update(pos === undefined ? this.position : pos);
@@ -132,6 +145,21 @@ class RectOperation extends Operation {
 
     UpdateDrawState(state) {
         this.needsToBeRedrawn = state;
+        this.updateRects = undefined;
+    }
+
+    AddUpdateRect(rect) {
+        if (this.needsToBeRedrawn === false) {
+            if (this.updateRects === undefined)
+                this.updateRects = [];
+
+            for (let i = 0; i < this.updateRects.length; i++) {
+                if (this.updateRects[i].GetOverlappingCorners(rect).length >= 4)
+                    return;
+            }
+
+            this.updateRects.push(rect);
+        }
     }
 
     GetPreviousPosition() {
@@ -152,12 +180,13 @@ class RectOperation extends Operation {
 }
 
 class DrawingOperation extends Operation {
-    constructor(tile, drawingCanvas, targetCanvas, operationType = OperationType.gameObjects) {
+    constructor(tile, drawingCanvas, targetCanvas, operationType = OperationType.gameObjects, drawSize = new Vector2D(0, 0)) {
         super(drawingCanvas, operationType);
         this.tile = tile;
         this.targetCanvas = targetCanvas;
         this.collisionSize = undefined;
         this.updateRects = undefined;
+        this.drawSize = drawSize;
     }
 
     Clone() {
@@ -201,8 +230,16 @@ class DrawingOperation extends Operation {
         return this.tile.position;
     }
 
+    GetDrawSize() {
+        return this.drawSize.x !== 0 && this.drawSize.y !== 0 ? this.drawSize : this.tile.size;
+    }
+
     GetSize() {
         return this.collisionSize !== undefined ? this.collisionSize : this.tile.size;
+    }
+
+    GetBoundingBox() {
+        return new Rectangle(this.position.x, this.position.y, this.size.x, this.size.y);
     }
 
     GetDrawPosition() {
@@ -243,4 +280,113 @@ class ClearOperation extends Operation {
     }
 }
 
-export { Operation, RectOperation, TextOperation, DrawingOperation, OperationType, ClearOperation };
+class PathOperation extends Operation {
+    constructor(path, drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, alpha = 0.3) {
+        super(drawingCanvas);
+        this.path = path;
+        this.clear = clear;
+        this.color = color;
+        this.drawIndex = drawIndex;
+        this.needsToBeRedrawn = true;
+        this.lifeTime = lifetime;
+        this.alpha = alpha;
+    }
+
+    GetDrawIndex() {
+        return this.drawIndex;
+    }
+
+    GetPosition() {
+        return this.path[0];
+    }
+
+    GetDrawPosition() {
+        return this.path[0];
+    }
+
+    GetDrawPositionY() {
+        return this.path[0].y;
+    }
+
+    GetSize() {
+        return new Vector2D(32, 32);
+    }
+
+    Update(pos) {
+        this.needsToBeRedrawn = true;
+        super.Update(pos === undefined ? this.path[0] : pos);
+    }
+
+    GetPreviousPosition() {
+        return this.oldPosition === undefined ? this.path[0] : this.oldPosition;
+    }
+
+    DrawState() {
+        return this.needsToBeRedrawn;
+    }
+
+    Tick(delta) {
+        this.lifeTime -= delta;
+
+        if (this.lifeTime <= 0) {
+            this.Delete();
+        }
+    }
+}
+
+class LightingOperation extends Operation {
+    constructor(pos, size = new Vector2D(32, 32), drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, alpha = 0.3) {
+        super(drawingCanvas);
+        this.position = pos;
+        this.clear = clear;
+        this.size = size;
+        this.color = color;
+        this.drawIndex = drawIndex;
+        this.needsToBeRedrawn = true;
+        this.lifeTime = lifetime;
+        this.alpha = alpha;
+    }
+
+    GetDrawIndex() {
+        return this.drawIndex;
+    }
+
+    GetPosition() {
+        return this.position;
+    }
+
+    GetDrawPosition() {
+        return Vector2D.Add(this.position, this.size);
+    }
+
+    GetDrawPositionY() {
+        return this.position.y + this.size.y;
+    }
+
+    GetSize() {
+        return this.size;
+    }
+
+    Update(pos) {
+        this.needsToBeRedrawn = true;
+        super.Update(pos === undefined ? this.position : pos);
+    }
+
+    GetPreviousPosition() {
+        return this.oldPosition === undefined ? this.position : this.oldPosition;
+    }
+
+    DrawState() {
+        return this.needsToBeRedrawn;
+    }
+
+    Tick(delta) {
+        this.lifeTime -= delta;
+
+        if (this.lifeTime <= 0) {
+            this.Delete();
+        }
+    }
+}
+
+export { Operation, RectOperation, TextOperation, DrawingOperation, OperationType, ClearOperation, PathOperation, LightingOperation };

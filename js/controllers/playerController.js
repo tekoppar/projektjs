@@ -1,4 +1,4 @@
-import { Vector2D, Hoe, Shovel, Axe, Seed, Controller, Camera, CanvasDrawer, Minimap, Pickaxe, Crafting } from '../internal.js';
+import { Vector2D, Hoe, Shovel, Axe, Weapon, Seed, Controller, Camera, CanvasDrawer, Minimap, Pickaxe, Crafting } from '../internal.js';
 
 class PlayerController extends Controller {
     constructor(player) {
@@ -9,6 +9,7 @@ class PlayerController extends Controller {
         this.minimap = new Minimap(player);
         this.mouseToAtlasRectMap = {};
         this.mousePosition = new Vector2D(0, 0);
+        this.drawPreviewCursor = false;
     }
 
     FixedUpdate() {
@@ -27,8 +28,10 @@ class PlayerController extends Controller {
         this.playerCharacter.inventory.AddItem(new Hoe('hoe', 0));
         this.playerCharacter.inventory.AddItem(new Axe('axe', 0));
         this.playerCharacter.inventory.AddItem(new Pickaxe('pickaxe', 0));
+        this.playerCharacter.inventory.AddItem(new Weapon('sword', 0));
         this.playerCharacter.inventory.AddItem(new Seed('cornSeed', 1));
         this.playerCharacter.inventory.AddMoney(5000);
+        this.playerCharacter.controller = this;
         this.crafting.characterOwner = this.playerCharacter;
         this.crafting.SetupCrafting();
 
@@ -96,6 +99,15 @@ class PlayerController extends Controller {
         }
     }
 
+    TogglePreviewCursor(state) {
+        this.drawPreviewCursor = state;
+        CanvasDrawer.GCD.drawTileCursorPreview = state;
+
+        if (state === false) {
+            CanvasDrawer.GCD.AddClearOperation(CanvasDrawer.GCD.tileCursorPreview.drawingCanvas, CanvasDrawer.GCD.tileCursorPreview.GetBoundingBox());
+        }
+    }
+
     handleEvent(e) {
         switch (e.type) {
             case 'mousemove':
@@ -106,6 +118,7 @@ class PlayerController extends Controller {
 
                     let temp = this.playerCharacter.BoxCollision.GetCenterPosition();
                     temp.SnapToGrid(32);
+
                     CanvasDrawer.GCD.UpdateTilePreview(temp, this.mousePosition.Clone());
                 }
                 break;

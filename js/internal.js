@@ -1,8 +1,10 @@
 export { ObjectsHasBeenInitialized, ToggleObjectsHasBeenInitialized } from './internalVariables.js';
 
-export { Vector2D, Vector, Vector4D, Matrix, Rectangle } from './classes/vectors.js';
+export { Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Polygon } from './classes/vectors.js';
 export { CMath } from './classes/math/customMath.js';
 export { Dictionary } from './classes/dictionary.js';
+
+export { AtlasLUT, ReverseAtlasLUT } from './drawers/canvas/atlasLut.js';
 
 export { PageFetcher } from './classes/utility/pageFetcher.js';
 
@@ -19,7 +21,7 @@ export { Brush, BrushDrawState, brushTypes } from './drawers/canvas/brush.js';
 
 export { CanvasSprite } from './drawers/canvas/canvasSprite.js';
 export { CanvasAtlas, CanvasAtlasObject } from './drawers/canvas/canvasAtlas.js';
-export { DrawingOperation, OperationType, RectOperation, TextOperation, ClearOperation } from './drawers/canvas/operation.js';
+export { DrawingOperation, OperationType, RectOperation, TextOperation, ClearOperation, PathOperation, LightingOperation } from './drawers/canvas/operation.js';
 
 export { CanvasDrawer, correctMouse } from './drawers/canvas/customDrawer.js';
 
@@ -45,7 +47,8 @@ export { TileMaker } from './drawers/tiles/tilemaker.js';
 export { Tile, TileData, TileType, TileF, TileTerrain } from './drawers/tiles/tile.js';
 export { worldTiles } from './drawers/tiles/worldTiles.js';
 
-export { ParticleSystem, ParticleGenerator, ParticleGeneratorSettings, Particle, ParticleFilterRandomPosition, ParticleFilterSize, ParticleFilter2DMovement } from './drawers/particle/particle.js'; 
+export { ParticleSystem, ParticleGenerator, ParticleGeneratorSettings, Particle, ColorParticle, SpriteParticle, ParticleType } from './drawers/particle/particle.js';
+export * as ParticleFilters from './drawers/particle/particleFilters.js';
 
 export { SelectedTileEditor } from './drawers/tiles/selectedTiles.js';
 
@@ -58,7 +61,7 @@ export { CraftingRecipeList } from './gameobjects/crafting/craftingRecipeList.js
 
 export { inventoryItemIcons } from './gameobjects/items/inventoryItemIcons.js';
 export { ItemStats } from './gameobjects/items/itemStats.js';
-export { Item, UsableItem, Hoe, Shovel, Axe, Pickaxe, ItemPrototypeList } from './gameobjects/items/item.js';
+export { Item, UsableItem, Hoe, Shovel, Axe, Pickaxe, Weapon, ItemPrototypeList } from './gameobjects/items/item.js';
 export { ItemValues } from './gameobjects/items/itemValue.js';
 
 export { resourceSprites } from './gameobjects/props/resources/resourceSprites.js';
@@ -73,8 +76,10 @@ export { Rock } from './gameobjects/props/resources/rock.js';
 export { Props } from './gameobjects/AllGameObjects.js';
 
 export { Plant, AllPlantData } from './gameobjects/props/plants/plants.js';
-export { MainCharacter } from './gameobjects/characters/character.js';
-export { femaleAnimations, plantAnimations } from './animations/AllAnimations.js';
+export { Character, MainCharacter } from './gameobjects/characters/character.js';
+
+export { AllAnimationsList, AllAnimationSkeletonsList } from './animations/AllAnimations.js';
+
 export { Seed } from './gameobjects/props/plants/plantitem.js';
 export { Shop } from './gameobjects/props/shop.js';
 

@@ -1,4 +1,5 @@
 import { ToggleObjectsHasBeenInitialized } from "../internalVariables.js";
+import { CMath } from '../internal.js';
 
 class Vector2D {
     constructor(x, y) {
@@ -141,6 +142,12 @@ class Vector2D {
 
     ToString() {
         return this.x + ', ' + this.y;
+    }
+
+    Rotate(center, angle) {
+        let rotatedPosition = CMath.Rotate(center, this, angle);
+        this.x = rotatedPosition.x;
+        this.y = rotatedPosition.y;
     }
 
     toJSON() {
@@ -522,6 +529,10 @@ class Rectangle {
         };
     }
 
+    GetCenterPoint() {
+        return new Vector2D(this.x + this.w / 2, this.y + this.h / 2);
+    }
+
     GetOverlappingCorners(a) {
         let corners = a.GetCorners();
         let insideCorners = [];
@@ -634,4 +645,30 @@ class Rectangle {
     }
 }
 
-export { Vector2D, Vector, Vector4D, Matrix, Rectangle };
+class Direction {
+    constructor(x, y, angle) {
+        this.x = x;
+        this.y = y;
+        this.forward = angle;
+    }
+}
+
+class Polygon {
+    static CalculateBoundingBox(points) {
+        let sX = 9999999999, sY = 9999999999, lX = -1, lY = -1;
+
+        for (let pos of points) {
+            if (pos.x > lX)
+                lX = pos.x;
+            if (pos.x < sX)
+                sX = pos.x;
+            if (pos.y > lY)
+                lY = pos.y;
+            if (pos.y < sY)
+                sY = pos.y;
+        }
+        return new Vector4D(sX, sY, lX - sX, lY - sY);
+    }
+}
+
+export { Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Polygon };

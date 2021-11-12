@@ -1,5 +1,3 @@
-//import { CanvasDrawer } from '../canvas/customDrawer.js';
-
 import { CanvasDrawer } from '../../internal.js';
 
 class SelectedTileEditor {

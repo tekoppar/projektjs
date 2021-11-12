@@ -1,10 +1,3 @@
-/* import { Matrix, Vector2D } from '../../classes/vectors.js';
-import { CanvasDrawer } from '../canvas/customDrawer.js';
-import { TileLUT } from '../tiles/TileLUT.js';
-import { GetAtlasTileMatrix } from './atlasTileMatrix.js';
-import { CollisionEditor } from '../../editors/collisionEditor.js';
-import { PropEditor } from '../../editors/propEditor.js'; */
-
 import { Matrix, Vector2D, CanvasDrawer, TileLUT, GetAtlasTileMatrix, CollisionEditor, PropEditor } from '../../internal.js';
 
 const TileType = {

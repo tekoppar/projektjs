@@ -1,7 +1,4 @@
 import { Cobject, MasterObject, Item, InputHandler, UsableItem, ItemStats } from '../internal.js';
-//import { Cobject } from '../classes/baseClasses/object.js';
-//import { MasterObject } from '../classes/masterObject.js';
-//import { Item } from '../gameobjects/items/item.js';
 
 class GameToolbar extends Cobject {
     static GGT = new GameToolbar();
@@ -68,7 +65,7 @@ class GameToolbar extends Cobject {
         } else {
             element.classList.add('toolbar-item-active');
             this.activeToolbar = element;
-            MasterObject.MO.playerController.playerCharacter.activeItem = this.toolbarItems[element.querySelector('label.toolbar-item-text').innerText - 1];
+            MasterObject.MO.playerController.playerCharacter.SetActiveItem(this.toolbarItems[element.querySelector('label.toolbar-item-text').innerText - 1]);
         }
     }
 

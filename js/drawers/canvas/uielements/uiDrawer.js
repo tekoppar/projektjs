@@ -27,52 +27,71 @@ class UIDrawer {
     }
 
     DrawUIElement(sprite, text, position) {
-        let newUiElement = new UIElement();
+        let newUiElement = new UIElement(),
+            middleWidth = (sprite.width + text.length * 8);
+
+        newUiElement.drawingOperations.push(
+            new DrawingOperation(
+                new Tile(
+                    new Vector2D(position.x - 16, position.y),
+                    new Vector2D(0, 0),
+                    new Vector2D(16, 32),
+                    false,
+                    'inputLeft'
+                ),
+                this.canvasDrawer.gameGuiCanvas,
+                this.canvasDrawer.canvasAtlases['inputLeft'].canvas
+            )
+        );
+
+        newUiElement.drawingOperations.push(
+            new DrawingOperation(
+                new Tile(
+                    new Vector2D(position.x, position.y),
+                    new Vector2D(0, 0),
+                    new Vector2D(32, 26),
+                    false,
+                    'inputMiddle'
+                ),
+                this.canvasDrawer.gameGuiCanvas,
+                this.canvasDrawer.canvasAtlases['inputMiddle'].canvas,
+                OperationType.gameObjects,
+                new Vector2D(middleWidth, 26)
+            )
+        );
+
+        newUiElement.drawingOperations.push(
+            new DrawingOperation(
+                new Tile(
+                    new Vector2D(position.x + middleWidth, position.y),
+                    new Vector2D(0, 0),
+                    new Vector2D(16, 32),
+                    false,
+                    'inputRight'
+                ),
+                this.canvasDrawer.gameGuiCanvas,
+                this.canvasDrawer.canvasAtlases['inputRight'].canvas
+            )
+        );
 
         newUiElement.drawingOperations.push(
             new DrawingOperation(
                 new Tile(
                     new Vector2D(position.x, position.y),
-                    new Vector2D(15.05, 2.6),
-                    new Vector2D(42, 32),
-                    false,
-                    'uipieces'
-                ),
-                this.canvasDrawer.gameGuiCanvas,
-                this.canvasDrawer.canvasAtlases['uipieces'].canvas
-            )
-        );
-        newUiElement.drawingOperations.push(
-            new DrawingOperation(
-                new Tile(
-                    new Vector2D(position.x + 42, position.y),
-                    new Vector2D(17.05, 2.6),
-                    new Vector2D(42, 32),
-                    false,
-                    'uipieces'
-                ),
-                this.canvasDrawer.gameGuiCanvas,
-                this.canvasDrawer.canvasAtlases['uipieces'].canvas
-            )
-        );
-
-        newUiElement.drawingOperations.push(
-            new DrawingOperation(
-                new Tile(
-                    new Vector2D(position.x + 10, position.y),
                     new Vector2D(sprite.x, sprite.y),
                     new Vector2D(sprite.width, sprite.height),
                     false,
-                    sprite.canvas
+                    this.canvasDrawer.GetAtlas(sprite.atlas).name
                 ),
                 this.canvasDrawer.gameGuiCanvas,
-                this.canvasDrawer.canvasAtlases[sprite.canvas].canvas
+                this.canvasDrawer.GetAtlas(sprite.atlas).canvas
             )
         );
+        
         newUiElement.drawingOperations.push(
             new TextOperation(
                 text,
-                new Vector2D(position.x + 42, position.y + (32 / 2)),
+                new Vector2D(position.x + sprite.width, position.y + (32 / 2)),
                 false,
                 this.canvasDrawer.gameGuiCanvas
             )

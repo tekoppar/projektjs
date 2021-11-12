@@ -1,5 +1,3 @@
-//import { Vector2D, Vector4D } from "../../classes/vectors.js";
-
 import { CanvasDrawer, Vector2D, Vector4D, Rectangle, CMath } from '../../internal.js';
 
 const OverlapCheckEnum = {
@@ -137,7 +135,7 @@ class QuadTree {
             return objects;
         } else {
             for (let i = 0; i < this.objects.length; i++) {
-                if (this.objects[i].position == null) {
+                if (this.objects[i].position === null) {
                     this.objects.splice(i, 1);
                     i--;
                 }
@@ -381,6 +379,10 @@ class Collision {
         newPos.y -= this.size.y + 32;
 
         return newPos;
+    }
+
+    GetCenterPositionV2() {
+        return this.GetBoundingBox().GetCenterPoint();
     }
 
     GetCenterPosition() {

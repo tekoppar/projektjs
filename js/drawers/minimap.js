@@ -1,6 +1,3 @@
-/* import { CanvasDrawer } from './canvas/customDrawer.js';
-import { Cobject } from '../classes/baseClasses/object.js'; */
-
 import { CanvasDrawer, Cobject } from '../internal.js';
 
 class Minimap extends Cobject {

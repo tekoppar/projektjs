@@ -1,4 +1,4 @@
-import { Cobject, ItemStats, Vector2D, inventoryItemIcons, CustomEventHandler, CollisionHandler, CanvasDrawer, Tile, TileType, TileF, TileLUT, ItemValues } from '../../internal.js';
+import { Cobject, ItemStats, Vector2D, inventoryItemIcons, CustomEventHandler, CollisionHandler, CanvasDrawer, Tile, TileType, TileF, TileLUT, ItemValues, CanvasSprite, CMath } from '../../internal.js';
 
 let stackableItems = {};
 
@@ -74,6 +74,7 @@ class UsableItem extends Item {
     constructor(name, amount) {
         super(name, amount);
         this.durability = ItemStats[this.name].durability;
+        this.drawTilePreview = ItemStats[this.name].tilePreview;
     }
 
     Delete() {
@@ -94,7 +95,7 @@ class UsableItem extends Item {
     }
 
     HasAmount(amount) {
-       return super.HasAmount(amount);
+        return super.HasAmount(amount);
     }
 
     GetAmount() {
@@ -201,10 +202,47 @@ class Pickaxe extends UsableItem {
     }
 }
 
+class Weapon extends UsableItem {
+    constructor(name, amount) {
+        super(name, amount);
+    }
+
+    UseItem(ownerCollision) {
+        let overlap = CollisionHandler.GCH.GetOverlapByClass(ownerCollision, 'Character');
+
+        if (overlap !== undefined && overlap !== false && overlap.collisionOwner !== null && ownerCollision.DoOverlap(overlap.collisionOwner.BlockingCollision, true)) { // ownerCollision.CheckInRealRange(ownerCollision.collisionOwner.BoxCollision, 112)) {
+            
+            let guiPos = overlap.collisionOwner.GetPosition().Clone(),
+                damage = ownerCollision.collisionOwner.characterAttributes.GetDamage();
+
+            damage += CMath.RandomFloat(ItemStats[this.name].damage.x, ItemStats[this.name].damage.y);
+
+            guiPos.y -= overlap.collisionOwner.drawingOperation.GetSize().y;
+
+            CanvasDrawer.GCD.UIDrawer.DrawUIElement(
+                new CanvasSprite(
+                    inventoryItemIcons[this.name].sprite.x,
+                    inventoryItemIcons[this.name].sprite.y,
+                    inventoryItemIcons[this.name].sprite.z,
+                    inventoryItemIcons[this.name].sprite.a,
+                    inventoryItemIcons[this.name].url
+                ),
+                ' ' + damage.toFixed(2),
+                guiPos
+            );
+            overlap.OnHit(damage * -1, ownerCollision);
+            this.Durability();
+        }
+        CustomEventHandler.NewCustomEvent(this.name, this);
+        super.UseItem(ownerCollision);
+    }
+}
+
 let ItemPrototypeList = {};
 ItemPrototypeList.pickaxe = Pickaxe.prototype.constructor;
 ItemPrototypeList.axe = Axe.prototype.constructor;
 ItemPrototypeList.shovel = Shovel.prototype.constructor;
 ItemPrototypeList.hoe = Hoe.prototype.constructor;
+ItemPrototypeList.weapon = Weapon.prototype.constructor;
 
-export { Item, UsableItem, Shovel, Hoe, Axe, Pickaxe, ItemPrototypeList };
+export { Item, UsableItem, Shovel, Hoe, Axe, Pickaxe, Weapon, ItemPrototypeList };
