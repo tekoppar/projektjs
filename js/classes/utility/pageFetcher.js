@@ -12,7 +12,7 @@ class PageFetcher {
     }
 
     ProcessRequests() {
-        for (let i = 0; i < this.requests.length; i++) {
+        for (let i = 0, l = this.requests.length; i < l; ++i) {
             this.FetchPage(this.requests[i]);
         }
 

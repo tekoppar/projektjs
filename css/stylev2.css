@@ -44,9 +44,9 @@ body {
     background-position: top;
     z-index: -1;
     filter: brightness(2) contrast(200) saturate(0);
-    animation-duration: 1500s;
+    /*animation-duration: 1500s;
     animation-name: clouding;
-    animation-iteration-count: infinite;
+    animation-iteration-count: infinite;*/
 }
 
 .clouds-small {

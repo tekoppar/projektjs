@@ -1,6 +1,21 @@
-import { Vector2D, Cobject, CMath, BoxCollision, CollisionHandler, PolygonCollision, CanvasDrawer, DrawingOperation, OperationType, ObjectsHasBeenInitialized, Tile, Rectangle } from '../internal.js'
+import { Vector2D, Cobject, CMath, ObjectType, BoxCollision, CollisionHandler, PolygonCollision, CanvasDrawer, DrawingOperation, OperationType, ObjectsHasBeenInitialized, Tile, Rectangle } from '../internal.js'
 
+/**
+ * Creates a new Cobject
+ * @class
+ * @constructor
+ * @public
+ * @extends Cobject
+ */
 class Pawn extends Cobject {
+
+    /**
+     * 
+     * @param {string} canvasName 
+     * @param {Vector2D} position 
+     * @param {boolean} enableCollision 
+     * @param {number} drawIndex 
+     */
     constructor(canvasName, position, enableCollision = false, drawIndex = 0) {
         super(position);
 
@@ -12,6 +27,8 @@ class Pawn extends Cobject {
         this.drawingOperation = undefined;
         this.drawIndex = drawIndex;
         this.previousPosition = new Vector2D(-1, -1);
+
+        this.objectType = ObjectType.Pawn;
     }
 
     Delete() {
@@ -36,9 +53,6 @@ class Pawn extends Cobject {
 
     FixedUpdate() {
         super.FixedUpdate();
-
-        if (this.enableCollision === true)
-            this.CheckCollision(this.GetPosition());
     }
 
     NeedsRedraw(position) {
@@ -50,15 +64,21 @@ class Pawn extends Cobject {
     FlagDrawingUpdate(position) {
         if (this.drawingOperation !== undefined && this.drawingOperation.DrawState() === false) {
             this.drawingOperation.Update(position);
-            document.getElementById('gameobject-draw-debug').innerHTML += this.name + "\r\n";
+            //document.getElementById('gameobject-draw-debug').innerHTML += this.name + "\r\n";
         }
     }
 
     CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.GameObject) {
+
+        let pawnCenterPosition = position.Clone();
+        if (this.BoxCollision !== undefined)
+            pawnCenterPosition = this.BoxCollision.GetCenterPositionV2();
+
         if (this.drawingOperation === undefined) {
             this.size.x = frame.w;
             this.size.y = frame.h;
             this.drawingOperation = new DrawingOperation(
+                this,
                 new Tile(
                     position,
                     new Vector2D(frame.x, frame.y),
@@ -69,7 +89,10 @@ class Pawn extends Cobject {
                 ),
                 CanvasDrawer.GCD.frameBuffer,
                 canvas,
-                operationType
+                operationType,
+                new Vector2D(0, 0),
+                pawnCenterPosition,
+                this.objectType,
             );
 
             CanvasDrawer.GCD.AddDrawOperation(this.drawingOperation, operationType);
@@ -99,6 +122,9 @@ class Pawn extends Cobject {
     }
 }
 
+/**
+ * @extends Pawn
+ */
 class GameObject extends Pawn {
     constructor(canvasName, position, enableCollision = false, drawIndex = 0) {
         super(canvasName, position, enableCollision, drawIndex);
@@ -132,13 +158,15 @@ class GameObject extends Pawn {
 
     FixedUpdate() {
         super.FixedUpdate();
+
+        if (this.enableCollision === true)
+            this.CheckCollision();
     }
 
     LoadAtlas() {
         if (ObjectsHasBeenInitialized === false) {
-            window.requestAnimationFrame(() => this.LoadAtlas(this.canvasName));
-        } else
-            CanvasDrawer.GCD.LoadNewSpriteAtlas(this.spriteSheet, 32, this.canvasName);
+            window.requestAnimationFrame(() => this.LoadAtlas());
+        }
     }
 
     NeedsRedraw(position) {
@@ -183,6 +211,8 @@ class Shadow extends Pawn {
         this.currentAnimation = undefined;
         this.name = 'shadow' + this.UID;
         this.parent = parent;
+
+        this.objectType = ObjectType.Shadow;
     }
 
     Delete() {
@@ -233,7 +263,7 @@ class Shadow extends Pawn {
     }
 
     CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.shadow) {
-        document.getElementById('gameobject-draw-debug').innerHTML += frame.w + ' - ' + frame.h + '\r\n';
+        //document.getElementById('gameobject-draw-debug').innerHTML += frame.w + ' - ' + frame.h + '\r\n';
         super.CreateDrawOperation(frame, position, clear, canvas, operationType);
     }
 }

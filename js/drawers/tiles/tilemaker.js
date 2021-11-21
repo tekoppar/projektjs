@@ -1,4 +1,5 @@
-import { CanvasDrawer, CanvasAtlasObject, TileData, Tile, TileType, TileTerrain, Vector2D, CMath } from '../../internal.js';
+import { CanvasDrawer, CanvasAtlasObject, TileData, Tile, TileType, TileTerrain, Vector2D, Vector, CMath, Math3D } from '../../internal.js';
+import { XORCanvasSprite } from './TileMakerCustomSheets/customSheetsFunctions.js';
 
 class TileMaker {
     static CustomTiles;
@@ -23,14 +24,14 @@ class TileMaker {
     static CombineTilesToImage(tiles, tileLayout, objectName = 'default') {
         let tempCanvas = document.createElement('canvas');
         let imageSize = new Vector2D(tileLayout[0].length * 32, tileLayout.length * 32);
-        tempCanvas.setAttribute('height', imageSize.y);
-        tempCanvas.setAttribute('width', imageSize.x);
+        tempCanvas.setAttribute('height', imageSize.y.toString());
+        tempCanvas.setAttribute('width', imageSize.x.toString());
 
-        for (let y = 0; y < tileLayout.length; y++) {
-            for (let x = 0; x < tileLayout[y].length; x++) {
+        for (let y = 0, lY = tileLayout.length; y < lY; ++y) {
+            for (let x = 0, lX = tileLayout[y].length; x < lX; ++x) {
 
                 if (Array.isArray(tileLayout[y][x]) === true) {
-                    for (let i = 0; i < tileLayout[y][x].length; i++) {
+                    for (let i = 0, l = tileLayout[y][x].length; i < l; ++i) {
                         TileMaker.DrawOnCanvas(tempCanvas, tiles[tileLayout[y][x][i]], x, y);
                     }
                 } else {
@@ -41,6 +42,7 @@ class TileMaker {
         }
 
         let newCanvasAtlas = new CanvasAtlasObject(CanvasDrawer.GCD, tempCanvas.toDataURL('image/png'), imageSize.x + 1, imageSize.y + 1, 32, objectName);
+        newCanvasAtlas.GenerateBWAtlas = true;
         CanvasDrawer.GCD.AddAtlas(newCanvasAtlas, objectName);
     }
 
@@ -55,8 +57,8 @@ class TileMaker {
         tempCanvas.width = tileSize.x;
         tempCanvas.height = tileSize.y;
 
-        for (let x = 0; x < loopX + 1; x++) {
-            for (let y = 0; y < loopY + 1; y++) {
+        for (let x = 0, lX = loopX + 1; x < lX; ++x) {
+            for (let y = 0, lY = loopY + 1; y < lY; ++y) {
                 tempCanvas.getContext('2d').clearRect(0, 0, tileSize.x, tileSize.y);
                 tempCanvas.getContext('2d').drawImage(canvas, x * tileSize.x, y * tileSize.y, tileSize.x, tileSize.y, 0, 0, tileSize.x, tileSize.y);
                 let base64 = tempCanvas.toDataURL('image/png');
@@ -77,64 +79,50 @@ class TileMaker {
         link.click();
     }
 
-    static TileBonesToCanvas(tile, bones, objectName = 'default') {
-        let tempCanvas = document.createElement('canvas');
-        let imageSize = new Vector2D(bones.bones.length * bones.size.x, bones.size.y);
-        tempCanvas.setAttribute('height', imageSize.y);
-        tempCanvas.setAttribute('width', imageSize.x);
-
+    static TileBonesToCanvas(tile, canvas, bones, canvasSpriteSize = new Vector2D(32, 32), canvasOffset = 0, xorData = undefined) {
         let rotationCanvas = document.createElement('canvas');
         rotationCanvas.setAttribute('height', tile.size.y);
         rotationCanvas.setAttribute('width', tile.size.x);
+        let rotationCanvasCtx = rotationCanvas.getContext('2d');
 
-        console.log(bones);
-
-        for (let i = 0; i < bones.bones.length; i++) {
-            rotationCanvas.getContext('2d').save();
-
-            rotationCanvas.getContext('2d').translate(rotationCanvas.width / 2, rotationCanvas.height / 2);
-            let rotation = ((bones.bones[i].forward * Math.PI / 180) - (180 * Math.PI / 180) + (90 * Math.PI / 180));
-            let test = new Vector2D(26, 16);
-            let center = new Vector2D(16, 16);
-            test.Rotate(center, bones.bones[i].forward - 180);
-            console.log(test);
-            rotationCanvas.getContext('2d').rotate(rotation);
-
-            rotationCanvas.getContext('2d').drawImage(
-                CanvasDrawer.GCD.canvasAtlases[tile.atlas].canvas,
-                tile.tilePosition.x,
-                tile.tilePosition.y,
-                tile.size.x,
-                tile.size.y,
-                -tile.size.x / 2,//(-rotationCanvas.width / 2),// + ((bones.size.y - bones.bones[i].y) / 2),
-                -tile.size.y / 2,//(-rotationCanvas.width / 2),// + ((bones.size.x - bones.bones[i].x) / 2),
+        for (let i = 0, l = bones.bones.length; i < l; ++i) {
+            let pixelData = CanvasDrawer.GCD.canvasAtlases[tile.atlas].canvas.getContext('2d').getImageData(
+                tile.GetPosX(),
+                tile.GetPosY(),
                 tile.size.x,
                 tile.size.y
             );
 
-            let base64 = rotationCanvas.toDataURL('image/png');
+            Math3D.RotatePixelData(pixelData, new Vector2D(tile.size.x, tile.size.y), new Vector(0, 0, bones.bones[i].forward), 0, new Vector(tile.size.x / 2, tile.size.y / 2, 0));
+            rotationCanvasCtx.putImageData(pixelData, 0, 0);
+
+            /*let base64 = rotationCanvas.toDataURL('image/png');
             if (base64.length > 256) {
-                //TileMaker.SaveAsFile(base64, 0 + '-' + i + '_' + tile.name);
+                TileMaker.SaveAsFile(base64, 0 + '-' + i + '_' + tile.name);
+            }*/
+
+            if (xorData !== undefined) {
+                XORCanvasSprite(
+                    rotationCanvasCtx,
+                    bones.bones[i],
+                    new Vector2D(tile.size.x, tile.size.y),
+                    xorData.frames[i],
+                    xorData.canvas
+                );
             }
 
-            tempCanvas.getContext('2d').drawImage(
+            canvas.getContext('2d').drawImage(
                 rotationCanvas,
                 0,
                 0,
                 tile.size.x,
                 tile.size.y,
-                (i * bones.size.x),
-                0,
+                (i * canvasSpriteSize.x),
+                canvasOffset * canvasSpriteSize.y,
                 tile.size.x,
                 tile.size.y,
             );
-
-            rotationCanvas.getContext('2d').restore();
-            rotationCanvas.getContext('2d').clearRect(0, 0, bones.size.x, bones.size.y);
         }
-
-        let newCanvasAtlas = new CanvasAtlasObject(CanvasDrawer.GCD, tempCanvas.toDataURL('image/png'), imageSize.x + 1, imageSize.y + 1, bones.size.x, objectName);
-        CanvasDrawer.GCD.AddAtlas(newCanvasAtlas, objectName);
     }
 
     static CanvasPortionToImage(tile) {
@@ -500,7 +488,7 @@ class TileMaker {
 
         let keys = Object.keys(TileMaker.CustomTiles);
 
-        for (let i = 0; i < keys.length; i++) {
+        for (let i = 0, l = keys.length; i < l; ++i) {
             let tileObject = TileMaker.CustomTiles[keys[i]];
             this.CombineTilesToImage(tileObject.tiles, tileObject.tileLayout, tileObject.name);
         }

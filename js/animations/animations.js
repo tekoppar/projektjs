@@ -1,5 +1,10 @@
 import { Vector2D } from '../internal.js';
 
+/**
+ * Enum for editor state
+ * @readonly
+ * @enum {Number}
+ */
 var AnimationType = {
     Idle: 0, /* Loops forever */
     Cycle: 1, /* Only loops on input */
@@ -33,7 +38,22 @@ class TileOffset {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class CAnimation {
+
+    /**
+     * 
+     * @param {String} name 
+     * @param {Vector2D} start 
+     * @param {Vector2D} end 
+     * @param {Number} w 
+     * @param {Number} h 
+     * @param {AnimationType} animationType 
+     * @param {(Number|Array[Number])} animationSpeed 
+     */
     constructor(name = '', start = new Vector2D(0, 0), end = new Vector2D(0, 0), w = 32, h = 32, animationType = AnimationType.Cycle, animationSpeed = 3) {
         this.name = name;
         this.frames = [];
@@ -43,15 +63,21 @@ class CAnimation {
         this.h = h;
         this.currentFrame = 0;
         this.animationType = animationType;
+
+        /**@type {(Number|Array[Number])} */
         this.animationSpeed = animationSpeed;
         this.cooldown = 0;
+        this.animationStarted = false;
         this.animationFinished = false;
+        this.enableDebug = false;
 
         this.ConstructAnimation(this.start, this.end, this.w, this.h);
+
+        this.cooldown = this.GetSpeed();
     }
 
     Clone() {
-        return new CAnimation(
+        let clone = new CAnimation(
             this.name,
             this.start,
             this.end,
@@ -60,6 +86,20 @@ class CAnimation {
             this.animationType,
             this.animationSpeed
         );
+
+        clone.currentFrame = this.currentFrame;
+        clone.cooldown = this.cooldown;
+        clone.animationStarted = this.animationStarted;
+        clone.animationFinished = this.animationFinished;
+
+        return clone;
+    }
+
+    SetFromAnimation(animation) {
+        this.currentFrame = animation.currentFrame;
+        this.cooldown = animation.cooldown;
+        this.animationStarted = animation.animationStarted;
+        this.animationFinished = animation.animationFinished;
     }
 
     SetSpeed(speed) {
@@ -81,46 +121,75 @@ class CAnimation {
     }
 
     GetFrame() {
-        if (this.currentFrame > this.frames.length && this.animationFinished)
-            return null;
+        let frameIndex = this.currentFrame,
+            returnFrame = null;
 
-        let frameIndex = this.currentFrame;
+        if (this.FrameFinished() === true) {
+            this.ResetCooldown();
+            this.IncrementFrame();
 
-        if (this.cooldown === 0 && this.animationFinished !== true) {
-            if (this.currentFrame === this.frames.length)
-                this.animationFinished = true;
-
-            switch (this.animationType) {
-                case AnimationType.Cycle:
-                    if (this.currentFrame === this.frames.length) {
-                        this.currentFrame = 0;
-                        frameIndex = 0;
-                        this.animationFinished = false;
-                    }
-                    else {
-                        this.cooldown = this.GetSpeed();
-                    }
-                    break;
-
-                case AnimationType.Idle:
-                case AnimationType.Single:
-                    if (this.currentFrame < this.frames.length) {
-                        this.cooldown = this.GetSpeed();
-                    } else {
-                        this.animationFinished = true;
-                    }
-                    break;
+            if (this.AnimationFinished() === true) {
+                this.SetAnimationFinishedState(true);
+                this.ResetFrame();
             }
 
-            return this.frames[frameIndex];
-        } else {
-            this.cooldown--;
-
-            if (this.cooldown <= 0)
-                this.currentFrame++;
+            if (this.frames[frameIndex] !== undefined)
+                returnFrame = this.frames[frameIndex];
+            else
+                returnFrame = null;
+        } else if (this.animationStarted === false) {
+            returnFrame = this.frames[0];
+            this.animationStarted = true;
+            this.IncrementFrame();
+            this.ResetCooldown();
         }
 
-        return null;
+        this.UpdateCooldown();
+
+        return returnFrame;
+    }
+
+    UpdateCooldown() {
+        this.cooldown--;
+    }
+
+    ResetCooldown() {
+        this.cooldown = this.GetSpeed();
+    }
+
+    FrameFinished() {
+        return this.cooldown <= 0;
+    }
+
+    IncrementFrame() {
+        this.currentFrame++;
+    }
+
+    ResetFrame() {
+        switch (this.animationType) {
+            case AnimationType.Cycle: this.currentFrame = 0; this.animationStarted = false; break;
+
+            case AnimationType.Idle:
+                break;
+            case AnimationType.Single:
+                if (this.frames.length > 1)
+                    this.currentFrame = -1;
+                break;
+        }
+    }
+
+    AnimationFinished() {
+        switch (this.animationType) {
+            case AnimationType.Cycle: return this.currentFrame === this.frames.length + 1;
+
+            case AnimationType.Idle:
+            case AnimationType.Single:
+                return this.currentFrame === this.frames.length + 1;
+        }
+    }
+
+    SetAnimationFinishedState(boolean) {
+        this.animationFinished = boolean;
     }
 
     ConstructAnimation(start, end, w, h) {

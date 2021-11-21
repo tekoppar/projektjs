@@ -12,6 +12,11 @@ class MarketItem extends Item {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Prop
+ */
 class Shop extends Prop {
     constructor(shopName, position, animations, canvasName) {
         super(shopName, position, animations, canvasName);
@@ -80,6 +85,7 @@ class Shop extends Prop {
             eventContainer.appendChild(buttoncontainer);
 
             let template = document.getElementById('game-panel');
+            // @ts-ignore
             let clone = template.content.cloneNode(true);
             this.shopHTMLList = clone.querySelector('div.panel-middle');
 
@@ -137,8 +143,9 @@ class Shop extends Prop {
     DisplayShop() {
         let keys = Object.keys(this.marketItems);
         this.shopHTMLList.innerHTML = '';
-        for (let i = 0; i < keys.length; i++) {
+        for (let i = 0, l = keys.length; i < l; ++i) {
             let template = document.getElementById('inventory-panel-item');
+            // @ts-ignore
             let clone = template.content.cloneNode(true);
 
             let div = clone.querySelector('div.inventory-item-sprite');

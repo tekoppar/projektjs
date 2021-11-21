@@ -9,9 +9,9 @@ class Seed extends Item {
     UseItem(ownerCollision) {
         let overlap = CollisionHandler.GCH.GetOverlap(ownerCollision);
         let a = ownerCollision.collisionOwner.BoxCollision.GetCenterPosition();
-        a.SnapToGrid(32);
+        a.SnapToGridF(32);
         let b = ownerCollision.GetPosition().Clone();
-        b.SnapToGrid(32);
+        b.SnapToGridF(32);
 
         if (overlap === false && a.CheckInRange(b, 96)) {
 

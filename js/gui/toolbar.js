@@ -8,7 +8,7 @@ class GameToolbar extends Cobject {
         this.toolbar = document.getElementById('game-gui-toolbar');
         this.toolbar.addEventListener('click', this);
         this.activeToolbar;
-        this.toolbarItems = { };
+        this.toolbarItems = {};
         this.didToolbarChange = false;
 
         this.SetupHTML();
@@ -17,8 +17,9 @@ class GameToolbar extends Cobject {
     SetupHTML() {
         let count = this.toolbar.children.length;
 
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < count; ++i) {
             let div = this.toolbar.children[i];
+            // @ts-ignore
             div.dataset.toolbarIndex = i;
             div.addEventListener('drop', this);
             div.addEventListener('dragover', this);
@@ -41,7 +42,7 @@ class GameToolbar extends Cobject {
 
     static RemoveToolbarItem(item) {
         let keys = Object.keys(GameToolbar.GGT.toolbarItems);
-        for (let i = 0; i < keys.length; i++) {
+        for (let i = 0, l = keys.length; i < l; ++i) {
             if (GameToolbar.GGT.toolbarItems[keys[i]].name === item.name) {
                 delete GameToolbar.GGT.toolbarItems[keys[i]];
                 GameToolbar.GGT.RemoveToolbarGUIItem(keys[i]);
@@ -71,6 +72,7 @@ class GameToolbar extends Cobject {
 
     RemoveToolbarGUIItem(index) {
         let div = this.toolbar.children[index].querySelector('div.toolbar-item-sprite');
+        // @ts-ignore
         div.style.backgroundImage = 'unset';
 
         if (this.activeToolbar !== undefined)
@@ -79,7 +81,7 @@ class GameToolbar extends Cobject {
 
     UpdateProgressbars() {
         let keys = Object.keys(this.toolbarItems);
-        for (let i = 0; i < keys.length; i++) {
+        for (let i = 0, l = keys.length; i < l; ++i) {
             let item = this.toolbarItems[keys[i]];
             let div = this.toolbar.children[keys[i]].querySelector('div.toolbar-item-sprite');
 
@@ -91,14 +93,15 @@ class GameToolbar extends Cobject {
 
     DisplayToolbar() {
         let keys = Object.keys(this.toolbarItems);
-        for (let i = 0; i < keys.length; i++) {
+        for (let i = 0, l = keys.length; i < l; ++i) {
             let item = this.toolbarItems[keys[i]];
             let div = this.toolbar.children[keys[i]].querySelector('div.toolbar-item-sprite');
             div.style.backgroundPosition = '-' + (item.sprite.x * item.sprite.z) * 1.35 + 'px -' + (item.sprite.y * item.sprite.a) * 1.5 + 'px';
             div.style.backgroundSize = item.atlas.x * 1.35 + 'px ' + item.atlas.y * 1.5 + 'px';
             div.style.backgroundImage = 'url(' + item.url + ')';
-            
+
             if (item instanceof UsableItem && div.parentNode.querySelector('div.rogress-bar-mini') === null) {
+                //@ts-ignore
                 let clone = document.getElementById('template-progress-bar').content.cloneNode(true);
                 clone.id = 'toolbar-item-progress-bar-' + i;
                 clone.children[0].style.position = 'absolute';

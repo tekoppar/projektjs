@@ -1,10 +1,10 @@
-import { ObjectsHasBeenInitialized, Character, inventoryItemIcons, Tile, AllAnimationsList, LightingOperation, AllAnimationSkeletonsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler, Plant, AllPlantData, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite, Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasLUT, ReverseAtlasLUT } from '../internal.js';
+import { ObjectsHasBeenInitialized, Character, Rectangle, DrawingOperation, CAnimation, AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler, Plant, AllPlantData, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite, Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, Props } from '../internal.js';
+import { GenerateCustomSheets } from '../drawers/tiles/TileMakerCustomSheets/tileMakerCustomSheetsImports.js';
 
 var GlobalFrameCounter = 0;
 
 function GlobalLoop() {
     MasterObject.MO.GameLoop();
-    window.requestAnimationFrame(GlobalLoop);
 }
 
 class Mastertime {
@@ -47,6 +47,8 @@ class MasterObject {
         }
         this.classesHasBeenInitialized = false;
         this.playerController;
+
+        MasterObject.LogicTests();
     }
 
     CheckIfClassesInitialized() {
@@ -83,7 +85,7 @@ class MasterObject {
         this.CheckIfClassesInitialized();
 
         if (this.classesHasBeenInitialized === true && ObjectsHasBeenInitialized === false) {
-            this.playerController = new PlayerController(new MainCharacter("/content/sprites/lpcfemalelight_updated.png", 'femaleLight', 'mainP', 0, new Vector2D(256, 326), AllAnimationsList.femaleAnimations));
+            this.playerController = new PlayerController(new MainCharacter("/content/sprites/lpcfemalelight_updated.png", 'femaleLight', 'mainP', 0, new Vector2D(736, 384), AllAnimationsList.femaleAnimations));
             this.playerController.playerCharacter.AddAttachment('/content/sprites/red.png', 'redHair');
             this.playerController.playerCharacter.AddAttachment('/content/sprites/lpcfemaleunderdress.png', 'underDress');
             InputHandler.GIH.AddListener(this.playerController);
@@ -92,17 +94,7 @@ class MasterObject {
             CollisionEditor.GCEditor = new CollisionEditor();
             TileMaker.GenerateCustomTiles();
 
-            TileMaker.TileBonesToCanvas(
-                new Tile(
-                    new Vector2D(0, 0),
-                    new Vector2D(inventoryItemIcons.sword.sprite.x, inventoryItemIcons.sword.sprite.y),
-                    new Vector2D(inventoryItemIcons.sword.sprite.z, inventoryItemIcons.sword.sprite.a),
-                    true,
-                    ReverseAtlasLUT[inventoryItemIcons.sword.url]
-                ),
-                AllAnimationSkeletonsList.femaleAnimations.meleeRight,
-                'swordMeleeRight'
-            );
+            GenerateCustomSheets();
 
             ToggleObjectsHasBeenInitialized(true);
         }
@@ -117,25 +109,28 @@ class MasterObject {
         CanvasDrawer.GCD.CheckIfFinishedLoading();
     }
 
+    static LogicTests() {
+        Rectangle.InsideRectTest();
+    }
+
     GameBegin() {
         if (this.gameHasBegun === false) {
             CanvasDrawer.GCD.GameBegin();
-            for (let i = 0; i < AllPlants.length; i++) {
+
+            for (let i = 0; i < AllPlants.length; ++i) {
                 CustomEventHandler.AddListener(AllPlants[i]);
             }
 
             this.gameHasBegun = true;
 
             let keys = Object.keys(Cobject.AllCobjects);
-            for (let i = 0; i < keys.length; i++) {
+            for (let i = 0, l = keys.length; i < l; ++i) {
                 if (Cobject.AllCobjects[keys[i]] !== undefined)
                     Cobject.AllCobjects[keys[i]].GameBegin();
             }
         }
 
-        //TileMaker.SplitAtlasToTiles(CanvasDrawer.GCD.canvasAtlases['swordMeleeRight'], new Vector2D(64, 64));
-
-        GlobalLoop();
+        window.requestAnimationFrame(GlobalLoop);
     }
 
     GameLoopActions(delta) {
@@ -143,7 +138,7 @@ class MasterObject {
         CustomEventHandler.GCEH.FixedUpdate(delta);
 
         let keys = Object.keys(Cobject.AllCobjects);
-        for (let i = 0; i < keys.length; i++) {
+        for (let i = 0, l = keys.length; i < l; ++i) {
             if (Cobject.AllCobjects[keys[i]] !== undefined) {
                 Cobject.AllCobjects[keys[i]].FixedUpdate(delta);
 
@@ -159,13 +154,16 @@ class MasterObject {
     }
 
     GameLoop() {
-        document.getElementById('gameobject-draw-debug').innerHTML = '';
+        //document.getElementById('gameobject-draw-debug').innerHTML = '';
         this.Mastertime.Next();
         this.GameLoopActions(this.Mastertime.Delta());
-        CanvasDrawer.DrawToMain(this.playerController.playerCamera);
         CollisionHandler.GCH.FixedUpdate();
 
+        CanvasDrawer.DrawToMain(this.playerController.playerCamera);
+
         GlobalFrameCounter++;
+
+        window.requestAnimationFrame(GlobalLoop);
     }
 }
 
@@ -189,7 +187,7 @@ CustomEventHandler.AddListener(shopTest);
 var duck = new Character('/content/sprites/animals/duck_walk.png', 'duckWalk', 0, new Vector2D(250, 400), AllAnimationsList.smallAnimalAnimations);
 var duck1 = new Character('/content/sprites/animals/duck_walk.png', 'duckWalk', 0, new Vector2D(250, 432), AllAnimationsList.smallAnimalAnimations);
 var duck2 = new Character('/content/sprites/animals/duck_walk.png', 'duckWalk', 0, new Vector2D(250, 464), AllAnimationsList.smallAnimalAnimations);
-var duck3 = new Character('/content/sprites/animals/duck_walk.png', 'duckWalk', 0, new Vector2D(250, 496), AllAnimationsList.smallAnimalAnimations);
+var duck3 = new Character('/content/sprites/animals/duck_walk.png', 'duckWalk', 0, new Vector2D(250, 30 * 32), AllAnimationsList.smallAnimalAnimations);
 
 var AllPlants = [
     new Plant('crops', 'corn', new Vector2D(592, 128), AllAnimationsList.plantAnimations.corn, AllPlantData.corn),
@@ -216,7 +214,7 @@ var AllPlants = [
     new Plant('crops', 'broccoli', new Vector2D(592 + (32 * 21), 128), AllAnimationsList.plantAnimations.broccoli, AllPlantData.broccoli),
 ];
 
-for (let i = 0; i < AllPlants.length; i++) {
+for (let i = 0, l = AllPlants.length; i < l; ++i) {
     CustomEventHandler.AddListener(AllPlants[i]);
 }
 

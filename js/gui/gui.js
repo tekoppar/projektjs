@@ -2,6 +2,7 @@
 class GUI {
     static CreateButton(text) {
         let temp = document.getElementById('button-ui');
+        //@ts-ignore
         let clone = temp.content.cloneNode(true);
         clone.children[0].innerText = text;
 
@@ -10,6 +11,7 @@ class GUI {
 
     static CreateLabel(text) {
         let temp = document.getElementById('label-ui');
+        //@ts-ignore
         let clone = temp.content.cloneNode(true);
         clone.children[0].innerText = text;
 
@@ -18,6 +20,7 @@ class GUI {
 
     static CreateParagraph(text) {
         let temp = document.getElementById('paragraph-ui');
+        //@ts-ignore
         let clone = temp.content.cloneNode(true);
         clone.children[0].innerText = text;
 
@@ -38,6 +41,7 @@ class GUI {
 
     static CreateInput(type = 'number') {
         let temp = document.getElementById('input-ui');
+        //@ts-ignore
         let clone = temp.content.cloneNode(true);
         clone.children[0].children[0].setAttribute('type', type);
 
@@ -46,6 +50,7 @@ class GUI {
 
     static CreateContainer(verticalHorizontal = true) {
         let temp = document.getElementById('container-ui');
+        //@ts-ignore
         let clone = temp.content.cloneNode(true);
 
         if (verticalHorizontal === false)

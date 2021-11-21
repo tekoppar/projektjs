@@ -1,5 +1,10 @@
 import { CanvasDrawer, Vector2D, Cobject, Rectangle, CMath, TileMaker, Tile, DrawingOperation, OperationType } from '../../internal.js';
 
+/**
+ * Enum for particle type
+ * @readonly
+ * @enum {Number}
+ */
 const ParticleType = {
     Sprite: 0,
     Color: 1,
@@ -20,8 +25,15 @@ function generateImageFromColor(color, rectangle) {
     return img;
 }
 
+/**
+ * @class
+ * @constructor
+ * @public
+ */
 class Particle {
+
     constructor() {
+         /** @type {HTMLImageElement} */
         this.particleImage;
         this.position = new Vector2D(0, 0);
         this.lifeTime = 1;
@@ -29,6 +41,12 @@ class Particle {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @public
+ * @extends Particle
+ */
 class SpriteParticle extends Particle {
     constructor(tile) {
         super();
@@ -68,12 +86,12 @@ class ParticleGenerator {
 
         let newParticles = [];
 
-        for (let i = 0; i < filters.length; i++) {
+        for (let i = 0, l = filters.length; i < l; ++i) {
             if (filters[i].runOnce === true)
                 filters[i].hasRun = false;
         }
 
-        for (let i = 0; i < this.particles.length; i++) {
+        for (let i = 0, l = this.particles.length; i < l; ++i) {
             for (let i2 = 0; i2 < this.ParticleGeneratorSettings.spawn; i2++) {
                 if (this.ParticleGeneratorSettings.particleType === ParticleType.Sprite && this.particles[i] instanceof SpriteParticle) {
                     let newParticle = new SpriteParticle(this.particles[i].particleTile);
@@ -92,21 +110,21 @@ class ParticleGenerator {
     }
 
     UpdateParticles(delta, filters, particles) {
-        for (let i = 0; i < filters.length; i++) {
+        for (let i = 0, l = filters.length; i < l; ++i) {
             for (let particle of particles) {
                 if (filters[i].runOnce === false || (filters[i].runOnce === true && filters[i].hasRun === false))
                     filters[i].ApplyFilter(particle, delta);
             }
         }
 
-        for (let i = 0; i < filters.length; i++) {
+        for (let i = 0, l = filters.length; i < l; ++i) {
             if (filters[i].runOnce === true)
                 filters[i].hasRun = true;
         }
     }
 
     UpdateLifeTime(delta) {
-        for (let i = 0; i < this.generatedParticles.length; i++) {
+        for (let i = 0, l = this.generatedParticles.length; i < l; ++i) {
             this.generatedParticles[i].lifeTime -= delta;
 
             if (this.generatedParticles[i].lifeTime <= 0) {
@@ -246,6 +264,12 @@ class ParticleFilterFadeSize extends ParticleFilter {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @public
+ * @extends Cobject
+ */
 class ParticleSystem extends Cobject {
     constructor(particles, size, position, particleFilters = [], lifeTime = 1) {
         super(new Vector2D(0, 0));
@@ -268,8 +292,6 @@ class ParticleSystem extends Cobject {
         //document.getElementById('container-game').appendChild(this.particleCanvas);
         //document.getElementById('game-canvas').style.filter = 'brightness(0.3)';
 
-        //this.particleCanvasCtx.webkitImageSmoothingEnabled = false;
-        //this.particleCanvasCtx.msImageSmoothingEnabled = false;
         //this.particleCanvasCtx.imageSmoothingEnabled = false;
     }
 
@@ -331,6 +353,7 @@ class ParticleSystem extends Cobject {
 
         if (this.drawingOperation === undefined) {
             this.drawingOperation = new DrawingOperation(
+                this,
                 new Tile(this.position.Clone(), new Vector2D(0, 0), this.size.Clone(), true, 'particles'),
                 CanvasDrawer.GCD.frameBuffer,
                 this.particleCanvas,

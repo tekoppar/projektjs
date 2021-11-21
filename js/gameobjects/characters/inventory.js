@@ -28,6 +28,7 @@ class Inventory extends Cobject {
             this.inventoryHTML = GUI.CreateContainer();
 
             let template = document.getElementById('inventory-panel');
+            // @ts-ignore
             let clone = template.content.cloneNode(true);
             this.inventoryHTMLList = clone.querySelector('div.panel-middle');
             this.inventoryHTMLList.addEventListener('click', this);
@@ -49,6 +50,14 @@ class Inventory extends Cobject {
 
     HasMoney(amount) {
         return this.moneyAmount !== 0 && this.moneyAmount >= amount;
+    }
+
+    GetItem(name) {
+        let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
+        if (found !== undefined)
+            return found
+        else
+            return undefined; 
     }
 
     HasItemAmount(name, amount) {
@@ -182,6 +191,7 @@ class Inventory extends Cobject {
 
         for (let value of this.inventoryDictionary) {
             let template = document.getElementById('inventory-panel-item');
+            // @ts-ignore
             let clone = template.content.cloneNode(true);
 
             if (value !== null) {
@@ -232,7 +242,7 @@ class Inventory extends Cobject {
         switch (e.type) {
             case 'click':
                 if (e.target.classList.contains('inventory-item') === true) {
-                    let found = this.inventoryDictionary.GetValueByProperty(item.name, 'name');
+                    let found = this.inventoryDictionary.GetValueByProperty(this.selectedItem.name, 'name');
                     if (found !== undefined) {
                         this.selectedItem = found;// this.inventory[e.target.dataset.inventoryItem];
                     }

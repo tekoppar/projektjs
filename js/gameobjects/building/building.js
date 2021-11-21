@@ -1,5 +1,10 @@
 import { Cobject, InputHandler, GameToolbar, GUI, CraftingRecipeList, inventoryItemIcons } from '../../internal.js';
 
+/**
+ * @class
+ * @constructor
+ * @extends Cobject
+ */
 class Building extends Cobject {
     constructor(owner) {
         super();
@@ -21,6 +26,7 @@ class Building extends Cobject {
             this.buildingHTML.classList.add('center-absolute');
 
             let template = document.getElementById('building-panel');
+            //@ts-ignore
             let clone = template.content.cloneNode(true);
             this.buildingHTMLList = clone.querySelector('div.building-item-list');
             this.buildingHTMLList.addEventListener('click', this);
@@ -28,6 +34,7 @@ class Building extends Cobject {
             this.buildingHTML.appendChild(clone);
             document.getElementById('game-gui').appendChild(this.buildingHTML);
 
+            //@ts-ignore
             document.getElementById('building-button-craft').addEventListener('click', this);
 
             InputHandler.GIH.AddListener(this);
@@ -36,3 +43,5 @@ class Building extends Cobject {
             window.requestAnimationFrame(() => this.SetupBuilding());
     }
 }
+
+export { Building };

@@ -1,15 +1,19 @@
 import { CanvasDrawer, Cobject } from '../internal.js';
 
+/**
+ * @class
+ * @constructor
+ * @public
+ * @extends Cobject
+ */
 class Minimap extends Cobject {
     constructor(parent) {
         super();
         this.parentObject = parent;
         this.minimapCanvas = document.createElement('canvas');
-        this.minimapCanvas.setAttribute('width', 256);
-        this.minimapCanvas.setAttribute('height', 256);
+        this.minimapCanvas.setAttribute('width', (256).toString());
+        this.minimapCanvas.setAttribute('height', (256).toString());
         this.minimapCanvasCtx = this.minimapCanvas.getContext('2d');
-        this.minimapCanvasCtx.webkitImageSmoothingEnabled = false;
-        this.minimapCanvasCtx.msImageSmoothingEnabled = false;
         this.minimapCanvasCtx.imageSmoothingEnabled = false;
 
         this.minimapCanvas.style.position = 'absolute';

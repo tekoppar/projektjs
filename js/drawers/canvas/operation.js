@@ -1,4 +1,4 @@
-import { Vector2D, Rectangle } from '../../internal.js';
+import { Vector2D, Rectangle, Brush, Color, CMath, LightSystem, Vector, Vector4D, ObjectType } from '../../internal.js';
 
 const OperationType = {
     terrain: 0,
@@ -10,6 +10,11 @@ const OperationType = {
     lighting: 6
 }
 
+/**
+ * @class
+ * @constructor
+ * @public
+ */
 class Operation {
     constructor(drawingCanvas, operationType = OperationType.terrain) {
         this.oldPosition = new Vector2D(0, 0);
@@ -25,7 +30,9 @@ class Operation {
 
     Update(position) {
         if (position !== undefined) {
-            this.oldPosition.Set(position);
+            this.oldPosition.x = position.x;
+            this.oldPosition.y = position.y;
+            //this.oldPosition.Set(position);
         }
 
         this.isVisible = false;
@@ -43,7 +50,12 @@ class Operation {
 
     }
 
+    GetObjectType() {
+        ObjectType.Pawn;
+    }
+
     UpdateDrawState(state) {
+        
     }
 
     DrawState() {
@@ -153,7 +165,7 @@ class RectOperation extends Operation {
             if (this.updateRects === undefined)
                 this.updateRects = [];
 
-            for (let i = 0; i < this.updateRects.length; i++) {
+            for (let i = 0, l = this.updateRects.length; i < l; ++i) {
                 if (this.updateRects[i].GetOverlappingCorners(rect).length >= 4)
                     return;
             }
@@ -179,18 +191,28 @@ class RectOperation extends Operation {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @public
+ * @extends Operation
+ */
 class DrawingOperation extends Operation {
-    constructor(tile, drawingCanvas, targetCanvas, operationType = OperationType.gameObjects, drawSize = new Vector2D(0, 0)) {
+    constructor(owner, tile, drawingCanvas, targetCanvas, operationType = OperationType.gameObjects, drawSize = new Vector2D(0, 0), centerPosition = new Vector2D(tile.position.x, tile.position.y), objectType = ObjectType.Pawn) {
         super(drawingCanvas, operationType);
+        this.owner = owner;
         this.tile = tile;
         this.targetCanvas = targetCanvas;
         this.collisionSize = undefined;
         this.updateRects = undefined;
         this.drawSize = drawSize;
+        this.centerPosition = centerPosition;
+        this.objectType = objectType;
     }
 
     Clone() {
         return new DrawingOperation(
+            this,
             this.tile,
             this.drawingCanvas,
             this.targetCanvas
@@ -213,7 +235,7 @@ class DrawingOperation extends Operation {
             if (this.updateRects === undefined)
                 this.updateRects = [];
 
-            for (let i = 0; i < this.updateRects.length; i++) {
+            for (let i = 0, l = this.updateRects.length; i < l; ++i) {
                 if (this.updateRects[i].GetOverlappingCorners(rect).length >= 4)
                     return;
             }
@@ -239,7 +261,7 @@ class DrawingOperation extends Operation {
     }
 
     GetBoundingBox() {
-        return new Rectangle(this.position.x, this.position.y, this.size.x, this.size.y);
+        return new Rectangle(this.owner.position.x, this.owner.position.y, this.owner.size.x, this.owner.size.y);
     }
 
     GetDrawPosition() {
@@ -334,18 +356,84 @@ class PathOperation extends Operation {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @public
+ * @extends Operation
+ */
 class LightingOperation extends Operation {
-    constructor(pos, size = new Vector2D(32, 32), drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, alpha = 0.3) {
+    constructor(owner, pos, drawingCanvas, light) {
         super(drawingCanvas);
+        this.owner = owner;
         this.position = pos;
-        this.clear = clear;
-        this.size = size;
-        this.color = color;
-        this.drawIndex = drawIndex;
+        this.drawIndex = 0;
         this.needsToBeRedrawn = true;
-        this.lifeTime = lifetime;
-        this.alpha = alpha;
+        this.light = light;
+        this.updateRects = undefined;
+        this.updateRectsPixelData = undefined;
+
+        //this.frameBufferCtx.fillStyle = 'rgba(1, 1, 1, 1)';
+        //this.frameBufferCtx.fillRect(0, 0, this.frameBuffer.width, this.frameBuffer.height);
+
+        /*this.intensityInput;
+        this.attenuationInput;
+        this.constantInput;
+        this.linearInput;
+        this.quadInput;
+
+        this.SetupHTML();*/
     }
+
+    /*SetupHTML() {
+        let parent = document.body.querySelector('div.controls');
+        this.intensityInput = document.createElement('input');
+        this.intensityInput.type = 'number';
+        this.intensityInput.id = 'lightIntensity';
+        this.intensityInput.addEventListener('input', this);
+        parent.appendChild(this.intensityInput);
+
+        this.attenuationInput = document.createElement('input');
+        this.attenuationInput.type = 'number';
+        this.attenuationInput.id = 'lightAttenuation';
+        this.attenuationInput.addEventListener('input', this);
+        parent.appendChild(this.attenuationInput);
+
+        this.constantInput = document.createElement('input');
+        this.constantInput.type = 'number';
+        this.constantInput.id = 'lightConstant';
+        this.constantInput.step = 0.01;
+        this.constantInput.addEventListener('input', this);
+        parent.appendChild(this.constantInput);
+
+        this.linearInput = document.createElement('input');
+        this.linearInput.type = 'number';
+        this.linearInput.id = 'lightLinear';
+        this.linearInput.step = 0.01;
+        this.linearInput.addEventListener('input', this);
+        parent.appendChild(this.linearInput);
+
+        this.quadInput = document.createElement('input');
+        this.quadInput.type = 'number';
+        this.quadInput.id = 'lightQuad';
+        this.quadInput.step = 0.01;
+        this.quadInput.addEventListener('input', this);
+        parent.appendChild(this.quadInput);
+    }
+
+    handleEvent(e) {
+        switch (e.type) {
+            case 'input':
+                switch (e.target.id) {
+                    case 'lightIntensity': this.intensity = parseFloat(e.target.value); break;
+                    case 'lightAttenuation': this.attenuation = parseFloat(e.target.value); break;
+                    case 'lightConstant': this.constant = parseFloat(e.target.value); break;
+                    case 'lightLinear': this.linear = parseFloat(e.target.value); break;
+                    case 'lightQuad': this.quad = parseFloat(e.target.value); break;
+                }
+                break;
+        }
+    }*/
 
     GetDrawIndex() {
         return this.drawIndex;
@@ -356,15 +444,15 @@ class LightingOperation extends Operation {
     }
 
     GetDrawPosition() {
-        return Vector2D.Add(this.position, this.size);
+        return Vector2D.AddF(this.position, this.light.attenuation);
     }
 
     GetDrawPositionY() {
-        return this.position.y + this.size.y;
+        return this.position.y;
     }
 
     GetSize() {
-        return this.size;
+        return this.light.attenuation * this.light.drawScale;
     }
 
     Update(pos) {
@@ -376,15 +464,30 @@ class LightingOperation extends Operation {
         return this.oldPosition === undefined ? this.position : this.oldPosition;
     }
 
+    UpdateDrawState(value) {
+        this.needsToBeRedrawn = value;
+        this.updateRects = undefined;
+        this.updateRectsPixelData = undefined;
+    }
+
     DrawState() {
         return this.needsToBeRedrawn;
     }
 
-    Tick(delta) {
-        this.lifeTime -= delta;
+    AddUpdateRect(rect, light, alphaRect) {
+        if (this.needsToBeRedrawn === false) {
+            if (this.updateRects === undefined) {
+                this.updateRects = [];
+                this.updateRectsPixelData = [];
+            }
 
-        if (this.lifeTime <= 0) {
-            this.Delete();
+            for (let i = 0, l = this.updateRects.length; i < l; ++i) {
+                if (this.updateRects[i].GetOverlappingCorners(rect).length >= 4) 
+                    return;
+            }
+
+            this.updateRects.push(rect);
+            this.updateRectsPixelData.push({light:light, rect:alphaRect});
         }
     }
 }

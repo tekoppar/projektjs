@@ -1,15 +1,20 @@
-import { Vector2D, CanvasDrawer, CollisionEditor, TileMaker, Cobject, Tree, MasterObject, correctMouse, InputHandler, CollisionHandler, BoxCollision, PolygonCollision, CMath, PathOperation } from '../internal.js';
+import { Vector2D, CanvasDrawer, CollisionEditor, PawnSetupParams, TileMaker, EditorState, Cobject, Tree, MasterObject, InputHandler, CollisionHandler, BoxCollision, PolygonCollision, CMath, PathOperation, ObjectClassLUT } from '../internal.js';
 
+/**
+ * @class
+ * @constructor
+ * @extends Cobject
+ */
 class PropEditor extends Cobject {
     static GPEditor = new PropEditor();
 
     constructor() {
         super();
+        this.editorState = EditorState.Closed;
         this.container;
         this.gridHTML;
-        this.sprite;
         this.SetupHTML();
-        this.gridSize = 32;
+        this.gridSize = new Vector2D(32, 32);
         this.isDrawing = false;
         this.collisionPositions = [];
         this.positionMap = {};
@@ -37,11 +42,6 @@ class PropEditor extends Cobject {
         this.container = document.getElementById('prop-editor');
         this.gridHTML = document.getElementById('prop-editor-grid');
         this.copyProp = document.getElementById('prop-editor-copy')
-
-        this.gridHTML.addEventListener('mousemove', this);
-        this.gridHTML.addEventListener('mousedown', this);
-        this.gridHTML.addEventListener('mouseup', this);
-        this.container.addEventListener('click', this);
     }
 
     LogPoints() {
@@ -57,11 +57,13 @@ class PropEditor extends Cobject {
     }
 
     ShowProps() {
-        let keys = Object.keys(TileMaker.CustomTiles);
+        this.editorState = EditorState.Open;
+        this.UpdateHTMLEvents();
 
+        let keys = Object.keys(TileMaker.CustomTiles);
         this.gridHTML.innerHTML = '';
 
-        for (let i = 0; i < keys.length; i++) {
+        for (let i = 0, l = keys.length; i < l; ++i) {
             if (CanvasDrawer.GCD.canvasAtlases[keys[i]] !== undefined) {
                 let newImage = new Image(CanvasDrawer.GCD.canvasAtlases[keys[i]].width, CanvasDrawer.GCD.canvasAtlases[keys[i]].height);
                 newImage.src = CanvasDrawer.GCD.canvasAtlases[keys[i]].canvas.toDataURL('image/png');
@@ -70,14 +72,56 @@ class PropEditor extends Cobject {
                 this.gridHTML.appendChild(newImage);
             }
         }
+    }
 
-        this.container.style.visibility = 'visible';
+    HideProps() {
+        this.editorState = EditorState.Closed;
+        this.UpdateHTMLEvents();
+
+        this.selectedProp.classList.remove('prop-editor-grid-selected');
+        this.selectedProp = undefined;
+        CanvasDrawer.GCD.SetSelection(undefined);
+    }
+
+    UpdateHTMLEvents() {
+        switch (this.editorState) {
+            case EditorState.Closed:
+                this.gridHTML.removeEventListener('mousemove', this);
+                this.gridHTML.removeEventListener('mousedown', this);
+                this.gridHTML.removeEventListener('mouseup', this);
+                this.container.removeEventListener('click', this);
+                this.container.style.visibility = 'collapse';
+            break;
+
+            case EditorState.Open:
+                this.gridHTML.addEventListener('mousemove', this);
+                this.gridHTML.addEventListener('mousedown', this);
+                this.gridHTML.addEventListener('mouseup', this);
+                this.container.addEventListener('click', this);
+                this.container.style.visibility = 'visible';
+            break;
+        }
+    }
+
+    CreateNewObject() {
+        if (ObjectClassLUT[this.selectedProp.dataset.propName] !== undefined) {
+            let params = PawnSetupParams[this.selectedProp.dataset.propName];
+            params = JSON.parse(JSON.stringify(params));
+            let pos = MasterObject.MO.playerController.mousePosition.Clone();
+            pos.x += params[1][0];
+            params[1] = pos;
+            let newObject = new ObjectClassLUT[this.selectedProp.dataset.propName].constructor(...params);
+            newObject.GameBegin();
+        }
     }
 
     CEvent(eventType, key, data) {
+        if (this.editorState === EditorState.Closed)
+            return;
+
         switch (eventType) {
             case 'input':
-                if (key === 'leftMouse' && data.eventType === 2) {
+                if (key === 'leftMouse' && data.eventType === 2 && this.selectedProp === undefined) {
                     this.overlapCollision.position.x = MasterObject.MO.playerController.mousePosition.x;
                     this.overlapCollision.position.y = MasterObject.MO.playerController.mousePosition.y;
 
@@ -93,14 +137,22 @@ class PropEditor extends Cobject {
                             }
 
                             this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.GetPoints(), CanvasDrawer.GCD.gameDebugCanvas, 'white', false, 0, 5, 0.3);
-                            CanvasDrawer.GCD.AddPathOperation(this.selectedPropDrawingOperation);
+                            CanvasDrawer.GCD.AddPathObjectOperation(this.selectedPropDrawingOperation);
 
                             let propInfo = CMath.GeneratePropertyTree(this.selectedProp);
 
-                            document.body.appendChild(propInfo);
-                            propInfo.addEventListener('click', this);
+                            //document.body.appendChild(propInfo);
+                            //propInfo.addEventListener('click', this);
                         }
                     }
+                } else if (key === 'leftMouse' && data.eventType === 2 && this.selectedProp !== undefined) {
+                    this.CreateNewObject();
+                }
+
+                if (key === 'rightMouse' && data.eventType === 2 && this.selectedProp !== undefined) {
+                    this.selectedProp.classList.remove('prop-editor-grid-selected');
+                    this.selectedProp = undefined;
+                    CanvasDrawer.GCD.SetSelection(undefined);
                 }
                 break;
         }
@@ -120,7 +172,7 @@ class PropEditor extends Cobject {
                         CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite);
                 }
                 else if (e.target.id === 'prop-editor-close') {
-                    this.container.style.visibility = 'collapse';
+                    this.HideProps();
                 } else if (e.target.dataset.atlasName !== undefined && CanvasDrawer.GCD.canvasAtlases[e.target.dataset.atlasName] !== undefined) {
                     if (this.selectedProp !== undefined)
                         this.selectedProp.classList.remove('prop-editor-grid-selected');

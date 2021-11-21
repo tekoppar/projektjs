@@ -1,6 +1,21 @@
-import { GameObject, Vector2D, Vector4D, CanvasDrawer, OperationType, PolygonCollision, BoxCollision, Shadow, CAnimation, Rectangle } from '../../internal.js';
+import { GameObject, Vector2D, Vector4D, CanvasDrawer, OperationType, PolygonCollision, BoxCollision, Shadow, CAnimation } from '../../internal.js';
 
+/**
+ * @class
+ * @constructor
+ * @public
+ * @extends GameObject
+ */
 class Prop extends GameObject {
+
+    /**
+     * Creates a new Prop
+     * @param {String} name 
+     * @param {Vector2D} position 
+     * @param {*} animations 
+     * @param {String} canvasName 
+     * @param {Number} drawIndex 
+     */
     constructor(name, position, animations, canvasName, drawIndex = 0) {
         super(canvasName, position, false, drawIndex);
         this.name = name;
@@ -30,6 +45,10 @@ class Prop extends GameObject {
         super.FlagDrawingUpdate(position);
     }
 
+    GameBegin() {
+        super.GameBegin();
+    }
+
     PlayAnimation() {
         if (this.currentAnimation !== undefined) {
             let frame = this.currentAnimation.GetFrame();
@@ -54,12 +73,32 @@ class Prop extends GameObject {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @public
+ * @extends Prop
+ */
 class ExtendedProp extends Prop {
+
+    /**
+     * Creates a new ExtendedProp
+     * @param {String} name 
+     * @param {Vector2D} position 
+     * @param {*} animations 
+     * @param {String} canvasName 
+     * @param {Number} drawIndex 
+     * @param {(Vector4D|Object)} blockingCollisionSize 
+     */
     constructor(name, position, animations, canvasName, drawIndex = 0, blockingCollisionSize = new Vector4D(16, 16, 0, 0)) {
         super(name, position, animations, canvasName, drawIndex);
         this.isVisible = true;
         this.currentAnimation = undefined;
-        this.blockingCollisionSize = blockingCollisionSize;
+
+        if (blockingCollisionSize instanceof Vector4D)
+            this.blockingCollisionSize = blockingCollisionSize;
+        else
+            this.blockingCollisionSize = new Vector4D(blockingCollisionSize.x, blockingCollisionSize.y, blockingCollisionSize.w, blockingCollisionSize.h);
 
         if (animations instanceof CAnimation)
             this.currentAnimation = animations.Clone();
@@ -119,7 +158,7 @@ class ExtendedProp extends Prop {
 
         this.BlockingCollision = new BoxCollision(this.BoxCollision.position.Clone(), this.blockingCollisionSize.Clone(), true, this, true);
         this.BlockingCollision.position = this.position.Clone(); //this.BoxCollision.GetRealCenterPosition().Clone();
-        this.BlockingCollision.position.x -= this.BlockingCollision.size.x / 2 - this.blockingCollisionSize.z;
+        this.BlockingCollision.position.x -= this.BlockingCollision.size.x * 0.5 - this.blockingCollisionSize.z;
         this.BlockingCollision.position.y -= this.BlockingCollision.size.y - this.blockingCollisionSize.a;
         //this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x / 2 + this.blockingCollisionSize.z, y: this.BlockingCollision.size.y + this.blockingCollisionSize.a });
 

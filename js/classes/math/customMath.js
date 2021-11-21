@@ -1,14 +1,33 @@
 import { Vector2D } from '../../internal.js';
 
-Number.prototype.mapRange = function (in_min, in_max, out_min, out_max) {
+
+/**
+ * @memberof Number
+ */
+Object.defineProperty(Number.prototype, 'mapRange', {
+    value(in_min, in_max, out_min, out_max) {
+        return (this - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    }
+});
+
+/*Number.prototype.mapRange = function (in_min, in_max, out_min, out_max) {
     return (this - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
+}*/
+
 
 class CMath {
     static RandomInt(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+    }
+
+    static MapRange (value, in_min, in_max, out_min, out_max) {
+        return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+    }
+
+    static DegreesToRadians(degrees) {
+        return degrees * (Math.PI / 180);
     }
 
     static RandomFloat(min, max) {
@@ -29,7 +48,7 @@ class CMath {
     }
 
     static LookAt2D(a, b) {
-        return Math.abs((Math.atan2(a.y - b.y, a.x - b.x) * 180 / Math.PI) + 90);
+        return Math.atan2(b.y - a.y, b.x - a.y)*(180/Math.PI) + 180;
     }
 
     static LineSlope(a, b) {
@@ -202,6 +221,22 @@ class CMath {
         'Yellow',
         'YellowGreen',
     ];
+
+    static Lerp(a, b, f) {
+        return a + f * (b - a);
+    }
+
+    static EaseIn(t) {
+        return t * t;
+    }
+
+    static EaseOut(t) {
+        return t * (2 - t);
+    }
+
+    static EaseInOut(t) {
+        return CMath.Lerp(CMath.EaseIn(t), CMath.EaseOut(t), t);
+    }
 
     static GeneratePropertyTree(object, depth = 0, name = undefined, objects = []) {
         let visitedObjects = objects;

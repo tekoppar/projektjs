@@ -1,4 +1,4 @@
-import { Cobject, InputHandler, GameToolbar, GUI, CraftingRecipeList, inventoryItemIcons } from '../../internal.js';
+import { Cobject, InputHandler, GameToolbar, GUI, Item, CraftingRecipeList, inventoryItemIcons } from '../../internal.js';
 
 class Crafting extends Cobject {
     constructor(owner) {
@@ -21,6 +21,7 @@ class Crafting extends Cobject {
             this.craftingHTML.classList.add('center-absolute');
 
             let template = document.getElementById('crafting-panel');
+            //@ts-ignore
             let clone = template.content.cloneNode(true);
             this.craftingHTMLList = clone.querySelector('div.crafting-item-list');
             this.craftingHTMLList.addEventListener('click', this);
@@ -80,8 +81,9 @@ class Crafting extends Cobject {
         let keys = Object.keys(CraftingRecipeList);
 
         this.craftingHTMLList.innerHTML = '';
-        for (let i = 0; i < keys.length; i++) {
+        for (let i = 0, l = keys.length; i < l; ++i) {
             let template = document.getElementById('crafting-panel-item');
+            //@ts-ignore
             let clone = template.content.cloneNode(true);
 
             if (CraftingRecipeList[keys[i]] !== null) {
@@ -118,7 +120,8 @@ class Crafting extends Cobject {
             let template = document.getElementById('crafting-panel-resource');
             document.getElementById('crafting-item-resources').innerHTML = '';
 
-            for (let i = 0; i < this.craftingRecipe.resourceList.length; i++) {
+            for (let i = 0, l = this.craftingRecipe.resourceList.length; i < l; ++i) {
+                //@ts-ignore
                 let clone = template.content.cloneNode(true);
 
                 let text = '';
@@ -156,13 +159,13 @@ class Crafting extends Cobject {
 
     CraftItem() {
         if (this.craftingRecipe !== undefined) {
-            for (let i = 0; i < this.craftingRecipe.resourceList.length; i++) {
+            for (let i = 0, l = this.craftingRecipe.resourceList.length; i < l; ++i) {
                 if (this.characterOwner.inventory.HasItemAmount(this.craftingRecipe.resourceList[i].resource, this.craftingRecipe.resourceList[i].amount) === false) {
                     return;
                 }
             }
 
-            for (let i = 0; i < this.craftingRecipe.resourceList.length; i++) {
+            for (let i = 0, l = this.craftingRecipe.resourceList.length; i < l; ++i) {
                 this.characterOwner.inventory.RemoveAmount(this.craftingRecipe.resourceList[i].resource, this.craftingRecipe.resourceList[i].amount);
             }
 

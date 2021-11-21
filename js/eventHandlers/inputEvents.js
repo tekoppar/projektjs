@@ -1,5 +1,10 @@
 import { CanvasDrawer, Vector2D } from '../internal.js';
 
+/**
+ * Enum for input state
+ * @readonly
+ * @enum {Number}
+ */
 const InputState = {
     OnPressed: 0,
     Pressed: 1,
@@ -8,6 +13,11 @@ const InputState = {
     Null: 4,
 }
 
+/**
+ * Enum for input type
+ * @readonly
+ * @enum {Number}
+ */
 const InputType = {
     keyboard: 0,
     mouse: 1,
@@ -81,7 +91,7 @@ class InputHandler {
     }
 
     RemoveListener(object) {
-        for (let i = 0; i < this.registeredListeners.length; i++) {
+        for (let i = 0, l = this.registeredListeners.length; i < l; ++i) {
             if (this.registeredListeners[i] === object)
                 this.registeredListeners.splice(i, 1);
         }
@@ -172,12 +182,12 @@ class InputHandler {
         }
     }
 
-    FixedUpdate() {
+    FixedUpdate(delta) {
         let keys = Object.keys(this.keysPressed);
 
         for (let x = 0; x < keys.length; x++) {
             if (this.keysPressed[keys[x]].state !== InputState.Null) {
-                for (let i = 0; i < this.registeredListeners.length; i++) {
+                for (let i = 0, l = this.registeredListeners.length; i < l; ++i) {
                     switch (this.keysPressed[keys[x]].inputType) {
                         case InputType.keyboard:
                             this.registeredListeners[i].CEvent('input', keys[x], { eventType: this.keysPressed[keys[x]].state });
@@ -191,7 +201,7 @@ class InputHandler {
             }
         }
 
-        for (let x = 0; x < keys.length; x++) {
+        for (let x = 0, l = keys.length; x < l; ++x) {
             switch (this.keysPressed[keys[x]].state) {
                 case InputState.OnPressed: this.keysPressed[keys[x]].State(InputState.Pressed); break;
                 case InputState.OnReleased: this.keysPressed[keys[x]].State(InputState.Released); break;

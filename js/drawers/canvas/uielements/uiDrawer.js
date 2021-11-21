@@ -9,16 +9,17 @@ class UIDrawer {
 
     AddUIElements(delta) {
         if (this.uiElements.length > 0) {
-            for (let i = 0; i < this.uiElements.length; i++) {
+            for (let i = 0, l = this.uiElements.length; i < l; ++i) {
                 this.uiElements[i].AddOperations(delta);
             }
 
             let tempUIElements = this.uiElements;
-            for (let i = 0; i < tempUIElements.length; i++) {
+            for (let i = 0, l = tempUIElements.length; i < l; ++i) {
                 if (tempUIElements[i].lifeTime <= 0) {
                     tempUIElements[i].RemoveUI();
                     tempUIElements.splice(i, 1);
-                    i--;
+                    --i;
+                    --l;
                 }
             }
 
@@ -32,6 +33,7 @@ class UIDrawer {
 
         newUiElement.drawingOperations.push(
             new DrawingOperation(
+                this,
                 new Tile(
                     new Vector2D(position.x - 16, position.y),
                     new Vector2D(0, 0),
@@ -46,6 +48,7 @@ class UIDrawer {
 
         newUiElement.drawingOperations.push(
             new DrawingOperation(
+                this,
                 new Tile(
                     new Vector2D(position.x, position.y),
                     new Vector2D(0, 0),
@@ -62,6 +65,7 @@ class UIDrawer {
 
         newUiElement.drawingOperations.push(
             new DrawingOperation(
+                this,
                 new Tile(
                     new Vector2D(position.x + middleWidth, position.y),
                     new Vector2D(0, 0),
@@ -76,6 +80,7 @@ class UIDrawer {
 
         newUiElement.drawingOperations.push(
             new DrawingOperation(
+                this,
                 new Tile(
                     new Vector2D(position.x, position.y),
                     new Vector2D(sprite.x, sprite.y),

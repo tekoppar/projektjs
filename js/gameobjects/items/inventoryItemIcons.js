@@ -58,7 +58,7 @@ Object.assign(inventoryItemIcons, {
 Object.assign(inventoryItemIcons, {
     shovel: { sprite: new Vector4D(1, 8, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
     hoe: { sprite: new Vector4D(4, 8, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
-    axe: { sprite: new Vector4D(5, 7, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+    axe: { sprite: new Vector4D(1, 0, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
     pickaxe: { sprite: new Vector4D(3, 0, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
     sword: { sprite: new Vector4D(0, 0, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
     birchLog: { sprite: new Vector4D(5, 0, 32, 32), atlas: new Vector2D(640, 640), url: '/content/sprites/farming_fishing.png' },

@@ -16,12 +16,12 @@ class Camera extends Cobject {
     }
 
     SetCameraPosition(position) {
-        this.position.x = Math.max(position.x, this.cameraSize.x / 2);
-        this.position.y = Math.max(position.y, this.cameraSize.y / 2);
+        this.position.x = Math.max(position.x, this.cameraSize.x * 0.5);
+        this.position.y = Math.max(position.y, this.cameraSize.y * 0.5);
     }
 
     GetRect() {
-        return new Vector4D(this.position.x - (this.cameraSize.x / 2), this.position.y -  (this.cameraSize.y / 2), this.cameraSize.x, this.cameraSize.y);
+        return new Vector4D(this.position.x - (this.cameraSize.x * 0.5), this.position.y -  (this.cameraSize.y * 0.5), this.cameraSize.x, this.cameraSize.y);
     }
 }
 

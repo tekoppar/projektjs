@@ -30,11 +30,12 @@ class Dictionary {
     }
 
     GenerateHash(value) {
+        // @ts-ignore
         return String(value).hashCode();
     }
 
     GetHashByProperty(value, property = 'UID') {
-        for (let i = 0; i < this.hashes.length; i++) {
+        for (let i = 0, l = this.hashes.length; i < l; ++i) {
             if (this.dictionaryValues[this.hashes[i]].value[property] !== undefined && this.dictionaryValues[this.hashes[i]].value[property] === value)
                 return this.hashes[i];
         }
@@ -50,7 +51,7 @@ class Dictionary {
     }
 
     GetValueByProperty(value, property = 'UID') {
-        for (let i = 0; i < this.hashes.length; i++) {
+        for (let i = 0, l = this.hashes.length; i < l; ++i) {
             if (this.dictionaryValues[this.hashes[i]].value[property] !== undefined && this.dictionaryValues[this.hashes[i]].value[property] === value)
                 return this.dictionaryValues[this.hashes[i]].value;
         }
@@ -59,7 +60,7 @@ class Dictionary {
     }
 
     HasValue(value) {
-        for (let i = 0; i < this.hashes.length; i++) {
+        for (let i = 0, l = this.hashes.length; i < l; ++i) {
             if (this.dictionaryValues[this.hashes[i]].value === value)
                 return true;
         }

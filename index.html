@@ -27,15 +27,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link
-        href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
     <link rel="stylesheet" href="/css/stylev2.css">
     <link rel="stylesheet" href="/css/toolbar.css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -54,11 +50,12 @@
             <option value="DrawBeneath">Draw Beneath</option>
         </select>
         <label id="grid-mouse"></label>
+        <label id="custom-logs" style="color:white;background-color: black;"></label>
     </div>
     <div id="gameobject-draw-debug" style="position: absolute; left:0px; top:400px;width:250px;height:600px;background-color: black;padding:5px;color:white;white-space: pre;"></div>
     <div class="container-main">
         <div id="container-game" class="container-game">
-            <canvas style="position:absolute" id="game-canvas" width="1920" height="1080"></canvas>
+            <canvas style="position:absolute" id="game-canvas" width="1920" height="1080" oncontextmenu="return false;"></canvas>
             <canvas class="absolute-canvas" id="sprite-objects-canvas" width="1920" height="1080"></canvas>
             <canvas class="absolute-canvas" id="sprite-preview-canvas" width="1920" height="1080"></canvas>
             <canvas class="absolute-canvas" id="game-gui-canvas" width="1920" height="1080"></canvas>
@@ -88,6 +85,8 @@
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js" integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ==" crossorigin="anonymous" defer>
+    </script>
     <script src="js/js.js"></script>
     <script src="js/gui/toolbar.js" type="module"></script>
     <script src="js/farm.js" type="module"></script>

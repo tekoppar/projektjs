@@ -1,10 +1,20 @@
-import { Vector2D, Tile, DrawingOperation } from "../../internal.js";
+import { Vector2D, Tile, DrawingOperation, Color, CMath, RectOperation, LightingOperation } from "../../internal.js";
 
+/**
+ * Enum for editor state
+ * @readonly
+ * @enum {String}
+ */
 const brushTypes = {
     circle: 'circle',
     box: 'box',
 }
 
+/**
+ * Enum for editor state
+ * @readonly
+ * @enum {String}
+ */
 const BrushDrawState = {
     Normal: 'normal',
     DrawBeneath: 'drawbeneath',
@@ -12,7 +22,7 @@ const BrushDrawState = {
 };
 
 class Brush {
-    constructor(settings = new BrushSettings(new Vector2D(1,1), brushTypes.box), canvasSprite = undefined, drawState = BrushDrawState.Normal) {
+    constructor(settings = new BrushSettings(new Vector2D(1, 1), brushTypes.box), canvasSprite = undefined, drawState = BrushDrawState.Normal) {
         this.settings = settings;
         this.canvasSprite = canvasSprite;
         this.drawState = drawState;
@@ -21,7 +31,7 @@ class Brush {
     }
 
     SetBrush(type, canvasSprite) {
-        this.settings.type = type;
+        this.settings.brushType = type;
         this.canvasSprite = canvasSprite;
     }
 
@@ -33,8 +43,8 @@ class Brush {
         let newSprites = [];
 
         if (sprite.size.x > 32 || sprite.size.y > 32) {
-            for (let y = 0; y < sprite.size.x / 32; y++) {
-                for (let x = 0; x < sprite.size.y / 32; x++) {
+            for (let y = 0; y < sprite.size.x / 32; ++y) {
+                for (let x = 0; x < sprite.size.y / 32; ++x) {
                     let cloned = sprite.Clone();
                     cloned.tilePosition.x += y;
                     cloned.tilePosition.y += x;
@@ -49,13 +59,28 @@ class Brush {
         return newSprites;
     }
 
+    static GenerateDrawingOperation(operation, brushType = brushTypes.box) {
+        if (operation instanceof DrawingOperation) {
+
+        } else if (operation instanceof RectOperation) {
+
+        } else if (operation instanceof LightingOperation) {
+            switch (brushType) {
+                case brushTypes.box:
+                    break;
+                case brushTypes.circle:
+                    break;
+            }
+        }
+    }
+
     GenerateDrawingOperations(pos, drawingCanvas, targetCanvas) {
         let drawingOperations = [];
 
         if (this.canvasSprite === undefined)
             return [];
 
-        switch (this.settings.type) {
+        switch (this.settings.brushType) {
             case brushTypes.circle:
 
                 break;
@@ -64,12 +89,12 @@ class Brush {
                 let orgSize = new Vector2D(this.canvasSprite.size.y, this.canvasSprite.size.x);
                 let orgPos = this.canvasSprite.tilePosition.Clone();
                 let splitSprites = this.SplitMultiSelection(this.canvasSprite);
-                let x = this.settings.brushSize.x === 1 ? 0 : Math.ceil(this.settings.brushSize.x / 2 * -1);
+                let x = this.settings.brushSize.x === 1 ? 0 : Math.ceil(this.settings.brushSize.x * 0.5 * -1);
 
-                for (; x < this.settings.brushSize.x; x++) {
-                    let y = this.settings.brushSize.y === 1 ? 0 : Math.ceil(this.settings.brushSize.y / 2 * -1);
+                for (; x < this.settings.brushSize.x; ++x) {
+                    let y = this.settings.brushSize.y === 1 ? 0 : Math.ceil(this.settings.brushSize.y * 0.5 * -1);
 
-                    for (; y < this.settings.brushSize.y; y++) {
+                    for (; y < this.settings.brushSize.y; ++y) {
                         let tempPos = { x: pos.x, y: pos.y };
                         tempPos.x += x * orgSize.y;
                         tempPos.y += y * orgSize.x;
@@ -78,6 +103,7 @@ class Brush {
                             for (let orgX = 0; orgX < (orgSize.x / 32); orgX++) {
                                 drawingOperations.push(
                                     new DrawingOperation(
+                                        this,
                                         new Tile(
                                             new Vector2D(tempPos.x + (splitSprites[index].size.y * orgY), tempPos.y + (splitSprites[index].size.x * orgX)),
                                             splitSprites[index].tilePosition,

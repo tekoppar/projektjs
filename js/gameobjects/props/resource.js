@@ -1,6 +1,22 @@
 import { ExtendedProp, Rectangle, Vector2D, Vector4D, CanvasDrawer, OperationType, ItemProp, CMath, BoxCollision, AllCollisions, resourceSprites, CollisionHandler } from "../../internal.js";
 
+/**
+ * @class
+ * @constructor
+ * @extends ExtendedProp
+ */
 class Resource extends ExtendedProp {
+
+    /**
+     * @param {String} name 
+     * @param {Vector2D} position 
+     * @param {*} animations 
+     * @param {String} canvasName 
+     * @param {Number} drawIndex 
+     * @param {Vector4D} blockingCollisionSize 
+     * @param {String} resourceName 
+     * @param {(Rectangle|Object)} secondStageFrame 
+     */
     constructor(name, position, animations, canvasName, drawIndex = 0, blockingCollisionSize = new Vector4D(16, 16, 0, 0), resourceName = 'birchLog', secondStageFrame = new Rectangle(23, 18, 32, 32)) {
         super(name, position, animations, canvasName, drawIndex, blockingCollisionSize);
         this.isVisible = true;
@@ -9,7 +25,11 @@ class Resource extends ExtendedProp {
         this.life = 100;
         this.isSecondStage = false;
         this.resourceName = resourceName;
-        this.secondStageFrame = secondStageFrame;
+
+        if (secondStageFrame instanceof Rectangle)
+            this.secondStageFrame = secondStageFrame;
+        else
+            this.secondStageFrame = new Rectangle(secondStageFrame.x, secondStageFrame.y, secondStageFrame.w, secondStageFrame.h);
     }
 
     GameBegin() {
@@ -36,7 +56,7 @@ class Resource extends ExtendedProp {
         let resourcePosition = this.BoxCollision.GetCenterPosition().Clone();
         let resourceCount = CMath.RandomInt(1, 3);
 
-        for (let i = 0; i < resourceCount; i++) {
+        for (let i = 0; i < resourceCount; ++i) {
             let newResource = new ItemProp(
                 this.resourceName,
                 new Vector2D(resourcePosition.x + CMath.RandomInt(-50, 50), resourcePosition.y + CMath.RandomInt(-50, 50)),
@@ -114,6 +134,8 @@ class Resource extends ExtendedProp {
     OnHit(damage, source) {
         this.life -= damage;
         super.OnHit(source);
+
+        console.log(this.life);
 
         if (this.life <= 0 && this.isSecondStage === false) {
             this.SecondStage();

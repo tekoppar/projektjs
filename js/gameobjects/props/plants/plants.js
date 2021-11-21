@@ -17,28 +17,28 @@ class PlantData {
 }
 
 const AllPlantData = {
-    corn: new PlantData(60, 600, { low: 1, high: 4 }, new CanvasSprite(29, 10, 32, 32, 'fruitsveggies', true), 0.22),
-    potato: new PlantData(700, 0, { low: 5, high: 15 }, new CanvasSprite(0, 0, 32, 32, 'fruitsveggies', true), 0.28),
-    watermelon: new PlantData(1300, 900, { low: 1, high: 2 }, new CanvasSprite(22, 0, 32, 32, 'fruitsveggies', true), 0.96),
-    pumpkin: new PlantData(1200, 800, { low: 1, high: 3 }, new CanvasSprite(28, 0, 32, 32, 'fruitsveggies', true), 0.86),
-    bellpepperGreen: new PlantData(1250, 1000, { low: 1, high: 2 }, new CanvasSprite(12, 0, 32, 32, 'fruitsveggies', true), 1.96),
-    bellpepperRed: new PlantData(1450, 1250, { low: 1, high: 2 }, new CanvasSprite(13, 0, 32, 32, 'fruitsveggies', true), 2.66),
-    bellpepperOrange: new PlantData(1350, 1150, { low: 1, high: 2 }, new CanvasSprite(14, 0, 32, 32, 'fruitsveggies', true), 2.21),
-    bellpepperYellow: new PlantData(900, 600, { low: 1, high: 2 }, new CanvasSprite(15, 0, 32, 32, 'fruitsveggies', true), 0.56),
-    carrot: new PlantData(900, 0, { low: 5, high: 8 }, new CanvasSprite(24, 20, 32, 32, 'fruitsveggies', true), 0.32),
-    parsnip: new PlantData(1700, 0, { low: 2, high: 3 }, new CanvasSprite(25, 20, 32, 32, 'fruitsveggies', true), 1.49),
-    radish: new PlantData(1350, 0, { low: 4, high: 7 }, new CanvasSprite(18, 5, 32, 32, 'fruitsveggies', true), 1.21),
-    beetroot: new PlantData(900, 0, { low: 1, high: 3 }, new CanvasSprite(16, 15, 32, 32, 'fruitsveggies', true), 0.69),
-    garlic: new PlantData(2450, 0, { low: 1, high: 18 }, new CanvasSprite(23, 15, 32, 32, 'fruitsveggies', true), 2.38),
-    onionYellow: new PlantData(800, 0, { low: 1, high: 5 }, new CanvasSprite(24, 15, 32, 32, 'fruitsveggies', true), 0.42),
-    onionRed: new PlantData(800, 0, { low: 1, high: 5 }, new CanvasSprite(25, 15, 32, 32, 'fruitsveggies', true), 0.86),
-    onionWhite: new PlantData(800, 0, { low: 1, high: 5 }, new CanvasSprite(26, 15, 32, 32, 'fruitsveggies', true), 0.61),
-    onionGreen: new PlantData(800, 0, { low: 1, high: 5 }, new CanvasSprite(27, 15, 32, 32, 'fruitsveggies', true), 1.61),
-    hotPepper: new PlantData(2200, 1800, { low: 1, high: 4 }, new CanvasSprite(11, 0, 32, 32, 'fruitsveggies', true), 3.93),
-    chiliPepper: new PlantData(2000, 1900, { low: 3, high: 10 }, new CanvasSprite(19, 0, 32, 32, 'fruitsveggies', true), 1.92),
-    lettuceIceberg: new PlantData(1500, 1200, { low: 1, high: 1 }, new CanvasSprite(11, 5, 32, 32, 'fruitsveggies', true), 0.85),
-    cauliflower: new PlantData(1700, 1500, { low: 1, high: 1 }, new CanvasSprite(14, 5, 32, 32, 'fruitsveggies', true), 1.21),
-    broccoli: new PlantData(2000, 1750, { low: 10, high: 25 }, new CanvasSprite(15, 5, 32, 32, 'fruitsveggies', true), 0.31),
+    corn: new PlantData(60, 600, { low: 1, high: 4 }, new CanvasSprite(29, 10, 32, 32, 'fruitsveggies', true)),
+    potato: new PlantData(700, 0, { low: 5, high: 15 }, new CanvasSprite(0, 0, 32, 32, 'fruitsveggies', true)),
+    watermelon: new PlantData(1300, 900, { low: 1, high: 2 }, new CanvasSprite(22, 0, 32, 32, 'fruitsveggies', true)),
+    pumpkin: new PlantData(1200, 800, { low: 1, high: 3 }, new CanvasSprite(28, 0, 32, 32, 'fruitsveggies', true)),
+    bellpepperGreen: new PlantData(1250, 1000, { low: 1, high: 2 }, new CanvasSprite(12, 0, 32, 32, 'fruitsveggies', true)),
+    bellpepperRed: new PlantData(1450, 1250, { low: 1, high: 2 }, new CanvasSprite(13, 0, 32, 32, 'fruitsveggies', true)),
+    bellpepperOrange: new PlantData(1350, 1150, { low: 1, high: 2 }, new CanvasSprite(14, 0, 32, 32, 'fruitsveggies', true)),
+    bellpepperYellow: new PlantData(900, 600, { low: 1, high: 2 }, new CanvasSprite(15, 0, 32, 32, 'fruitsveggies', true)),
+    carrot: new PlantData(900, 0, { low: 5, high: 8 }, new CanvasSprite(24, 20, 32, 32, 'fruitsveggies', true)),
+    parsnip: new PlantData(1700, 0, { low: 2, high: 3 }, new CanvasSprite(25, 20, 32, 32, 'fruitsveggies', true)),
+    radish: new PlantData(1350, 0, { low: 4, high: 7 }, new CanvasSprite(18, 5, 32, 32, 'fruitsveggies', true)),
+    beetroot: new PlantData(900, 0, { low: 1, high: 3 }, new CanvasSprite(16, 15, 32, 32, 'fruitsveggies', true)),
+    garlic: new PlantData(2450, 0, { low: 1, high: 18 }, new CanvasSprite(23, 15, 32, 32, 'fruitsveggies', true)),
+    onionYellow: new PlantData(800, 0, { low: 1, high: 5 }, new CanvasSprite(24, 15, 32, 32, 'fruitsveggies', true)),
+    onionRed: new PlantData(800, 0, { low: 1, high: 5 }, new CanvasSprite(25, 15, 32, 32, 'fruitsveggies', true)),
+    onionWhite: new PlantData(800, 0, { low: 1, high: 5 }, new CanvasSprite(26, 15, 32, 32, 'fruitsveggies', true)),
+    onionGreen: new PlantData(800, 0, { low: 1, high: 5 }, new CanvasSprite(27, 15, 32, 32, 'fruitsveggies', true)),
+    hotPepper: new PlantData(2200, 1800, { low: 1, high: 4 }, new CanvasSprite(11, 0, 32, 32, 'fruitsveggies', true)),
+    chiliPepper: new PlantData(2000, 1900, { low: 3, high: 10 }, new CanvasSprite(19, 0, 32, 32, 'fruitsveggies', true)),
+    lettuceIceberg: new PlantData(1500, 1200, { low: 1, high: 1 }, new CanvasSprite(11, 5, 32, 32, 'fruitsveggies', true)),
+    cauliflower: new PlantData(1700, 1500, { low: 1, high: 1 }, new CanvasSprite(14, 5, 32, 32, 'fruitsveggies', true)),
+    broccoli: new PlantData(2000, 1750, { low: 10, high: 25 }, new CanvasSprite(15, 5, 32, 32, 'fruitsveggies', true)),
 }
 
 class Plant extends Prop {
@@ -61,7 +61,7 @@ class Plant extends Prop {
     }
 
     CheckGrowth() {
-        this.growthSpeed
+        this.plantData.growthSpeed
     }
 
     GameBegin() {

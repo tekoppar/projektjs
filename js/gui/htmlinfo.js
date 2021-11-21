@@ -22,8 +22,10 @@ class HTMLInfo {
         this.hoveredHTML = GUI.CreateLabel("Hovered Item");
 
         let template = document.getElementById('gameui-panel');
+        //@ts-ignore
         let clone = template.content.cloneNode(true);
         this.selectedContainerHTML = clone.children[0];
+        //@ts-ignore
         clone = template.content.cloneNode(true);
         this.hoveredContainerHTML = clone.children[0];
 
@@ -34,6 +36,7 @@ class HTMLInfo {
         this.selectedContainerHTML.querySelector('div.panel-middle').appendChild(this.selectedItemHTML);
         this.hoveredContainerHTML.querySelector('div.panel-middle').appendChild(this.hoveredHTML);
 
+        //@ts-ignore
         this.parentContainer.appendChildren([this.selectedContainerHTML, this.hoveredContainerHTML]);
 
         this.RemoveSelect();

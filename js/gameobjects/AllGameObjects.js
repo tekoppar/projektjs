@@ -1,11 +1,13 @@
 import { Vector2D, Vector4D, Tree, ExtendedProp, CAnimation, AnimationType, Rock, Rectangle } from '../internal.js';
 
-let Props = [
+let Props = [];
+
+Props = Props.concat([
     new Tree('treeBirch', new Vector2D(12.5 * 32, 18 * 32), undefined, 'treeBirch1'),
     new Tree('treeBirch', new Vector2D(45.5 * 32, 18 * 32), undefined, 'treeBirch2'),
     new Tree('treePine', new Vector2D(17.5 * 32, 18 * 32), undefined, 'treePine1'),
     new Tree('treePine', new Vector2D(23.5 * 32, 18 * 32), undefined, 'treePine2'),
-    new Tree('treePine', new Vector2D(28.5 * 32, 18 * 32), undefined, 'treePine1v2'),
+    new Tree('treePine', new Vector2D(29 * 32, 18 * 32), undefined, 'treePine1v2'),
     new Tree('treePine', new Vector2D(33.5 * 32, 18 * 32), undefined, 'treePine2v2'),
     new Tree('treePine', new Vector2D(37.5 * 32, 18 * 32), undefined, 'treePine3'),
 
@@ -22,7 +24,7 @@ let Props = [
     new Tree('treePine', new Vector2D(58.5 * 32, 11 * 32), undefined, 'treePine2v2'),
     new Tree('treePine', new Vector2D(55.5 * 32, 5 * 32), undefined, 'treePine2v2'),
     new Tree('treePine', new Vector2D(58.5 * 32, 3 * 32), undefined, 'treePine1'),
-];
+]);
 
 Props = Props.concat([
     new ExtendedProp('fence', new Vector2D(4.5 * 32, 15 * 32), new CAnimation('null', new Vector2D(1, 1), new Vector2D(1, 1), 32, 32, AnimationType.Single, 1), 'fence', 0, new Vector4D(3, 32, 0, 0)),

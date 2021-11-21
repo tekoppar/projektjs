@@ -15,10 +15,13 @@ class SpriteObject {
     }
 }
 
+/**
+ * @memberof Object
+ */
 Object.defineProperty(Array.prototype, 'CloneObjects', {
     value() {
         let arr = [];
-        for (let i = 0; i < this.length; i++) {
+        for (let i = 0, l = this.length; i < l; ++i) {
             let newObject = Object.create(this[i]);
             Object.assign(newObject, this[i]);
             arr.push(newObject);
@@ -27,10 +30,13 @@ Object.defineProperty(Array.prototype, 'CloneObjects', {
     }
 });
 
+/**
+ * @memberof String
+ */
 Object.defineProperty(String.prototype, 'hashCode', {
     value: function () {
-        var hash = 0, i, chr;
-        for (i = 0; i < this.length; i++) {
+        var hash = 0, chr;
+        for (let i = 0, l = this.length; i < l; ++i) {
             chr = this.charCodeAt(i);
             hash = ((hash << 5) - hash) + chr;
             hash |= 0; // Convert to 32bit integer
@@ -39,26 +45,38 @@ Object.defineProperty(String.prototype, 'hashCode', {
     }
 });
 
+/**
+ * @memberof String
+ */
 Object.defineProperty(String.prototype, 'chopLeft', {
     value() {
         return this.slice(1, this.length);
     }
 });
 
+/**
+ * @memberof String
+ */
 Object.defineProperty(String.prototype, 'chopRight', {
     value() {
         return this.slice(0, this.length - 1);
     }
 });
 
+/**
+ * @memberof Node
+ */
 Object.defineProperty(Node.prototype, 'appendChildren', {
     value(nodes) {
-        for (var i = 0; i < nodes.length; i++) {
+        for (let i = 0, l = nodes.length; i < l; ++i) {
             this.appendChild(nodes[i]);
         }
     }
 });
 
+/**
+ * @memberof Number
+ */
 Object.defineProperty(Number, 'randomInt', {
     value(min, max) {
         min = Math.ceil(min);
@@ -67,16 +85,22 @@ Object.defineProperty(Number, 'randomInt', {
     }
 });
 
+// @ts-ignore
 function posToGrid(pos, columns = link.columns) {
+    // @ts-ignore
     let x = pos.x / link.width;
+    // @ts-ignore
     let y = pos.y / link.height;
     return x + (columns * y);
 }
 
+// @ts-ignore
 function gridToPos(pid, columns = link.columns) {
     let x = pid % columns;
     let y = Math.floor(pid / columns);
+    // @ts-ignore
     x = link.width * x;
+    // @ts-ignore
     y = link.height * y;
     return { x: x, y: y };
 }

@@ -1,13 +1,32 @@
 import { Vector2D } from '../../internal.js';
 
+/**
+ * Creates a new Cobject
+ * @class
+ * @constructor
+ * @public
+ */
 class Cobject {
     static AllCobjects = { };
 
+    /**
+     * Create an Object
+     * @param {Vector2D} position - position vector of the object
+     */
     constructor(position = new Vector2D(0, 0)) {
+        /** @type {Vector2D} */
         this.position = position;
+
+        /** @type {Vector2D} */
         this.fakePosition = new Vector2D(0,0);
+
+        /** @type {Vector2D} */
         this.size = new Vector2D(1, 1);
+
+        /** @type {String} */
         this.name = '';
+
+        /** @type {Object} @public */
         this.UID;
 
         Cobject.AddObject(this);
@@ -41,7 +60,7 @@ class Cobject {
         window.crypto.getRandomValues(array);
         let uid = '';
 
-        for (let i = 0; i < array.length; i++) {
+        for (let i = 0, l = array.length; i < l; ++i) {
             uid += array[i];
         }
 
@@ -57,7 +76,7 @@ class Cobject {
         Cobject.AllCobjects[uid] = object;
     }
 
-    FixedUpdate() {
+    FixedUpdate(delta) {
 
     }
 

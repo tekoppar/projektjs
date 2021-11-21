@@ -1,8 +1,12 @@
-import { Vector2D, Tile, TileType, TileTerrain, correctMouse } from '../../internal.js';
+import { Vector2D, Tile, TileType, TileTerrain, correctMouse, Color, CMath } from '../../internal.js';
 
+/**
+ * @class
+ * @constructor
+ */
 class CanvasAtlas {
     constructor(CanvasDrawer, url, width = 0, height = 0, atlasSize = 32, name = 'default') {
-        this.sprites = { };
+        this.sprites = {};
         this.canvas;
         this.canvasCtx;
         this.img;
@@ -12,6 +16,14 @@ class CanvasAtlas {
         this.atlasSize = atlasSize;
         this.name = name;
         this.CanvasDrawer = CanvasDrawer;
+
+        this.startDrag;
+        this.endDrag;
+
+        this.bwCanvas;
+        this.bwCanvasCtx;
+        this.cutoutData;
+        this.GenerateBWAtlas = false;
 
         this.LoadImage();
     }
@@ -40,11 +52,10 @@ class CanvasAtlas {
 
     CreateOffscreenCanvas() {
         this.canvas = document.createElement('canvas');
+
         this.width = this.canvas.width = this.img.width;
         this.height = this.canvas.height = this.img.height;
         this.canvasCtx = this.canvas.getContext('2d');
-        this.canvasCtx.webkitImageSmoothingEnabled = false;
-        this.canvasCtx.msImageSmoothingEnabled = false;
         this.canvasCtx.imageSmoothingEnabled = false;
         this.canvas.id = this.name;
 
@@ -55,10 +66,54 @@ class CanvasAtlas {
         this.canvas.addEventListener('mouseup', this);
         this.canvas.addEventListener('click', this);
 
-        this.startDrag = new Vector2D(0, 0);
-        this.endDrag = new Vector2D(0, 0);
+        //this.startDrag = new Vector2D(0, 0);
+        //this.endDrag = new Vector2D(0, 0);
+
+        if (this.GenerateBWAtlas === true) {
+            this.bwCanvas = document.createElement('canvas');
+            this.bwCanvas.width = this.img.width;
+            this.bwCanvas.height = this.img.height;
+
+            document.body.appendChild(this.bwCanvas);
+            this.bwCanvasCtx = this.bwCanvas.getContext('2d');
+            this.bwCanvasCtx.imageSmoothingEnabled = false;
+
+            this.bwCanvasCtx.drawImage(this.img, 0, 0);
+
+            this.GenerateCutoutAtlas();
+        }
 
         this.CanvasDrawer.hasLoadedAllImages[this.name] = true;
+    }
+
+    GenerateCutoutAtlas() {
+        this.cutoutData = this.bwCanvasCtx.getImageData(0, 0, this.bwCanvas.width, this.bwCanvas.height);
+
+        for (let i = 0; i < this.cutoutData.data.length; i += 4) {
+            this.cutoutData.data[i] = this.cutoutData.data[i + 1] = this.cutoutData.data[i + 2] = 5;
+        }
+
+        this.bwCanvasCtx.putImageData(this.cutoutData, 0, 0);
+        //this.bwCanvasCtx.globalCompositeOperation = 'source-in';
+    }
+
+    ChangeCutoutAtlasColor(color) {
+        let index = this.height * this.width * 4,
+            time = 0;
+        for (let y = this.height; y >= 0; y--) {
+            for (let x = this.width; x >= 0; x--) {
+                if (this.cutoutData.data[index + 3] > 0) {
+                    this.cutoutData.data[index] = CMath.Lerp(color.red, 5, CMath.EaseIn(time / 100));
+                    this.cutoutData.data[index + 1] = CMath.Lerp(color.green, 5, CMath.EaseIn(time / 100));
+                    this.cutoutData.data[index + 2] = CMath.Lerp(color.blue, 5, CMath.EaseIn(time / 100));
+                }
+                index -= 4;
+            }
+            time++;
+        }
+        this.bwCanvasCtx.putImageData(this.cutoutData, 0, 0);
+        //this.bwCanvasCtx.fillStyle = color.ToString();
+        //this.bwCanvasCtx.fillRect(0, 0, this.bwCanvas.width, this.bwCanvas.height);
     }
 
     handleEvent(e) {
@@ -72,6 +127,7 @@ class CanvasAtlas {
                 this.startDrag = correctMouse(this.startDrag);
                 this.startDrag.ToGrid(this.startDrag.size);
                 this.endDrag = correctMouse(e);
+                // @ts-ignore
                 this.endDrag.ToGrid(this.endDrag.size);
 
                 let calcCoords = new Vector2D(this.endDrag.x, this.endDrag.y);
@@ -98,6 +154,11 @@ class CanvasAtlas {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends CanvasAtlas
+ */
 class CanvasAtlasObject extends CanvasAtlas {
     constructor(CanvasDrawer, url, width = 0, height = 0, atlasSize = 32, name = 'default') {
         super(CanvasDrawer, url, width, height, atlasSize, name);

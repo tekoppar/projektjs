@@ -9,6 +9,11 @@ Object.assign(stackableItems, {
     hoe: false,
 });
 
+/**
+ * @class
+ * @constructor
+ * @extends Cobject
+ */
 class Item extends Cobject {
     constructor(name, amount = 0) {
         super();
@@ -20,7 +25,7 @@ class Item extends Cobject {
         this.isUsableItem = this.amount > 0 ? true : false;
         this.isStackable = stackableItems[this.name] === undefined ? true : stackableItems[this.name];
         this.value = ItemValues[this.name] !== undefined ? ItemValues[this.name] : 0;
-        this.inventory;
+        this.inventory = undefined;
     }
 
     Delete() {
@@ -135,7 +140,7 @@ class Hoe extends UsableItem {
             pos.Floor();
             let operations = CanvasDrawer.GCD.GetTileAtPosition(pos, false);
 
-            for (let i = 0; i < operations.length; i++) {
+            for (let i = 0, l = operations.length; i < l; ++i) {
                 if (operations[i].tile.tileType === TileType.Ground) {
                     TileF.PaintTile(new Tile(new Vector2D(0, 0), new Vector2D(6, 18), new Vector2D(32, 32), TileLUT.terrain[18][6].transparent, 'terrain'), pos);
                     operations[i].tile.ChangeSprite(new Tile(new Vector2D(0, 0), new Vector2D(6, 18), new Vector2D(32, 32), TileLUT.terrain[18][6].transparent, 'terrain'));

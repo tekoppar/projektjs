@@ -15,10 +15,10 @@ class CustomEventHandler {
         this.customEvents = [];
     }
 
-    FixedUpdate() {
+    FixedUpdate(delta) {
         if (this.customEvents.length > 0) {
-            for (let y = 0; y < this.customEvents.length; y++) {
-                for (let i = 0; i < this.registeredListeners.length; i++) {
+            for (let y = 0, lY = this.customEvents.length; y < lY; ++y) {
+                for (let i = 0, lX = this.registeredListeners.length; i < lX; ++i) {
                     this.registeredListeners[i].CEvent(this.customEvents[y].eventName, this.customEvents[y].otherObject);
                 }
             }

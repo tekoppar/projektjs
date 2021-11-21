@@ -17,6 +17,7 @@ class SelectedTileEditor {
             return;
         }
 
+        // @ts-ignore
         let clone = document.getElementById('template-selected-tiles-editor').content.cloneNode(true);
 
         this.containerHTML = clone.children[0];
@@ -29,6 +30,7 @@ class SelectedTileEditor {
         this.containerHTML.innerHTML = "";
 
         for (let operation of this.SelectedTiles) {
+            // @ts-ignore
             let clone = document.getElementById('template-selected-tiles-editor-entry').content.cloneNode(true);
 
             let canvas = clone.querySelector('canvas.selected-tiles-editor-sprite');

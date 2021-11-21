@@ -1,4 +1,4 @@
-import { GameObject, Inventory, ItemStats, AllAnimationsList, Vector2D, BoxCollision, CollisionHandler, OperationType, CMath, ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings, ParticleType, AnimationType, CanvasDrawer, AllAnimationSkeletonsList } from '../../internal.js';
+import { GameObject, Inventory, ItemStats, Vector2D, BoxCollision, ObjectsHasBeenInitialized, CollisionHandler, OperationType, CMath, ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings, ParticleType, AnimationType, CanvasDrawer } from '../../internal.js';
 
 const FacingDirection = {
     Left: 0,
@@ -16,21 +16,32 @@ const FacingDirection = {
 };
 
 class CharacterAttachments extends GameObject {
-    constructor(spriteSheet, name, drawIndex = 0, animations = undefined, skeletonBones = undefined) {
-        super(name, new Vector2D(0, 0), false, drawIndex);
+    constructor(position, spriteSheet, name, drawIndex = 0, animations = undefined, skeletonBones = undefined) {
+        super(name, position, false, drawIndex);
         this.spriteSheet = spriteSheet;
         this.animations = animations;
         this.currentAnimation = undefined;
         this.skeletonBones = skeletonBones;
         this.name = name;
+        this.offset = new Vector2D(0, 0);
     }
 
-    ChangeAnimation(animation) {
+    ChangeAnimation(animation, mustExist = false) {
         if (this.animations !== undefined && this.animations[animation.name] !== undefined) {
             this.currentAnimation = this.animations[animation.name].Clone();
-        } else {
+        } else if (mustExist === false) {
             if (this.currentAnimation !== animation)
                 this.currentAnimation = animation;
+        } else {
+            this.currentAnimation = undefined;
+        }
+    }
+
+    LoadAtlas() {
+        if (ObjectsHasBeenInitialized === false) {
+            window.requestAnimationFrame(() => this.LoadAtlas());
+        } else {
+            CanvasDrawer.GCD.LoadNewSpriteAtlas(this.spriteSheet, 32, this.canvasName);
         }
     }
 
@@ -115,7 +126,8 @@ class Character extends GameObject {
         this.spriteSheet = spriteSheet;
         this.animations = animations;
         this.currentAnimation = undefined;
-        this.shadowAttachment = new CharacterAttachments('./content/sprites/lpc_shadow.png', 'shadow');
+        this.shadowAttachment = new CharacterAttachments(this.position, './content/sprites/lpc_shadow.png', 'shadow');
+        this.itemAttachment = undefined;
         this.attachments = {};
         this.isRunning = false;
         this.isIdle = false;
@@ -123,7 +135,7 @@ class Character extends GameObject {
     }
 
     AddAttachment(atlas, name, drawIndex, animations = undefined) {
-        let newAttachment = new CharacterAttachments(atlas, name, drawIndex, animations);
+        let newAttachment = new CharacterAttachments(this.position, atlas, name, drawIndex, animations);
         newAttachment.GameBegin();
         this.attachments[name] = newAttachment;
     }
@@ -142,8 +154,15 @@ class Character extends GameObject {
             this.BoxCollision.CalculateBoundingBox();
             this.BoxCollision.position = this.GetPosition();
 
+            if (this.itemAttachment !== undefined) {
+                this.itemAttachment.ChangeAnimation(animation.Clone(), true);
+                this.itemAttachment.BoxCollision.CalculateBoundingBox();
+                this.itemAttachment.BoxCollision.position = this.GetPosition();
+                this.itemAttachment.size = this.itemAttachment.BoxCollision.size = new Vector2D(32, 32);// new Vector2D(animation.h, animation.w);
+            }
+
             let keys = Object.keys(this.attachments);
-            for (let i = 0; i < keys.length; i++) {
+            for (let i = 0, l = keys.length; i < l; ++i) {
                 this.attachments[keys[i]].ChangeAnimation(animation.Clone());
                 this.attachments[keys[i]].BoxCollision.CalculateBoundingBox();
                 this.attachments[keys[i]].BoxCollision.position = this.GetPosition();
@@ -158,8 +177,11 @@ class Character extends GameObject {
         if (this.shadowAttachment !== undefined && this.shadowAttachment.drawingOperation !== undefined)
             this.shadowAttachment.FlagDrawingUpdate(position);
 
+        if (this.itemAttachment !== undefined && this.itemAttachment.drawingOperation !== undefined)
+            this.itemAttachment.FlagDrawingUpdate(position);
+
         let keys = Object.keys(this.attachments);
-        for (let i = 0; i < keys.length; i++) {
+        for (let i = 0, l = keys.length; i < l; ++i) {
             if (this.attachments[keys[i]].drawingOperation !== undefined)
                 this.attachments[keys[i]].FlagDrawingUpdate(position);
         }
@@ -174,8 +196,11 @@ class Character extends GameObject {
         if (this.shadowAttachment !== undefined && this.shadowAttachment.drawingOperation !== undefined)
             this.shadowAttachment.FlagDrawingUpdate(position);
 
+        if (this.itemAttachment !== undefined && this.itemAttachment.drawingOperation !== undefined)
+            this.itemAttachment.FlagDrawingUpdate(position);
+
         let keys = Object.keys(this.attachments);
-        for (let i = 0; i < keys.length; i++) {
+        for (let i = 0, l = keys.length; i < l; ++i) {
             if (this.attachments[keys[i]].drawingOperation !== undefined)
                 this.attachments[keys[i]].FlagDrawingUpdate(position);
         }
@@ -195,21 +220,69 @@ class Character extends GameObject {
                 this.shadowAttachment.CreateDrawOperation(this.shadowAttachment.currentAnimation.GetFrame(), this.GetPosition(), false, this.shadowAttachment.canvas, OperationType.gameObjects);
             }
 
+            if (this.itemAttachment !== undefined && this.itemAttachment.currentAnimation !== undefined) {
+                if (this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame] !== undefined) {
+                    this.itemAttachment.offset.x = this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame].x;
+                    this.itemAttachment.offset.y = this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame].y;
+                    this.itemAttachment.CreateDrawOperation(
+                        this.itemAttachment.currentAnimation.GetFrame(),
+                        new Vector2D(this.GetPosition().x + this.itemAttachment.offset.x, this.GetPosition().y + this.itemAttachment.offset.y),
+                        false,
+                        this.itemAttachment.canvas,
+                        OperationType.gameObjects
+                    );
+                }
+
+                this.itemAttachment.position = this.GetPosition();// this.position.Clone();
+                this.itemAttachment.position.y -= 64;
+                this.itemAttachment.drawingOperation.oldPosition.x += this.itemAttachment.offset.x;
+                this.itemAttachment.drawingOperation.oldPosition.y += this.itemAttachment.offset.y;
+                this.itemAttachment.drawingOperation.collisionSize = new Vector2D(32, 64 - this.itemAttachment.offset.y);
+            }
+
             this.CreateDrawOperation(frame, this.GetPosition(), true, this.canvas, OperationType.gameObjects);
 
             let facingDirection = this.GetFacingDirection();
-            if (this.attachments.redHair !== undefined && this.attachments.underDress !== undefined) {
-                if (facingDirection === FacingDirection.Up) {
-                    this.attachments.redHair.drawIndex = 1;
-                    this.attachments.underDress.drawIndex = 0;
-                } else {
-                    this.attachments.redHair.drawIndex = 0;
-                    this.attachments.underDress.drawIndex = 1;
-                }
+            switch (facingDirection) {
+                case FacingDirection.Up:
+                    if (this.attachments.redHair !== undefined)
+                        this.attachments.redHair.drawIndex = 2;
+                    if (this.itemAttachment !== undefined)
+                        this.itemAttachment.drawIndex = 1;
+                    if (this.attachments.underDress !== undefined)
+                        this.attachments.underDress.drawIndex = 0;
+                    break;
+
+                case FacingDirection.Left:
+                    if (this.attachments.redHair !== undefined)
+                        this.attachments.redHair.drawIndex = 0;
+                    if (this.itemAttachment !== undefined)
+                        this.itemAttachment.drawIndex = 1;
+                    if (this.attachments.underDress !== undefined)
+                        this.attachments.underDress.drawIndex = 2;
+                    break;
+
+                case FacingDirection.Right:
+                    if (this.attachments.redHair !== undefined)
+                        this.attachments.redHair.drawIndex = 0;
+                    if (this.itemAttachment !== undefined)
+                        this.itemAttachment.drawIndex = 1;
+                    if (this.attachments.underDress !== undefined)
+                        this.attachments.underDress.drawIndex = 2;
+                    break;
+
+                case FacingDirection.Down:
+                    if (this.attachments.redHair !== undefined)
+                        this.attachments.redHair.drawIndex = 0;
+                    if (this.itemAttachment !== undefined)
+                        this.itemAttachment.drawIndex = 1;
+                    if (this.attachments.underDress !== undefined)
+                        this.attachments.underDress.drawIndex = 2;
+                    break;
             }
 
             let keys = Object.keys(this.attachments);
-            for (let i = 0; i < keys.length; i++) {
+            for (let i = 0, l = keys.length; i < l; ++i) {
                 this.attachments[keys[i]].position = this.position.Clone();
 
                 if (this.attachments[keys[i]].currentAnimation !== undefined) {
@@ -226,8 +299,22 @@ class Character extends GameObject {
             if (this.shadowAttachment !== undefined)
                 this.shadowAttachment.currentAnimation.GetFrame();
 
+            if (this.itemAttachment !== undefined && this.itemAttachment.currentAnimation !== undefined) {
+                this.itemAttachment.CreateDrawOperation(
+                    this.itemAttachment.currentAnimation.GetFrame(),
+                    new Vector2D(
+                        this.GetPosition().x + this.itemAttachment.offset.x,
+                        this.GetPosition().y + this.itemAttachment.offset.y,
+                    ),
+                    false,
+                    this.itemAttachment.canvas,
+                    OperationType.gameObjects
+                );
+                this.itemAttachment.drawingOperation.Update(new Vector2D(this.GetPosition().x + this.itemAttachment.offset.x, this.GetPosition().y + this.itemAttachment.offset.y));
+            }
+
             let keys = Object.keys(this.attachments);
-            for (let i = 0; i < keys.length; i++) {
+            for (let i = 0, l = keys.length; i < l; ++i) {
                 if (this.attachments[keys[i]].currentAnimation !== undefined)
                     this.attachments[keys[i]].currentAnimation.GetFrame();
             }
@@ -314,7 +401,7 @@ class Character extends GameObject {
             this.BoxCollision.position.Add(Vector2D.Mult(this.MovementSpeed, this.Velocity));
 
             this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
-            this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x + this.BlockingCollision.size.x / 2, y: this.BlockingCollision.size.y - this.BlockingCollision.size.y });
+            this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5, y: this.BlockingCollision.size.y - this.BlockingCollision.size.y });
 
             if (this.CheckCollision() === true) {
                 this.previousPosition = this.GetPosition();
@@ -322,7 +409,7 @@ class Character extends GameObject {
             } else {
                 this.BoxCollision.position = this.GetPosition();
                 this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
-                this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x + this.BlockingCollision.size.x / 2, y: this.BlockingCollision.size.y - this.BlockingCollision.size.y });
+                this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5, y: this.BlockingCollision.size.y - this.BlockingCollision.size.y });
             }
         }
     }
@@ -330,7 +417,7 @@ class Character extends GameObject {
     UpdateCollision(position) {
         this.BoxCollision.position = position;
         this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
-        this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x + this.BlockingCollision.size.x / 2, y: 32 });
+        this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5, y: 32 });
     }
 
     CheckCollision() {
@@ -432,7 +519,7 @@ class Character extends GameObject {
             case 'walking': this.isRunning = false; break;
         }
 
-        this.MovementSpeed = new Vector2D(speed, speed);
+        this.MovementSpeed.y = this.MovementSpeed.x = speed;
         this.NeedsRedraw(this.GetPosition());
     }
 
@@ -446,13 +533,39 @@ class Character extends GameObject {
     }
 
     SetActiveItem(item) {
+        if (item === undefined)
+            return;
+
         this.activeItem = item;
 
         if (this.controller !== undefined)
             this.controller.TogglePreviewCursor(item.drawTilePreview);
 
         if (ItemStats[this.activeItem.name] !== undefined && ItemStats[this.activeItem.name].atlas !== undefined) {
-            this.AddAttachment(undefined, 'swordMeleeRight', 2, AllAnimationsList.meleeFemaleWeaponAnimations, AllAnimationSkeletonsList.femaleAnimations);
+            this.itemAttachment = new CharacterAttachments(this.position, undefined, this.activeItem.name, 1, ItemStats[this.activeItem.name].animation, ItemStats[this.activeItem.name].bones);
+            this.itemAttachment.GameBegin();
+            this.itemAttachment.ChangeAnimation(this.currentAnimation.Clone(), true);
+
+            if (this.itemAttachment !== undefined && this.itemAttachment.currentAnimation !== undefined) {
+                if (this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame] !== undefined) {
+                    this.itemAttachment.offset.x = this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame].x;
+                    this.itemAttachment.offset.y = this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame].y;
+                    this.itemAttachment.CreateDrawOperation(
+                        this.itemAttachment.currentAnimation.GetFrame(),
+                        new Vector2D(this.GetPosition().x + this.itemAttachment.offset.x, this.GetPosition().y + this.itemAttachment.offset.y),
+                        false,
+                        this.itemAttachment.canvas,
+                        OperationType.gameObjects
+                    );
+                }
+
+                this.itemAttachment.position = this.GetPosition();// this.position.Clone();
+                //this.itemAttachment.position.y -= 64;
+                if (this.itemAttachment.drawingOperation !== undefined)
+                    this.itemAttachment.drawingOperation.collisionSize = new Vector2D(64, 64 - this.itemAttachment.offset.y);
+            }
+
+            this.itemAttachment.currentAnimation.SetFromAnimation(this.currentAnimation);
         }
     }
 
@@ -470,6 +583,14 @@ class Character extends GameObject {
                     this.ChangeAnimation(this.animations[ItemStats[this.activeItem.name].characterAnimation + FacingDirection.ToString(direction)].Clone());
                 }
             }
+        }
+    }
+
+    LoadAtlas() {
+        if (ObjectsHasBeenInitialized === false) {
+            window.requestAnimationFrame(() => this.LoadAtlas());
+        } else {
+            CanvasDrawer.GCD.LoadNewSpriteAtlas(this.spriteSheet, 32, this.canvasName);
         }
     }
 
@@ -492,10 +613,31 @@ class MainCharacter extends Character {
         this.name = name;
         this.inventory = new Inventory(this);
         this.activeItem;
+        this.light = undefined;
+        this.doOnce = false;
     }
 
     FixedUpdate() {
         super.FixedUpdate();
+    }
+
+    GameBegin() {
+        super.GameBegin();
+        //this.light = CanvasDrawer.GCD.lights[0];
+        //this.light.position.x = this.position.x;
+        //this.light.position.y = this.position.y;
+    }
+
+    FlagDrawingUpdate(position) {
+        if (this.light !== undefined)
+            this.light.SetPosition(this.position);
+        super.FlagDrawingUpdate(position);
+    }
+
+    NeedsRedraw(position) {
+        if (this.light !== undefined)
+            this.light.SetPosition(this.position);
+        super.NeedsRedraw(position);
     }
 }
 

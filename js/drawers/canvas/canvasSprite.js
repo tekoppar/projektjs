@@ -18,6 +18,7 @@ class CanvasSprite {
 
     IsTransparent() {
         if (this.isTransparent == undefined) {
+            // @ts-ignore
             let pixels = document.getElementById(this.atlas).getContext('2d').getImageData(this.GetPosX(), this.GetPosY(), this.width, this.height).data;
 
             for (let i = 0; i < pixels.length; i += 4) {

@@ -35,6 +35,8 @@ class PlayerController extends Controller {
         this.crafting.characterOwner = this.playerCharacter;
         this.crafting.SetupCrafting();
 
+        this.playerCharacter.SetActiveItem(this.playerCharacter.inventory.GetItem('sword'));
+
         window.addEventListener('mousemove', this);
     }
 
@@ -117,7 +119,7 @@ class PlayerController extends Controller {
                     this.mousePosition.y = objPos.y;
 
                     let temp = this.playerCharacter.BoxCollision.GetCenterPosition();
-                    temp.SnapToGrid(32);
+                    temp.SnapToGridF(32);
 
                     CanvasDrawer.GCD.UpdateTilePreview(temp, this.mousePosition.Clone());
                 }
