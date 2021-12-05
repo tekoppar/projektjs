@@ -1,5 +1,4 @@
-import { Vector2D, Rectangle, ShadowCanvasOperation, ObjectType, AmbientLight, Tile } from '../../internal.js';
-import { RectMerge } from '../../classes/utility/rectMerge.js';
+import { Vector2D, Rectangle, ShadowCanvasOperation, ObjectType, AmbientLight, Tile, CFrame } from '../../internal.js';
 
 /**
  * Enum for frustum culling state
@@ -69,6 +68,10 @@ class Operation {
         this.shouldDelete = true;
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     */
     Update(position) {
         if (position !== undefined) {
             this.oldPosition.x = position.x;
@@ -109,35 +112,67 @@ class Operation {
         }
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetPreviousPosition() {
         return this.oldPosition;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetPosition() {
         return this.oldPosition;
     }
 
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetDrawSize() {
         return new Vector2D(32, 32);
     }
 
+    /**
+     * 
+     * @returns {Rectangle}
+     */
     GetBoundingBox() {
         return new Rectangle(0, 0, 32, 32);
     }
 
+    /**
+     * 
+     * @returns {ObjectType}
+     */
     GetObjectType() {
-        ObjectType.Pawn;
+        return ObjectType.Pawn;
     }
 
+    /**
+     * 
+     * @returns {Object}
+     */
     GetOwner() {
         return undefined;
     }
 
+    /**
+     * 
+     * @param {boolean} state 
+     */
     UpdateDrawState(state) {
 
     }
 
+    /**
+     * 
+     * @returns {boolean}
+     */
     DrawState() {
         return false;
     }
@@ -153,15 +188,43 @@ class Operation {
  * @extends Operation
  */
 class TextOperation extends Operation {
+
+    /**
+     * 
+     * @param {String} text 
+     * @param {Vector2D} pos 
+     * @param {boolean} clear 
+     * @param {HTMLCanvasElement} drawingCanvas 
+     * @param {String} font 
+     * @param {Number} size 
+     * @param {String} color 
+     * @param {Number} drawIndex 
+     */
     constructor(text, pos, clear, drawingCanvas, font = 'sans-serif', size = 18, color = 'rgb(243, 197, 47)', drawIndex = 0) {
         super(drawingCanvas, OperationType.gui);
+
+        /** @type {String} */
         this.text = text;
+
+        /** @type {Vector2D} */
         this.pos = new Vector2D(pos.x, pos.y + (size / 2) - 5);
+
+        /** @type {boolean} */
         this.clear = clear;
+
+        /** @type {String} */
         this.font = font;
+
+        /** @type {Number} */
         this.size = size;
+
+        /** @type {String} */
         this.color = color;
+
+        /** @type {Number} */
         this.drawIndex = drawIndex;
+
+        /** @type {boolean} */
         this.needsToBeRedrawn = true;
 
     }
@@ -178,7 +241,7 @@ class TextOperation extends Operation {
         return this.text.length * this.size;
     }
 
-    Update(pos) {
+    Update(pos = undefined) {
         this.needsToBeRedrawn = true;
         super.Update(pos === undefined ? this.pos : pos);
     }
@@ -202,17 +265,50 @@ class TextOperation extends Operation {
  * @extends Operation
  */
 class RectOperation extends Operation {
+
+    /**
+     * 
+     * @param {Vector2D} pos 
+     * @param {Vector2D} size 
+     * @param {HTMLCanvasElement} drawingCanvas 
+     * @param {String} color 
+     * @param {boolean} clear 
+     * @param {Number} drawIndex 
+     * @param {Number} lifetime 
+     * @param {Number} alpha 
+     * @param {boolean} fillOrOutline 
+     */
     constructor(pos, size = new Vector2D(32, 32), drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, alpha = 0.3, fillOrOutline = false) {
         super(drawingCanvas, OperationType.gui);
+
+        /** @type {Vector2D} */
         this.position = pos;
+
+        /** @type {boolean} */
         this.clear = clear;
+
+        /** @type {Array<Rectangle>} */
         this.updateRects = undefined;
+
+        /** @type {Vector2D} */
         this.size = size;
+
+        /** @type {String} */
         this.color = color;
+
+        /** @type {Number} */
         this.drawIndex = drawIndex;
+
+        /** @type {boolean} */
         this.needsToBeRedrawn = true;
+
+        /** @type {Number} */
         this.lifeTime = lifetime;
+
+        /** @type {Number} */
         this.alpha = alpha;
+
+        /** @type {boolean} */
         this.fillOrOutline = fillOrOutline;
     }
 
@@ -302,14 +398,32 @@ class DrawingOperation extends Operation {
      */
     constructor(owner, tile, drawingCanvas, targetCanvas, operationType = OperationType.gameObjects, drawSize = new Vector2D(0, 0), centerPosition = new Vector2D(tile.position.x, tile.position.y), objectType = ObjectType.Pawn, canvasObject = undefined) {
         super(drawingCanvas, operationType);
+
+        /** @type {Object} */
         this.owner = owner;
+
+        /** @type {Tile} */
         this.tile = tile;
+
+        /** @type {HTMLCanvasElement} */
         this.targetCanvas = targetCanvas;
+
+        /** @type {Vector2D} */
         this.collisionSize = undefined;
+
+        /** @type {Array<Rectangle>} */
         this.updateRects = undefined;
+
+        /** @type {Vector2D} */
         this.drawSize = drawSize;
+
+        /** @type {Vector2D} */
         this.centerPosition = centerPosition;
+
+        /** @type {ObjectType} */
         this.objectType = objectType;
+
+        /** @type {ShadowCanvasOperation} */
         this.shadowOperation = undefined;
 
         if (canvasObject !== undefined)
@@ -325,7 +439,11 @@ class DrawingOperation extends Operation {
         )
     }
 
-    Update(position) {
+    /**
+     * 
+     * @param {Vector2D} position 
+     */
+    Update(position = undefined) {
         super.Update(position);
         this.centerPosition.x = position.x;
         this.centerPosition.y = position.y;
@@ -333,6 +451,12 @@ class DrawingOperation extends Operation {
         //this.updateRects = undefined;
     }
 
+    /**
+     * 
+     * @param {CFrame} frame 
+     * @param {Vector2D} position 
+     * @param {HTMLCanvasElement} canvas 
+     */
     UpdateOperation(frame, position, canvas) {
         this.Update(this.tile.position);
         this.tile.position = position;
@@ -348,11 +472,20 @@ class DrawingOperation extends Operation {
         this.targetCanvas = canvas;
     }
 
+    /**
+     * 
+     * @param {boolean} state 
+     */
     UpdateDrawState(state) {
         this.tile.needsToBeRedrawn = state;
         this.updateRects = undefined;
     }
 
+    /**
+     * 
+     * @param {Rectangle} rect 
+     * @returns {void}
+     */
     AddUpdateRect(rect) {
         if (this.tile.needsToBeRedrawn === false) {
             if (this.updateRects === undefined)
@@ -367,22 +500,42 @@ class DrawingOperation extends Operation {
         }
     }
 
+    /**
+     * 
+     * @returns {Number}
+     */
     GetDrawIndex() {
         return this.tile.drawIndex;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetPosition() {
         return this.tile.position;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetDrawSize() {
         return this.drawSize.x !== 0 && this.drawSize.y !== 0 ? this.drawSize : this.tile.size;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetSize() {
         return this.collisionSize !== undefined ? this.collisionSize : this.tile.size;
     }
 
+    /**
+     * 
+     * @returns {Rectangle}
+     */
     GetBoundingBox() {
         if (this.owner !== undefined && this.owner.position !== undefined)
             return new Rectangle(this.owner.position.x, this.owner.position.y, this.owner.size.x, this.owner.size.y);
@@ -390,22 +543,42 @@ class DrawingOperation extends Operation {
         return new Rectangle(this.oldPosition.x, this.oldPosition.y, this.drawSize.x, this.drawSize.y);
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetDrawPosition() {
         return Vector2D.Add(this.tile.position, (this.collisionSize !== undefined ? this.collisionSize : this.tile.size));
     }
 
+    /**
+     * 
+     * @returns {Number}
+     */
     GetDrawPositionY() {
         return this.tile.position.y + (this.collisionSize !== undefined ? this.collisionSize.y : this.tile.size.y);
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetPreviousPosition() {
         return this.oldPosition === undefined ? this.tile.position : this.oldPosition;
     }
 
+    /**
+     * 
+     * @returns {boolean}
+     */
     DrawState() {
         return this.tile.needsToBeRedrawn;
     }
 
+    /**
+     * 
+     * @returns {Object}
+     */
     GetOwner() {
         return this.owner;
     }
@@ -443,14 +616,39 @@ class ClearOperation extends Operation {
  * @extends Operation
  */
 class PathOperation extends Operation {
+
+    /**
+     * 
+     * @param {Array<Vector2D>} path 
+     * @param {HTMLCanvasElement} drawingCanvas 
+     * @param {String} color 
+     * @param {boolean} clear 
+     * @param {Number} drawIndex 
+     * @param {Number} lifetime 
+     * @param {Number} alpha 
+     */
     constructor(path, drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, alpha = 0.3) {
         super(drawingCanvas);
+
+        /** @type {Array<Vector2D>} */
         this.path = path;
+
+        /** @type {boolean} */
         this.clear = clear;
+
+        /** @type {String} */
         this.color = color;
+
+        /** @type {Number} */
         this.drawIndex = drawIndex;
+
+        /** @type {boolean} */
         this.needsToBeRedrawn = true;
+
+        /** @type {Number} */
         this.lifeTime = lifetime;
+
+        /** @type {Number} */
         this.alpha = alpha;
     }
 
@@ -513,15 +711,27 @@ class LightingOperation extends Operation {
      */
     constructor(owner, pos, drawingCanvas, light) {
         super(drawingCanvas);
+
+        /** @type {Object} */
         this.owner = owner;
+
+        /** @type {Vector2D} */
         this.position = pos;
+
+        /** @type {Number} */
         this.drawIndex = 0;
+
+        /** @type {boolean} */
         this.needsToBeRedrawn = true;
+
+
         /** @type {AmbientLight} */
         this.light = light;
 
         /** @type {Array<Rectangle>} */
         this.updateRects = undefined;
+
+        /** @type {Array<{light: Object, rect: Rectangle}>} */
         this.updateRectsPixelData = undefined;
 
         //this.frameBufferCtx.fillStyle = 'rgba(1, 1, 1, 1)';
@@ -586,22 +796,42 @@ class LightingOperation extends Operation {
         }
     }*/
 
+    /**
+     * 
+     * @returns {Number}
+     */
     GetDrawIndex() {
         return this.drawIndex;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetPosition() {
         return this.position;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetDrawPosition() {
         return Vector2D.AddF(this.position, this.light.attenuation);
     }
 
+    /**
+     * 
+     * @returns {Number}
+     */
     GetDrawPositionY() {
         return this.position.y;
     }
 
+    /**
+     * 
+     * @returns {Number}
+     */
     GetSize() {
         return this.light.attenuation * this.light.drawScale;
     }
@@ -611,24 +841,47 @@ class LightingOperation extends Operation {
         super.Update(pos === undefined ? this.position : pos);
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetPreviousPosition() {
         return this.oldPosition === undefined ? this.position : this.oldPosition;
     }
 
+    /**
+     * 
+     * @param {boolean} value 
+     */
     UpdateDrawState(value) {
         this.needsToBeRedrawn = value;
         this.updateRects = undefined;
         this.updateRectsPixelData = undefined;
     }
 
+    /**
+     * 
+     * @returns {boolean}
+     */
     DrawState() {
         return this.needsToBeRedrawn;
     }
 
+    /**
+     * 
+     * @returns {Object}
+     */
     GetOwner() {
         return this.owner;
     }
 
+    /**
+     * 
+     * @param {Rectangle} rect 
+     * @param {Object} light 
+     * @param {Rectangle} alphaRect 
+     * @returns {void}
+     */
     AddUpdateRect(rect, light = undefined, alphaRect = undefined) {
         if (this.needsToBeRedrawn === false) {
             if (this.updateRects === undefined) {
@@ -652,6 +905,12 @@ class LightingOperation extends Operation {
         }
     }
 
+    /**
+     * 
+     * @param {Rectangle} rect 
+     * @param {Object} light 
+     * @param {Rectangle} alphaRect 
+     */
     ForceAddUpdateRects(rect, light = undefined, alphaRect = undefined) {
         if (this.updateRects === undefined) {
             this.updateRects = [];

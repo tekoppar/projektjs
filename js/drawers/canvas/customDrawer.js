@@ -1,5 +1,4 @@
-import { TestingEnum, CURRENT_TEST, Vector2D, Tile, AtlasController, RectMerge, Operation, OverlapOICheck, AmbientLight, ArrayUtility, BWDrawingType, Props, AllCollisions, CollisionTypeCheck, Polygon, ClearOperation, TileData, InputHandler, CollisionHandler, LightFalloffType, BoxCollision, PolygonCollision, Collision, worldTiles, Brush, BrushDrawState, brushTypes, RectOperation, PathOperation, TextOperation, DrawingOperation, OperationType, TileLUT, CanvasAtlas, SelectedTileEditor, UIDrawer, MasterObject, CMath, Rectangle, LightingOperation, Color, LightSystem, ObjectType, XHRUtility, CustomLogger, CanvasUtility, LightDataType, Shadow } from '../../internal.js';
-import { DebugDrawer } from './debugDrawer.js';
+import { DebugDrawer, Vector2D, Tile, AtlasController, RectMerge, Operation, OverlapOICheck, AmbientLight, ArrayUtility, BWDrawingType, Props, AllCollisions, CollisionTypeCheck, Polygon, ClearOperation, TileData, InputHandler, CollisionHandler, LightFalloffType, BoxCollision, PolygonCollision, worldTiles, Brush, BrushDrawState, BrushType, RectOperation, PathOperation, TextOperation, DrawingOperation, OperationType, TileLUT, SelectedTileEditor, UIDrawer, MasterObject, CMath, Rectangle, LightingOperation, Color, LightSystem, XHRUtility } from '../../internal.js';
 
 let mouseToAtlasRectMap = {};
 
@@ -48,10 +47,6 @@ function sortDrawOperations(a, b) {
     if (a.GetDrawIndex() > b.GetDrawIndex()) return 1;
     if (a.GetDrawIndex() < b.GetDrawIndex()) return -1;
     return 0;
-};
-
-function sortCollisions(a, b) {
-    return a.enableCollision * 1 + b.enableCollision * -1;
 };
 
 class CanvasSave {
@@ -264,52 +259,88 @@ class CanvasDrawer {
      * @param {HTMLCanvasElement} gameGuiCanvas 
      */
     constructor(mainCanvas, spriteObjectCanvas, spritePreviewCanvas, gameGuiCanvas) {
+        /** @type {boolean} */
         this.DebugDraw = false;
+
+        /** @type {Vector2D} */
         this.canvasOffset = new Vector2D(0, 0);
+
+        /** @type {Brush} */
         this.Brush = new Brush();
+
+        /** @type {LightSystem} */
         this.lightSystem = new LightSystem();
+
+        /** @type {Array<AmbientLight>} */
         this.lights = [];
+
+        /** @type {AtlasController} */
         this.atlasController = new AtlasController(this);
 
-        this.gridMouse = document.getElementById('grid-mouse');
+        /** @type {HTMLLabelElement} */
+        this.gridMouse = /** @type {HTMLLabelElement} */ (document.getElementById('grid-mouse'));
 
+        /** @type {HTMLCanvasElement} */
         this.mainCanvas = mainCanvas;
         //this.mainCanvas.setAttribute('width', 2560);
         //this.mainCanvas.setAttribute('height', 1440);
         //this.mainCanvas.style.width = '2560px';
         //this.mainCanvas.style.height = '1440px';
+
+        /** @type {CanvasRenderingContext2D} */
         this.mainCanvasCtx = this.mainCanvas.getContext('2d');
         this.mainCanvasCtx.imageSmoothingEnabled = false;
 
+        /** @type {HTMLCanvasElement} */
         this.frameBuffer = document.createElement('canvas');
         this.frameBuffer.setAttribute('width', this.mainCanvas.getAttribute('width'));
         this.frameBuffer.setAttribute('height', this.mainCanvas.getAttribute('height'));
         document.body.appendChild(this.frameBuffer);
+
+        /** @type {CanvasRenderingContext2D} */
         this.frameBufferCtx = this.frameBuffer.getContext('2d');
         this.frameBufferCtx.imageSmoothingEnabled = false;
 
+        /** @type {HTMLCanvasElement} */
         this.frameBufferTerrain = document.createElement('canvas');
         this.frameBufferTerrain.setAttribute('width', this.mainCanvas.getAttribute('width'));
         this.frameBufferTerrain.setAttribute('height', this.mainCanvas.getAttribute('height'));
         document.body.appendChild(this.frameBufferTerrain);
+
+        /** @type {CanvasRenderingContext2D} */
         this.frameBufferTerrainCtx = this.frameBufferTerrain.getContext('2d');
         this.frameBufferTerrainCtx.imageSmoothingEnabled = false;
 
+        /** @type {HTMLCanvasElement} */
         this.spriteObjectCanvas = spriteObjectCanvas;
+
+        /** @type {CanvasRenderingContext2D} */
         this.spriteObjectCanvasCtx = this.spriteObjectCanvas.getContext('2d');
         this.spriteObjectCanvasCtx.imageSmoothingEnabled = false;
 
+        /** @type {HTMLCanvasElement} */
         this.spritePreviewCanvas = spritePreviewCanvas;
+
+        /** @type {CanvasRenderingContext2D} */
         this.spritePreviewCanvasCtx = this.spritePreviewCanvas.getContext('2d');
         this.spritePreviewCanvasCtx.imageSmoothingEnabled = false;
 
+        /** @type {HTMLCanvasElement} */
         this.gameGuiCanvas = gameGuiCanvas;
+
+        /** @type {CanvasRenderingContext2D} */
         this.gameGuiCanvasCtx = this.gameGuiCanvas.getContext('2d');
         this.gameGuiCanvasCtx.imageSmoothingEnabled = false;
 
         this.drawingOperations = {};
+
+        /** @type {Array<LightingOperation>} */
         this.lightingOperations = [];
+
+        /** @type {Array<DrawingOperation>} */
         this.terrainPreviewOperations = [];
+
+        /** @type {Array<*>} */
         this.terrainNeedsRedrawOperations = [];
 
         for (let y = 0; y < Math.ceil(this.mainCanvas.height / 32); ++y) {
@@ -319,15 +350,31 @@ class CanvasDrawer {
             }
         }
 
+        /** @type {Array<*>} */
         this.gameObjectDrawingOperations = [];
+
+        /** @type {Array<DrawingOperation>} */
         this.gameObjectDrawingOperationsUpdate = [];
+
+        /** @type {Array<DrawingOperation>} */
         this.effectsDrawingOperations = [];
+
+        /** @type {Array<ClearOperation>} */
         this.clearOperations = [];
+
+        /** @type {Array<TextOperation>} */
         this.guiDrawingOperations = [];
 
+        /** @type {*} */
         this.selectedSprite;
+
+        /** @type {boolean} */
         this.isPainting = false;
+
+        /** @type {boolean} */
         this.paintingEnabled = false;
+
+        /** @type {Vector2D} */
         this.lastAtlasCoords = new Vector2D(0, 0);
 
         this.mainCanvas.addEventListener('mouseup', this);
@@ -338,19 +385,32 @@ class CanvasDrawer {
         document.getElementById('save-canvas').addEventListener('click', this);
         document.getElementById('enable-painting').addEventListener('click', this);
 
+        /** @type {DebugDrawer} */
         this.DebugDrawer = new DebugDrawer();
+
+        /** @type {UIDrawer} */
         this.UIDrawer = new UIDrawer('uipieces', this);
 
         this.atlasController.LoadAllAtlases();
 
+        /** @type {BoxCollision} */
         this.ClearBoxCollision = new BoxCollision(new Vector2D(0, 0), new Vector2D(32, 32), false, this, false);
 
+        /** @type {Rectangle} */
         this.cameraRect = new Rectangle(0, 0, this.mainCanvas.width, this.mainCanvas.height);
+
+        /** @type {Rectangle} */
         this.lastCameraRect = new Rectangle(0, 0, this.mainCanvas.width, this.mainCanvas.height);
 
+        /** @type {RectOperation} */
         this.tileCursorPreview;
+
+        /** @type {boolean} */
         this.drawTileCursorPreview = false;
+
+        /** @type {Vector2D} */
         this.mousePosition = new Vector2D(0, 0);
+
         this.BeginAtlasesLoaded();
         this.DrawTilePreview();
     }
@@ -488,6 +548,7 @@ class CanvasDrawer {
             temp = characterPos.LerpValue(tempMouse, 96.0);
 
         this.tileCursorPreview.Update(this.tileCursorPreview.position);
+        this.tileCursorPreview.drawingCanvas = this.DebugDrawer.gameDebugCanvas;
 
         this.tileCursorPreview.position.Set(temp);
         this.mousePosition.x = tempMouse.x;
@@ -825,6 +886,11 @@ class CanvasDrawer {
         //this.canvasSave.UpdateOperation(operations);
     }
 
+    /**
+     * 
+     * @param {HTMLCanvasElement} drawingCanvas 
+     * @param {Rectangle} rect 
+     */
     AddClearOperation(drawingCanvas, rect) {
         this.clearOperations.push(new ClearOperation(drawingCanvas, rect));
     }
@@ -835,52 +901,7 @@ class CanvasDrawer {
                 if (drawingOperation.debugDraw === true)
                     DebugDrawer.AddDebugRectOperation(new Rectangle(drawingOperation.updateRects[i].x - this.canvasOffset.x, drawingOperation.updateRects[i].y - this.canvasOffset.y, drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h), 0.016, CMath.CSS_COLOR_NAMES[CMath.RandomInt(0, CMath.CSS_COLOR_NAMES.length - 1)], true);
 
-                /*if (drawingOperation.GenerateBWAtlas !== undefined && drawingOperation.GenerateBWAtlas !== BWDrawingType.None) {
-                    //drawingOperation.ChangeCutoutAtlasColor(this.lightSystem.GetColor(drawingOperation.centerPosition));
-                    CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
-                        drawingOperation.oldPosition,
-                        drawingOperation.tile.size,
-                        drawingOperation.cutoutData.data,
-                        false,
-                        false
-                    );
-                }*/
-
                 if (drawingOperation instanceof LightingOperation) {
-                    /*CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
-                        new Vector2D(drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y),
-                        new Vector2D(drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h),
-                        drawingOperation.light.GetSubRectSpeed(
-                            drawingOperation.updateRects[i].x - (drawingOperation.light.position.x - drawingOperation.light.halfAttenuation),
-                            drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
-                            drawingOperation.updateRects[i].w,
-                            drawingOperation.updateRects[i].h
-                        ),
-                        true,
-                        false
-                    );*/
-                    /*CanvasDrawer.GCD.lightSystem.DrawToFramebufferAlpha(
-                        new Vector2D(drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y),
-                        new Vector2D(drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h),
-                        drawingOperation.light.GetSubRectSpeed(
-                            drawingOperation.updateRects[i].x - (drawingOperation.light.position.x - drawingOperation.light.halfAttenuation),
-                            drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
-                            drawingOperation.updateRects[i].w,
-                            drawingOperation.updateRects[i].h
-                        ),
-                        true,
-                        false,
-                        drawingOperation.updateRectsPixelData[i]
-                    );*/
-
-                    if (CURRENT_TEST === TestingEnum.CaseA) {
-                        CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.clearRect(
-                            drawingOperation.updateRects[i].x - this.canvasOffset.x,
-                            drawingOperation.updateRects[i].y - this.canvasOffset.y,
-                            drawingOperation.updateRects[i].w,
-                            drawingOperation.updateRects[i].h
-                        );
-                    }
                     continue;
                 }
 
@@ -916,34 +937,6 @@ class CanvasDrawer {
 
             this.CheckClearOverlapping(oldPosition, size, drawingOperation);
 
-            if (CURRENT_TEST === TestingEnum.CaseA) {
-                /*if (drawingOperation.shadowOperation !== undefined && drawingOperation.shadowOperation.realTimeShadow !== undefined) {
-                    this.CheckClearOverlapping(
-                        new Vector2D(
-                            (oldPosition.x - this.canvasOffset.x) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.x,
-                            (oldPosition.y - this.canvasOffset.y) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.y
-                        ),
-                        new Vector2D(drawingOperation.shadowOperation.realTimeShadow.GetSize().x, drawingOperation.shadowOperation.realTimeShadow.GetSize().y),
-                        drawingOperation
-                    );
-
-                    CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.fillRect(
-                        (oldPosition.x - this.canvasOffset.x) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.x,
-                        (oldPosition.y - this.canvasOffset.y) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.y,
-                        drawingOperation.shadowOperation.realTimeShadow.GetSize().x,
-                        drawingOperation.shadowOperation.realTimeShadow.GetSize().y
-                    );
-                }*/
-            }
-
-            if (drawingOperation.shadowOperation !== undefined) {
-                if (CURRENT_TEST === TestingEnum.CaseA) {
-                    CanvasDrawer.GCD.lightSystem.ambientFrameBufferCtx.fillRect(
-                        oldPosition.x - this.canvasOffset.x, oldPosition.y - this.canvasOffset.y, size.x, size.y
-                    );
-                }
-            }
-
             if (drawingOperation.debugDraw === true)
                 DebugDrawer.AddDebugRectOperation(new Rectangle(oldPosition.x, oldPosition.y, size.x, size.y), 0.016, CMath.CSS_COLOR_NAMES[77], true);
 
@@ -968,24 +961,13 @@ class CanvasDrawer {
             let sizeF = drawingOperation.GetSize();
             //drawingOperation.drawingCanvas.getContext('2d').clearRect(drawingOperation.oldPosition.x - (sizeF * 0.5), drawingOperation.oldPosition.y - (sizeF * 0.5), sizeF, sizeF);
             //this.lightSystem.lightFrameBufferCtx.clearRect(drawingOperation.light.position.x - (sizeF / 2), drawingOperation.light.position.y - (sizeF / 2), sizeF, sizeF);
-            if (CURRENT_TEST === TestingEnum.CaseB) {
-                CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
-                    new Vector2D(drawingOperation.oldPosition.x - drawingOperation.light.halfAttenuation, drawingOperation.oldPosition.y - drawingOperation.light.halfAttenuation),
-                    new Vector2D(drawingOperation.light.attenuation, drawingOperation.light.attenuation),
-                    drawingOperation.light.lightData.data,
-                    true,
-                    false
-                );
-            }
-
-            if (CURRENT_TEST === TestingEnum.CaseA) {
-                CanvasDrawer.GCD.lightSystem.ambientFrameBufferCtx.fillRect(
-                    drawingOperation.oldPosition.x - drawingOperation.light.halfAttenuation,
-                    drawingOperation.oldPosition.y - drawingOperation.light.halfAttenuation,
-                    drawingOperation.light.attenuation,
-                    drawingOperation.light.attenuation
-                );
-            }
+            CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
+                new Vector2D(drawingOperation.oldPosition.x - drawingOperation.light.halfAttenuation, drawingOperation.oldPosition.y - drawingOperation.light.halfAttenuation),
+                new Vector2D(drawingOperation.light.attenuation, drawingOperation.light.attenuation),
+                drawingOperation.light.lightData.data,
+                true,
+                false
+            );
             this.CheckClearOverlapping(new Vector2D(drawingOperation.position.x - (sizeF * 0.5), drawingOperation.position.y - (sizeF * 0.5)), new Vector2D(sizeF, sizeF), drawingOperation);
         }
     }
@@ -1055,18 +1037,6 @@ class CanvasDrawer {
                             overlap.collisionOwner.drawingOperation.isVisible = false;
                         } else {
                             overlap.collisionOwner.drawingOperation.AddUpdateRect(intersection);
-
-                            /*if (drawingOperation instanceof DrawingOperation && drawingOperation.shadowOperation !== undefined && drawingOperation.shadowOperation.realTimeShadow !== undefined) {
-                                overlap.collisionOwner.drawingOperation.AddUpdateRect(
-                                    new Rectangle(
-                                        (drawingOperation.tile.position.x - this.canvasOffset.x) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.x,
-                                        (drawingOperation.tile.position.y - this.canvasOffset.y) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.y,
-                                        drawingOperation.shadowOperation.realTimeShadow.GetSize().x,
-                                        drawingOperation.shadowOperation.realTimeShadow.GetSize().y
-                                    )
-                                );
-                            }*/
-
                             overlap.collisionOwner.drawingOperation.isVisible = false;
                         }
 
@@ -1080,6 +1050,12 @@ class CanvasDrawer {
         }
     }
 
+    /**
+     * 
+     * @param {Number} y 
+     * @param {Number} x 
+     * @param {Number} i 
+     */
     RemoveOperation(y, x, i) {
         if (this.drawingOperations[y] !== undefined && this.drawingOperations[y][x] !== undefined && this.drawingOperations[y][x][i] !== undefined) {
             this.drawingOperations[y][x].splice(i, 1);
@@ -1126,19 +1102,17 @@ class CanvasDrawer {
 
                     if (drawingOperation.operationType === OperationType.shadow2D) {
                         let owner = drawingOperation.GetOwner();
-                        let subrect = ArrayUtility.GetSubrect2D(
-                            (Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x) - Math.floor(owner.BoxCollision.position.x),
-                            (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y) - Math.floor(owner.BoxCollision.position.y),
-                            Math.floor(drawingOperation.updateRects[i].w),
-                            Math.floor(drawingOperation.updateRects[i].h),
-                            owner.shadowObject.GetSize().x,
-                            owner.shadowObject.shadowData.data
-                        );
-
                         CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
                             new Vector2D((Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x), (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y)),
                             new Vector2D(Math.floor(drawingOperation.updateRects[i].w), Math.floor(drawingOperation.updateRects[i].h)),
-                            subrect,
+                            ArrayUtility.GetSubrect2D(
+                                (Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x) - Math.floor(owner.BoxCollision.position.x),
+                                (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y) - Math.floor(owner.BoxCollision.position.y),
+                                Math.floor(drawingOperation.updateRects[i].w),
+                                Math.floor(drawingOperation.updateRects[i].h),
+                                owner.shadowObject.GetSize().x,
+                                owner.shadowObject.shadowData.data
+                            ),
                             false
                         );
                     }
@@ -1149,80 +1123,19 @@ class CanvasDrawer {
                         drawingOperation.shadowOperation.ChangeColor(tempcolorPicked);
 
                         let owner = drawingOperation.GetOwner();
-                        let subrect = ArrayUtility.GetSubrect2D(
-                            (Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x) - Math.floor(owner.BoxCollision.position.x),
-                            (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y) - Math.floor(owner.BoxCollision.position.y),
-                            Math.floor(drawingOperation.updateRects[i].w),
-                            Math.floor(drawingOperation.updateRects[i].h),
-                            drawingOperation.tile.size.x,
-                            drawingOperation.shadowOperation.shadowData.data
-                        );
-
                         CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
                             new Vector2D((Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x), (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y)),
                             new Vector2D(Math.floor(drawingOperation.updateRects[i].w), Math.floor(drawingOperation.updateRects[i].h)),
-                            subrect,
+                            ArrayUtility.GetSubrect2D(
+                                (Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x) - Math.floor(owner.BoxCollision.position.x),
+                                (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y) - Math.floor(owner.BoxCollision.position.y),
+                                Math.floor(drawingOperation.updateRects[i].w),
+                                Math.floor(drawingOperation.updateRects[i].h),
+                                drawingOperation.tile.size.x,
+                                drawingOperation.shadowOperation.shadowData.data
+                            ),
                             false
                         );
-                    }
-
-                    if (CURRENT_TEST === TestingEnum.CaseA) {
-                        /*if (drawingOperation.shadowOperation !== undefined && drawingOperation.shadowOperation.realTimeShadow !== undefined) {
-                            CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.globalCompositeOperation = 'source-atop';
-                            CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.drawImage(
-                                drawingOperation.shadowOperation.realTimeShadow.canvas,
-                                drawingOperation.tile.GetPosX() + ((drawingOperation.updateRects[i].x - this.canvasOffset.x) - (drawingOperation.tile.position.x - this.canvasOffset.x)),
-                                drawingOperation.tile.GetPosY() + ((drawingOperation.updateRects[i].y - this.canvasOffset.y) - (drawingOperation.tile.position.y - this.canvasOffset.y)),
-                                drawingOperation.updateRects[i].w,
-                                drawingOperation.updateRects[i].h,
-                                drawingOperation.updateRects[i].x - this.canvasOffset.x - drawingOperation.shadowOperation.realTimeShadow.centerPosition.x,
-                                drawingOperation.updateRects[i].y - this.canvasOffset.y - drawingOperation.shadowOperation.realTimeShadow.centerPosition.y,
-                                drawingOperation.updateRects[i].w,
-                                drawingOperation.updateRects[i].h
-                            );
-                            CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.globalCompositeOperation = 'hard-light';
-                            CanvasDrawer.GCD.lightSystem.ambientFrameBufferCtx.drawImage(
-                                drawingOperation.shadowOperation.realTimeShadow.canvas,
-                                drawingOperation.tile.GetPosX() + ((drawingOperation.updateRects[i].x - this.canvasOffset.x) - (drawingOperation.tile.position.x - this.canvasOffset.x)),
-                                drawingOperation.tile.GetPosY() + ((drawingOperation.updateRects[i].y - this.canvasOffset.y) - (drawingOperation.tile.position.y - this.canvasOffset.y)),
-                                drawingOperation.updateRects[i].w,
-                                drawingOperation.updateRects[i].h,
-                                drawingOperation.updateRects[i].x - this.canvasOffset.x - drawingOperation.shadowOperation.realTimeShadow.centerPosition.x,
-                                drawingOperation.updateRects[i].y - this.canvasOffset.y - drawingOperation.shadowOperation.realTimeShadow.centerPosition.y,
-                                drawingOperation.updateRects[i].w,
-                                drawingOperation.updateRects[i].h
-                            );
-                        }*/
-
-                        if (drawingOperation.shadowOperation !== undefined && drawingOperation.shadowOperation.drawType !== BWDrawingType.None) {
-                            let tempcolorPicked = this.lightSystem.GetColor(drawingOperation.centerPosition);
-                            tempcolorPicked.AlphaMultiply();
-                            drawingOperation.shadowOperation.ChangeColor(tempcolorPicked);
-                            CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.globalCompositeOperation = 'source-atop';
-                            CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.drawImage(
-                                drawingOperation.shadowOperation.shadowCanvas,
-                                drawingOperation.tile.GetPosX() + ((drawingOperation.updateRects[i].x - this.canvasOffset.x) - (drawingOperation.tile.position.x - this.canvasOffset.x)),
-                                drawingOperation.tile.GetPosY() + ((drawingOperation.updateRects[i].y - this.canvasOffset.y) - (drawingOperation.tile.position.y - this.canvasOffset.y)),
-                                drawingOperation.updateRects[i].w,
-                                drawingOperation.updateRects[i].h,
-                                drawingOperation.updateRects[i].x - this.canvasOffset.x,
-                                drawingOperation.updateRects[i].y - this.canvasOffset.y,
-                                drawingOperation.updateRects[i].w,
-                                drawingOperation.updateRects[i].h
-                            );
-                            CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.globalCompositeOperation = 'hard-light';
-                            /*CanvasDrawer.GCD.lightSystem.ambientFrameBufferCtx.drawImage(
-                                drawingOperation.shadowOperation.shadowCanvas,
-                                drawingOperation.tile.GetPosX() + ((drawingOperation.updateRects[i].x - this.canvasOffset.x) - (drawingOperation.tile.position.x - this.canvasOffset.x)),
-                                drawingOperation.tile.GetPosY() + ((drawingOperation.updateRects[i].y - this.canvasOffset.y) - (drawingOperation.tile.position.y - this.canvasOffset.y)),
-                                drawingOperation.updateRects[i].w,
-                                drawingOperation.updateRects[i].h,
-                                drawingOperation.updateRects[i].x - this.canvasOffset.x,
-                                drawingOperation.updateRects[i].y - this.canvasOffset.y,
-                                drawingOperation.updateRects[i].w,
-                                drawingOperation.updateRects[i].h
-                            );*/
-                        }
                     }
                 }
             } else {
@@ -1250,87 +1163,19 @@ class CanvasDrawer {
                     );
                 }
 
-                //if (drawingOperation.shadowOperation !== undefined && drawingOperation.shadowOperation.realTimeShadow !== undefined) {
-                /*if (CURRENT_TEST === TestingEnum.CaseA) {
-                    CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.globalCompositeOperation = 'source-atop';
-                    CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.drawImage(
-                        drawingOperation.shadowOperation.realTimeShadow.canvas,
-                        0,
-                        0,
-                        drawingOperation.shadowOperation.realTimeShadow.GetSize().x,
-                        drawingOperation.shadowOperation.realTimeShadow.GetSize().y,
-                        (drawingOperation.tile.position.x - this.canvasOffset.x) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.x,
-                        (drawingOperation.tile.position.y - this.canvasOffset.y) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.y,
-                        drawingOperation.shadowOperation.realTimeShadow.GetSize().x,
-                        drawingOperation.shadowOperation.realTimeShadow.GetSize().y
-                    );
-                    CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.globalCompositeOperation = 'hard-light';
-                    CanvasDrawer.GCD.lightSystem.ambientFrameBufferCtx.drawImage(
-                        drawingOperation.shadowOperation.realTimeShadow.canvas,
-                        0,
-                        0,
-                        drawingOperation.shadowOperation.realTimeShadow.GetSize().x,
-                        drawingOperation.shadowOperation.realTimeShadow.GetSize().y,
-                        (drawingOperation.tile.position.x - this.canvasOffset.x) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.x,
-                        (drawingOperation.tile.position.y - this.canvasOffset.y) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.y,
-                        drawingOperation.shadowOperation.realTimeShadow.GetSize().x,
-                        drawingOperation.shadowOperation.realTimeShadow.GetSize().y
-                    );
-                }*/
-                /*if (CURRENT_TEST === TestingEnum.CaseB) {
-                    CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
-                        new Vector2D(
-                            (drawingOperation.tile.position.x - this.canvasOffset.x) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.x,
-                            (drawingOperation.tile.position.y - this.canvasOffset.y) - drawingOperation.shadowOperation.realTimeShadow.centerPosition.y
-                        ),
-                        new Vector2D(drawingOperation.shadowOperation.realTimeShadow.GetSize().x, drawingOperation.shadowOperation.realTimeShadow.GetSize().y),
-                        drawingOperation.shadowOperation.realTimeShadow.shadowData.data,
-                        false
-                    );
-                }*/
-                //}
-
                 if (drawingOperation.shadowOperation !== undefined && drawingOperation.shadowOperation.drawType !== BWDrawingType.None) {
                     let tempcolorPicked = this.lightSystem.GetColor(drawingOperation.centerPosition);
                     tempcolorPicked.AlphaMultiply();
                     drawingOperation.shadowOperation.ChangeColor(tempcolorPicked);
-                    if (CURRENT_TEST === TestingEnum.CaseB) {
-                        CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
-                            new Vector2D(
-                                drawingOperation.tile.position.x - this.canvasOffset.x,
-                                drawingOperation.tile.position.y - this.canvasOffset.y
-                            ),
-                            drawingOperation.tile.size,
-                            drawingOperation.shadowOperation.shadowData.data,
-                            false
-                        );
-                    }
-                    if (CURRENT_TEST === TestingEnum.CaseA) {
-                        CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.globalCompositeOperation = 'source-atop';
-                        CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.drawImage(
-                            drawingOperation.shadowOperation.shadowCanvas,
-                            0,
-                            0,
-                            drawingOperation.tile.size.x,
-                            drawingOperation.tile.size.y,
+                    CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
+                        new Vector2D(
                             drawingOperation.tile.position.x - this.canvasOffset.x,
-                            drawingOperation.tile.position.y - this.canvasOffset.y,
-                            drawingOperation.GetDrawSize().x,
-                            drawingOperation.GetDrawSize().y
-                        );
-                        CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.globalCompositeOperation = 'hard-light';
-                        /*CanvasDrawer.GCD.lightSystem.ambientFrameBufferCtx.drawImage(
-                            drawingOperation.shadowOperation.shadowCanvas,
-                            0,
-                            0,
-                            drawingOperation.tile.size.x,
-                            drawingOperation.tile.size.y,
-                            drawingOperation.tile.position.x - this.canvasOffset.x,
-                            drawingOperation.tile.position.y - this.canvasOffset.y,
-                            drawingOperation.GetDrawSize().x,
-                            drawingOperation.GetDrawSize().y
-                        );*/
-                    }
+                            drawingOperation.tile.position.y - this.canvasOffset.y
+                        ),
+                        drawingOperation.tile.size,
+                        drawingOperation.shadowOperation.shadowData.data,
+                        false
+                    );
                 }
             }
 
@@ -1386,136 +1231,60 @@ class CanvasDrawer {
 
             context.globalAlpha = oldAlpha;
         } else if (drawingOperation instanceof LightingOperation) {
-            //CanvasDrawer.GCD.frameBufferCtx.globalCompositeOperation = 'soft-light';
             if (drawingOperation.updateRects !== undefined) {
                 if (drawingOperation.updateRectsPixelData.length === 0) {
                     drawingOperation.updateRects = RectMerge(drawingOperation.updateRects);
                 }
 
                 for (let i = 0; i < drawingOperation.updateRects.length; ++i) {
-                    if (CURRENT_TEST === TestingEnum.CaseA) {
-                        CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.globalCompositeOperation = 'hard-light';
-                        CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.drawImage(
-                            drawingOperation.light.colorFrameBuffer,
-                            drawingOperation.updateRects[i].x - (drawingOperation.light.position.x - drawingOperation.light.halfAttenuation),
-                            drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
-                            drawingOperation.updateRects[i].w,
-                            drawingOperation.updateRects[i].h,
-                            drawingOperation.updateRects[i].x - this.canvasOffset.x,
-                            drawingOperation.updateRects[i].y - this.canvasOffset.y,
-                            drawingOperation.updateRects[i].w,
-                            drawingOperation.updateRects[i].h,
-                        );
-                        CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.globalCompositeOperation = 'hard-light';
-                        CanvasDrawer.GCD.lightSystem.ambientFrameBufferCtx.drawImage(
-                            drawingOperation.light.colorFrameBuffer,
-                            drawingOperation.updateRects[i].x - (drawingOperation.light.position.x - drawingOperation.light.halfAttenuation),
-                            drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
-                            drawingOperation.updateRects[i].w,
-                            drawingOperation.updateRects[i].h,
-                            drawingOperation.updateRects[i].x - this.canvasOffset.x,
-                            drawingOperation.updateRects[i].y - this.canvasOffset.y,
-                            drawingOperation.updateRects[i].w,
-                            drawingOperation.updateRects[i].h,
-                        );
-                    }
-
-                    if (CURRENT_TEST === TestingEnum.CaseB) {
-                        if (drawingOperation.updateRectsPixelData === undefined || drawingOperation.updateRectsPixelData[i] === undefined) {
-                            CanvasDrawer.GCD.lightSystem.DrawToFramebufferTest(
-                                new Vector2D(drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y),
-                                new Vector2D(drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h),
-                                drawingOperation.light.GetSubRectSpeed(
-                                    drawingOperation.updateRects[i].x - (drawingOperation.light.position.x - drawingOperation.light.halfAttenuation),
-                                    drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
-                                    drawingOperation.updateRects[i].w,
-                                    drawingOperation.updateRects[i].h,
-                                    true
-                                ),
+                    if (drawingOperation.updateRectsPixelData === undefined || drawingOperation.updateRectsPixelData[i] === undefined) {
+                        CanvasDrawer.GCD.lightSystem.DrawToFramebufferTest(
+                            new Vector2D(drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y),
+                            new Vector2D(drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h),
+                            drawingOperation.light.GetSubRectSpeed(
+                                drawingOperation.updateRects[i].x - (drawingOperation.light.position.x - drawingOperation.light.halfAttenuation),
+                                drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
+                                drawingOperation.updateRects[i].w,
+                                drawingOperation.updateRects[i].h,
                                 true
-                            );
-                        } else {
-                            CanvasDrawer.GCD.lightSystem.DrawToFramebufferAlpha(
-                                new Vector2D(drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y),
-                                new Vector2D(drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h),
-                                drawingOperation.light.GetSubRectSpeed(
-                                    drawingOperation.updateRects[i].x - (drawingOperation.light.position.x - drawingOperation.light.halfAttenuation),
-                                    drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
-                                    drawingOperation.updateRects[i].w,
-                                    drawingOperation.updateRects[i].h
-                                ),
-                                true,
-                                true,
-                                drawingOperation.updateRectsPixelData[i]
-                            );
-                        }
+                            ),
+                            true
+                        );
+                    } else {
+                        CanvasDrawer.GCD.lightSystem.DrawToFramebufferAlpha(
+                            new Vector2D(drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y),
+                            new Vector2D(drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h),
+                            drawingOperation.light.GetSubRectSpeed(
+                                drawingOperation.updateRects[i].x - (drawingOperation.light.position.x - drawingOperation.light.halfAttenuation),
+                                drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
+                                drawingOperation.updateRects[i].w,
+                                drawingOperation.updateRects[i].h
+                            ),
+                            true,
+                            true,
+                            drawingOperation.updateRectsPixelData[i]
+                        );
                     }
                 }
             } else {
-                //CustomLogger.Log(drawingOperation, [drawingOperation.GetDrawPositionY(), drawingOperation.light.position.ToString(), drawingOperation.light.attenuation]);
-                //drawingOperation.light.DrawLight(CanvasDrawer.GCD.frameBufferCtx);
-                //drawingOperation.light.DrawLight(CanvasDrawer.GCD.frameBufferCtx);
-                //drawingOperation.light.DrawLight(CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx);
-                /*CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
-                    new Vector2D(drawingOperation.position.x - drawingOperation.light.halfAttenuation, drawingOperation.position.y - drawingOperation.light.halfAttenuation),
+                CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
+                    new Vector2D(
+                        (drawingOperation.position.x - this.canvasOffset.x) - drawingOperation.light.halfAttenuation,
+                        (drawingOperation.position.y - this.canvasOffset.y) - drawingOperation.light.halfAttenuation
+                    ),
                     new Vector2D(drawingOperation.light.attenuation, drawingOperation.light.attenuation),
-                    drawingOperation.light.lightData.data,
-                    true,
-                    true,
-                    LightDataType.Intensity,
-                    0.66
-                );*/
-
-                if (CURRENT_TEST === TestingEnum.CaseB) {
-                    CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
-                        new Vector2D(
-                            (drawingOperation.position.x - this.canvasOffset.x) - drawingOperation.light.halfAttenuation,
-                            (drawingOperation.position.y - this.canvasOffset.y) - drawingOperation.light.halfAttenuation
-                        ),
-                        new Vector2D(drawingOperation.light.attenuation, drawingOperation.light.attenuation),
-                        drawingOperation.light.colorData.data,
-                        true
-                    );
-                }
-
-                if (CURRENT_TEST === TestingEnum.CaseA) {
-                    //CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.globalCompositeOperation = 'source-over';
-                    CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.drawImage(
-                        drawingOperation.light.colorFrameBuffer,
-                        0,
-                        0,
-                        drawingOperation.light.attenuation,
-                        drawingOperation.light.attenuation,
-                        (drawingOperation.position.x - this.canvasOffset.x) - drawingOperation.light.halfAttenuation,
-                        (drawingOperation.position.y - this.canvasOffset.y) - drawingOperation.light.halfAttenuation,
-                        drawingOperation.light.attenuation,
-                        drawingOperation.light.attenuation
-                    );
-
-                    CanvasDrawer.GCD.lightSystem.lightData = CanvasDrawer.GCD.lightSystem.lightFrameBufferCtx.getImageData(0, 0, CanvasDrawer.GCD.lightSystem.lightFrameBuffer.width, CanvasDrawer.GCD.lightSystem.lightFrameBuffer.height);
-
-                    CanvasDrawer.GCD.lightSystem.ambientFrameBufferCtx.drawImage(
-                        drawingOperation.light.colorFrameBuffer,
-                        0,
-                        0,
-                        drawingOperation.light.attenuation,
-                        drawingOperation.light.attenuation,
-                        (drawingOperation.position.x - this.canvasOffset.x) - drawingOperation.light.halfAttenuation,
-                        (drawingOperation.position.y - this.canvasOffset.y) - drawingOperation.light.halfAttenuation,
-                        drawingOperation.light.attenuation,
-                        drawingOperation.light.attenuation
-                    );
-                }
+                    drawingOperation.light.colorData.data,
+                    true
+                );
             }
 
-            //CanvasDrawer.GCD.frameBufferCtx.globalCompositeOperation = 'source-over';
             drawingOperation.UpdateDrawState(false);
         }
     }
 
     CreatePaintOperation(event) {
         if (this.selectedSprite !== undefined) {
-            this.Brush.SetBrush(brushTypes.box, this.selectedSprite);
+            this.Brush.SetBrush(BrushType.box, this.selectedSprite);
             let canvasPos = correctMouse(event);
 
             canvasPos.Add(this.canvasOffset);
@@ -1524,7 +1293,7 @@ class CanvasDrawer {
 
             this.AddDrawOperations(
                 this.Brush.GenerateDrawingOperations(
-                    { x: canvasPos.x, y: canvasPos.y },
+                    canvasPos.Clone(),
                     this.frameBufferTerrain,
                     this.atlasController.GetAtlas(this.selectedSprite.atlas).GetCanvas()
                 ),
@@ -1534,6 +1303,12 @@ class CanvasDrawer {
         }
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     * @param {boolean} convert 
+     * @returns {Array<DrawingOperation>}
+     */
     GetTileAtPosition(position, convert = true) {
         let canvasPos;
         if (convert === true) {
@@ -1552,10 +1327,20 @@ class CanvasDrawer {
         CanvasDrawer.GCD.terrainNeedsRedrawOperations.push(operation);
     }
 
+    /**
+     * 
+     * @param {Array<Vector2D>} path 
+     * @param {Number} lifetime 
+     * @param {String} color 
+     */
     AddPathOperation(path, lifetime = 5, color = 'red') {
         this.gameObjectDrawingOperations.push(new PathOperation(path, this.DebugDrawer.gameDebugCanvas, color, false, 0, lifetime, 1));
     }
 
+    /**
+     * 
+     * @param {PathOperation} pathOperation 
+     */
     AddPathObjectOperation(pathOperation) {
         this.gameObjectDrawingOperations.push(pathOperation);
     }
@@ -1716,7 +1501,7 @@ class CanvasDrawer {
                 this.gridMouse.innerHTML = gridMousePosition.ToString() + ' - ' + objPos.ToString();
 
                 if (this.selectedSprite !== undefined && Array.isArray(this.selectedSprite) === false) {
-                    this.Brush.SetBrush(brushTypes.box, this.selectedSprite);
+                    this.Brush.SetBrush(BrushType.box, this.selectedSprite);
                     let atlasCoords = correctMouse(e);
 
                     let tempOffsets = this.canvasOffset.Clone();

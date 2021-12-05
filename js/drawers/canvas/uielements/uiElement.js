@@ -1,5 +1,16 @@
+import { DrawingOperation, TextOperation } from '../../../internal.js';
+
+/**
+ * @class
+ * @constructor
+ */
 class UIElement {
+    /**
+     * 
+     * @param {Number} lifeTime 
+     */
     constructor(lifeTime = 1) {
+        /** @type {Array<(DrawingOperation|TextOperation)>} */
         this.drawingOperations = [];
         this.lifeTime = lifeTime;
     }

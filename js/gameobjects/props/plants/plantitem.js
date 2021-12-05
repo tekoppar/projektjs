@@ -25,7 +25,7 @@ class Seed extends Item {
         let b = ownerCollision.GetPosition().Clone();
         b.SnapToGridF(32);
 
-        if (overlap === false && a.CheckInRange(b, 96)) {
+        if (overlap === undefined && a.CheckInRange(b, 96)) {
 
             let checkPos = ownerCollision.GetPosition().Clone();
             checkPos.ToGrid(32);
@@ -39,7 +39,7 @@ class Seed extends Item {
 
                 let plantName = this.name.replace('Seed', '');
                 b.y -= 32;
-                let newPlant = new Plant("/content/sprites/crops.png", 'crops', plantName, b, AllAnimationsList.plantAnimations[plantName], AllPlantData[plantName]);
+                let newPlant = new Plant('crops', plantName, b, AllAnimationsList.plantAnimations[plantName], AllPlantData[plantName]);
                 CustomEventHandler.AddListener(newPlant);
 
                 super.UseItem(ownerCollision);

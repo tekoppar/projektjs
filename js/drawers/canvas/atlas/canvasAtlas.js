@@ -1,4 +1,4 @@
-import { Vector2D, Tile, TileType, TileTerrain, AtlasController, correctMouse, ShadowCanvasObject, CMath, LightSystem, CanvasDrawer, BWDrawingType } from '../../../internal.js';
+import { Vector2D, Tile, TileType, TileTerrain, AtlasController, correctMouse, CMath, LightSystem, CanvasDrawer, BWDrawingType } from '../../../internal.js';
 
 /**
  * @class

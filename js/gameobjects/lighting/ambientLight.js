@@ -1,4 +1,4 @@
-import { Cobject, Color, Math3D, PerformanceTester, Vector2D, Vector, CanvasDrawer, OperationType, LightingOperation, BoxCollision, IsLittleEndian, IntMath, CMath, ArrayUtility } from '../../internal.js';
+import { Cobject, Color, Math3D, Vector2D, Vector, CanvasDrawer, OperationType, LightingOperation, BoxCollision, IsLittleEndian, CMath } from '../../internal.js';
 
 /**
  * Enum for light falloff type
@@ -34,22 +34,47 @@ class AmbientLight extends Cobject {
     constructor(position, color = new Color(243, 197, 47), attenuation = 100, intensity = 750.0, colorIntensity = 1.0, lightConstant = 600, lightLinear = 0.2, lightQuad = 0.4, drawScale = 1, lightFalloffType = LightFalloffType.InverseSquareLaw) {
         super(position);
 
+        /**@type {String} */
         this.name = 'AmbientLight' + this.UID;
 
+        /**@type {Color} */
         this.color;
         this.SetColor(color);
+
+        /**@type {Number} */
         this.attenuation = attenuation;
+
+        /**@type {Number} */
         this.halfAttenuation = attenuation * 0.5;
+
+        /**@type {Number} */
         this.intensity = intensity;
+
+        /**@type {Number} */
         this.drawScale = drawScale;
+
+        /**@type {Number} */
         this.colorIntensity = colorIntensity;
+
+        /**@type {LightFalloffType} */
         this.lightFalloffType = lightFalloffType;
+
+        /**@type {Number} */
         this.constant = lightConstant;
+
+        /**@type {Number} */
         this.linear = lightLinear;
+
+        /**@type {Number} */
         this.quad = lightQuad;
 
+        /**@type {ImageData} */
         this.lightData;
+
+        /**@type {ImageData} */
         this.colorData;
+
+        /**@type {BoxCollision} */
         this.BoxCollision = new BoxCollision(
             new Vector2D(position.x - this.halfAttenuation, position.y - this.halfAttenuation),
             new Vector2D(this.attenuation, this.attenuation),
@@ -58,6 +83,8 @@ class AmbientLight extends Cobject {
             true
         );
         this.BoxCollision.debugDraw = false;
+
+        /**@type {Array} */
         this.subRectData = [];
 
         this.imageDataBuf;

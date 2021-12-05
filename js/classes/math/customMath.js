@@ -15,25 +15,62 @@ Object.defineProperty(Number.prototype, 'mapRange', {
 }*/
 
 
+/**
+ * @class
+ */
 class CMath {
+
+    /**
+     * @static
+     * @param {Number} min 
+     * @param {Number} max 
+     * @returns {Number}
+     */
     static RandomInt(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
     }
 
+    /**
+     * @static
+     * @param {Number} value 
+     * @param {Number} in_min 
+     * @param {Number} in_max 
+     * @param {Number} out_min 
+     * @param {Number} out_max 
+     * @returns {Number}
+     */
     static MapRange(value, in_min, in_max, out_min, out_max) {
         return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
 
+    /**
+     * @static
+     * @param {Number} degrees 
+     * @returns {Number}
+     */
     static DegreesToRadians(degrees) {
         return degrees * (Math.PI / 180);
     }
 
+    /**
+     * @static
+     * @param {Number} min 
+     * @param {Number} max 
+     * @returns {Number}
+     */
     static RandomFloat(min, max) {
         return Math.random() * (max - min) + min; //The maximum is exclusive and the minimum is inclusive
     }
 
+    /**
+     * @static
+     * @param {Number} value 
+     * @param {Number} min 
+     * @param {Number} max 
+     * @returns {Number}
+     */
     static Clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
     }

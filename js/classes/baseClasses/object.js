@@ -33,22 +33,40 @@ class Cobject {
         Cobject.AddObject(this);
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetPosition() {
         this.fakePosition.x = this.position.x - this.size.x / 2;
         this.fakePosition.y = this.position.y - this.size.y;
         return this.fakePosition;//new Vector2D(this.position.x - this.size.x / 2, this.position.y - this.size.y);
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     */
     SetPosition(position) {
         this.position.Set(position);
         //this.position.x += this.size.x / 2;
         //this.position.y += this.size.y;
     }
 
+    /**
+     * @static
+     * @param {String} uid 
+     * @returns {Object} 
+     */
     static GetObjectFromUID(uid) {
         return Cobject.AllCobjects[uid];
     }
 
+    /**
+     * @static
+     * @param {Object} object 
+     * @returns {void}
+     */
     static DeleteObject(object) {
         if (Cobject.AllCobjects[object.UID] === undefined)
             return;
@@ -56,6 +74,10 @@ class Cobject {
         delete Cobject.AllCobjects[object.UID];
     }
 
+    /**
+     * @static
+     * @returns {String}
+     */
     static GenerateUID() {
         let array = new Uint32Array(3);
         window.crypto.getRandomValues(array);
@@ -71,6 +93,10 @@ class Cobject {
         return uid;
     }
 
+    /**
+     * @static
+     * @param {Object} object 
+     */
     static AddObject(object) {
         object.UID = Cobject.GenerateUID();
         Cobject.AllCobjects[object.UID] = object;
@@ -92,6 +118,12 @@ class Cobject {
 
     }
 
+    /**
+     * 
+     * @param {Vector2D} checkPos 
+     * @param {Number} range 
+     * @returns {boolean}
+     */
     CheckInRange(checkPos, range = 100.0) {
         return this.position.Distance(checkPos) < range;
     }

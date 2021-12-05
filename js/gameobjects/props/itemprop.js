@@ -1,4 +1,4 @@
-import { Vector2D, ExtendedProp, AtlasController, Item, OperationType, Shadow2D, BWDrawingType, ShadowCanvasObject } from '../../internal.js';
+import { Vector2D, ExtendedProp, AtlasController, Item, OperationType, Shadow2D, BWDrawingType } from '../../internal.js';
 
 /**
  * @class

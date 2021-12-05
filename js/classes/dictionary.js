@@ -1,11 +1,30 @@
+/**
+ * @class
+ * @constructor
+ */
 class DictionaryValue {
+
+    /**
+     * 
+     * @param {Object} key 
+     * @param {Object} value 
+     */
     constructor(key, value) {
         this.key = key;
         this.value = value;
     }
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class Dictionary {
+
+    /**
+     * 
+     * @param {Object} key 
+     */
     constructor(key) {
         this.key = key;
         this.hashes = [];

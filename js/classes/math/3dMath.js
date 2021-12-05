@@ -169,8 +169,6 @@ class Math3D {
         let newIndexFloor = 0,
             newIndexCeil = 0;
 
-        console.log(pointData, data);
-
         for (let i = 0, l = pointData.length; i < l; ++i) {
             newIndexFloor = (Math.floor(pointData[i].x) * 4) + (Math.floor(pointData[i].y + yOffset) * size.x * 4);
             //newIndexCeil = (Math.ceil(pointData[i].x) * 4) + (Math.ceil(pointData[i].y + yOffset) * size.x * 4);

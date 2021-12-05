@@ -1,4 +1,4 @@
-import { Cobject, ItemStats, Vector2D, inventoryItemIcons, CustomEventHandler, CollisionHandler, CanvasDrawer, Tile, TileType, TileF, TileLUT, ItemValues, CanvasSprite, CMath } from '../../internal.js';
+import { Cobject, ItemStats, Vector2D, Inventory, Collision, inventoryItemIcons, CustomEventHandler, CollisionHandler, CanvasDrawer, Tile, TileType, TileF, TileLUT, ItemValues, CanvasSprite, CMath, Vector4D } from '../../internal.js';
 
 let stackableItems = {};
 
@@ -21,16 +21,40 @@ Object.assign(stackableItems, {
  * @extends Cobject
  */
 class Item extends Cobject {
+
+    /**
+     * Creates a new Item
+     * @param {String} name 
+     * @param {Number} amount 
+     */
     constructor(name, amount = 0) {
         super();
+
+        /**@type {String} */
         this.name = name;
+
+        /**@type {Number} */
         this.amount = amount;
+
+        /**@type {Vector4D} */
         this.sprite = inventoryItemIcons[name].sprite;
+
+        /**@type {Vector2D} */
         this.atlas = inventoryItemIcons[name].atlas;
+
+        /**@type {String} */
         this.url = inventoryItemIcons[name].url;
+
+        /**@type {boolean} */
         this.isUsableItem = this.amount > 0 ? true : false;
+
+        /**@type {boolean} */
         this.isStackable = stackableItems[this.name] === undefined ? true : stackableItems[this.name];
+
+        /**@type {Number} */
         this.value = ItemValues[this.name] !== undefined ? ItemValues[this.name] : 0;
+
+        /**@type {Inventory} */
         this.inventory = undefined;
     }
 
@@ -38,23 +62,44 @@ class Item extends Cobject {
         super.Delete();
     }
 
+    /**
+     * 
+     * @returns {String}
+     */
     GetRealName() {
         let realName = this.name.replace(/([A-Z])/g, ' $1');
         return realName.charAt(0).toUpperCase() + realName.slice(1, realName.length);
     }
 
+    /**
+     * 
+     * @param {Number} value 
+     */
     AddAmount(value) {
         this.amount += Number(value);
     }
 
+    /**
+     * 
+     * @param {Number} value 
+     */
     RemoveAmount(value) {
         this.amount -= Number(value);
     }
 
+    /**
+     * 
+     * @param {Number} amount 
+     * @returns {boolean}
+     */
     HasAmount(amount) {
         return this.amount >= amount;
     }
 
+    /**
+     * 
+     * @returns {Number|String}
+     */
     GetAmount() {
         if (this.amount < 1000)
             return this.amount;
@@ -66,6 +111,10 @@ class Item extends Cobject {
             return Math.floor(this.amount / 1000 / 1000 / 1000) + 'b';
     }
 
+    /**
+     * 
+     * @param {Collision} ownerCollision 
+     */
     UseItem(ownerCollision) {
         this.RemoveAmount(1);
         this.inventory.didInventoryChange = true;
@@ -81,7 +130,18 @@ class Item extends Cobject {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Item
+ */
 class UsableItem extends Item {
+
+    /**
+     * 
+     * @param {String} name 
+     * @param {Number} amount 
+     */
     constructor(name, amount) {
         super(name, amount);
         this.durability = ItemStats[this.name].durability;
@@ -126,7 +186,19 @@ class UsableItem extends Item {
     }
 }
 
+
+/**
+ * @class
+ * @constructor
+ * @extends UsableItem
+ */
 class Hoe extends UsableItem {
+
+    /**
+     * 
+     * @param {String} name 
+     * @param {Number} amount 
+     */
     constructor(name, amount) {
         super(name, amount);
     }
@@ -134,7 +206,7 @@ class Hoe extends UsableItem {
     UseItem(ownerCollision) {
         let overlap = CollisionHandler.GCH.GetOverlap(ownerCollision);
 
-        if (overlap !== false) {
+        if (overlap !== undefined) {
             if (overlap.collisionOwner !== undefined && overlap.collisionOwner.plantData !== undefined && ownerCollision.collisionOwner.BoxCollision.CheckInRealRange(overlap, 112)) {
                 overlap.collisionOwner.Delete();
             }
@@ -160,7 +232,18 @@ class Hoe extends UsableItem {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends UsableItem
+ */
 class Shovel extends UsableItem {
+
+    /**
+     * 
+     * @param {String} name 
+     * @param {Number} amount 
+     */
     constructor(name, amount) {
         super(name, amount);
     }
@@ -168,7 +251,7 @@ class Shovel extends UsableItem {
     UseItem(ownerCollision) {
         let overlap = CollisionHandler.GCH.GetOverlap(ownerCollision);
 
-        if (overlap !== false) {
+        if (overlap !== undefined) {
             console.log('shovelOverlap');
         }
         CustomEventHandler.NewCustomEvent(this.name, this);
@@ -176,7 +259,18 @@ class Shovel extends UsableItem {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends UsableItem
+ */
 class Axe extends UsableItem {
+
+    /**
+     * 
+     * @param {String} name 
+     * @param {Number} amount 
+     */
     constructor(name, amount) {
         super(name, amount);
     }
@@ -200,7 +294,18 @@ class Axe extends UsableItem {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends UsableItem
+ */
 class Pickaxe extends UsableItem {
+
+    /**
+     * 
+     * @param {String} name 
+     * @param {Number} amount 
+     */
     constructor(name, amount) {
         super(name, amount);
     }
@@ -221,7 +326,18 @@ class Pickaxe extends UsableItem {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends UsableItem
+ */
 class Weapon extends UsableItem {
+
+    /**
+     * 
+     * @param {String} name 
+     * @param {Number} amount 
+     */
     constructor(name, amount) {
         super(name, amount);
     }

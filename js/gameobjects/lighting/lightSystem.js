@@ -1,6 +1,4 @@
-import { TestingEnum, CURRENT_TEST, Cobject, Color, Vector2D, CMath, MasterObject, Mastertime, Graph, GraphPoint, DrawingOperation, CanvasDrawer, Rectangle } from '../../internal.js';
-import { AmbientLight } from './ambientLight.js';
-
+import { Cobject, Color, Vector2D, CMath, MasterObject, Mastertime, Graph, GraphPoint, DrawingOperation, AmbientLight } from '../../internal.js';
 
 /**
  * @readonly
@@ -32,15 +30,22 @@ class SkyLight extends Cobject {
         super(new Vector2D(0, 0));
         /**@type {Color} */
         this.color = color;
+
         /**@type {Color} */
         this.lightColor = lightColor;
+
         /**@type {Color} */
         this.previousColor = color.Clone();
+
         this.previousColor.ToInt();
+
         /**@type {Color} */
         this.compareColor = color.Clone();
+
+        /**@type {boolean} */
         this.didLightChange = false;
 
+        /**@type {Graph} */
         this.intensityGraph = new Graph(
             0,
             24,
@@ -66,6 +71,7 @@ class SkyLight extends Cobject {
             25
         );
 
+        /**@type {Graph} */
         this.dayCycleColorGraph = new Graph(
             0,
             24,
@@ -159,8 +165,10 @@ class LightSystem extends Cobject {
 
         /** @type { HTMLCanvasElement } */
         this.lightFrameBuffer = document.createElement('canvas');
+
         /** @type { HTMLCanvasElement } */
         this.lightIntensityBuffer = document.createElement('canvas');
+
         /** @type { HTMLCanvasElement } */
         this.ambientFrameBuffer = document.createElement('canvas');
 
@@ -198,6 +206,7 @@ class LightSystem extends Cobject {
 
         /** @type {ImageData } */
         this.lightData = this.lightFrameBufferCtx.getImageData(0, 0, this.lightFrameBuffer.width, this.lightFrameBuffer.height);
+        
         /** @type {ImageData } */
         this.lightIntensityData;
 
@@ -360,11 +369,6 @@ class LightSystem extends Cobject {
                             data[++index] = dest.blue;
                             //data[++index] = dest.alpha
                             ++index;
-
-                            /*data[index] += pixels[pixelsIndex] * drawingIntensity;
-                            data[++index] += pixels[pixelsIndex + 1] * drawingIntensity;
-                            data[++index] += pixels[pixelsIndex + 2] * drawingIntensity;
-                            data[++index] += pixels[pixelsIndex + 3] * drawingIntensity;*/
                         }
                         pixelsIndex += 4;
                     }
@@ -758,28 +762,14 @@ class LightSystem extends Cobject {
     }
 
     UpdateCanvas() {
-        if (CURRENT_TEST === TestingEnum.CaseB) {
-            this.DrawLightingLoop(0);
-            this.lightFrameBufferCtx.putImageData(this.lightData, 0, 0);
+        this.DrawLightingLoop(0);
+        this.lightFrameBufferCtx.putImageData(this.lightData, 0, 0);
+        this.ambientFrameBufferCtx.drawImage(this.lightFrameBuffer, 0, 0);
 
-            //this.lightIntensityBufferCtx.putImageData(this.lightIntensityData, 0, 0);
-            //this.ambientFrameBufferCtx.globalCompositeOperation = 'luminosity';
-            //this.ambientFrameBufferCtx.drawImage(this.lightIntensityBuffer, 0, 0);
-            //this.ambientFrameBufferCtx.globalCompositeOperation = 'source-over';
-            this.ambientFrameBufferCtx.drawImage(this.lightFrameBuffer, 0, 0);
-        }
-        if (CURRENT_TEST === TestingEnum.CaseA) {
-            this.DrawLightingLoop(0);
-            this.ambientFrameBufferCtx.drawImage(this.lightFrameBuffer, 0, 0);
-        }
     }
 
     FixedUpdate() {
         super.FixedUpdate();
-
-        if (CURRENT_TEST === TestingEnum.CaseA) {
-            this.ambientFrameBufferCtx.fillStyle = LightSystem.SkyLight.color.ToString();
-        }
 
         if (MasterObject.MO.Mastertime.GlobalFrameCounter === 5) {
             this.ValidateGetColor();
@@ -802,22 +792,8 @@ class LightSystem extends Cobject {
     GameBegin() {
         super.GameBegin();
         this.lightFrameBufferCtx.globalCompositeOperation = 'hard-light';
-        //this.ambientFrameBufferCtx.globalCompositeOperation = 'soft-light';
         this.ambientFrameBufferCtx.globalCompositeOperation = 'source-over';
         this.DrawLightingLoop(0);
-        //this.lightFrameBufferCtx.fillStyle = 'rgb(5, 5, 5)';
-        //this.lightFrameBufferCtx.fillRect(0, 0, this.lightFrameBuffer.width, this.lightFrameBuffer.height);
-
-        //this.lightFrameBufferCtx.fillStyle = 'rgba(0, 0, 0, 0)';
-        //this.lightFrameBufferCtx.fillRect(0, 0, this.lightFrameBuffer.width, this.lightFrameBuffer.height);
-        //this.lightFrameBufferCtx.globalCompositeOperation = 'source-over';
-        //this.lightFrameBufferCtx.globalCompositeOperation = 'luminosity';
-
-        //this.lightData = this.lightFrameBufferCtx.getImageData(0, 0, this.lightFrameBuffer.width, this.lightFrameBuffer.height);
-        //this.ambientFrameBufferCtx.fillStyle = LightSystem.SkyLight.color.ToString();//'rgb(5, 5, 5)';
-        //this.ambientFrameBufferCtx.fillRect(0, 0, this.ambientFrameBuffer.width, this.ambientFrameBuffer.height);
-        //this.lightData = this.ambientFrameBufferCtx.getImageData(0, 0, this.ambientFrameBuffer.width, this.ambientFrameBuffer.height);
-        //this.lightIntensityData = this.lightIntensityBufferCtx.getImageData(0, 0, this.lightIntensityBuffer.width, this.lightIntensityBuffer.height);
     }
 
     static GetLightLUT(distance) {

@@ -1,4 +1,18 @@
+/**
+ * @class
+ * @constructor
+ */
 class CanvasSprite {
+
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {Number} width 
+     * @param {Number} height 
+     * @param {String} atlas 
+     * @param {boolean} isTransparent 
+     */
     constructor(x, y, width, height, atlas, isTransparent = undefined) {
         this.x = x;
         this.y = y;

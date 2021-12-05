@@ -1,4 +1,4 @@
-import { ObjectsHasBeenInitialized, LightSystem, Character, Rectangle, DrawingOperation, CAnimation, AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler, Plant, AllPlantData, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite, Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, Props, Math3D, AtlasController, Prop } from '../internal.js';
+import { ObjectsHasBeenInitialized, LightSystem, Rectangle, DrawingOperation, CAnimation, AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler, Plant, AllPlantData, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite, Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController } from '../internal.js';
 import { GenerateCustomSheets } from '../drawers/tiles/TileMakerCustomSheets/tileMakerCustomSheetsImports.js';
 
 var GlobalFrameCounter = 0;

@@ -1,9 +1,24 @@
-import { Vector2D, Tile, TextOperation, AtlasController, DrawingOperation, OperationType, UIElement } from '../../../internal.js';
+import { Vector2D, Tile, CanvasDrawer, TextOperation, AtlasController, DrawingOperation, OperationType, UIElement } from '../../../internal.js';
 
+/**
+ * @class
+ * @constructor
+ */
 class UIDrawer {
+
+    /**
+     * 
+     * @param {String} spriteSheet 
+     * @param {CanvasDrawer} canvasDrawer 
+     */
     constructor(spriteSheet, canvasDrawer) {
+        /** @type {String} */
         this.spriteSheet = spriteSheet;
+
+        /** @type {CanvasDrawer} */
         this.canvasDrawer = canvasDrawer;
+
+        /** @type {Array<UIElement>} */
         this.uiElements = [];
     }
 

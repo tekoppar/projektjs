@@ -1,4 +1,4 @@
-import { BoxCollision, Collision, PolygonCollision, CollisionHandler, Vector2D, RectOperation, Rectangle, CMath, Color, Cobject, PathOperation, Polygon } from '../../internal.js';
+import { BoxCollision, Collision, PolygonCollision, CollisionHandler, Vector2D, RectOperation, Rectangle, Color, Cobject, PathOperation, Polygon } from '../../internal.js';
 
 function sortDrawOperations(a, b) {
     if (a.GetDrawPositionY() > b.GetDrawPositionY()) return 1;
@@ -12,20 +12,41 @@ function sortCollisions(a, b) {
     return a.enableCollision * 1 + b.enableCollision * -1;
 };
 
+/**
+ * @class
+ * @constructor
+ * @extends Cobject
+ */
 class DebugDrawer extends Cobject {
+
+    /** @type {DebugDrawer} */
     static _Instance;
 
+    /**
+     * Creates a new DebugDrawer
+     */
     constructor() {
         super(new Vector2D(0, 0));
         DebugDrawer._Instance = this;
 
+        /** @type {boolean} */
         this.DebugDraw = false;
+
+        /** @type {Array} */
         this.debugOperations = [];
 
+        /** @type {HTMLCanvasElement} */
         this.gameDebugCanvas = undefined;
+
+        /** @type {CanvasRenderingContext2D} */
         this.gameDebugCanvasCtx = undefined;
     }
 
+    /**
+     * 
+     * @param {Object} object 
+     * @returns {Color}
+     */
     GetColor(object) {
         let s = undefined;
 
@@ -99,6 +120,10 @@ class DebugDrawer extends Cobject {
         DebugDrawer._Instance.AddDebugRectOperation(rect, lifetime, color, fillOrOutline);
     }
 
+    /**
+     * 
+     * @param {Number} delta 
+     */
     DrawDebugLoop(delta) {
         if (this.DebugDraw === true) {
             this.gameDebugCanvasCtx.clearRect(0, 0, this.gameDebugCanvas.width, this.gameDebugCanvas.height);
@@ -138,6 +163,10 @@ class DebugDrawer extends Cobject {
         }
     }
 
+    /**
+     * 
+     * @param {*} drawingOperation 
+     */
     CanvasClear(drawingOperation) {
         let oldPosition = drawingOperation.GetPreviousPosition(),
             size = new Vector2D(0, 0);
@@ -160,6 +189,12 @@ class DebugDrawer extends Cobject {
         }
     }
 
+    /**
+     * 
+     * @param {RectOperation} drawingOperation 
+     * @param {Number} delta 
+     * @returns {void}
+     */
     DrawDebugCanvasOperation(drawingOperation, delta) {
         let context = drawingOperation.drawingCanvas.getContext('2d');
 
@@ -190,6 +225,11 @@ class DebugDrawer extends Cobject {
         }
     }
 
+    /**
+     * 
+     * @param {*} collision 
+     * @returns {void}
+     */
     DrawDebugCanvas(collision) {
         if (collision.debugDraw === false)
             return;
@@ -241,6 +281,12 @@ class DebugDrawer extends Cobject {
 
     }
 
+    /**
+     * 
+     * @param {Vector2D} checkPos 
+     * @param {Number} range 
+     * @returns {boolean}
+     */
     CheckInRange(checkPos, range = 100.0) {
         return this.position.Distance(checkPos) < range;
     }

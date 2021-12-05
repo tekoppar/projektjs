@@ -1,4 +1,4 @@
-import { Vector2D, Vector4D, Rectangle, CMath, DebugDrawer } from '../../internal.js';
+import { Vector2D, Rectangle, DebugDrawer, Vector4D, Vector } from '../../internal.js';
 
 const OverlapCheckEnum = {
     Intersect: false,
@@ -36,9 +36,16 @@ class QuadTree {
      * @param {Rectangle} bounds 
      */
     constructor(level, bounds) {
+        /** @type {Number} */
         this.level = level;
+
+        /** @type {Array<Collision>} */
         this.objects = [];
+
+        /** @type {Rectangle} */
         this.bounds = bounds;
+
+        /** @type {Array<QuadTree>} */
         this.nodes = [];
     }
 
@@ -94,6 +101,11 @@ class QuadTree {
         this.objects = [];
     }
 
+    /**
+     * 
+     * @param {Rectangle} bounds 
+     * @returns {Array<Number>}
+     */
     GetIndex(bounds) {
         let index = [];
         if (this.nodes[0].bounds.Overlaps(bounds))
@@ -108,6 +120,11 @@ class QuadTree {
         return index;
     }
 
+    /**
+     * 
+     * @param {Collision} object 
+     * @returns {void}
+     */
     Add(object) {
         if (object.position === null)
             return;
@@ -132,6 +149,11 @@ class QuadTree {
         }
     }
 
+    /**
+     * 
+     * @param {Collision} object 
+     * @returns {void}
+     */
     Remove(object) {
         if (this.nodes.length === 0) {
             for (let i = 0, l = this.objects.length; i < l; ++i) {
@@ -154,6 +176,11 @@ class QuadTree {
         }
     }
 
+    /**
+     * 
+     * @param {Rectangle} bounds 
+     * @returns {Array<Collision>}
+     */
     Get(bounds) {
         if (this.nodes.length > 0) {
             let index = this.GetIndex(bounds);
@@ -189,9 +216,15 @@ class CollisionHandler {
     static GCH = new CollisionHandler();
 
     constructor() {
+        /** @type {Array<Collision>} */
         this.Collisions = [];
+
+        /** @type {Array<Collision>} */
         this.EnabledCollisions = [];
+
         let canvas = document.getElementById('game-canvas');
+
+        /** @type {QuadTree} */
         this.QuadTree = QuadTree.MasterQuadTree = new QuadTree(0, new Rectangle(0, 0, parseFloat(canvas.getAttribute('width')), parseFloat(canvas.getAttribute('height'))));
     }
 
@@ -199,6 +232,10 @@ class CollisionHandler {
 
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     */
     AddCollision(collision) {
         this.Collisions.push(collision);
         this.QuadTree.Add(collision);
@@ -207,6 +244,10 @@ class CollisionHandler {
             this.EnabledCollisions.push(collision);
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     */
     RemoveCollision(collision) {
         for (let i = 0, l = this.Collisions.length; i < l; ++i) {
             if (collision === this.Collisions[i]) {
@@ -222,14 +263,27 @@ class CollisionHandler {
         }
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     */
     RemoveFromQuadTree(collision) {
         this.QuadTree.Remove(collision);
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     */
     UpdateQuadTree(collision) {
         this.QuadTree.Add(collision);
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     * @returns {boolean}
+     */
     CheckCollisions(collision) {
         /*let quads = [this.QuadTree];
 
@@ -246,7 +300,6 @@ class CollisionHandler {
         quadOverlaps = quadOverlaps.concat(this.QuadTree.Get(collision.GetBoundingBox()));
 
         for (let i = 0, l = quadOverlaps.length; i < l; ++i) {
-            //DebugDrawer.AddDebugOperation(quadOverlaps[i].position.Clone(), 2, 'orange');
             if ((collision.DoIntersect(quadOverlaps[i]) === true || collision.GetIntersections(quadOverlaps[i].GetPoints()) > 0) && collision.collisionOwner !== quadOverlaps[i].collisionOwner && quadOverlaps[i].enableCollision === true) {
                 return false;
             }
@@ -255,6 +308,13 @@ class CollisionHandler {
         return true;
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     * @param {Number} range 
+     * @param {ClassDecorator} type 
+     * @returns {Array<Collision>}
+     */
     GetInRangeType(collision, range, type) {
         let inRange = this.GetInRange(collision, range),
             newInRange = [];
@@ -267,6 +327,12 @@ class CollisionHandler {
         return newInRange;
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     * @param {Number} range 
+     * @returns {Array<*>}
+     */
     GetInRange(collision, range) {
         let inRange = [],
             quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox());
@@ -280,6 +346,11 @@ class CollisionHandler {
         return inRange;
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     * @returns {(Collision)}
+     */
     GetOverlap(collision) {
         let quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox()),
             overlaps = [],
@@ -298,7 +369,7 @@ class CollisionHandler {
             return overlaps[overlapsRange[0].i];
         } else {
             quadOverlaps = null;
-            return false;
+            return undefined;
         }
     }
 
@@ -333,11 +404,17 @@ class CollisionHandler {
         }
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     * @param {boolean} debugDraw 
+     * @param {Object} OverlapCheckType 
+     * @param {CollisionTypeCheck} CollisionCheckType 
+     * @returns {Array<Collision>}
+     */
     GetOverlaps(collision, debugDraw = false, OverlapCheckType = DefaultOverlapCheck, CollisionCheckType = CollisionTypeCheck.Overlap) {
         let overlaps = [],
             quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox());
-
-        //DebugDrawer.AddDebugRectOperation(collision.GetBoundingBox(), 0.1, 'blue');
 
         for (let i = 0, l = quadOverlaps.length; i < l; ++i) {
             if (quadOverlaps[i].overlapEvents === true && (CollisionCheckType !== CollisionTypeCheck.Overlap && CollisionCheckType !== CollisionTypeCheck.All))
@@ -387,12 +464,25 @@ class Collision {
      * @param {boolean} register 
      */
     constructor(position, size, enableCollision, owner = undefined, register = true) {
+        /** @type {Vector2D} */
         this.position = position.Clone();
+
+        /** @type {Vector2D} */
         this.size = size.Clone();
+
+        /** @type {boolean} */
         this.overlapEvents = true;
+
+        /** @type {boolean} */
         this.enableCollision = enableCollision;
+
+        /** @type {*} */
         this.collisionOwner = owner;
+
+        /** @type {Rectangle} */
         this.boundingBox = new Rectangle(1, 1, 1, 1);
+
+        /** @type {boolean} */
         this.debugDraw = true;
 
         if (register === true)
@@ -404,6 +494,12 @@ class Collision {
         this.collisionOwner = this.size = this.position = this.boundingBox = null;
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     * @param {Number} range 
+     * @returns {boolean}
+     */
     CheckInRange(collision, range = 25) {
         let tempPos = new Vector2D(this.position.x + (this.size.x * 0.5), this.position.y + (this.size.y * 0.5));
         let checkPos = new Vector2D(collision.position.x + (collision.size.x * 0.5), collision.position.y + (collision.size.y * 0.5));
@@ -411,6 +507,12 @@ class Collision {
         return tempPos.CheckInRange(checkPos, range);
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     * @param {Number} range 
+     * @returns {boolean}
+     */
     CheckInCenterRange(collision, range = 25) {
         let a = this.GetCenterPosition(),
             b = collision.position.Clone();
@@ -418,6 +520,12 @@ class Collision {
         return a.CheckInRange(b, range);
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     * @param {Number} range 
+     * @returns {boolean} 
+     */
     CheckInCenterRangeB(collision, range = 25) {
         let a = this.GetCenterPosition(),
             b = collision.GetCenterPosition().Clone();
@@ -425,6 +533,12 @@ class Collision {
         return a.CheckInRange(b, range);
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     * @param {Number} range 
+     * @returns {boolean}
+     */
     CheckInRealRange(collision, range = 25) {
         let a = this.GetRealCenterPosition(),
             b = collision.GetRealCenterPosition();
@@ -436,6 +550,10 @@ class Collision {
         let overlapEvent = CollisionHandler.GCH.CheckCollisions(this);
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetCenterTilePosition() {
         let newPos = new Vector2D(this.position.x, this.position.y);//this.position.Clone();
         newPos.x += this.size.x * 0.5;
@@ -444,10 +562,18 @@ class Collision {
         return newPos;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetCenterPositionV2() {
         return this.GetBoundingBox().GetCenterPoint();
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetCenterPosition() {
         let newPos = new Vector2D(this.position.x, this.position.y);//.Clone();
         newPos.x += this.size.x * 0.5 + 16;
@@ -456,6 +582,10 @@ class Collision {
         return newPos;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetRealCenterPosition() {
         let v = this.GetCenterPosition();
 
@@ -465,6 +595,10 @@ class Collision {
         return v;
     }
 
+    /**
+     * 
+     * @returns {Array<Vector2D>}
+     */
     GetPoints() {
         if (this.position !== null) {
             return [
@@ -478,14 +612,32 @@ class Collision {
         }
     }
 
+    /**
+     * 
+     * @returns {Rectangle}
+     */
     GetBoundingBox() {
         return new Rectangle(this.position.x, this.position.y, this.size.x, this.size.y);
     }
 
+    /**
+     * 
+     * @param {Number} aMin 
+     * @param {Number} aMax 
+     * @param {Number} bMin 
+     * @param {Number} bMax 
+     * @returns {boolean} 
+     */
     IsOverlaping1D(aMin, aMax, bMin, bMax) {
         return aMax >= bMin && bMax >= aMin;
     }
 
+    /**
+     * 
+     * @param {Collision} b 
+     * @param {boolean} overlap 
+     * @returns {boolean}
+     */
     DoOverlap(b, overlap = false) {
         if (this.enableCollision === true || overlap == true) {
             if (b === undefined || b.boundingBox === null)
@@ -493,19 +645,7 @@ class Collision {
 
             let ABB = this.GetBoundingBox(),
                 BBB = b.GetBoundingBox();
-            /*ABB.x -= 2;
-            ABB.y -= 2;
-            ABB.w += 2;
-            ABB.h += 2;
-            BBB.x -= 2;
-            BBB.y -= 2;
-            BBB.w += 2;
-            BBB.h += 2;*/
 
-            //DebugDrawer.AddDebugOperation(new Vector2D(ABB.x, ABB.y), 2, 'orange');
-            //DebugDrawer.AddDebugOperation(new Vector2D(ABB.z, ABB.a), 2, 'blue');
-            //DebugDrawer.AddDebugOperation(new Vector2D(BBB.x, BBB.y), 2, 'pink');
-            //DebugDrawer.AddDebugOperation(new Vector2D(BBB.z, BBB.a), 2, 'purple');
             return this.IsOverlaping1D(ABB.x - Collision.COLLISION_INTERSECT_OFFSET, (ABB.x - Collision.COLLISION_INTERSECT_OFFSET) + (ABB.w + Collision.COLLISION_INTERSECT_OFFSET), BBB.x - Collision.COLLISION_INTERSECT_OFFSET, (BBB.x - Collision.COLLISION_INTERSECT_OFFSET) + (BBB.w + Collision.COLLISION_INTERSECT_OFFSET)) &&
                 this.IsOverlaping1D((ABB.y - Collision.COLLISION_INTERSECT_OFFSET), (ABB.y - Collision.COLLISION_INTERSECT_OFFSET) + (ABB.h + Collision.COLLISION_INTERSECT_OFFSET), (BBB.y - Collision.COLLISION_INTERSECT_OFFSET), (BBB.y - Collision.COLLISION_INTERSECT_OFFSET) + (BBB.h + Collision.COLLISION_INTERSECT_OFFSET));
         }
@@ -513,17 +653,25 @@ class Collision {
             return false;
     }
 
+    /**
+     * 
+     * @param {Collision} b 
+     * @param {boolean} overlap 
+     * @returns {boolean}
+     */
     DoIntersect(b, overlap = false) {
-        //wthis.CheckIntersection(new Vector4D(b.position.x, b.position.y, b.size.x, b.size.y));
         if (this.enableCollision === true || overlap === true) {
-            //let centerTile = this.GetCenterPosition();
-            //let bCenter = b.GetCenterPosition();
-            return this.DoOverlap(b, overlap);// (Math.abs(centerTile.x - bCenter.x) * -1 < (this.size.x + b.size.x)) && (Math.abs(centerTile.y - bCenter.y) * 1 < (this.size.y + b.size.y));
+            return this.DoOverlap(b, overlap);
         }
         else
             return false;
     }
 
+    /**
+     * 
+     * @param {Array<Vector2D>} points 
+     * @returns {Number}
+     */
     GetIntersections(points) {
         let intersections = 0;
 
@@ -538,18 +686,22 @@ class Collision {
             ) {
                 intersections++;
             }
-
-            /*if (this.IntersectsV(new Vector2D(this.position.x, this.position.y), new Vector2D(this.position.x + this.size.x, this.position.y), new Vector2D(pt1.x, pt1.y), new Vector2D(pt2.x, pt2.y)) ||
-                this.IntersectsV(new Vector2D(this.position.x + this.size.x, this.position.y), new Vector2D(this.position.x + this.size.x, this.position.y + this.size.y), new Vector2D(pt1.x, pt1.y), new Vector2D(pt2.x, pt2.y)) ||
-                this.IntersectsV(new Vector2D(this.position.x + this.size.x, this.position.y + this.size.y), new Vector2D(this.position.x, this.position.y + this.size.y), new Vector2D(pt1.x, pt1.y), new Vector2D(pt2.x, pt2.y)) ||
-                this.IntersectsV(new Vector2D(this.position.x, this.position.y + this.size.y), new Vector2D(this.position.x, this.position.y), new Vector2D(pt1.x, pt1.y), new Vector2D(pt2.x, pt2.y))
-            ) {
-                intersections++;
-            }*/
         }
         return intersections;
     }
 
+    /**
+     * 
+     * @param {Number} a 
+     * @param {Number} b 
+     * @param {Number} c 
+     * @param {Number} d 
+     * @param {Number} p 
+     * @param {Number} q 
+     * @param {Number} r 
+     * @param {Number} s 
+     * @returns {boolean}
+     */
     intersects(a, b, c, d, p, q, r, s) {
         var det, gamma, lambda;
         det = (c - a) * (s - q) - (r - p) * (d - b);
@@ -562,6 +714,14 @@ class Collision {
         }
     }
 
+    /**
+     * 
+     * @param {Vector2D} aS 
+     * @param {Vector2D} aE 
+     * @param {Vector2D} bS 
+     * @param {Vector2D} bE 
+     * @returns {boolean}
+     */
     IntersectsV(aS, aE, bS, bE) {
         let det, gamma, lambda;
         det = (aE.x - aS.x) * (bE.y - bS.y) - (bE.x - bS.x) * (aE.y - aS.y);
@@ -574,6 +734,12 @@ class Collision {
         }
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     * @param {Vector2D} size 
+     * @returns {boolean}
+     */
     Intersects(position, size) {
         let positionEnd = new Vector2D(this.position.x + this.size.x, this.position.y + this.size.y);
         let positionEndB = new Vector2D(position.x + size.x, position.y + size.y);
@@ -588,6 +754,10 @@ class Collision {
         }
     }
 
+    /**
+     * 
+     * @param {Vector4D} v4 
+     */
     CheckIntersection(v4) {
         let slope = this.LineSlope(v4);
         let intersect = this.LineIntersect(slope, v4);
@@ -595,18 +765,41 @@ class Collision {
         let doesIntersect = this.intersects(this.position.x, this.position.y, this.position.x + this.size.x, this.position.y + this.size.y, v4.x, v4.y, v4.x + v4.z, v4.y + v4.a);
     }
 
+    /**
+     * 
+     * @param {Vector2D|Vector|Vector4D} position 
+     * @returns {Number}
+     */
     Distance(position) {
         return Math.sqrt(Math.pow(position.x - this.position.x, 2) + Math.pow(position.y - this.position.y, 2));
     }
 
+    /**
+     * 
+     * @param {Vector2D|Vector|Vector4D} position 
+     * @returns {Number}
+     */
     LineSlope(position) {
         return (this.position.y - position.y) / (this.position.x - position.x);
     }
 
+    /**
+     * 
+     * @param {Number} slope 
+     * @param {Vector2D|Vector|Vector4D} b 
+     * @returns {Number}
+     */
     LineIntersect(slope, b) {
         return b.y - (slope * b.x);
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} slope 
+     * @param {Number} intersect 
+     * @returns {Number}
+     */
     LineEquation(x, slope, intersect) {
         return slope * x + intersect;
     }
@@ -616,10 +809,22 @@ class Collision {
         CollisionHandler.GCH.UpdateQuadTree(this);
     }
 
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Vector2D} b 
+     * @param {Vector2D} o 
+     * @returns {Number}
+     */
     Cross(a, b, o) {
         return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
     }
 
+    /**
+     * 
+     * @param {Number} damage 
+     * @param {Collision} source 
+     */
     OnHit(damage, source) {
         this.collisionOwner.OnHit(damage, source);
     }
@@ -642,6 +847,8 @@ class BoxCollision extends Collision {
      */
     constructor(position, size, enableCollision, owner = undefined, register = true) {
         super(position, size, enableCollision, owner, register);
+
+        /** @type {Rectangle} */
         this.boundingBox = new Rectangle(this.position.x, this.position.y, this.size.x, this.size.y);
 
     }
@@ -650,12 +857,16 @@ class BoxCollision extends Collision {
         super.Delete();
     }
 
+    /**
+     * 
+     * @returns {Rectangle}
+     */
     GetBoundingBox() {
         if (this.position !== null && this.position !== undefined) {
             this.boundingBox.x = this.position.x;
             this.boundingBox.y = this.position.y;
         }
-        return this.boundingBox;// new Rectangle(this.position.x, this.position.y, this.size.x, this.size.y);
+        return this.boundingBox;
     }
 
     CopyBoundingBox(bb) {
@@ -695,8 +906,13 @@ class PolygonCollision extends Collision {
      */
     constructor(position, size, points = [], enableCollision, owner = undefined, register = true) {
         super(position, size, enableCollision, owner, false);
+
+        /** @type {Array<Vector2D>} */
         this.points = points;
+
+        /** @type {Array<Vector2D>} */
         this.refPoints = [...points];
+
         this.UpdatePoints();
         this.CalculateBoundingBox();
 
@@ -719,14 +935,18 @@ class PolygonCollision extends Collision {
         CollisionHandler.GCH.UpdateQuadTree(this);
     }
 
+    /**
+     * 
+     * @returns {Rectangle}
+     */
     GetBoundingBox() {
-        /*if (this.position !== null && this.position !== undefined) {
-            //this.boundingBox.x = this.position.x;
-            //this.boundingBox.y = this.position.y;
-        }*/
-        return this.boundingBox;// new Rectangle(this.boundingBox.x, this.boundingBox.y, this.boundingBox.w, this.boundingBox.h);
+        return this.boundingBox;
     }
 
+    /**
+     * 
+     * @param {Rectangle} bb 
+     */
     CopyBoundingBox(bb) {
         bb.x = this.boundingBox.x;
         bb.y = this.boundingBox.y;
@@ -750,6 +970,11 @@ class PolygonCollision extends Collision {
         this.boundingBox = new Rectangle(sX, sY, lX - sX, lY - sY);
     }
 
+    /**
+     * 
+     * @param {Array<Vector2D>} points 
+     * @returns 
+     */
     static CalculateBoundingBox(points) {
         let sX = 9999999999, sY = 9999999999, lX = -1, lY = -1;
 
@@ -771,6 +996,10 @@ class PolygonCollision extends Collision {
         this.position.y = this.boundingBox.y;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetCenterPosition() {
         let newPos = new Vector2D(this.boundingBox.x, this.boundingBox.y);
         newPos.x += this.boundingBox.w * 0.5;
@@ -779,13 +1008,13 @@ class PolygonCollision extends Collision {
         return newPos;
     }
 
+    /**
+     * 
+     * @returns {Array<Vector2D>}
+     */
     GetPoints() {
         return this.points;
     }
 }
-
-//let newCollision = new BoxCollision(new Vector2D(256, 320), new Vector2D(64, 64), true);
-//collisionHandler.AddCollision(newCollision);
-//CollisionHandler.GCH.AddCollision(polygonCollision);
 
 export { CollisionHandler, Collision, BoxCollision, PolygonCollision, QuadTree, OverlapCheckEnum, OverlapOICheck, OverlapOverlapsCheck, CollisionTypeCheck };

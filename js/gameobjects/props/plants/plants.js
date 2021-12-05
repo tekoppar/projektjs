@@ -1,4 +1,4 @@
-import { CMath, Prop, Item, CanvasDrawer, CanvasSprite, Rectangle, OperationType, Vector2D } from '../../../internal.js'
+import { CMath, Prop, Item, CanvasDrawer, CanvasSprite, Rectangle, OperationType, Vector2D, CAnimation } from '../../../internal.js'
 
 /**
  * @class
@@ -14,12 +14,25 @@ class PlantData {
      * @param {CanvasSprite} plantIcon 
      */
     constructor(growthSpeed, regrowthSpeed, gatherRange = { low: 1, high: 4 }, plantIcon = new CanvasSprite(29, 10, 32, 32, 'fruitsveggies', true)) {
+        /** @type {Number} */
         this.growthSpeed = growthSpeed;
+
+        /** @type {Number} */
         this.growth = 0;
+
+        /** @type {Number} */
         this.regrowthSpeed = regrowthSpeed;
+
+        /** @type {{low: Number, high: Number}} */
         this.gatherRange = gatherRange;
+
+        /** @type {boolean} */
         this.hasFinishedGrowing = false;
+
+        /** @type {boolean} */
         this.hasBeenPicked = false;
+
+        /** @type {CanvasSprite} */
         this.plantIcon = plantIcon;
     }
 
@@ -71,8 +84,13 @@ class Plant extends Prop {
      */
     constructor(spriteSheetName, name, position, animations, plantData, drawIndex = 0) {
         super(name, position, animations, spriteSheetName, drawIndex);
+
+        /** @type {PlantData} */
         this.plantData = plantData.Clone();
+
+        /** @type {CAnimation} */
         this.currentAnimation = this.animations.seed.Clone();
+
         this.currentAnimation.SetSpeed(this.plantData.growthSpeed);
         this.BoxCollision.size = this.currentAnimation.GetSize();
     }

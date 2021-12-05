@@ -1,4 +1,4 @@
-import { Vector2D, BoxCollision, AtlasController, Tile, CanvasDrawer, LightSystem, CollisionHandler, Math3D, CMath, Vector4D, Vector, CanvasAtlas } from '../../internal.js';
+import { Vector2D, BoxCollision, AtlasController, Tile, LightSystem, CollisionHandler, Math3D, CMath, Vector4D, Vector } from '../../internal.js';
 
 /**
  * @readonly
@@ -29,13 +29,26 @@ const ShadowRotationLUT = {
  */
  class ShadowCanvasObject {
     constructor() {
+        /** @type {HTMLCanvasElement} */
         this.canvas;
+
+        /** @type {CanvasRenderingContext2D} */
         this.canvasCtx;
+
+        /** @type {ImageData} */
         this.shadowData;
+
+        /** @type {Vector2D} */
         this.centerPosition;
+
+        /** @type {boolean} */
         this.firstDraw = false;
     }
 
+    /**
+     * 
+     * @param {Tile} tile 
+     */
     DrawToShadowCanvas(tile) {
         let biggest = Math.max(tile.size.x, tile.size.y);
 
@@ -149,6 +162,10 @@ const ShadowRotationLUT = {
         this.centerPosition = new Vector2D(0, 0);
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetSize() {
         return new Vector2D(this.canvas.width, this.canvas.height);
     }

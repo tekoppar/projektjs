@@ -1,4 +1,4 @@
-import { ExtendedProp, Rectangle, Vector2D, Vector4D, CanvasDrawer, OperationType, ItemProp, AtlasController, CMath, BoxCollision, AllCollisions, resourceSprites, CollisionHandler, BWDrawingType } from "../../internal.js";
+import { ExtendedProp, Rectangle, Vector2D, Vector4D, CanvasDrawer, OperationType, ItemProp, AtlasController, CMath, BoxCollision, AllCollisions, resourceSprites, CollisionHandler, BWDrawingType, CAnimation } from "../../internal.js";
 
 /**
  * @class
@@ -19,11 +19,22 @@ class Resource extends ExtendedProp {
      */
     constructor(name, position, animations, canvasName, drawIndex = 0, blockingCollisionSize = new Vector4D(16, 16, 0, 0), resourceName = 'birchLog', secondStageFrame = new Rectangle(23, 18, 32, 32)) {
         super(name, position, animations, canvasName, drawIndex, blockingCollisionSize);
+
+        /** @type {boolean} */
         this.isVisible = true;
+
+        /** @type {CAnimation} */
         this.currentAnimation = undefined;
+
         this.shadow = undefined;
+
+        /** @type {Number} */
         this.life = 100;
+
+        /** @type {boolean} */
         this.isSecondStage = false;
+
+        /** @type {String} */
         this.resourceName = resourceName;
 
         if (secondStageFrame instanceof Rectangle)

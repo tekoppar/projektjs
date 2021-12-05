@@ -1,4 +1,4 @@
-import { Vector2D, Cobject, AtlasController, DebugDrawer, ObjectType, BoxCollision, CollisionHandler, ShadowCanvasObject, PolygonCollision, CanvasDrawer, DrawingOperation, OperationType, ObjectsHasBeenInitialized, Tile, Rectangle, CustomLogger } from '../internal.js'
+import { Vector2D, Cobject, AtlasController, ObjectType, BoxCollision, CollisionHandler, ShadowCanvasObject, PolygonCollision, CanvasDrawer, DrawingOperation, OperationType, Tile, Collision, CAnimation } from '../internal.js'
 
 /**
  * Creates a new Cobject
@@ -23,16 +23,27 @@ class Pawn extends Cobject {
             this.BoxCollision = new BoxCollision(this.GetPosition(), this.size, enableCollision, this);
 
         this.canvas;
+
+        /** @type {String} */
         this.canvasName = canvasName;
+
+        /** @type {boolean} */
         this.enableCollision = enableCollision;
+
+        /** @type {DrawingOperation} */
         this.drawingOperation = undefined;
+
+        /** @type {Number} */
         this.drawIndex = drawIndex;
+
+        /** @type {Vector2D} */
         this.previousPosition = new Vector2D(-1, -1);
 
         if (this.canvasName !== undefined && AtlasController.GetAtlas(this.canvasName) !== undefined) {
             this.canvas = AtlasController.GetAtlas(this.canvasName).GetCanvas();
         }
 
+        /** @type {ObjectType} */
         this.objectType = ObjectType.Pawn;
     }
 
@@ -206,9 +217,17 @@ class GameObject extends Pawn {
      */
     constructor(canvasName, position, enableCollision = false, drawIndex = 0) {
         super(canvasName, position, enableCollision, drawIndex);
+
+        /** @type {Vector2D} */
         this.Direction = new Vector2D(0, 0);
+
+        /** @type {Vector2D} */
         this.Velocity = new Vector2D(0, 0);
+
+        /** @type {Vector2D} */
         this.MovementSpeed = new Vector2D(-1, -1);
+
+        /** @type {BoxCollision|PolygonCollision} */
         this.BlockingCollision = undefined;
     }
 
@@ -308,11 +327,20 @@ class Shadow extends Pawn {
      */
     constructor(parent, canvasName, position) {
         super(canvasName, position, false, 0);
+
+        /** @type {Vector2D} */
         this.size = new Vector2D(1, 1);
+
+        /** @type {CAnimation} */
         this.currentAnimation = undefined;
+
+        /** @type {String} */
         this.name = 'shadow' + this.UID;
+
+        /** @type {*} */
         this.parent = parent;
 
+        /** @type {ObjectType} */
         this.objectType = ObjectType.Shadow;
     }
 
@@ -384,13 +412,24 @@ class Shadow2D extends Pawn {
      */
     constructor(parent, canvasName, position, shadowSize, tile) {
         super(canvasName, position, false, 0);
+
+        /** @type {Vector2D} */
         this.size = shadowSize;
+
+        /** @type {CAnimation} */
         this.currentAnimation = undefined;
+
+        /** @type {String} */
         this.name = 'shadow2D' + this.UID;
+
+        /** @type {Object} */
         this.parent = parent;
+
+        /** @type {ShadowCanvasObject} */
         this.shadowObject = new ShadowCanvasObject();
         this.shadowObject.GenerateRealTimeShadow(shadowSize, tile);
 
+        /** @type {ObjectType} */
         this.objectType = ObjectType.Shadow;
     }
 

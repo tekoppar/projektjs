@@ -1,4 +1,4 @@
-import { Cobject, Item, Shovel, Hoe, InputHandler, GameToolbar, GUI, CanvasDrawer, AtlasController, Vector4D, ItemProp, CAnimation, AnimationType, CMath, MasterObject, ItemPrototypeList, Dictionary } from '../../internal.js';
+import { Cobject, Item, Shovel, Hoe, InputHandler, Vector2D, GameToolbar, GUI, CanvasDrawer, AtlasController, Vector4D, ItemProp, CAnimation, AnimationType, MasterObject, ItemPrototypeList, Dictionary } from '../../internal.js';
 
 class InventorySlot {
     constructor(slot, item) {
@@ -13,18 +13,41 @@ class InventorySlot {
  * @extends Cobject
  */
 class Inventory extends Cobject {
+
+    /**
+     * 
+     * @param {Object} owner 
+     */
     constructor(owner) {
         super();
+
+        /** @type {Object.<string, Item>}>} */
         this.inventory = {};
+
+        /** @type {Object} */
         this.characterOwner = owner;
+
+        /** @type {boolean} */
         this.isVisible = false;
+
+        /** @type {HTMLDivElement} */
         this.inventoryHTML;
         this.inventoryHTMLList;
         this.inventoryHTMLValue;
+
+        /** @type {boolean} */
         this.didInventoryChange = false;
+
+        /** @type {boolean} */
         this.inventorySetupDone = false;
+
+        /** @type {Item} */
         this.selectedItem = undefined;
+
+        /** @type {Number} */
         this.moneyAmount = 0;
+
+        /** @type {Dictionary} */
         this.inventoryDictionary = new Dictionary('name');
     }
 
@@ -38,7 +61,7 @@ class Inventory extends Cobject {
             this.inventoryHTMLList = clone.querySelector('div.panel-middle');
             this.inventoryHTMLList.addEventListener('click', this);
 
-            this.inventoryHTML.setAttribute('droppable', true);
+            this.inventoryHTML.setAttribute('droppable', 'true');
             this.inventoryHTML.addEventListener('drop', this);
             this.inventoryHTML.addEventListener('dragover', this);
             window.addEventListener('dragend', this);
@@ -53,18 +76,34 @@ class Inventory extends Cobject {
             window.requestAnimationFrame(() => this.SetupInventory());
     }
 
+    /**
+     * 
+     * @param {Number} amount 
+     * @returns {boolean}
+     */
     HasMoney(amount) {
         return this.moneyAmount !== 0 && this.moneyAmount >= amount;
     }
 
+    /**
+     * 
+     * @param {String} name 
+     * @returns {Item}
+     */
     GetItem(name) {
         let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
         if (found !== undefined)
             return found
         else
-            return undefined; 
+            return undefined;
     }
 
+    /**
+     * 
+     * @param {String} name 
+     * @param {Number} amount 
+     * @returns {boolean}
+     */
     HasItemAmount(name, amount) {
         let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
         if (found !== undefined && found.HasAmount(amount)) {
@@ -73,6 +112,11 @@ class Inventory extends Cobject {
             return false;
     }
 
+    /**
+     * 
+     * @param {String} name 
+     * @returns {Number}
+     */
     GetItemAmount(name) {
         let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
         if (found !== undefined) {
@@ -103,6 +147,10 @@ class Inventory extends Cobject {
             this.inventoryHTMLValue.value = this.moneyAmount;
     }
 
+    /**
+     * 
+     * @param {Item} item 
+     */
     AddItem(item) {
         let found = this.inventoryDictionary.GetValueByProperty(item.name, 'name');
         if (found !== undefined) {
@@ -162,6 +210,11 @@ class Inventory extends Cobject {
         this.didInventoryChange = true;
     }
 
+    /**
+     * 
+     * @param {String} name 
+     * @param {Number} amount 
+     */
     RemoveAmount(name, amount) {
         let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
 
@@ -176,6 +229,10 @@ class Inventory extends Cobject {
         this.didInventoryChange = true;
     }
 
+    /**
+     * 
+     * @param {Item} item 
+     */
     RemoveItem(item) {
         if (this.inventoryDictionary.GetHashByProperty(item.UID, 'UID')) {
             let found = this.inventoryDictionary.GetValueByProperty(item.UID, 'UID');
@@ -190,6 +247,10 @@ class Inventory extends Cobject {
         this.didInventoryChange = true;
     }
 
+    /**
+     * 
+     * @param {Item} item 
+     */
     DropItem(item) {
         if (this.inventoryDictionary.GetHashByProperty(item.UID, 'UID')) {
 
@@ -231,6 +292,10 @@ class Inventory extends Cobject {
         this.didInventoryChange = false;
     }
 
+    /**
+     * 
+     * @param {boolean} visibility 
+     */
     ShowInventory(visibility = !this.isVisible) {
         this.inventoryHTML.style.visibility = (visibility === true ? 'visible' : 'hidden');
         this.isVisible = visibility;
@@ -291,7 +356,7 @@ class Inventory extends Cobject {
                                 var newDroppedItem = new ItemProp(
                                     item.name,
                                     mousePos,
-                                    new CAnimation('null', item.sprite, item.sprite, 32, 32, AnimationType.Single, 1),
+                                    new CAnimation('null', new Vector2D(item.sprite.x, item.sprite.y), new Vector2D(item.sprite.z, item.sprite.a), 32, 32, AnimationType.Single, 1),
                                     AtlasController.GetAtlas(item.url).name,
                                     0,
                                     item
@@ -330,4 +395,4 @@ class Inventory extends Cobject {
     }
 }
 
-export { Inventory, Item, Hoe, Shovel };
+export { Inventory };

@@ -1,4 +1,4 @@
-import { GameObject, Vector2D, Vector4D, AtlasController, BWDrawingType, OperationType, PolygonCollision, BoxCollision, Shadow, CAnimation, AllCollisions, DebugDrawer } from '../../internal.js';
+import { GameObject, Vector2D, Vector4D, AtlasController, BWDrawingType, OperationType, PolygonCollision, BoxCollision, Shadow, CAnimation, AllCollisions } from '../../internal.js';
 
 /**
  * @class
@@ -18,6 +18,8 @@ class Prop extends GameObject {
      */
     constructor(name, position, animations, canvasName, drawIndex = 0) {
         super(canvasName, position, false, drawIndex);
+
+        /** @type {String} */
         this.name = name;
 
         if (animations instanceof CAnimation)
@@ -26,6 +28,8 @@ class Prop extends GameObject {
             this.animations = new CAnimation(animations.name, animations.start, animations.end, animations.w, animations.h, animations.animationType, animations.animationSpeed);
         else
             this.animations = animations;
+
+        /** @type {CAnimation} */
         this.currentAnimation;
     }
 
@@ -111,7 +115,11 @@ class ExtendedProp extends Prop {
      */
     constructor(name, position, animations, canvasName, drawIndex = 0, blockingCollisionSize = new Vector4D(16, 16, 0, 0)) {
         super(name, position, animations, canvasName, drawIndex);
+
+        /** @type {boolean} */
         this.isVisible = true;
+
+        /** @type {CAnimation} */
         this.currentAnimation = undefined;
 
         if (blockingCollisionSize instanceof Vector4D)
@@ -206,9 +214,9 @@ class ExtendedProp extends Prop {
      * Sets the position of the object
      * @param {Vector2D} position 
      */
-     SetPosition(position) {
+    SetPosition(position) {
         super.SetPosition(position);
-        
+
         this.BlockingCollision.position = position.Clone();
         this.BlockingCollision.position.x -= this.BlockingCollision.size.x * 0.5 - this.blockingCollisionSize.z;
         this.BlockingCollision.position.y -= this.BlockingCollision.size.y - this.blockingCollisionSize.a;

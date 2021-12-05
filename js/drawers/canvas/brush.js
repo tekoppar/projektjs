@@ -1,11 +1,11 @@
-import { Vector2D, Tile, DrawingOperation, Color, CMath, RectOperation, LightingOperation } from "../../internal.js";
+import { Vector2D, Tile, DrawingOperation, CanvasSprite, RectOperation, LightingOperation } from "../../internal.js";
 
 /**
  * Enum for editor state
  * @readonly
  * @enum {string}
  */
-const brushTypes = {
+const BrushType = {
     circle: 'circle',
     box: 'box',
 }
@@ -33,19 +33,34 @@ class Brush {
      * @param {Tile} canvasSprite 
      * @param {BrushDrawState} drawState 
      */
-    constructor(settings = new BrushSettings(new Vector2D(1, 1), brushTypes.box), canvasSprite = undefined, drawState = BrushDrawState.Normal) {
+    constructor(settings = new BrushSettings(new Vector2D(1, 1), BrushType.box), canvasSprite = undefined, drawState = BrushDrawState.Normal) {
+        /** @type {BrushSettings} */
         this.settings = settings;
+
+        /** @type {Tile} */
         this.canvasSprite = canvasSprite;
+
+        /** @type {BrushDrawState} */
         this.drawState = drawState;
+
         document.getElementById('size-x').addEventListener('input', this);
         document.getElementById('size-y').addEventListener('input', this);
     }
 
+    /**
+     * 
+     * @param {BrushType} type 
+     * @param {Tile} canvasSprite 
+     */
     SetBrush(type, canvasSprite) {
         this.settings.brushType = type;
         this.canvasSprite = canvasSprite;
     }
 
+    /**
+     * 
+     * @param {BrushDrawState} newState 
+     */
     SetState(newState) {
         this.drawState = newState;
     }
@@ -70,21 +85,33 @@ class Brush {
         return newSprites;
     }
 
-    static GenerateDrawingOperation(operation, brushType = brushTypes.box) {
+    /**
+     * 
+     * @param {Object} operation 
+     * @param {BrushType} brushType 
+     */
+    static GenerateDrawingOperation(operation, brushType = BrushType.box) {
         if (operation instanceof DrawingOperation) {
 
         } else if (operation instanceof RectOperation) {
 
         } else if (operation instanceof LightingOperation) {
             switch (brushType) {
-                case brushTypes.box:
+                case BrushType.box:
                     break;
-                case brushTypes.circle:
+                case BrushType.circle:
                     break;
             }
         }
     }
 
+    /**
+     * 
+     * @param {Vector2D} pos 
+     * @param {HTMLCanvasElement} drawingCanvas 
+     * @param {HTMLCanvasElement} targetCanvas 
+     * @returns {Array<Object>}
+     */
     GenerateDrawingOperations(pos, drawingCanvas, targetCanvas) {
         let drawingOperations = [];
 
@@ -92,11 +119,11 @@ class Brush {
             return [];
 
         switch (this.settings.brushType) {
-            case brushTypes.circle:
+            case BrushType.circle:
 
                 break;
 
-            case brushTypes.box:
+            case BrushType.box:
                 let orgSize = new Vector2D(this.canvasSprite.size.y, this.canvasSprite.size.x);
                 let orgPos = this.canvasSprite.tilePosition.Clone();
                 let splitSprites = this.SplitMultiSelection(this.canvasSprite);
@@ -136,13 +163,17 @@ class Brush {
         return drawingOperations;
     }
 
+    /**
+     * 
+     * @param {HTMLInputElement} element 
+     */
     SetBrushSettings(element) {
         switch (element.dataset.type) {
             case "size":
                 if (element.id == 'size-x')
-                    this.settings.brushSize.x = element.value;
+                    this.settings.brushSize.x = parseFloat(element.value);
                 if (element.id == 'size-y')
-                    this.settings.brushSize.y = element.value;
+                    this.settings.brushSize.y = parseFloat(element.value);
                 break;
         }
     }
@@ -161,11 +192,21 @@ class Brush {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class BrushSettings {
+
+    /**
+     * 
+     * @param {Vector2D} brushSize 
+     * @param {BrushType} brushType 
+     */
     constructor(brushSize, brushType) {
         this.brushSize = brushSize;
         this.brushType = brushType;
     }
 }
 
-export { Brush, BrushSettings, brushTypes, BrushDrawState };
+export { Brush, BrushSettings, BrushType, BrushDrawState };

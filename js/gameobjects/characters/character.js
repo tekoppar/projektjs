@@ -1,4 +1,4 @@
-import { GameObject, Inventory, ItemStats, AtlasController, Vector2D, ShadowCanvasObject, Shadow2D, Vector4D, Math3D, BoxCollision, LightSystem, CollisionHandler, OperationType, CMath, ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings, ParticleType, AnimationType, CanvasDrawer, CustomLogger, BWDrawingType, DebugDrawer } from '../../internal.js';
+import { GameObject, Inventory, ItemStats, Item, InputState, UsableItem, Collision, AmbientLight, AtlasController, Vector2D, Shadow2D, BoxCollision, CollisionHandler, OperationType, CMath, ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings, ParticleType, AnimationType, CustomLogger, BWDrawingType, CAnimation, PlayerController } from '../../internal.js';
 
 const FacingDirection = {
     Left: 0,
@@ -21,16 +21,39 @@ const FacingDirection = {
  * @extends GameObject
  */
 class CharacterAttachments extends GameObject {
+
+    /**
+     * 
+     * @param {Vector2D} position 
+     * @param {String} name 
+     * @param {Number} drawIndex 
+     * @param {Object.<string, CAnimation>} animations 
+     * @param {*} skeletonBones 
+     */
     constructor(position, name, drawIndex = 0, animations = undefined, skeletonBones = undefined) {
         super(name, position, false, drawIndex);
         //this.spriteSheet = spriteSheet;
+
+        /** @type {Object.<string, CAnimation>} */
         this.animations = animations;
+
+        /** @type {CAnimation} */
         this.currentAnimation = undefined;
+
         this.skeletonBones = skeletonBones;
+        
+        /** @type {String} */
         this.name = name;
+
+        /** @type {Vector2D} */
         this.offset = new Vector2D(0, 0);
     }
 
+    /**
+     * 
+     * @param {CAnimation} animation 
+     * @param {boolean} mustExist 
+     */
     ChangeAnimation(animation, mustExist = false) {
         if (this.animations !== undefined && this.animations[animation.name] !== undefined) {
             this.currentAnimation = this.animations[animation.name].Clone();
@@ -55,6 +78,10 @@ class CharacterAttachments extends GameObject {
         }
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     */
     PlayAnimaion(position) {
         this.CreateDrawOperation(this.currentAnimation.GetFrame(), position, false, this.canvas, OperationType.gameObjects);
 
@@ -86,6 +113,10 @@ class CharacterAttachments extends GameObject {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class CharacterStats {
     constructor(maxHealth) {
         this.health = maxHealth;
@@ -93,6 +124,10 @@ class CharacterStats {
     }
 }
 
+/**
+ * @readonly
+ * @enum {Number}
+ */
 const AttributeEnum = {
     Strength: 0,
     Constitution: 1,
@@ -100,7 +135,8 @@ const AttributeEnum = {
     Agility: 3,
     Intelligence: 4,
     Wisdom: 5,
-    Charisma: 6
+    Charisma: 6,
+    Luck: 7,
 }
 
 /**
@@ -134,6 +170,11 @@ class CharacterAttributes {
         this.CalculateStats();
     }
 
+    /**
+     * 
+     * @param {AttributeEnum} attribute 
+     * @param {Number} value 
+     */
     IncreaseAttribute(attribute = AttributeEnum.Strength, value = 1) {
         switch (attribute) {
             case AttributeEnum.Strength: this.Strength += value; break;
@@ -155,14 +196,26 @@ class CharacterAttributes {
         this.CharacterStats.health = percent * this.CharacterStats.maxHealth;
     }
 
+    /**
+     * 
+     * @param {Number} value 
+     */
     UpdateHealth(value) {
         this.CharacterStats.health += Number(value);
     }
 
+    /**
+     * 
+     * @returns {Number}
+     */
     GetHealth() {
         return this.CharacterStats.health;
     }
 
+    /**
+     * 
+     * @returns {Number}
+     */
     GetDamage() {
         return CMath.RandomFloat(this.Strength * 0.69 + this.Dexterity * 0.34, this.Strength * 1.72 + this.Dexterity * 0.41);
     }
@@ -174,21 +227,52 @@ class CharacterAttributes {
  * @extends GameObject
  */
 class Character extends GameObject {
+
+    /**
+     * 
+     * @param {String} spriteSheetName 
+     * @param {Number} drawIndex 
+     * @param {Vector2D} position 
+     * @param {Object.<string, CAnimation>} animations 
+     * @param {CharacterAttributes} characterAttributes 
+     * @param {PlayerController} controller 
+     */
     constructor(spriteSheetName, drawIndex = 0, position = new Vector2D(0, 0), animations = undefined, characterAttributes = new CharacterAttributes(5, 5, 5, 5, 5, 5, 0, 0), controller = undefined) {
         super(spriteSheetName, position, false, drawIndex);
+
+        /** @type {PlayerController} */
         this.controller = controller;
+
+        /** @type {CharacterData} */
         this.characterData = new CharacterData();
+
+        /** @type {CharacterAttributes} */
         this.characterAttributes = characterAttributes;
         //this.spriteSheet = spriteSheet;
+
+        /** @type {Object.<string, CAnimation>} */
         this.animations = animations;
+
+        /** @type {CAnimation} */
         this.currentAnimation = undefined;
+
+        /** @type {CharacterAttachments} */
         this.shadowAttachment = new CharacterAttachments(this.position, 'shadow');
         //this.realTimeShadow = undefined;
+
+        /** @type {CharacterAttachments} */
         this.itemAttachment = undefined;
+
         /** @type {Object<string, CharacterAttachments>} */
         this.attachments = {};
+
+        /** @type {boolean} */
         this.isRunning = false;
+
+        /** @type {boolean} */
         this.isIdle = false;
+
+        /** @type {BoxCollision} */
         this.BlockingCollision = new BoxCollision(this.GetPosition(), new Vector2D(16, 16), true, this, true);
 
         this.realtimeShadow = undefined;
@@ -198,7 +282,7 @@ class Character extends GameObject {
      * 
      * @param {string} name 
      * @param {Number} drawIndex 
-     * @param {*} animations 
+     * @param {Object.<string, CAnimation>} animations 
      */
     AddAttachment(name, drawIndex, animations = undefined) {
         let newAttachment = new CharacterAttachments(this.position, name, drawIndex, animations);
@@ -206,6 +290,10 @@ class Character extends GameObject {
         this.attachments[name] = newAttachment;
     }
 
+    /**
+     * 
+     * @param {CAnimation} animation 
+     */
     ChangeAnimation(animation) {
         if (this.currentAnimation === undefined || this.currentAnimation.name != animation.name) {
             this.currentAnimation = animation;
@@ -237,6 +325,10 @@ class Character extends GameObject {
         }
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     */
     FlagDrawingUpdate(position) {
         super.FlagDrawingUpdate(position);
 
@@ -253,6 +345,10 @@ class Character extends GameObject {
         }
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     */
     NeedsRedraw(position) {
         super.NeedsRedraw(position);
 
@@ -469,6 +565,10 @@ class Character extends GameObject {
         }
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     */
     UpdateCollision(position) {
         this.BoxCollision.position = position;
         this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
@@ -479,6 +579,10 @@ class Character extends GameObject {
         return CollisionHandler.GCH.CheckCollisions(this.BlockingCollision);
     }
 
+    /**
+     * 
+     * @returns {Number}
+     */
     GetFacingDirection() {
         if (this.Direction.x !== 0) {
             if (this.Direction.x === 1)
@@ -532,6 +636,11 @@ class Character extends GameObject {
         this.UpdateMovement();
     }
 
+    /**
+     * 
+     * @param {Number} damage 
+     * @param {Collision} source 
+     */
     OnHit(damage, source) {
         super.OnHit(damage, source);
 
@@ -558,6 +667,12 @@ class Character extends GameObject {
         }
     }
 
+    /**
+     * 
+     * @param {String} direction 
+     * @param {Number} value 
+     * @returns {void}
+     */
     UpdateDirection(direction, value) {
         if (this.currentAnimation.AnimationLocked() === true)
             return;
@@ -582,6 +697,12 @@ class Character extends GameObject {
         this.NeedsRedraw(this.GetPosition());
     }
 
+    /**
+     * 
+     * @param {String} type 
+     * @param {Number} speed 
+     * @returns {void}
+     */
     SetMovement(type, speed) {
         if (this.currentAnimation.AnimationLocked() === true)
             return;
@@ -604,6 +725,11 @@ class Character extends GameObject {
         }
     }
 
+    /**
+     * 
+     * @param {UsableItem} item 
+     * @returns {void}
+     */
     SetActiveItem(item) {
         if (item === undefined)
             return;
@@ -641,6 +767,11 @@ class Character extends GameObject {
         }
     }
 
+    /**
+     * 
+     * @param {{eventType: InputState, position: Vector2D}} data 
+     * @returns {void}
+     */
     UseItem(data) {
         if (this.activeItem !== undefined) {
             if (this.currentAnimation.AnimationLocked() === true)
@@ -676,6 +807,10 @@ class Character extends GameObject {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class CharacterData {
     constructor() {
         this.name = 'NPC';
@@ -689,12 +824,31 @@ class CharacterData {
  * @extends Character
  */
 class MainCharacter extends Character {
+
+    /**
+     * 
+     * @param {String} spriteSheetName 
+     * @param {String} name 
+     * @param {Number} drawIndex 
+     * @param {Vector2D} position
+     * @param {Object.<String, CAnimation>} animations 
+     */
     constructor(spriteSheetName, name, drawIndex = 0, position = new Vector2D(0, 0), animations = undefined) {
         super(spriteSheetName, drawIndex, position, animations);
+
+        /** @type {String} */
         this.name = name;
+
+        /** @type {Inventory} */
         this.inventory = new Inventory(this);
+
+        /** @type {UsableItem} */
         this.activeItem;
+
+        /** @type {AmbientLight} */
         this.light = undefined;
+
+        /** @type {boolean} */
         this.doOnce = false;
     }
 
@@ -709,6 +863,10 @@ class MainCharacter extends Character {
         //this.light.position.y = this.position.y;
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     */
     FlagDrawingUpdate(position) {
         if (this.light !== undefined)
             this.light.SetPosition(this.position);
@@ -716,6 +874,10 @@ class MainCharacter extends Character {
         super.FlagDrawingUpdate(position);
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     */
     NeedsRedraw(position) {
         if (this.light !== undefined)
             this.light.SetPosition(this.position);

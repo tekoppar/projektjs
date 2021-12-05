@@ -1,5 +1,8 @@
-import { Vector4D, Vector2D } from '../../internal.js';
+import { Vector4D, Vector2D, Vector } from '../../internal.js';
 
+/**
+ * @type {Object.<String, {sprite: Vector4D, atlas: Vector2D, url: String}>}
+ */
 let inventoryItemIcons = {};
 
 //products

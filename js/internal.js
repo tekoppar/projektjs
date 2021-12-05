@@ -34,7 +34,7 @@ export { HTMLInfo } from './gui/htmlinfo.js';
 
 export { UIDrawer } from './drawers/canvas/uielements/uiDrawer.js';
 export { UIElement } from './drawers/canvas/uielements/uiElement.js';
-export { Brush, BrushDrawState, brushTypes } from './drawers/canvas/brush.js';
+export { Brush, BrushDrawState, BrushType } from './drawers/canvas/brush.js';
 
 export { CanvasSprite } from './drawers/canvas/canvasSprite.js';
 export { CanvasAtlas, CanvasAtlasObject, CanvasObject, ShadowCanvasOperation } from './drawers/canvas/atlas/canvasAtlas.js';
@@ -59,7 +59,7 @@ export { CollisionEditor } from './editors/collisionEditor.js';
 export { PropEditor } from './editors/propEditor.js';
 
 export { CustomEventHandler } from './eventHandlers/customEvents.js';
-export { InputHandler } from './eventHandlers/inputEvents.js';
+export { InputHandler, InputState } from './eventHandlers/inputEvents.js';
 
 export { Controller } from './controllers/controller.js';
 export { Camera } from './controllers/camera.js';
