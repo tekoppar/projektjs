@@ -1,15 +1,15 @@
-import { CanvasDrawer, ObjectsHasBeenInitialized, inventoryItemIcons, AllAnimationSkeletonsList, AllAnimationsList, Vector2D } from '../../../internal.js';
+import { CanvasDrawer, ObjectsHasBeenInitialized, AtlasController, inventoryItemIcons, AllAnimationSkeletonsList, AllAnimationsList, Vector2D } from '../../../internal.js';
 import { CreateNewSheet } from './tileMakerSword.js';
 
 function GenerateCustomSheets() {
-    if (ObjectsHasBeenInitialized === true && (CanvasDrawer.GCD.isLoadingFinished == null || CanvasDrawer.GCD.isLoadingFinished === true)) {
+    if (ObjectsHasBeenInitialized === true && (AtlasController._Instance.isLoadingFinished == null || AtlasController._Instance.isLoadingFinished === true)) {
         let swordCanvas = document.createElement('canvas');
 
         CreateNewSheet(
             swordCanvas,
-            inventoryItemIcons.sword,
+            inventoryItemIcons.ironSword,
             new Vector2D(32, 32),
-            'sword',
+            'ironSword',
             [
                 AllAnimationSkeletonsList.femaleAnimations.sword.walkUp,
                 AllAnimationSkeletonsList.femaleAnimations.sword.walkLeft,
@@ -23,19 +23,19 @@ function GenerateCustomSheets() {
             [
                 {
                     frames: AllAnimationsList.femaleAnimations.walkUp.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
                 {
                     frames: AllAnimationsList.femaleAnimations.walkLeft.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
                 {
                     frames: AllAnimationsList.femaleAnimations.walkDown.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
                 {
                     frames: AllAnimationsList.femaleAnimations.walkRight.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
             ]
         );
@@ -60,19 +60,19 @@ function GenerateCustomSheets() {
             [
                 {
                     frames: AllAnimationsList.femaleAnimations.walkUp.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
                 {
                     frames: AllAnimationsList.femaleAnimations.walkLeft.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
                 {
                     frames: AllAnimationsList.femaleAnimations.walkDown.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
                 {
                     frames: AllAnimationsList.femaleAnimations.walkRight.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
             ]
         );
@@ -81,9 +81,9 @@ function GenerateCustomSheets() {
 
         CreateNewSheet(
             axeCanvas,
-            inventoryItemIcons.axe,
+            inventoryItemIcons.ironAxe,
             new Vector2D(32, 32),
-            'axe',
+            'ironAxe',
             [
                 AllAnimationSkeletonsList.femaleAnimations.sword.walkUp,
                 AllAnimationSkeletonsList.femaleAnimations.sword.walkLeft,
@@ -97,19 +97,19 @@ function GenerateCustomSheets() {
             [
                 {
                     frames: AllAnimationsList.femaleAnimations.walkUp.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
                 {
                     frames: AllAnimationsList.femaleAnimations.walkLeft.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
                 {
                     frames: AllAnimationsList.femaleAnimations.walkDown.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
                 {
                     frames: AllAnimationsList.femaleAnimations.walkRight.frames,
-                    canvas: CanvasDrawer.GCD.GetAtlas('femaleLight').canvas
+                    canvas: AtlasController.GetAtlas('femaleLight').GetCanvas()
                 },
             ]
         );

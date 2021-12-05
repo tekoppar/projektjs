@@ -1,4 +1,4 @@
-import { ExtendedProp, Rectangle, Vector2D, Vector4D, CanvasDrawer, OperationType, ItemProp, CMath, BoxCollision, AllCollisions, resourceSprites, CollisionHandler } from "../../internal.js";
+import { ExtendedProp, Rectangle, Vector2D, Vector4D, CanvasDrawer, OperationType, ItemProp, AtlasController, CMath, BoxCollision, AllCollisions, resourceSprites, CollisionHandler, BWDrawingType } from "../../internal.js";
 
 /**
  * @class
@@ -8,13 +8,13 @@ import { ExtendedProp, Rectangle, Vector2D, Vector4D, CanvasDrawer, OperationTyp
 class Resource extends ExtendedProp {
 
     /**
-     * @param {String} name 
+     * @param {string} name 
      * @param {Vector2D} position 
      * @param {*} animations 
-     * @param {String} canvasName 
+     * @param {string} canvasName 
      * @param {Number} drawIndex 
      * @param {Vector4D} blockingCollisionSize 
-     * @param {String} resourceName 
+     * @param {string} resourceName 
      * @param {(Rectangle|Object)} secondStageFrame 
      */
     constructor(name, position, animations, canvasName, drawIndex = 0, blockingCollisionSize = new Vector4D(16, 16, 0, 0), resourceName = 'birchLog', secondStageFrame = new Rectangle(23, 18, 32, 32)) {
@@ -32,15 +32,15 @@ class Resource extends ExtendedProp {
             this.secondStageFrame = new Rectangle(secondStageFrame.x, secondStageFrame.y, secondStageFrame.w, secondStageFrame.h);
     }
 
-    GameBegin() {
+    GameBegin(createShadow = false) {
         if (AllCollisions[this.canvasName] !== undefined) {
             let tempArr = AllCollisions[this.canvasName];
             super.GameBegin(
                 tempArr.CloneObjects(),
                 new Vector2D(0, 0),
-                new Vector2D(CanvasDrawer.GCD.canvasAtlases[this.canvasName].width, CanvasDrawer.GCD.canvasAtlases[this.canvasName].height),
+                new Vector2D(AtlasController.GetAtlas(this.canvasName).width, AtlasController.GetAtlas(this.canvasName).height),
                 new Vector2D(0, 0),
-                true
+                createShadow
             );
         }
     }
@@ -103,7 +103,8 @@ class Resource extends ExtendedProp {
         CollisionHandler.GCH.RemoveFromQuadTree(this.BoxCollision);
         CollisionHandler.GCH.UpdateQuadTree(this.BoxCollision);
 
-        this.shadow.Delete();
+        if (this.shadow !== undefined)
+            this.shadow.Delete();
         this.drawingOperation.Delete();
         this.drawingOperation = undefined;
 
@@ -120,7 +121,7 @@ class Resource extends ExtendedProp {
             this.secondStageFrame.Clone(),
             this.BoxCollision.position.Clone(),
             false,
-            CanvasDrawer.GCD.canvasAtlases['terrain'].canvas,
+            AtlasController.GetAtlas('terrain').GetCanvas(),
             OperationType.gameObjects
         );
 
@@ -135,13 +136,24 @@ class Resource extends ExtendedProp {
         this.life -= damage;
         super.OnHit(source);
 
-        console.log(this.life);
-
         if (this.life <= 0 && this.isSecondStage === false) {
             this.SecondStage();
         } else if (this.life <= 0 && this.isSecondStage === true) {
             this.Delete();
         }
+    }
+
+    CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects, canvasObject = undefined) {
+        super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
+
+        if (this.drawingOperation.shadowOperation !== undefined) {
+            this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
+            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
+        }
+    }
+
+    SaveToFile() {
+        return "new Resource('" + this.name + "', new Vector2D(" + this.position.x + ', ' + this.position.y + '), ' + this.animations + ", '" + this.canvasName + "', " + this.drawIndex + ', new Vector4D(' + this.blockingCollisionSize.x + ', ' + this.blockingCollisionSize.y + ', ' + this.blockingCollisionSize.z + ', ' + this.blockingCollisionSize.a + "), '" + this.resourceName + "', new Rectangle(" + this.secondStageFrame.x + ', ' + this.secondStageFrame.y + ', ' + this.secondStageFrame.w + ', ' + this.secondStageFrame.h + '))';
     }
 }
 

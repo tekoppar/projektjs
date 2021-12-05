@@ -127,6 +127,29 @@
         align-items: center;
     }
 
+    .crafting-category-container {
+        display:flex;
+        flex-direction: row;
+        width:100%;
+        flex-wrap: wrap;
+    }
+
+    .crafting-category-name {
+        margin: 0px;
+        padding: 0px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: none;
+        width:100%;
+        font-size: 18px;
+        font-weight: 900;
+        color: #f3c52f;
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: black;
+    }
+
     .panel-name {
         background-image: url(/content/sprites/ui/big_frame_middle.png);
         background-size: 100% 100%;
@@ -381,7 +404,8 @@
             <div class="attachment" style="height:4px;width:128px;"></div>
         </div>
         <div class="game-panel" style="flex-direction: row;">
-            <div class="panel-container" style="height:430px;min-width:calc(256px + 14px);width:calc(256px + 14px);margin:0px 5px 5px 5px;">
+            <!--430px-->
+            <div class="panel-container" style="height:auto;min-width:calc(256px + 14px);width:calc(256px + 14px);margin:0px 5px 5px 5px;">
                 <div class="panel panel-topmiddle"></div>
                 <div class="crafting-panel-middle" style="align-items: flex-start;">
                     <div class="crafting-item-list"></div>

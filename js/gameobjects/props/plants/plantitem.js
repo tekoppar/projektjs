@@ -1,6 +1,18 @@
 import { Item, AllAnimationsList, Plant, AllPlantData, CollisionHandler, CustomEventHandler, GUI, Vector2D, CanvasDrawer } from '../../../internal.js';
 
+/**
+ * @class
+ * @constructor
+ * @extends Item
+ */
 class Seed extends Item {
+
+    /**
+     * Creates a new Seed
+     * @param {string} name 
+     * @param {Number} amount 
+     * @param {*} seedType 
+     */
     constructor(name, amount, seedType) {
         super(name, amount);
         this.SeedType = seedType;

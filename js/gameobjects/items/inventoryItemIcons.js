@@ -58,11 +58,47 @@ Object.assign(inventoryItemIcons, {
 Object.assign(inventoryItemIcons, {
     shovel: { sprite: new Vector4D(1, 8, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
     hoe: { sprite: new Vector4D(4, 8, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
-    axe: { sprite: new Vector4D(1, 0, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+
+    ironAxe: { sprite: new Vector4D(1, 0, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+    steelAxe: { sprite: new Vector4D(1, 2, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+    goldAxe: { sprite: new Vector4D(1, 4, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+
     pickaxe: { sprite: new Vector4D(3, 0, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
-    sword: { sprite: new Vector4D(0, 0, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+
+    ironSword: { sprite: new Vector4D(0, 0, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+    steelSword: { sprite: new Vector4D(0, 2, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+    goldSword: { sprite: new Vector4D(0, 4, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+
+    ironBattleAxe: { sprite: new Vector4D(10, 5, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+    steelBattleAxe: { sprite: new Vector4D(10, 4, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+    goldBattleAxe: { sprite: new Vector4D(10, 3, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+
+    ironBattleHammer: { sprite: new Vector4D(11, 2, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+    steelBattleHammer: { sprite: new Vector4D(11, 3, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+
+    shortBow: { sprite: new Vector4D(5, 1, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+    compositeBow: { sprite: new Vector4D(4, 1, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+
     birchLog: { sprite: new Vector4D(5, 0, 32, 32), atlas: new Vector2D(640, 640), url: '/content/sprites/farming_fishing.png' },
     stonePiece: { sprite: new Vector4D(26, 25, 32, 32), atlas: new Vector2D(1024, 1216), url: '/content/sprites/terrain_atlas.png' },
+
+    coalLump: { sprite: new Vector4D(0, 10, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    iron: { sprite: new Vector4D(1, 10, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    tin: { sprite: new Vector4D(2, 10, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    copper: { sprite: new Vector4D(3, 10, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    silver: { sprite: new Vector4D(4, 10, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    gold: { sprite: new Vector4D(5, 10, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    bronze: { sprite: new Vector4D(6, 10, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    steel: { sprite: new Vector4D(7, 10, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+
+    coal: { sprite: new Vector4D(0, 11, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    ironBar: { sprite: new Vector4D(1, 11, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    tinBar: { sprite: new Vector4D(2, 11, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    copperBar: { sprite: new Vector4D(3, 11, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    silverBar: { sprite: new Vector4D(4, 11, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    goldBar: { sprite: new Vector4D(5, 11, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    bronzeBar: { sprite: new Vector4D(6, 11, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    steelBar: { sprite: new Vector4D(7, 11, 32, 32), atlas: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
 });
 
 export { inventoryItemIcons };

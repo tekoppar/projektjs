@@ -1,19 +1,27 @@
-export { ObjectsHasBeenInitialized, ToggleObjectsHasBeenInitialized, IsLittleEndian } from './internalVariables.js';
+export { ObjectsHasBeenInitialized, ToggleObjectsHasBeenInitialized, IsLittleEndian, TestingEnum, CURRENT_TEST } from './internalVariables.js';
 export { EditorState } from './globalEnums.js'; 
 
 export { PawnSetupParams } from './gameobjects/AllPawnsSetupsParams.js';
 
 export { PerformanceTester } from './classes/utility/perf.js';
 
-export { ObjectType } from './classes/baseClasses/globalEnums.js';
+export { CanvasUtility } from './classes/utility/canvasUtility.js';
+export { ArrayUtility } from './classes/utility/arrayUtility.js';
 
+export { ObjectType, BWDrawingType } from './classes/baseClasses/globalEnums.js';
+
+export { Graph, GraphPoint } from './classes/graph.js';
 export { Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Polygon, Color } from './classes/vectors.js';
 export { CMath } from './classes/math/customMath.js';
 export { Math3D } from './classes/math/3dMath.js';
 export { IntMath } from './classes/math/intMath.js';
 export { Dictionary } from './classes/dictionary.js';
 
-export { AtlasLUT, ReverseAtlasLUT } from './drawers/canvas/atlasLut.js';
+export { RectMerge } from './classes/utility/rectMerge.js';
+
+export { AtlasLUT, ReverseAtlasLUT } from './drawers/canvas/atlas/atlasLut.js';
+
+export { XHRUtility } from './classes/utility/xhr.js';
 
 export { PageFetcher } from './classes/utility/pageFetcher.js';
 
@@ -29,14 +37,19 @@ export { UIElement } from './drawers/canvas/uielements/uiElement.js';
 export { Brush, BrushDrawState, brushTypes } from './drawers/canvas/brush.js';
 
 export { CanvasSprite } from './drawers/canvas/canvasSprite.js';
-export { CanvasAtlas, CanvasAtlasObject } from './drawers/canvas/canvasAtlas.js';
-export { DrawingOperation, OperationType, RectOperation, TextOperation, ClearOperation, PathOperation, LightingOperation } from './drawers/canvas/operation.js';
+export { CanvasAtlas, CanvasAtlasObject, CanvasObject, ShadowCanvasOperation } from './drawers/canvas/atlas/canvasAtlas.js';
+export { ShadowCanvasObject } from './drawers/canvas/shadowCanvasObject.js';
+export { Operation, DrawingOperation, OperationType, RectOperation, TextOperation, ClearOperation, PathOperation, LightingOperation } from './drawers/canvas/operation.js';
 
 export { Cobject } from './classes/baseClasses/object.js';
 
-export { LightSystem } from './gameobjects/lighting/lightSystem.js';
+export { CustomLogger } from './classes/utility/customLogger.js';
+
+export { LightSystem, LightDataType } from './gameobjects/lighting/lightSystem.js';
 export { AmbientLight, LightFalloffType} from './gameobjects/lighting/ambientLight.js';
 
+export { DebugDrawer } from './drawers/canvas/debugDrawer.js';
+export { AtlasController } from './drawers/canvas/atlas/atlasController.js';
 export { CanvasDrawer, correctMouse } from './drawers/canvas/customDrawer.js';
 
 export { CAnimation, AnimationType, CFrame } from './animations/animations.js';
@@ -65,12 +78,12 @@ export * as ParticleFilters from './drawers/particle/particleFilters.js';
 
 export { SelectedTileEditor } from './drawers/tiles/selectedTiles.js';
 
-export { Pawn, GameObject, Shadow } from './gameobjects/gameObject.js';
+export { Pawn, GameObject, Shadow, Shadow2D } from './gameobjects/gameObject.js';
 
 export { Inventory } from './gameobjects/characters/inventory.js';
 export { Crafting } from './gameobjects/crafting/crafting.js';
 export { CraftingRecipe } from './gameobjects/crafting/craftingRecipe.js';
-export { CraftingRecipeList } from './gameobjects/crafting/craftingRecipeList.js';
+export { CraftingRecipeList, CraftingCategory } from './gameobjects/crafting/craftingRecipeList.js';
 
 export { AllAnimationsList, AllAnimationSkeletonsList } from './animations/AllAnimations.js';
 
@@ -91,15 +104,13 @@ export { Rock } from './gameobjects/props/resources/rock.js';
 export { Props } from './gameobjects/AllGameObjects.js';
 
 export { Plant, AllPlantData } from './gameobjects/props/plants/plants.js';
-export { Character, MainCharacter } from './gameobjects/characters/character.js';
-
-
+export { Character, MainCharacter, CharacterAttachments } from './gameobjects/characters/character.js';
 
 export { Seed } from './gameobjects/props/plants/plantitem.js';
 export { Shop } from './gameobjects/props/shop.js';
 
 export { GameToolbar } from './gui/toolbar.js';
 
-export { MasterObject } from './classes/masterObject.js';
+export { MasterObject, Mastertime } from './classes/masterObject.js';
 
 export { ObjectClassLUT } from './objectClassLUT.js';

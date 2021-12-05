@@ -22,7 +22,7 @@ class CMath {
         return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
     }
 
-    static MapRange (value, in_min, in_max, out_min, out_max) {
+    static MapRange(value, in_min, in_max, out_min, out_max) {
         return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
 
@@ -47,8 +47,17 @@ class CMath {
         return new Vector2D(nx, ny);
     }
 
+    /**
+     * @deprecated
+     */
+    static _LookAt2D(a, b) {
+        return (Math.atan2(b.y - a.y, b.x - a.y) * (180 / Math.PI)) + 180;
+    }
+
     static LookAt2D(a, b) {
-        return Math.atan2(b.y - a.y, b.x - a.y)*(180/Math.PI) + 180;
+        let dx = a.x - b.x;
+        let dy = a.y - b.y;
+        return Math.atan2(dy, dx) * 180 / Math.PI + 180;
     }
 
     static LineSlope(a, b) {
@@ -226,6 +235,26 @@ class CMath {
         return a + f * (b - a);
     }
 
+    static ObjectLerp(a, b, f) {
+        let paramsA = [],
+            paramsB = [];
+
+        for (const value of a) {
+            paramsA.push(value);
+        }
+
+        for (const value of b) {
+            paramsB.push(value);
+        }
+
+        for (let i = 0, l = paramsA.length; i < l; ++i) {
+            paramsA[i] = paramsA[i] + f * (paramsB[i] - paramsA[i]);
+        }
+
+        let objectProto = Object.getPrototypeOf(a);
+        return new objectProto.constructor(...paramsA);
+    }
+
     static EaseIn(t) {
         return t * t;
     }
@@ -271,6 +300,10 @@ class CMath {
         }
 
         return li;
+    }
+
+    static SoftLightBlend(base, blend) {
+        return (blend < 0.5) ? (2.0 * base * blend + base * base * (1.0 - 2.0 * blend)) : (Math.sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend));
     }
 }
 

@@ -1,5 +1,22 @@
-import { Vector2D, Rectangle, Brush, Color, CMath, LightSystem, Vector, Vector4D, ObjectType } from '../../internal.js';
+import { Vector2D, Rectangle, ShadowCanvasOperation, ObjectType, AmbientLight, Tile } from '../../internal.js';
+import { RectMerge } from '../../classes/utility/rectMerge.js';
 
+/**
+ * Enum for frustum culling state
+ * @readonly
+ * @enum {Number}
+ */
+const FrustumCullingState = {
+    NotChecked: 0,
+    Culled: 1,
+    Visible: 2,
+    PartiallyCulled: 3,
+}
+/**
+ * Enum for operation type
+ * @readonly
+ * @enum {Number}
+ */
 const OperationType = {
     terrain: 0,
     gameObjects: 1,
@@ -7,7 +24,8 @@ const OperationType = {
     previewTerrain: 3,
     shadow: 4,
     particles: 5,
-    lighting: 6
+    lighting: 6,
+    shadow2D: 7,
 }
 
 /**
@@ -16,12 +34,35 @@ const OperationType = {
  * @public
  */
 class Operation {
+    /**
+     * Creates a Operation
+     * @param {HTMLCanvasElement} drawingCanvas 
+     * @param {OperationType} operationType 
+     */
     constructor(drawingCanvas, operationType = OperationType.terrain) {
+        /** @type {Vector2D} */
         this.oldPosition = new Vector2D(0, 0);
+
+        /** @type {boolean} */
         this.isVisible = false;
+
+        /** @type {boolean} */
         this.shouldDelete = false;
+
+        /** @type {HTMLCanvasElement} */
         this.drawingCanvas = drawingCanvas;
+
+        /** @type {OperationType} */
         this.operationType = operationType;
+
+        /** @type {boolean} */
+        this.frustumCulled = false;
+
+        /** @type {FrustumCullingState} */
+        this.frustumState = FrustumCullingState.NotChecked;
+
+        /** @type {boolean} */
+        this.debugDraw = false;
     }
 
     Delete() {
@@ -38,28 +79,67 @@ class Operation {
         this.isVisible = false;
     }
 
-    GetPreviousPosition() {
+    /**
+     * Checks if the operation is inside the view frustum
+     * @param {Rectangle} frustum 
+     */
+    FrustumCulling(frustum) {
+        if (this instanceof LightingOperation)
+            return;
 
+        let tPos = this.GetPosition();
+        let newState = frustum.InsideXY(tPos.x, tPos.y) || frustum.InsideXY(tPos.x + this.GetDrawSize().x, tPos.y + this.GetDrawSize().y);
+        //CustomLogger.Log(this.GetOwner(), [frustum.ToString(), newState, this.frustumCulled, this.oldPosition.ToString()]);
+
+        if (this.frustumCulled === true && newState === true && this.frustumState !== FrustumCullingState.Visible) {
+            this.UpdateDrawState(true);
+            this.frustumState = FrustumCullingState.Visible;
+        } else if (frustum.InsideXY(tPos.x, tPos.y) === false && frustum.InsideXY(tPos.x + this.GetDrawSize().x, tPos.y + this.GetDrawSize().y) === true) {
+            this.UpdateDrawState(true);
+            this.frustumState = FrustumCullingState.PartiallyCulled;
+        } else if (frustum.InsideXY(tPos.x, tPos.y) === true && frustum.InsideXY(tPos.x + this.GetDrawSize().x, tPos.y + this.GetDrawSize().y) === false) {
+            this.UpdateDrawState(true);
+            this.frustumState = FrustumCullingState.PartiallyCulled;
+        }
+
+        this.frustumCulled = !newState;
+        if (this.frustumCulled === true) {
+            this.UpdateDrawState(false);
+            this.frustumState = FrustumCullingState.Culled;
+        }
     }
 
-    GetDrawSize() {
+    GetPreviousPosition() {
+        return this.oldPosition;
+    }
 
+    GetPosition() {
+        return this.oldPosition;
+    }
+
+
+    GetDrawSize() {
+        return new Vector2D(32, 32);
     }
 
     GetBoundingBox() {
-
+        return new Rectangle(0, 0, 32, 32);
     }
 
     GetObjectType() {
         ObjectType.Pawn;
     }
 
+    GetOwner() {
+        return undefined;
+    }
+
     UpdateDrawState(state) {
-        
+
     }
 
     DrawState() {
-
+        return false;
     }
 
     Tick() {
@@ -67,6 +147,11 @@ class Operation {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Operation
+ */
 class TextOperation extends Operation {
     constructor(text, pos, clear, drawingCanvas, font = 'sans-serif', size = 18, color = 'rgb(243, 197, 47)', drawIndex = 0) {
         super(drawingCanvas, OperationType.gui);
@@ -111,6 +196,11 @@ class TextOperation extends Operation {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Operation
+ */
 class RectOperation extends Operation {
     constructor(pos, size = new Vector2D(32, 32), drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, alpha = 0.3, fillOrOutline = false) {
         super(drawingCanvas, OperationType.gui);
@@ -198,7 +288,19 @@ class RectOperation extends Operation {
  * @extends Operation
  */
 class DrawingOperation extends Operation {
-    constructor(owner, tile, drawingCanvas, targetCanvas, operationType = OperationType.gameObjects, drawSize = new Vector2D(0, 0), centerPosition = new Vector2D(tile.position.x, tile.position.y), objectType = ObjectType.Pawn) {
+
+    /**
+     * Creates a DrawingOperation
+     * @param {Object} owner 
+     * @param {Tile} tile 
+     * @param {HTMLCanvasElement} drawingCanvas 
+     * @param {HTMLCanvasElement} targetCanvas 
+     * @param {OperationType} operationType 
+     * @param {Vector2D} drawSize 
+     * @param {Vector2D} centerPosition 
+     * @param {ObjectType} objectType 
+     */
+    constructor(owner, tile, drawingCanvas, targetCanvas, operationType = OperationType.gameObjects, drawSize = new Vector2D(0, 0), centerPosition = new Vector2D(tile.position.x, tile.position.y), objectType = ObjectType.Pawn, canvasObject = undefined) {
         super(drawingCanvas, operationType);
         this.owner = owner;
         this.tile = tile;
@@ -208,6 +310,10 @@ class DrawingOperation extends Operation {
         this.drawSize = drawSize;
         this.centerPosition = centerPosition;
         this.objectType = objectType;
+        this.shadowOperation = undefined;
+
+        if (canvasObject !== undefined)
+            this.shadowOperation = new ShadowCanvasOperation(canvasObject);
     }
 
     Clone() {
@@ -221,8 +327,25 @@ class DrawingOperation extends Operation {
 
     Update(position) {
         super.Update(position);
+        this.centerPosition.x = position.x;
+        this.centerPosition.y = position.y;
         this.tile.needsToBeRedrawn = true;
         //this.updateRects = undefined;
+    }
+
+    UpdateOperation(frame, position, canvas) {
+        this.Update(this.tile.position);
+        this.tile.position = position;
+ 
+        if (frame !== undefined && frame !== null) {
+            this.tile.tilePosition.x = frame.x;
+            this.tile.tilePosition.y = frame.y;
+            this.tile.size.x = frame.w;
+            this.tile.size.y = frame.h;
+        }
+        //this.drawingOperation.tile.clear = clear;
+        this.tile.atlas = canvas.id;
+        this.targetCanvas = canvas;
     }
 
     UpdateDrawState(state) {
@@ -261,7 +384,10 @@ class DrawingOperation extends Operation {
     }
 
     GetBoundingBox() {
-        return new Rectangle(this.owner.position.x, this.owner.position.y, this.owner.size.x, this.owner.size.y);
+        if (this.owner !== undefined && this.owner.position !== undefined)
+            return new Rectangle(this.owner.position.x, this.owner.position.y, this.owner.size.x, this.owner.size.y);
+
+        return new Rectangle(this.oldPosition.x, this.oldPosition.y, this.drawSize.x, this.drawSize.y);
     }
 
     GetDrawPosition() {
@@ -280,6 +406,10 @@ class DrawingOperation extends Operation {
         return this.tile.needsToBeRedrawn;
     }
 
+    GetOwner() {
+        return this.owner;
+    }
+
     toJSON() {
         if (this.drawingCanvas.id === 'game-canvas' || this.drawingCanvas.id === undefined || this.drawingCanvas.id === '') {
             return {
@@ -295,6 +425,11 @@ class DrawingOperation extends Operation {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Operation
+ */
 class ClearOperation extends Operation {
     constructor(drawingCanvas, rectangle, operationType = OperationType.gameObjects) {
         super(drawingCanvas, operationType);
@@ -302,6 +437,11 @@ class ClearOperation extends Operation {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Operation
+ */
 class PathOperation extends Operation {
     constructor(path, drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, alpha = 0.3) {
         super(drawingCanvas);
@@ -363,13 +503,24 @@ class PathOperation extends Operation {
  * @extends Operation
  */
 class LightingOperation extends Operation {
+
+    /**
+     * Creates a lighting operation
+     * @param {Object} owner 
+     * @param {Vector2D} pos 
+     * @param {HTMLCanvasElement} drawingCanvas 
+     * @param {AmbientLight} light 
+     */
     constructor(owner, pos, drawingCanvas, light) {
         super(drawingCanvas);
         this.owner = owner;
         this.position = pos;
         this.drawIndex = 0;
         this.needsToBeRedrawn = true;
+        /** @type {AmbientLight} */
         this.light = light;
+
+        /** @type {Array<Rectangle>} */
         this.updateRects = undefined;
         this.updateRectsPixelData = undefined;
 
@@ -474,20 +625,42 @@ class LightingOperation extends Operation {
         return this.needsToBeRedrawn;
     }
 
-    AddUpdateRect(rect, light, alphaRect) {
+    GetOwner() {
+        return this.owner;
+    }
+
+    AddUpdateRect(rect, light = undefined, alphaRect = undefined) {
         if (this.needsToBeRedrawn === false) {
             if (this.updateRects === undefined) {
                 this.updateRects = [];
                 this.updateRectsPixelData = [];
             }
 
+            /*if (this.updateRects.length > 0)
+                RectMerge([...this.updateRects, rect]);*/
+
             for (let i = 0, l = this.updateRects.length; i < l; ++i) {
-                if (this.updateRects[i].GetOverlappingCorners(rect).length >= 4) 
+                let overlappingCornersCount = this.updateRects[i].GetOverlappingCorners(rect).length;
+                if (overlappingCornersCount >= 4)
                     return;
             }
 
             this.updateRects.push(rect);
-            this.updateRectsPixelData.push({light:light, rect:alphaRect});
+            if (light !== undefined && alphaRect !== undefined) {
+                this.updateRectsPixelData.push({ light: light, rect: alphaRect });
+            }
+        }
+    }
+
+    ForceAddUpdateRects(rect, light = undefined, alphaRect = undefined) {
+        if (this.updateRects === undefined) {
+            this.updateRects = [];
+            this.updateRectsPixelData = [];
+        }
+
+        this.updateRects.push(rect);
+        if (light !== undefined && alphaRect !== undefined) {
+            this.updateRectsPixelData.push({ light: light, rect: alphaRect });
         }
     }
 }

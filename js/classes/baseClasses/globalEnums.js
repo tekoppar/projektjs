@@ -10,4 +10,14 @@ const ObjectType = {
     Prop: 3,
 }
 
-export { ObjectType };
+/**
+ * @readonly
+ * @enum {Number}
+ */
+const BWDrawingType = {
+    None: 0,
+    Behind: 1,
+    Front: 2
+}
+
+export { ObjectType, BWDrawingType };

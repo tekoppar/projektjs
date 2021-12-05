@@ -3,7 +3,7 @@ import { Vector2D, Tile, DrawingOperation, Color, CMath, RectOperation, Lighting
 /**
  * Enum for editor state
  * @readonly
- * @enum {String}
+ * @enum {string}
  */
 const brushTypes = {
     circle: 'circle',
@@ -13,7 +13,7 @@ const brushTypes = {
 /**
  * Enum for editor state
  * @readonly
- * @enum {String}
+ * @enum {string}
  */
 const BrushDrawState = {
     Normal: 'normal',
@@ -21,7 +21,18 @@ const BrushDrawState = {
     DrawOntop: 'drawontop',
 };
 
+/**
+ * @class
+ * @constructor
+ */
 class Brush {
+
+    /**
+     * Creates a new Brush
+     * @param {BrushSettings} settings 
+     * @param {Tile} canvasSprite 
+     * @param {BrushDrawState} drawState 
+     */
     constructor(settings = new BrushSettings(new Vector2D(1, 1), brushTypes.box), canvasSprite = undefined, drawState = BrushDrawState.Normal) {
         this.settings = settings;
         this.canvasSprite = canvasSprite;

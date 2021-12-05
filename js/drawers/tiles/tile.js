@@ -1,5 +1,9 @@
-import { Matrix, Vector2D, CanvasDrawer, TileLUT, GetAtlasTileMatrix, CollisionEditor, PropEditor } from '../../internal.js';
+import { Matrix, Vector2D, CanvasDrawer, TileLUT, AtlasController, GetAtlasTileMatrix, CollisionEditor, PropEditor } from '../../internal.js';
 
+/**
+ * @enum {Number}
+ * @readonly
+ */
 const TileType = {
     Water: 0,
     Ground: 1,
@@ -8,6 +12,10 @@ const TileType = {
     Prop: 4,
 }
 
+/**
+ * @enum {Number}
+ * @readonly
+ */
 const TileTerrain = {
     Grass: 0,
     Rock: 1,
@@ -18,6 +26,7 @@ const TileTerrain = {
     Tree: 6,
     Fence: 7,
     Leaves: 8,
+    Ground: 9,
 }
 
 class TileULDR {
@@ -108,8 +117,8 @@ class TileData {
     }
 
     static CanvasPortionToImage(tile) {
-        if (CanvasDrawer.GCD.canvasAtlases[tile.atlas] !== undefined) {
-            let canvas = CanvasDrawer.GCD.canvasAtlases[tile.atlas].canvas;
+        if (AtlasController.GetAtlas(tile.atlas) !== undefined) {
+            let canvas = AtlasController.GetAtlas(tile.atlas).GetCanvas();
             let ctx = canvas.getContext('2d');
             let tempCanvas = document.createElement('canvas');
             tempCanvas.setAttribute('height', tile.size.y);
@@ -204,6 +213,7 @@ class TileData {
 
         // @ts-ignore
         let clone = template.content.cloneNode(true);
+        clone.firstElementChild.id = 'tile-lut-editor';
         TileData.tileGUI.name = clone.getElementById('tile-lut-editor-name');
         TileData.tileGUI.selection = clone.getElementById('tile-lut-editor-selection');
         TileData.tileGUI.atlas = clone.getElementById('tile-lut-editor-atlas');
@@ -720,7 +730,23 @@ class TileF {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class Tile {
+
+    /**
+     * Creates a new Tile
+     * @param {Vector2D} pos 
+     * @param {Vector2D} tilePos 
+     * @param {Vector2D} size 
+     * @param {boolean} transparent 
+     * @param {string} atlas 
+     * @param {Number} drawIndex 
+     * @param {TileType} tileType 
+     * @param {TileTerrain} tileTerrain 
+     */
     constructor(pos = new Vector2D(0, 0), tilePos = new Vector2D(0, 0), size = new Vector2D(32, 32),
         transparent = undefined, atlas = 'terrain', drawIndex = 0, tileType = TileType.Ground, tileTerrain = TileTerrain.Grass) {
         this.position = pos;

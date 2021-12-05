@@ -5,8 +5,14 @@ let stackableItems = {};
 //products
 Object.assign(stackableItems, {
     shovel: false,
-    axe: false,
+    ironAxe: false,
+    steelAxe: false,
+    goldAxe: false,
     hoe: false,
+    pickaxe: false,
+    ironSword: false,
+    steelSword: false,
+    goldSword: false,
 });
 
 /**
@@ -176,12 +182,16 @@ class Axe extends UsableItem {
     }
 
     UseItem(ownerCollision) {
-        let overlap = CollisionHandler.GCH.GetOverlap(ownerCollision);
+        let overlap = CollisionHandler.GCH.GetOverlapByClass(ownerCollision, 'Tree');
 
-        if (overlap !== undefined && overlap !== false && ownerCollision.DoOverlap(overlap.collisionOwner.BlockingCollision, true)) { // ownerCollision.CheckInRealRange(ownerCollision.collisionOwner.BoxCollision, 112)) {
+        if (overlap !== undefined && overlap !== false && ownerCollision.DoOverlap(overlap.collisionOwner.BlockingCollision, true) && ownerCollision.collisionOwner.position.CheckInRange(overlap.GetCenterPosition(), 48)) { // ownerCollision.CheckInRealRange(ownerCollision.collisionOwner.BoxCollision, 112)) {
             let objPrototype = Object.getPrototypeOf(overlap.collisionOwner);
             if (objPrototype.constructor.name === 'Tree') {
-                overlap.OnHit(20, ownerCollision);
+                let damage = ownerCollision.collisionOwner.characterAttributes.GetDamage();
+
+                damage += CMath.RandomFloat(ItemStats[this.name].damage.x, ItemStats[this.name].damage.y);
+
+                overlap.OnHit(damage, ownerCollision);
                 this.Durability();
             }
         }
@@ -199,7 +209,11 @@ class Pickaxe extends UsableItem {
         let overlap = CollisionHandler.GCH.GetOverlapByClass(ownerCollision, 'Rock');
 
         if (overlap !== undefined && overlap !== false && ownerCollision.DoOverlap(overlap.collisionOwner.BlockingCollision, true)) { // ownerCollision.CheckInRealRange(ownerCollision.collisionOwner.BoxCollision, 112)) {
-            overlap.OnHit(20, ownerCollision);
+            let damage = ownerCollision.collisionOwner.characterAttributes.GetDamage();
+
+            damage += CMath.RandomFloat(ItemStats[this.name].damage.x, ItemStats[this.name].damage.y);
+
+            overlap.OnHit(damage, ownerCollision);
             this.Durability();
         }
         CustomEventHandler.NewCustomEvent(this.name, this);
@@ -216,11 +230,12 @@ class Weapon extends UsableItem {
         let overlap = CollisionHandler.GCH.GetOverlapByClass(ownerCollision, 'Character');
 
         if (overlap !== undefined && overlap !== false && overlap.collisionOwner !== null && ownerCollision.DoOverlap(overlap.collisionOwner.BlockingCollision, true)) { // ownerCollision.CheckInRealRange(ownerCollision.collisionOwner.BoxCollision, 112)) {
-            
+
             let guiPos = overlap.collisionOwner.GetPosition().Clone(),
                 damage = ownerCollision.collisionOwner.characterAttributes.GetDamage();
 
             damage += CMath.RandomFloat(ItemStats[this.name].damage.x, ItemStats[this.name].damage.y);
+
 
             guiPos.y -= overlap.collisionOwner.drawingOperation.GetSize().y;
 

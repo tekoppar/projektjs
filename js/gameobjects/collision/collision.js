@@ -1,4 +1,4 @@
-import { CanvasDrawer, Vector2D, Vector4D, Rectangle, CMath } from '../../internal.js';
+import { Vector2D, Vector4D, Rectangle, CMath, DebugDrawer } from '../../internal.js';
 
 const OverlapCheckEnum = {
     Intersect: false,
@@ -21,11 +21,20 @@ const DefaultOverlapCheck = { Intersect: true, Overlaps: true, Inside: true };
 const OverlapOICheck = { Intersect: false, Overlaps: true, Inside: true };
 const OverlapOverlapsCheck = { Intersect: false, Overlaps: true, Inside: false };
 
+/**
+ * @class
+ * @constructor
+ */
 class QuadTree {
     static MasterQuadTree;
     static MAX_OBJECTS = 25;
     static MAX_LEVEL = 5;
 
+    /**
+     * Creates a new QuadTree
+     * @param {Number} level 
+     * @param {Rectangle} bounds 
+     */
     constructor(level, bounds) {
         this.level = level;
         this.objects = [];
@@ -172,6 +181,10 @@ class QuadTree {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class CollisionHandler {
     static GCH = new CollisionHandler();
 
@@ -225,7 +238,7 @@ class CollisionHandler {
                 quads = quads.concat(quads[0].nodes);
             }
 
-            CanvasDrawer.GCD.AddDebugRectOperation(quads[0].bounds, 0.5, CMath.CSS_COLOR_NAMES[CMath.RandomInt(0, CMath.CSS_COLOR_NAMES.length)], true);
+            DebugDrawer.AddDebugRectOperation(quads[0].bounds, 0.5, CMath.CSS_COLOR_NAMES[CMath.RandomInt(0, CMath.CSS_COLOR_NAMES.length)], true);
             quads.splice(0, 1);
         }*/
 
@@ -233,7 +246,7 @@ class CollisionHandler {
         quadOverlaps = quadOverlaps.concat(this.QuadTree.Get(collision.GetBoundingBox()));
 
         for (let i = 0, l = quadOverlaps.length; i < l; ++i) {
-            //CanvasDrawer.GCD.AddDebugOperation(quadOverlaps[i].position.Clone(), 2, 'orange');
+            //DebugDrawer.AddDebugOperation(quadOverlaps[i].position.Clone(), 2, 'orange');
             if ((collision.DoIntersect(quadOverlaps[i]) === true || collision.GetIntersections(quadOverlaps[i].GetPoints()) > 0) && collision.collisionOwner !== quadOverlaps[i].collisionOwner && quadOverlaps[i].enableCollision === true) {
                 return false;
             }
@@ -289,6 +302,12 @@ class CollisionHandler {
         }
     }
 
+    /**
+     * 
+     * @param {Collision} collision 
+     * @param {string} className 
+     * @returns 
+     */
     GetOverlapByClass(collision, className) {
         let quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox()),
             overlaps = [],
@@ -318,7 +337,7 @@ class CollisionHandler {
         let overlaps = [],
             quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox());
 
-        //CanvasDrawer.GCD.AddDebugRectOperation(collision.GetBoundingBox(), 0.1, 'blue');
+        //DebugDrawer.AddDebugRectOperation(collision.GetBoundingBox(), 0.1, 'blue');
 
         for (let i = 0, l = quadOverlaps.length; i < l; ++i) {
             if (quadOverlaps[i].overlapEvents === true && (CollisionCheckType !== CollisionTypeCheck.Overlap && CollisionCheckType !== CollisionTypeCheck.All))
@@ -340,7 +359,7 @@ class CollisionHandler {
                 overlaps.push(quadOverlaps[i]);
             }
             if (debugDraw)
-                CanvasDrawer.GCD.AddDebugRectOperation(quadOverlaps[i].GetBoundingBox(), 0.1, 'orange');
+                DebugDrawer.AddDebugRectOperation(quadOverlaps[i].GetBoundingBox(), 0.1, 'orange');
         }
 
         quadOverlaps = null;
@@ -352,9 +371,21 @@ class CollisionHandler {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class Collision {
     static COLLISION_INTERSECT_OFFSET = 2;
 
+    /**
+     * Creates a new Collision
+     * @param {Vector2D} position 
+     * @param {Vector2D} size 
+     * @param {boolean} enableCollision 
+     * @param {Object} owner 
+     * @param {boolean} register 
+     */
     constructor(position, size, enableCollision, owner = undefined, register = true) {
         this.position = position.Clone();
         this.size = size.Clone();
@@ -362,6 +393,7 @@ class Collision {
         this.enableCollision = enableCollision;
         this.collisionOwner = owner;
         this.boundingBox = new Rectangle(1, 1, 1, 1);
+        this.debugDraw = true;
 
         if (register === true)
             CollisionHandler.GCH.AddCollision(this);
@@ -470,10 +502,10 @@ class Collision {
             BBB.w += 2;
             BBB.h += 2;*/
 
-            //CanvasDrawer.GCD.AddDebugOperation(new Vector2D(ABB.x, ABB.y), 2, 'orange');
-            //CanvasDrawer.GCD.AddDebugOperation(new Vector2D(ABB.z, ABB.a), 2, 'blue');
-            //CanvasDrawer.GCD.AddDebugOperation(new Vector2D(BBB.x, BBB.y), 2, 'pink');
-            //CanvasDrawer.GCD.AddDebugOperation(new Vector2D(BBB.z, BBB.a), 2, 'purple');
+            //DebugDrawer.AddDebugOperation(new Vector2D(ABB.x, ABB.y), 2, 'orange');
+            //DebugDrawer.AddDebugOperation(new Vector2D(ABB.z, ABB.a), 2, 'blue');
+            //DebugDrawer.AddDebugOperation(new Vector2D(BBB.x, BBB.y), 2, 'pink');
+            //DebugDrawer.AddDebugOperation(new Vector2D(BBB.z, BBB.a), 2, 'purple');
             return this.IsOverlaping1D(ABB.x - Collision.COLLISION_INTERSECT_OFFSET, (ABB.x - Collision.COLLISION_INTERSECT_OFFSET) + (ABB.w + Collision.COLLISION_INTERSECT_OFFSET), BBB.x - Collision.COLLISION_INTERSECT_OFFSET, (BBB.x - Collision.COLLISION_INTERSECT_OFFSET) + (BBB.w + Collision.COLLISION_INTERSECT_OFFSET)) &&
                 this.IsOverlaping1D((ABB.y - Collision.COLLISION_INTERSECT_OFFSET), (ABB.y - Collision.COLLISION_INTERSECT_OFFSET) + (ABB.h + Collision.COLLISION_INTERSECT_OFFSET), (BBB.y - Collision.COLLISION_INTERSECT_OFFSET), (BBB.y - Collision.COLLISION_INTERSECT_OFFSET) + (BBB.h + Collision.COLLISION_INTERSECT_OFFSET));
         }
@@ -593,7 +625,21 @@ class Collision {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Collision
+ */
 class BoxCollision extends Collision {
+
+    /**
+     * Creates a new BoxCollision
+     * @param {Vector2D} position 
+     * @param {Vector2D} size 
+     * @param {boolean} enableCollision 
+     * @param {Object} owner 
+     * @param {boolean} register 
+     */
     constructor(position, size, enableCollision, owner = undefined, register = true) {
         super(position, size, enableCollision, owner, register);
         this.boundingBox = new Rectangle(this.position.x, this.position.y, this.size.x, this.size.y);
@@ -631,7 +677,22 @@ class BoxCollision extends Collision {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Collision
+ */
 class PolygonCollision extends Collision {
+
+    /**
+     * Creates a new PolygonCollision
+     * @param {Vector2D} position 
+     * @param {Vector2D} size 
+     * @param {Array<Vector2D>} points 
+     * @param {boolean} enableCollision 
+     * @param {Object} owner 
+     * @param {boolean} register 
+     */
     constructor(position, size, points = [], enableCollision, owner = undefined, register = true) {
         super(position, size, enableCollision, owner, false);
         this.points = points;
@@ -725,14 +786,6 @@ class PolygonCollision extends Collision {
 
 //let newCollision = new BoxCollision(new Vector2D(256, 320), new Vector2D(64, 64), true);
 //collisionHandler.AddCollision(newCollision);
-let polygonCollision = new PolygonCollision(new Vector2D(-64, -64), new Vector2D(0, 0), [
-    new Vector2D(100, 100),
-    new Vector2D(200, 100),
-    new Vector2D(200, 200),
-    new Vector2D(150, 300),
-    new Vector2D(100, 200),
-    new Vector2D(100, 100)
-], true);
 //CollisionHandler.GCH.AddCollision(polygonCollision);
 
 export { CollisionHandler, Collision, BoxCollision, PolygonCollision, QuadTree, OverlapCheckEnum, OverlapOICheck, OverlapOverlapsCheck, CollisionTypeCheck };

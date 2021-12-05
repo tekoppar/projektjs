@@ -1,4 +1,4 @@
-import { CanvasDrawer, Vector2D } from '../internal.js';
+import { CanvasDrawer, MasterObject, Vector2D } from '../internal.js';
 
 /**
  * Enum for input state
@@ -61,6 +61,8 @@ class InputHandler {
             'i': new Input('i'),
             'q': new Input('q'),
             'c': new Input('c'),
+            'p': new Input('p'),
+            'g': new Input('g'),
             'tab': new Input('tab'),
             'escape': new Input('escape'),
             'backspace': new Input('backspace'),
@@ -128,7 +130,9 @@ class InputHandler {
                     case 67: this.AddInput('c', InputState.OnPressed); break;
                     case 68: this.AddInput('d', InputState.OnPressed); break;
                     case 69: this.AddInput('e', InputState.OnPressed); break;
+                    case 71: this.AddInput('g', InputState.OnPressed); break;
                     case 73: this.AddInput('i', InputState.OnPressed); break;
+                    case 80: this.AddInput('p', InputState.OnPressed); break;
                     case 81: this.AddInput('q', InputState.OnPressed); break;
                     case 83: this.AddInput('s', InputState.OnPressed); break;
                     case 87: this.AddInput('w', InputState.OnPressed); break;
@@ -159,7 +163,9 @@ class InputHandler {
                     case 68: this.keysPressed['d'].State(InputState.OnReleased); break;
                     case 67: this.AddInput('c', InputState.OnReleased); break;
                     case 69: this.keysPressed['e'].State(InputState.OnReleased); break;
+                    case 71: this.AddInput('g', InputState.OnReleased); MasterObject.MO.NextFrame(); break;
                     case 73: this.keysPressed['i'].State(InputState.OnReleased); break;
+                    case 80: this.AddInput('p', InputState.OnReleased); MasterObject.MO.ToggleFrameStepping(); break;
                     case 81: this.AddInput('q', InputState.OnReleased); break;
                     case 83: this.keysPressed['s'].State(InputState.OnReleased); break;
                     case 87: this.keysPressed['w'].State(InputState.OnReleased); break;
@@ -188,6 +194,11 @@ class InputHandler {
         for (let x = 0; x < keys.length; x++) {
             if (this.keysPressed[keys[x]].state !== InputState.Null) {
                 for (let i = 0, l = this.registeredListeners.length; i < l; ++i) {
+                    if (this.registeredListeners[i] === undefined) {
+                        this.RemoveListener(this.registeredListeners[i]);
+                        continue;
+                    }
+
                     switch (this.keysPressed[keys[x]].inputType) {
                         case InputType.keyboard:
                             this.registeredListeners[i].CEvent('input', keys[x], { eventType: this.keysPressed[keys[x]].state });

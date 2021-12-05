@@ -1,4 +1,4 @@
-import { Vector2D, Tile, TextOperation, DrawingOperation, OperationType, UIElement } from '../../../internal.js';
+import { Vector2D, Tile, TextOperation, AtlasController, DrawingOperation, OperationType, UIElement } from '../../../internal.js';
 
 class UIDrawer {
     constructor(spriteSheet, canvasDrawer) {
@@ -42,7 +42,7 @@ class UIDrawer {
                     'inputLeft'
                 ),
                 this.canvasDrawer.gameGuiCanvas,
-                this.canvasDrawer.canvasAtlases['inputLeft'].canvas
+                AtlasController.GetAtlas('inputLeft').GetCanvas()
             )
         );
 
@@ -57,7 +57,7 @@ class UIDrawer {
                     'inputMiddle'
                 ),
                 this.canvasDrawer.gameGuiCanvas,
-                this.canvasDrawer.canvasAtlases['inputMiddle'].canvas,
+                AtlasController.GetAtlas('inputMiddle').GetCanvas(),
                 OperationType.gameObjects,
                 new Vector2D(middleWidth, 26)
             )
@@ -74,7 +74,7 @@ class UIDrawer {
                     'inputRight'
                 ),
                 this.canvasDrawer.gameGuiCanvas,
-                this.canvasDrawer.canvasAtlases['inputRight'].canvas
+                AtlasController.GetAtlas('inputRight').GetCanvas()
             )
         );
 
@@ -86,10 +86,10 @@ class UIDrawer {
                     new Vector2D(sprite.x, sprite.y),
                     new Vector2D(sprite.width, sprite.height),
                     false,
-                    this.canvasDrawer.GetAtlas(sprite.atlas).name
+                    AtlasController.GetAtlas(sprite.atlas).name
                 ),
                 this.canvasDrawer.gameGuiCanvas,
-                this.canvasDrawer.GetAtlas(sprite.atlas).canvas
+                AtlasController.GetAtlas(sprite.atlas).GetCanvas()
             )
         );
         

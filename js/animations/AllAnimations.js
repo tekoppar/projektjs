@@ -126,14 +126,32 @@ AllAnimationSkeletonsList.femaleAnimations.sword = {
             new Direction(43, 7, 135),
         ]
     },
-}
 
-Object.assign(AllAnimationSkeletonsList.femaleAnimations.sword, {
-    meleeUpIdle: AllAnimationSkeletonsList.femaleAnimations.sword.meleeUp,
-    meleeLeftIdle: AllAnimationSkeletonsList.femaleAnimations.sword.meleeLeft,
-    meleeDownIdle: AllAnimationSkeletonsList.femaleAnimations.sword.meleeDown,
-    meleeRightIdle: AllAnimationSkeletonsList.femaleAnimations.sword.meleeRight,
-});
+    meleeUpIdle: {
+        size: new Vector2D(32, 32),
+        bones: [
+            new Direction(14, 31, 0)
+        ]
+    },
+    meleeLeftIdle: {
+        size: new Vector2D(32, 32),
+        bones: [
+            new Direction(27, 25, 145),
+        ]
+    },
+    meleeDownIdle: {
+        size: new Vector2D(32, 32),
+        bones: [
+            new Direction(14, 31, 0),
+        ]
+    },
+    meleeRightIdle: {
+        size: new Vector2D(32, 32),
+        bones: [
+            new Direction(23, 34, 210),
+        ]
+    },
+}
 
 AllAnimationsList.meleeFemaleWeaponAnimations = {};
 

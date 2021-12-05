@@ -1,4 +1,4 @@
-import { Cobject, Color, Math3D, Vector2D, Vector, CanvasDrawer, OperationType, LightingOperation, BoxCollision, IsLittleEndian, IntMath, CMath } from '../../internal.js';
+import { Cobject, Color, Math3D, PerformanceTester, Vector2D, Vector, CanvasDrawer, OperationType, LightingOperation, BoxCollision, IsLittleEndian, IntMath, CMath, ArrayUtility } from '../../internal.js';
 
 /**
  * Enum for light falloff type
@@ -10,9 +10,6 @@ const LightFalloffType = {
     InverseSquareLaw: 1,
 }
 
-const markerNameA = "example-marker-a"
-const markerNameB = "example-marker-b"
-
 /**
  * @class
  * @constructor
@@ -20,8 +17,24 @@ const markerNameB = "example-marker-b"
  * @extends Cobject
  */
 class AmbientLight extends Cobject {
+
+    /**
+     * Creates a new ambient light
+     * @param {Vector2D} position 
+     * @param {Color} color 
+     * @param {Number} attenuation 
+     * @param {Number} intensity 
+     * @param {Number} colorIntensity 
+     * @param {Number} lightConstant 
+     * @param {Number} lightLinear 
+     * @param {Number} lightQuad 
+     * @param {Number} drawScale 
+     * @param {LightFalloffType} lightFalloffType 
+     */
     constructor(position, color = new Color(243, 197, 47), attenuation = 100, intensity = 750.0, colorIntensity = 1.0, lightConstant = 600, lightLinear = 0.2, lightQuad = 0.4, drawScale = 1, lightFalloffType = LightFalloffType.InverseSquareLaw) {
         super(position);
+
+        this.name = 'AmbientLight' + this.UID;
 
         this.color;
         this.SetColor(color);
@@ -36,6 +49,7 @@ class AmbientLight extends Cobject {
         this.quad = lightQuad;
 
         this.lightData;
+        this.colorData;
         this.BoxCollision = new BoxCollision(
             new Vector2D(position.x - this.halfAttenuation, position.y - this.halfAttenuation),
             new Vector2D(this.attenuation, this.attenuation),
@@ -43,11 +57,15 @@ class AmbientLight extends Cobject {
             this,
             true
         );
+        this.BoxCollision.debugDraw = false;
         this.subRectData = [];
 
         this.imageDataBuf;
         this.imageDataBuf8;
         this.imageData;
+        this.colorImageDataBuf;
+        this.colorImageDataBuf8;
+        this.colorImageData;
 
         this.BoxCollision.UpdateCollision();
 
@@ -58,10 +76,21 @@ class AmbientLight extends Cobject {
         this.frameBufferCtx = this.frameBuffer.getContext('2d');
         this.frameBufferCtx.imageSmoothingEnabled = true;
 
+        this.colorFrameBuffer = document.createElement('canvas');
+        this.colorFrameBuffer.setAttribute('width', this.attenuation.toString());
+        this.colorFrameBuffer.setAttribute('height', this.attenuation.toString());
+        document.body.appendChild(this.colorFrameBuffer);
+        this.colorFrameBufferCtx = this.colorFrameBuffer.getContext('2d');
+        this.colorFrameBufferCtx.imageSmoothingEnabled = true;
+
+        this.colorFrameBufferCtx.fillStyle = 'rgba(0,0,0,0)';
+        this.colorFrameBufferCtx.fillRect(0, 0, this.colorFrameBuffer.width, this.colorFrameBuffer.height);
+
         this.finished = false;
         this.GenerateLightImage();
 
         this.drawingOperation = new LightingOperation(this, position, CanvasDrawer.GCD.frameBuffer, this);
+        this.drawingOperation.owner = this;
         CanvasDrawer.GCD.AddDrawOperation(this.drawingOperation, OperationType.gameObjects);
     }
 
@@ -81,12 +110,20 @@ class AmbientLight extends Cobject {
         this.FlagDrawingUpdate(this.position);
     }
 
+    /**
+     * Sets the color of the light from either a string or a color.
+     * @param {string|Color} color 
+     */
     SetColor(color) {
         this.color = Color.ColorToRGBA(color);
     }
 
+    /**
+     * Draws the light onto a canvasContext
+     * @param {CanvasRenderingContext2D} ctx 
+     */
     DrawLight(ctx) {
-        ctx.drawImage(this.frameBuffer, this.position.x - this.halfAttenuation, this.position.y - this.halfAttenuation);
+        ctx.drawImage(this.colorFrameBuffer, this.position.x - this.halfAttenuation, this.position.y - this.halfAttenuation);
     }
 
     NeedsRedraw(position) {
@@ -102,6 +139,12 @@ class AmbientLight extends Cobject {
         }
     }
 
+    /**
+     * Gets a sub rectangle from the lights image data.
+     * @param {Vector2D} position 
+     * @param {Vector2D} size 
+     * @returns {Array<Number>}
+     */
     GetSubRect(position, size) {
         let startX = Math.max(Math.floor(position.x), 0),
             startY = Math.max(Math.floor(position.y), 0),
@@ -127,11 +170,19 @@ class AmbientLight extends Cobject {
         return subRectData;
     }
 
-    GetSubRectSpeed(pX, pY, w, h) {
+    /**
+     *  Gets a sub rectangle from the lights image data.
+     * @param {Number} pX 
+     * @param {Number} pY 
+     * @param {Number} w 
+     * @param {Number} h 
+     * @returns {Array<Number>}
+     */
+    GetSubRectSpeed(pX, pY, w, h, dataType = false) {
         let startX = Math.max(Math.floor(pX), 0),
             startY = Math.max(Math.floor(pY), 0),
             preWidth = this.attenuation * 4,
-            data = this.lightData.data,
+            data = dataType === false ? this.lightData.data : this.colorData.data,
             y = startY,
             x = 0,
             lX = 0,
@@ -144,7 +195,7 @@ class AmbientLight extends Cobject {
         startY = (startY * preWidth) + loopX;
 
         if (this.subRectData.length < arrLength)
-            this.subRectData.length = arrLength;
+            this.subRectData.length = Math.floor(arrLength);
 
         for (y = startY; y < endY; y += preWidth) {
             for (x = y, lX = l + y; x < lX; ++x, ++iSubRect) {
@@ -158,6 +209,15 @@ class AmbientLight extends Cobject {
         return this.subRectData;
     }
 
+    /**
+     * Gets a sub rectangle from the lights image data.
+     * @param {Number} pX 
+     * @param {Number} pY 
+     * @param {Number} w 
+     * @param {Number} h 
+     * @returns {Array<Number>}
+     * @deprecated Superseded by GetSubRectSpeed since splitting an int32 into 4 int8s is too costly compared to reading 4x times.
+     */
     GetSubRectArr32(pX, pY, w, h) {
         let startX = Math.max(Math.floor(pX), 0),
             startY = Math.max(Math.floor(pY), 0),
@@ -205,10 +265,15 @@ class AmbientLight extends Cobject {
             falloff = 0;
 
         this.lightData = this.frameBufferCtx.createImageData(this.attenuation, this.attenuation);
+        this.colorData = this.colorFrameBufferCtx.createImageData(this.attenuation, this.attenuation);
 
         this.imageDataBuf = new ArrayBuffer(this.lightData.data.length);
         this.imageDataBuf8 = new Uint8ClampedArray(this.imageDataBuf);
         this.imageData = new Uint32Array(this.imageDataBuf);
+
+        this.colorImageDataBuf = new ArrayBuffer(this.colorData.data.length);
+        this.colorImageDataBuf8 = new Uint8ClampedArray(this.colorImageDataBuf);
+        this.colorImageData = new Uint32Array(this.colorImageDataBuf);
 
         for (let y = 0; y < this.attenuation; ++y) {
             for (let x = 0; x < this.attenuation; ++x) {
@@ -228,31 +293,67 @@ class AmbientLight extends Cobject {
                         break;
                 }
 
-                falloff = CMath.MapRange(currentDistance / (halfDistance / 2), 1, 0, 0, 1);
+                //calcAlpha = CMath.Clamp(calcAlpha, 0, 1);
+
+                //let colorFalloff = CMath.MapRange(currentDistance / (halfDistance * 1), 1, 0, 0, 1);
+                let colorFalloff = falloff = CMath.Lerp(1, 0, CMath.EaseOut(CMath.Clamp(currentDistance / (halfDistance * 0.75), 0, 1))); //0.5
+                falloff = CMath.Lerp(1, 0, CMath.EaseIn(currentDistance / (halfDistance * 0.5)));
+
 
                 if (falloff > 0) {
                     if (IsLittleEndian) {
+                        let grayColor = (rgbaColor.red + rgbaColor.green + rgbaColor.blue) * 0.333333;
                         this.imageData[y * this.attenuation + x] =
-                            (calcAlpha * falloff * 255 << 24) |    // alpha
-                            (rgbaColor.blue * calcAlpha * falloff << 16) |    // blue
-                            (rgbaColor.green * calcAlpha * falloff << 8) |    // green
-                            rgbaColor.red * calcAlpha * falloff;            // red
+                            (CMath.Clamp(calcAlpha * falloff * 255, 0, 255) << 24) |    // alpha
+                            (CMath.Clamp(grayColor * calcAlpha * falloff, 0, 255) << 16) |    // blue
+                            (CMath.Clamp(grayColor * calcAlpha * falloff, 0, 255) << 8) |    // green
+                            CMath.Clamp(grayColor * calcAlpha * falloff, 0, 255);            // red
+
+                        this.imageData[y * this.attenuation + x] =
+                            (CMath.Clamp(calcAlpha * falloff * 255, 0, 255) << 24) |    // alpha
+                            (CMath.Clamp(grayColor * 3, 0, 255) << 16) |    // blue
+                            (CMath.Clamp(grayColor * 3, 0, 255) << 8) |    // green
+                            CMath.Clamp(grayColor * 3, 0, 255);            // red
+
+                        this.colorImageData[y * this.attenuation + x] =
+                            (CMath.Clamp(calcAlpha * 255, 0, 255) << 24) |    // alpha
+                            (CMath.Clamp(rgbaColor.blue * calcAlpha * colorFalloff, 0, 255) << 16) |    // blue
+                            (CMath.Clamp(rgbaColor.green * calcAlpha * colorFalloff, 0, 255) << 8) |    // green
+                            CMath.Clamp(rgbaColor.red * calcAlpha * colorFalloff, 0, 255);            // red
+
+                        this.colorImageData[y * this.attenuation + x] =
+                            (CMath.Clamp(calcAlpha * falloff * 255, 0, 255) << 24) |    // alpha
+                            (CMath.Clamp(rgbaColor.blue, 0, 255) << 16) |    // blue
+                            (CMath.Clamp(rgbaColor.green, 0, 255) << 8) |    // green
+                            CMath.Clamp(rgbaColor.red, 0, 255);            // red
                     } else {
                         this.imageData[y * this.attenuation + x] =
                             (rgbaColor.red * calcAlpha * falloff << 24) |    // red
                             ((rgbaColor.green * calcAlpha * falloff << 8) << 16) |    // green
                             ((rgbaColor.blue * calcAlpha * falloff << 16) << 8) |    // blue
                             (calcAlpha * falloff * 255);              // alpha
+
+                        this.colorImageData[y * this.attenuation + x] =
+                            (rgbaColor.red * calcAlpha * colorFalloff * falloff << 24) |    // red
+                            ((rgbaColor.green * calcAlpha * colorFalloff * falloff << 8) << 16) |    // green
+                            ((rgbaColor.blue * calcAlpha * colorFalloff * falloff << 16) << 8) |    // blue
+                            (calcAlpha * colorFalloff * 255);              // alpha
                     }
                 }
             }
         }
 
         this.lightData.data.set(this.imageDataBuf8);
-        Math3D.RotatePixelData(this.lightData, new Vector2D(this.attenuation, this.attenuation), new Vector(0, 45, 0), 40);
+        Math3D.RotatePixelData2D(this.lightData.data, new Vector2D(this.attenuation, this.attenuation), new Vector(0, 45, 0), this.attenuation / 6.4);
         this.imageDataBuf8.set(this.lightData.data);
 
         this.frameBufferCtx.putImageData(this.lightData, 0, 0);
+
+        this.colorData.data.set(this.colorImageDataBuf8);
+        Math3D.RotatePixelData2D(this.colorData.data, new Vector2D(this.attenuation, this.attenuation), new Vector(0, 45, 0), this.attenuation / 6.4);
+        this.colorImageDataBuf8.set(this.colorData.data);
+
+        this.colorFrameBufferCtx.putImageData(this.colorData, 0, 0);
 
         this.finished = true;
     }

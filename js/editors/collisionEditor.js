@@ -1,4 +1,4 @@
-import { CanvasDrawer, Vector2D, AllCollisions } from '../internal.js';
+import { CanvasDrawer, Vector2D, AllCollisions, AtlasController } from '../internal.js';
 
 
 /**
@@ -84,7 +84,7 @@ class CollisionEditor {
             // @ts-ignore
             let ctx = this.canvas.getContext('2d');
             ctx.clearRect(0, 0, this.canvas.getAttribute('width'), this.canvas.getAttribute('height'));
-            ctx.drawImage(CanvasDrawer.GCD.canvasAtlases[this.sprite.atlas].canvas, this.sprite.GetPosX(), this.sprite.GetPosY(), this.sprite.size.x, this.sprite.size.y, 0, 0, this.canvas.getAttribute('width'), this.canvas.getAttribute('height'));
+            ctx.drawImage(AtlasController.GetAtlas(this.sprite.atlas).GetCanvas(), this.sprite.GetPosX(), this.sprite.GetPosY(), this.sprite.size.x, this.sprite.size.y, 0, 0, this.canvas.getAttribute('width'), this.canvas.getAttribute('height'));
 
             if (AllCollisions[this.sprite.atlas] !== undefined) {
                 for (let i = 0, l = AllCollisions[this.sprite.atlas].length; i < l; ++i) {

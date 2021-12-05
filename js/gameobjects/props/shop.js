@@ -1,11 +1,23 @@
-import { CFrame, CanvasDrawer, OperationType, InputHandler, Item, Prop, Vector2D, GUI, HTMLInfo, PolygonCollision } from '../../internal.js'; 
+import { CFrame, AtlasController, OperationType, InputHandler, Item, Prop, Vector2D, GUI, HTMLInfo, PolygonCollision } from '../../internal.js'; 
 
 let ShopCollisions = {
     seedShop: [new Vector2D(-2, -2), new Vector2D(97, -2), new Vector2D(97, 107), new Vector2D(-2, 107)],
     seedShopBlocking: [new Vector2D(1, 104), new Vector2D(0, 85.33333333333333), new Vector2D(95, 85.33333333333333), new Vector2D(95, 104) ],
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Item
+ */
 class MarketItem extends Item {
+
+    /**
+     * Creates a new MarketItem
+     * @param {Number} itemCost 
+     * @param {Number} itemAmount 
+     * @param {string} itemName 
+     */
     constructor(itemCost, itemAmount, itemName) {
         super(itemName, itemAmount);
         this.itemCost = itemCost;
@@ -18,6 +30,14 @@ class MarketItem extends Item {
  * @extends Prop
  */
 class Shop extends Prop {
+
+    /**
+     * Creates a new Shop
+     * @param {string} shopName 
+     * @param {Vector2D} position 
+     * @param {*} animations 
+     * @param {string} canvasName 
+     */
     constructor(shopName, position, animations, canvasName) {
         super(shopName, position, animations, canvasName);
         this.marketItems = {};
@@ -97,7 +117,7 @@ class Shop extends Prop {
             this.shopHTML.appendChild(eventContainer);
             document.getElementById('game-gui').appendChild(this.shopHTML);
 
-            this.shopSpriteSize = new Vector2D(CanvasDrawer.GCD.canvasAtlases[this.canvasName].width, CanvasDrawer.GCD.canvasAtlases[this.canvasName].height);
+            this.shopSpriteSize = new Vector2D(AtlasController.GetAtlas(this.canvasName).width, AtlasController.GetAtlas(this.canvasName).height);
             this.CreateDrawOperation(
                 new CFrame(
                     0,
@@ -107,7 +127,7 @@ class Shop extends Prop {
                 ),
                 this.GetPosition(),
                 false,
-                CanvasDrawer.GCD.canvasAtlases[this.canvasName].canvas,
+                AtlasController.GetAtlas(this.canvasName).GetCanvas(),
                 OperationType.gameObjects
             );
 
@@ -230,8 +250,6 @@ class Shop extends Prop {
     CEvent(eventType, key, data) {
         switch (eventType) {
             case 'use':
-                CanvasDrawer.GCD.AddDebugOperation(this.BoxCollision.GetRealCenterPosition(), 5, 'orange');
-                CanvasDrawer.GCD.AddDebugOperation(key.BoxCollision.GetRealCenterPosition(), 5, 'purple');
                 if (this.BoxCollision.GetRealCenterPosition().CheckInRange(key.BoxCollision.GetRealCenterPosition().Clone(), 75.0) === true) {
                     this.ShowShop();
                     key.inventory.ShowInventory(!this.isVisible);

@@ -19,4 +19,15 @@ function DetermineEndian() {
 
 DetermineEndian();
 
-export { ObjectsHasBeenInitialized, ToggleObjectsHasBeenInitialized, IsLittleEndian };
+/**
+ * @readonly
+ * @enum {Number}
+ */
+ const TestingEnum = {
+    CaseA: 0,
+    CaseB: 1,
+}
+
+let CURRENT_TEST = TestingEnum.CaseB;
+
+export { ObjectsHasBeenInitialized, ToggleObjectsHasBeenInitialized, IsLittleEndian, TestingEnum, CURRENT_TEST };

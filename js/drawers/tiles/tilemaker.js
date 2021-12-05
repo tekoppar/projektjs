@@ -1,12 +1,12 @@
-import { CanvasDrawer, CanvasAtlasObject, TileData, Tile, TileType, TileTerrain, Vector2D, Vector, CMath, Math3D } from '../../internal.js';
+import { CanvasDrawer, CanvasAtlasObject, TileData, AtlasController, Tile, TileType, TileTerrain, Vector2D, Vector, CMath, Math3D } from '../../internal.js';
 import { XORCanvasSprite } from './TileMakerCustomSheets/customSheetsFunctions.js';
 
 class TileMaker {
     static CustomTiles;
 
     static DrawOnCanvas(tempCanvas, drawingTile, x, y) {
-        if (CanvasDrawer.GCD.canvasAtlases[drawingTile.atlas] !== undefined) {
-            let canvas = CanvasDrawer.GCD.canvasAtlases[drawingTile.atlas].canvas;
+        if (AtlasController.GetAtlas(drawingTile.atlas) !== undefined) {
+            let canvas = AtlasController.GetAtlas(drawingTile.atlas).GetCanvas();
             tempCanvas.getContext('2d').drawImage(
                 canvas,
                 drawingTile.GetPosX(),
@@ -41,9 +41,8 @@ class TileMaker {
             }
         }
 
-        let newCanvasAtlas = new CanvasAtlasObject(CanvasDrawer.GCD, tempCanvas.toDataURL('image/png'), imageSize.x + 1, imageSize.y + 1, 32, objectName);
-        newCanvasAtlas.GenerateBWAtlas = true;
-        CanvasDrawer.GCD.AddAtlas(newCanvasAtlas, objectName);
+        let newCanvasAtlas = new CanvasAtlasObject(CanvasDrawer.GCD, tempCanvas.toDataURL('image/png'), imageSize.x, imageSize.y, -1, objectName);
+        AtlasController.AddAtlas(newCanvasAtlas, objectName);
     }
 
     static SplitAtlasToTiles(atlas, tileSize) {
@@ -86,14 +85,14 @@ class TileMaker {
         let rotationCanvasCtx = rotationCanvas.getContext('2d');
 
         for (let i = 0, l = bones.bones.length; i < l; ++i) {
-            let pixelData = CanvasDrawer.GCD.canvasAtlases[tile.atlas].canvas.getContext('2d').getImageData(
+            let pixelData = AtlasController.GetAtlas(tile.atlas).GetCanvas().getContext('2d').getImageData(
                 tile.GetPosX(),
                 tile.GetPosY(),
                 tile.size.x,
                 tile.size.y
             );
 
-            Math3D.RotatePixelData(pixelData, new Vector2D(tile.size.x, tile.size.y), new Vector(0, 0, bones.bones[i].forward), 0, new Vector(tile.size.x / 2, tile.size.y / 2, 0));
+            Math3D.RotatePixelData2D(pixelData.data, new Vector2D(tile.size.x, tile.size.y), new Vector(0, 0, bones.bones[i].forward), 0, new Vector(tile.size.x / 2, tile.size.y / 2, 0));
             rotationCanvasCtx.putImageData(pixelData, 0, 0);
 
             /*let base64 = rotationCanvas.toDataURL('image/png');
@@ -126,8 +125,8 @@ class TileMaker {
     }
 
     static CanvasPortionToImage(tile) {
-        if (CanvasDrawer.GCD.canvasAtlases[tile.atlas] !== undefined) {
-            let canvas = CanvasDrawer.GCD.canvasAtlases[tile.atlas].canvas;
+        if (AtlasController.GetAtlas(tile.atlas) !== undefined) {
+            let canvas = AtlasController.GetAtlas(tile.atlas).GetCanvas();
             let ctx = canvas.getContext('2d');
             let tempCanvas = document.createElement('canvas');
             tempCanvas.width = tile.size.x;
@@ -147,8 +146,8 @@ class TileMaker {
     }
 
     static CanvasPortionToImage2(tile) {
-        if (CanvasDrawer.GCD.canvasAtlases[tile.atlas] !== undefined) {
-            let canvas = CanvasDrawer.GCD.canvasAtlases[tile.atlas].canvas;
+        if (AtlasController.GetAtlas(tile.atlas) !== undefined) {
+            let canvas = AtlasController.GetAtlas(tile.atlas).GetCanvas();
             let tempCanvas = document.createElement('canvas');
             tempCanvas.width = tile.size.x;
             tempCanvas.height = tile.size.y;
@@ -482,6 +481,71 @@ class TileMaker {
                 tileLayout: [
                     [0, 1],
                     [2, 3]
+                ]
+            },
+            coalRock: {
+                name: 'coalRock',
+                tiles: [
+                    new Tile(new Vector2D(0, 0,), new Vector2D(0, 0), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Rock),
+                ],
+                tileLayout: [
+                    [0],
+                ]
+            },
+            ironRock: {
+                name: 'ironRock',
+                tiles: [
+                    new Tile(new Vector2D(0, 0,), new Vector2D(1, 0), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Rock),
+                ],
+                tileLayout: [
+                    [0],
+                ]
+            },
+            tinRock: {
+                name: 'tinRock',
+                tiles: [
+                    new Tile(new Vector2D(0, 0,), new Vector2D(2, 0), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Rock),
+                ],
+                tileLayout: [
+                    [0],
+                ]
+            },
+            copperRock: {
+                name: 'copperRock',
+                tiles: [
+                    new Tile(new Vector2D(0, 0,), new Vector2D(3, 0), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Rock),
+                ],
+                tileLayout: [
+                    [0],
+                ]
+            },
+            silverRock: {
+                name: 'silverRock',
+                tiles: [
+                    new Tile(new Vector2D(0, 0,), new Vector2D(4, 0), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Rock),
+                ],
+                tileLayout: [
+                    [0],
+                ]
+            },
+            goldRock: {
+                name: 'goldRock',
+                tiles: [
+                    new Tile(new Vector2D(0, 0,), new Vector2D(5, 0), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Rock),
+                ],
+                tileLayout: [
+                    [0],
+                ]
+            },
+            lamppost: {
+                name: 'lamppost',
+                tiles: [
+                    new Tile(new Vector2D(0, 0,), new Vector2D(27, 34), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0,), new Vector2D(27, 35), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
+                ],
+                tileLayout: [
+                    [0],
+                    [1]
                 ]
             },
         };

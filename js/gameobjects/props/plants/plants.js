@@ -1,6 +1,18 @@
-import { CMath, Prop, Item, CanvasDrawer, CanvasSprite, Rectangle, OperationType } from '../../../internal.js'
+import { CMath, Prop, Item, CanvasDrawer, CanvasSprite, Rectangle, OperationType, Vector2D } from '../../../internal.js'
 
+/**
+ * @class
+ * @constructor
+ */
 class PlantData {
+
+    /**
+     * Creates a new PlantData
+     * @param {Number} growthSpeed 
+     * @param {Number} regrowthSpeed 
+     * @param {Object} gatherRange 
+     * @param {CanvasSprite} plantIcon 
+     */
     constructor(growthSpeed, regrowthSpeed, gatherRange = { low: 1, high: 4 }, plantIcon = new CanvasSprite(29, 10, 32, 32, 'fruitsveggies', true)) {
         this.growthSpeed = growthSpeed;
         this.growth = 0;
@@ -41,7 +53,22 @@ const AllPlantData = {
     broccoli: new PlantData(2000, 1750, { low: 10, high: 25 }, new CanvasSprite(15, 5, 32, 32, 'fruitsveggies', true)),
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Prop
+ */
 class Plant extends Prop {
+
+    /**
+     * Creates a new Plant
+     * @param {string} spriteSheetName 
+     * @param {string} name 
+     * @param {Vector2D} position 
+     * @param {*} animations 
+     * @param {PlantData} plantData 
+     * @param {Number} drawIndex 
+     */
     constructor(spriteSheetName, name, position, animations, plantData, drawIndex = 0) {
         super(name, position, animations, spriteSheetName, drawIndex);
         this.plantData = plantData.Clone();

@@ -1,4 +1,4 @@
-import { Cobject, InputHandler, GameToolbar, GUI, Item, CraftingRecipeList, inventoryItemIcons } from '../../internal.js';
+import { Cobject, InputHandler, GameToolbar, GUI, Item, CraftingRecipeList, inventoryItemIcons, CraftingCategory } from '../../internal.js';
 
 class Crafting extends Cobject {
     constructor(owner) {
@@ -77,10 +77,29 @@ class Crafting extends Cobject {
         this.didCraftingChange = true;
     }
 
+    SetupCategories() {
+        this.craftingHTMLList.innerHTML = '';
+
+        let keys = Object.keys(CraftingCategory);
+
+            for (let i = 0, l = keys.length; i < l; ++i) {
+                let categoryEl = document.createElement('div');
+                categoryEl.id = 'crafting-' + keys[i];
+                categoryEl.className = 'crafting-category-container';
+                let labelEl = document.createElement('label');
+                labelEl.innerText = keys[i];
+                labelEl.className = 'crafting-category-name';
+                categoryEl.appendChild(labelEl);
+
+                this.craftingHTMLList.appendChild(categoryEl);
+            }
+    }
+
     DisplayCrafting() {
         let keys = Object.keys(CraftingRecipeList);
 
-        this.craftingHTMLList.innerHTML = '';
+        this.SetupCategories();
+        let categoryNames = Object.keys(CraftingCategory);
         for (let i = 0, l = keys.length; i < l; ++i) {
             let template = document.getElementById('crafting-panel-item');
             //@ts-ignore
@@ -95,7 +114,8 @@ class Crafting extends Cobject {
                 div.style.backgroundImage = 'url(' + inventoryItemIcons[recipe.name].url + ')';
 
                 clone.querySelector('div.inventory-item').dataset.craftingItem = recipe.name;
-                this.craftingHTMLList.appendChild(clone);
+                document.getElementById('crafting-' + categoryNames[recipe.category]).appendChild(clone);
+                //this.craftingHTMLList.appendChild(clone);
             }
         }
 
@@ -183,8 +203,9 @@ class Crafting extends Cobject {
             this.craftingTime += delta;
             this.SetProgressbar(this.craftingTime);
         } else {
-            this.characterOwner.inventory.AddNewItem(this.craftingRecipe.name);
+            this.characterOwner.inventory.AddNewItem(this.craftingRecipe.name, this.craftingRecipe.amount);
             this.isCrafting = false;
+            this.craftingTime = 0;
             document.getElementById('crafting-progress-bar-progresss').style.width = '0px';
         }
     }

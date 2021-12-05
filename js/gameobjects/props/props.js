@@ -1,4 +1,4 @@
-import { GameObject, Vector2D, Vector4D, CanvasDrawer, OperationType, PolygonCollision, BoxCollision, Shadow, CAnimation } from '../../internal.js';
+import { GameObject, Vector2D, Vector4D, AtlasController, BWDrawingType, OperationType, PolygonCollision, BoxCollision, Shadow, CAnimation, AllCollisions, DebugDrawer } from '../../internal.js';
 
 /**
  * @class
@@ -10,16 +10,22 @@ class Prop extends GameObject {
 
     /**
      * Creates a new Prop
-     * @param {String} name 
+     * @param {string} name 
      * @param {Vector2D} position 
      * @param {*} animations 
-     * @param {String} canvasName 
+     * @param {string} canvasName 
      * @param {Number} drawIndex 
      */
     constructor(name, position, animations, canvasName, drawIndex = 0) {
         super(canvasName, position, false, drawIndex);
         this.name = name;
-        this.animations = animations;
+
+        if (animations instanceof CAnimation)
+            this.animations = animations;
+        else if (animations !== null && animations !== undefined && animations.name !== undefined)
+            this.animations = new CAnimation(animations.name, animations.start, animations.end, animations.w, animations.h, animations.animationType, animations.animationSpeed);
+        else
+            this.animations = animations;
         this.currentAnimation;
     }
 
@@ -71,6 +77,19 @@ class Prop extends GameObject {
             }
         }
     }
+
+    CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects, canvasObject = undefined) {
+        super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
+
+        if (this.drawingOperation.shadowOperation !== undefined) {
+            this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
+            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
+        }
+    }
+
+    SaveToFile() {
+        return "new Prop('" + this.name + "', new Vector2D(" + this.position.x + ', ' + this.position.y + '), ' + this.animations + ", '" + this.canvasName + "', " + this.drawIndex + ')';
+    }
 }
 
 /**
@@ -83,10 +102,10 @@ class ExtendedProp extends Prop {
 
     /**
      * Creates a new ExtendedProp
-     * @param {String} name 
+     * @param {string} name 
      * @param {Vector2D} position 
      * @param {*} animations 
-     * @param {String} canvasName 
+     * @param {string} canvasName 
      * @param {Number} drawIndex 
      * @param {(Vector4D|Object)} blockingCollisionSize 
      */
@@ -124,13 +143,17 @@ class ExtendedProp extends Prop {
             position.y = this.currentAnimation.start.y;
             size.x = this.currentAnimation.w;
             size.y = this.currentAnimation.h;
+        } else if (AllCollisions[this.canvasName] !== undefined) {
+            let tempArr = AllCollisions[this.canvasName];
+            polygonCollision = tempArr.CloneObjects();
+            size = new Vector2D(AtlasController.GetAtlas(this.canvasName).width, AtlasController.GetAtlas(this.canvasName).height);
         }
 
         this.CreateDrawOperation(
             { x: tilePosition.x, y: tilePosition.y, w: size.x, h: size.y },
             this.GetPosition(),
             false,
-            CanvasDrawer.GCD.canvasAtlases[this.canvasName].canvas,
+            AtlasController.GetAtlas(this.canvasName).GetCanvas(),
             OperationType.gameObjects
         );
 
@@ -156,7 +179,8 @@ class ExtendedProp extends Prop {
             ));
         }
 
-        this.BlockingCollision = new BoxCollision(this.BoxCollision.position.Clone(), this.blockingCollisionSize.Clone(), true, this, true);
+        this.BlockingCollision = new BoxCollision(this.BoxCollision.position.Clone(), this.blockingCollisionSize.GetPosition(), true, this, true);
+
         this.BlockingCollision.position = this.position.Clone(); //this.BoxCollision.GetRealCenterPosition().Clone();
         this.BlockingCollision.position.x -= this.BlockingCollision.size.x * 0.5 - this.blockingCollisionSize.z;
         this.BlockingCollision.position.y -= this.BlockingCollision.size.y - this.blockingCollisionSize.a;
@@ -178,11 +202,24 @@ class ExtendedProp extends Prop {
         super.FixedUpdate();
     }
 
+    /**
+     * Sets the position of the object
+     * @param {Vector2D} position 
+     */
+     SetPosition(position) {
+        super.SetPosition(position);
+        
+        this.BlockingCollision.position = position.Clone();
+        this.BlockingCollision.position.x -= this.BlockingCollision.size.x * 0.5 - this.blockingCollisionSize.z;
+        this.BlockingCollision.position.y -= this.BlockingCollision.size.y - this.blockingCollisionSize.a;
+        this.BlockingCollision.UpdateCollision();
+    }
+
     NeedsRedraw(position) {
         super.NeedsRedraw(position);
 
         //if (this.shadow !== undefined)
-            //this.shadow.NeedsRedraw(position);
+        //this.shadow.NeedsRedraw(position);
     }
 
     FlagDrawingUpdate(position) {
@@ -190,6 +227,19 @@ class ExtendedProp extends Prop {
 
         if (this.shadow !== undefined)
             this.shadow.FlagDrawingUpdate(position.Clone());
+    }
+
+    CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects, canvasObject = undefined) {
+        super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
+
+        if (this.drawingOperation.shadowOperation !== undefined) {
+            this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
+            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
+        }
+    }
+
+    SaveToFile() {
+        return "new ExtendedProp('" + this.name + "', new Vector2D(" + this.position.x + ', ' + this.position.y + '), ' + (this.animations !== null && this.animations !== undefined ? this.animations.SaveToFile() : 'undefined') + ", '" + this.canvasName + "', " + this.drawIndex + ', new Vector4D(' + this.blockingCollisionSize.x + ', ' + this.blockingCollisionSize.y + ', ' + this.blockingCollisionSize.z + ', ' + this.blockingCollisionSize.a + '))';
     }
 }
 

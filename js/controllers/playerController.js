@@ -1,4 +1,4 @@
-import { Vector2D, Hoe, Shovel, Axe, Weapon, Seed, Controller, Camera, CanvasDrawer, Minimap, Pickaxe, Crafting } from '../internal.js';
+import { Vector2D, Hoe, Shovel, Axe, Weapon, Seed, Controller, Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Rock, Item } from '../internal.js';
 
 class PlayerController extends Controller {
     constructor(player) {
@@ -13,8 +13,12 @@ class PlayerController extends Controller {
     }
 
     FixedUpdate() {
-        this.playerCamera.SetCameraPosition(this.playerCharacter.GetPosition());
         super.FixedUpdate();
+    }
+
+    EndOfFameUpdate() {
+        super.EndOfFameUpdate();
+        this.playerCamera.SetCameraPosition(this.playerCharacter.GetPosition());
     }
 
     Delete() {
@@ -26,16 +30,34 @@ class PlayerController extends Controller {
         this.playerCharacter.inventory.SetupInventory();
         this.playerCharacter.inventory.AddItem(new Shovel('shovel', 0));
         this.playerCharacter.inventory.AddItem(new Hoe('hoe', 0));
-        this.playerCharacter.inventory.AddItem(new Axe('axe', 0));
+        this.playerCharacter.inventory.AddItem(new Axe('ironAxe', 0));
         this.playerCharacter.inventory.AddItem(new Pickaxe('pickaxe', 0));
-        this.playerCharacter.inventory.AddItem(new Weapon('sword', 0));
+        this.playerCharacter.inventory.AddItem(new Weapon('ironSword', 0));
         this.playerCharacter.inventory.AddItem(new Seed('cornSeed', 1));
+        this.playerCharacter.inventory.AddItem(new Item('birchLog', 25));
+        this.playerCharacter.inventory.AddItem(new Item('stonePiece', 25));
+        this.playerCharacter.inventory.AddItem(new Item('coalLump', 25));
+        this.playerCharacter.inventory.AddItem(new Item('iron', 25));
+        this.playerCharacter.inventory.AddItem(new Item('tin', 25));
+        this.playerCharacter.inventory.AddItem(new Item('copper', 25));
+        this.playerCharacter.inventory.AddItem(new Item('silver', 25));
+        this.playerCharacter.inventory.AddItem(new Item('gold', 25));
+        this.playerCharacter.inventory.AddItem(new Item('bronze', 25));
+        this.playerCharacter.inventory.AddItem(new Item('steel', 25));
+        this.playerCharacter.inventory.AddItem(new Item('coal', 25));
+        this.playerCharacter.inventory.AddItem(new Item('ironBar', 25));
+        this.playerCharacter.inventory.AddItem(new Item('tinBar', 25));
+        this.playerCharacter.inventory.AddItem(new Item('copperBar', 25));
+        this.playerCharacter.inventory.AddItem(new Item('silverBar', 25));
+        this.playerCharacter.inventory.AddItem(new Item('goldBar', 25));
+        this.playerCharacter.inventory.AddItem(new Item('bronzeBar', 25));
+        this.playerCharacter.inventory.AddItem(new Item('steelBar', 25));
         this.playerCharacter.inventory.AddMoney(5000);
         this.playerCharacter.controller = this;
         this.crafting.characterOwner = this.playerCharacter;
         this.crafting.SetupCrafting();
 
-        this.playerCharacter.SetActiveItem(this.playerCharacter.inventory.GetItem('sword'));
+        //this.playerCharacter.SetActiveItem(this.playerCharacter.inventory.GetItem('ironAxe'));
 
         window.addEventListener('mousemove', this);
     }

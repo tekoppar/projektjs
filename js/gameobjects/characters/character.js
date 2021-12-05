@@ -1,4 +1,4 @@
-import { GameObject, Inventory, ItemStats, Vector2D, BoxCollision, ObjectsHasBeenInitialized, CollisionHandler, OperationType, CMath, ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings, ParticleType, AnimationType, CanvasDrawer } from '../../internal.js';
+import { GameObject, Inventory, ItemStats, AtlasController, Vector2D, ShadowCanvasObject, Shadow2D, Vector4D, Math3D, BoxCollision, LightSystem, CollisionHandler, OperationType, CMath, ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings, ParticleType, AnimationType, CanvasDrawer, CustomLogger, BWDrawingType, DebugDrawer } from '../../internal.js';
 
 const FacingDirection = {
     Left: 0,
@@ -15,10 +15,15 @@ const FacingDirection = {
     }
 };
 
+/**
+ * @class
+ * @constructor
+ * @extends GameObject
+ */
 class CharacterAttachments extends GameObject {
-    constructor(position, spriteSheet, name, drawIndex = 0, animations = undefined, skeletonBones = undefined) {
+    constructor(position, name, drawIndex = 0, animations = undefined, skeletonBones = undefined) {
         super(name, position, false, drawIndex);
-        this.spriteSheet = spriteSheet;
+        //this.spriteSheet = spriteSheet;
         this.animations = animations;
         this.currentAnimation = undefined;
         this.skeletonBones = skeletonBones;
@@ -35,18 +40,49 @@ class CharacterAttachments extends GameObject {
         } else {
             this.currentAnimation = undefined;
         }
+
+        if (this.skeletonBones !== undefined && this.currentAnimation !== undefined && this.skeletonBones[this.currentAnimation.name].bones[this.currentAnimation.currentFrame] !== undefined) {
+            if (this.drawingOperation !== undefined && this.drawingOperation.oldPosition !== undefined)
+                this.drawingOperation.Update(
+                    new Vector2D(
+                        this.drawingOperation.oldPosition.x,
+                        this.drawingOperation.oldPosition.y
+                    )
+                );
+
+            this.offset.x = this.skeletonBones[this.currentAnimation.name].bones[this.currentAnimation.currentFrame].x;
+            this.offset.y = this.skeletonBones[this.currentAnimation.name].bones[this.currentAnimation.currentFrame].y;
+        }
     }
 
-    LoadAtlas() {
-        if (ObjectsHasBeenInitialized === false) {
-            window.requestAnimationFrame(() => this.LoadAtlas());
-        } else {
-            CanvasDrawer.GCD.LoadNewSpriteAtlas(this.spriteSheet, 32, this.canvasName);
-        }
+    PlayAnimaion(position) {
+        this.CreateDrawOperation(this.currentAnimation.GetFrame(), position, false, this.canvas, OperationType.gameObjects);
+
+        if (this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None)
+            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
     }
 
     FixedUpdate() {
         super.FixedUpdate();
+
+        if (this.currentAnimation !== undefined && this.currentAnimation.frameUpdate === true && this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None) {
+            this.drawingOperation.shadowOperation.UpdateShadow();
+        }
+
+        if (this.drawingOperation !== undefined && this.BoxCollision !== undefined && this.drawingOperation.shadowOperation !== undefined) {
+            CustomLogger.Log(this, [this.drawingOperation.shadowOperation.drawType, this.position.y]);
+            //CustomLogger.Log(this, [this.drawingOperation.oldPosition.ToString(), this.position.ToString()]);
+            //DebugDrawer.AddDebugRectOperation(new Rectangle(this.drawingOperation.tile.GetPosX(), this.drawingOperation.tile.GetPosY(), 32, 32), 0.016, 'orange', true);
+        }
+    }
+
+    CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects) {
+        super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
+
+        if (this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType === BWDrawingType.None) {
+            this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
+            this.drawingOperation.shadowOperation.GenerateShadow();
+        }
     }
 }
 
@@ -67,7 +103,23 @@ const AttributeEnum = {
     Charisma: 6
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class CharacterAttributes {
+
+    /**
+     * 
+     * @param {Number} strength 
+     * @param {Number} constituion 
+     * @param {Number} dexterity 
+     * @param {Number} agility 
+     * @param {Number} intelligence 
+     * @param {Number} wisdom 
+     * @param {Number} luck 
+     * @param {Number} charisma 
+     */
     constructor(strength, constituion, dexterity, agility, intelligence, wisdom, luck, charisma) {
         this.Strength = strength;
         this.Constitution = constituion;
@@ -116,26 +168,40 @@ class CharacterAttributes {
     }
 }
 
-
+/**
+ * @class
+ * @constructor
+ * @extends GameObject
+ */
 class Character extends GameObject {
-    constructor(spriteSheet, spriteSheetName, drawIndex = 0, position = new Vector2D(0, 0), animations = undefined, characterAttributes = new CharacterAttributes(5, 5, 5, 5, 5, 5, 0, 0), controller = undefined) {
+    constructor(spriteSheetName, drawIndex = 0, position = new Vector2D(0, 0), animations = undefined, characterAttributes = new CharacterAttributes(5, 5, 5, 5, 5, 5, 0, 0), controller = undefined) {
         super(spriteSheetName, position, false, drawIndex);
         this.controller = controller;
         this.characterData = new CharacterData();
         this.characterAttributes = characterAttributes;
-        this.spriteSheet = spriteSheet;
+        //this.spriteSheet = spriteSheet;
         this.animations = animations;
         this.currentAnimation = undefined;
-        this.shadowAttachment = new CharacterAttachments(this.position, './content/sprites/lpc_shadow.png', 'shadow');
+        this.shadowAttachment = new CharacterAttachments(this.position, 'shadow');
+        //this.realTimeShadow = undefined;
         this.itemAttachment = undefined;
+        /** @type {Object<string, CharacterAttachments>} */
         this.attachments = {};
         this.isRunning = false;
         this.isIdle = false;
         this.BlockingCollision = new BoxCollision(this.GetPosition(), new Vector2D(16, 16), true, this, true);
+
+        this.realtimeShadow = undefined;
     }
 
-    AddAttachment(atlas, name, drawIndex, animations = undefined) {
-        let newAttachment = new CharacterAttachments(this.position, atlas, name, drawIndex, animations);
+    /**
+     * 
+     * @param {string} name 
+     * @param {Number} drawIndex 
+     * @param {*} animations 
+     */
+    AddAttachment(name, drawIndex, animations = undefined) {
+        let newAttachment = new CharacterAttachments(this.position, name, drawIndex, animations);
         newAttachment.GameBegin();
         this.attachments[name] = newAttachment;
     }
@@ -217,30 +283,38 @@ class Character extends GameObject {
 
             if (this.shadowAttachment !== undefined) {
                 this.shadowAttachment.position = this.position.Clone();
-                this.shadowAttachment.CreateDrawOperation(this.shadowAttachment.currentAnimation.GetFrame(), this.GetPosition(), false, this.shadowAttachment.canvas, OperationType.gameObjects);
+                this.shadowAttachment.PlayAnimaion(this.GetPosition());
             }
 
             if (this.itemAttachment !== undefined && this.itemAttachment.currentAnimation !== undefined) {
+                this.itemAttachment.position = this.GetPosition().Clone();
+
                 if (this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame] !== undefined) {
                     this.itemAttachment.offset.x = this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame].x;
                     this.itemAttachment.offset.y = this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame].y;
+                }
+                this.itemAttachment.drawingOperation.Update(new Vector2D(this.GetPosition().x + this.itemAttachment.offset.x, this.GetPosition().y + this.itemAttachment.offset.y));
+
+                if (this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame] !== undefined) {
                     this.itemAttachment.CreateDrawOperation(
                         this.itemAttachment.currentAnimation.GetFrame(),
-                        new Vector2D(this.GetPosition().x + this.itemAttachment.offset.x, this.GetPosition().y + this.itemAttachment.offset.y),
+                        new Vector2D(
+                            this.GetPosition().x + this.itemAttachment.offset.x,
+                            this.GetPosition().y + this.itemAttachment.offset.y
+                        ),
                         false,
                         this.itemAttachment.canvas,
                         OperationType.gameObjects
                     );
-                }
 
-                this.itemAttachment.position = this.GetPosition();// this.position.Clone();
-                this.itemAttachment.position.y -= 64;
-                this.itemAttachment.drawingOperation.oldPosition.x += this.itemAttachment.offset.x;
-                this.itemAttachment.drawingOperation.oldPosition.y += this.itemAttachment.offset.y;
-                this.itemAttachment.drawingOperation.collisionSize = new Vector2D(32, 64 - this.itemAttachment.offset.y);
+                    this.itemAttachment.drawingOperation.debugDraw = false;
+                }
             }
 
             this.CreateDrawOperation(frame, this.GetPosition(), true, this.canvas, OperationType.gameObjects);
+
+            if (this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None)
+                this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
 
             let facingDirection = this.GetFacingDirection();
             switch (facingDirection) {
@@ -248,7 +322,7 @@ class Character extends GameObject {
                     if (this.attachments.redHair !== undefined)
                         this.attachments.redHair.drawIndex = 2;
                     if (this.itemAttachment !== undefined)
-                        this.itemAttachment.drawIndex = 1;
+                        this.itemAttachment.drawIndex = 2;
                     if (this.attachments.underDress !== undefined)
                         this.attachments.underDress.drawIndex = 0;
                     break;
@@ -257,7 +331,7 @@ class Character extends GameObject {
                     if (this.attachments.redHair !== undefined)
                         this.attachments.redHair.drawIndex = 0;
                     if (this.itemAttachment !== undefined)
-                        this.itemAttachment.drawIndex = 1;
+                        this.itemAttachment.drawIndex = 0;
                     if (this.attachments.underDress !== undefined)
                         this.attachments.underDress.drawIndex = 2;
                     break;
@@ -266,7 +340,7 @@ class Character extends GameObject {
                     if (this.attachments.redHair !== undefined)
                         this.attachments.redHair.drawIndex = 0;
                     if (this.itemAttachment !== undefined)
-                        this.itemAttachment.drawIndex = 1;
+                        this.itemAttachment.drawIndex = 0;
                     if (this.attachments.underDress !== undefined)
                         this.attachments.underDress.drawIndex = 2;
                     break;
@@ -275,7 +349,7 @@ class Character extends GameObject {
                     if (this.attachments.redHair !== undefined)
                         this.attachments.redHair.drawIndex = 0;
                     if (this.itemAttachment !== undefined)
-                        this.itemAttachment.drawIndex = 1;
+                        this.itemAttachment.drawIndex = 2;
                     if (this.attachments.underDress !== undefined)
                         this.attachments.underDress.drawIndex = 2;
                     break;
@@ -284,33 +358,14 @@ class Character extends GameObject {
             let keys = Object.keys(this.attachments);
             for (let i = 0, l = keys.length; i < l; ++i) {
                 this.attachments[keys[i]].position = this.position.Clone();
-
-                if (this.attachments[keys[i]].currentAnimation !== undefined) {
-                    this.attachments[keys[i]].CreateDrawOperation(
-                        this.attachments[keys[i]].currentAnimation.GetFrame(),
-                        this.GetPosition(),
-                        false,
-                        this.attachments[keys[i]].canvas,
-                        OperationType.gameObjects
-                    );
-                }
+                this.attachments[keys[i]].PlayAnimaion(this.GetPosition());
             }
         } else {
             if (this.shadowAttachment !== undefined)
                 this.shadowAttachment.currentAnimation.GetFrame();
 
             if (this.itemAttachment !== undefined && this.itemAttachment.currentAnimation !== undefined) {
-                this.itemAttachment.CreateDrawOperation(
-                    this.itemAttachment.currentAnimation.GetFrame(),
-                    new Vector2D(
-                        this.GetPosition().x + this.itemAttachment.offset.x,
-                        this.GetPosition().y + this.itemAttachment.offset.y,
-                    ),
-                    false,
-                    this.itemAttachment.canvas,
-                    OperationType.gameObjects
-                );
-                this.itemAttachment.drawingOperation.Update(new Vector2D(this.GetPosition().x + this.itemAttachment.offset.x, this.GetPosition().y + this.itemAttachment.offset.y));
+                this.itemAttachment.currentAnimation.GetFrame();
             }
 
             let keys = Object.keys(this.attachments);
@@ -455,6 +510,23 @@ class Character extends GameObject {
 
         if (this.currentAnimation !== undefined) {
             this.PlayAnimation();
+
+            if (this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None)
+                this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
+
+            if (this.realtimeShadow !== undefined) {
+                this.realtimeShadow.position = this.position.Clone();
+                this.realtimeShadow.AddShadow(this.drawingOperation.tile);
+                this.realtimeShadow.AddShadow(this.shadowAttachment.drawingOperation.tile);
+
+                let keys = Object.keys(this.attachments);
+                for (let i = 0, l = keys.length; i < l; ++i) {
+                    if (this.attachments[keys[i]] !== undefined && this.attachments[keys[i]].drawingOperation !== undefined)
+                        this.realtimeShadow.AddShadow(this.attachments[keys[i]].drawingOperation.tile);
+                }
+
+                this.realtimeShadow.UpdateShadow(this.drawingOperation.tile);
+            }
         }
 
         this.UpdateMovement();
@@ -542,7 +614,7 @@ class Character extends GameObject {
             this.controller.TogglePreviewCursor(item.drawTilePreview);
 
         if (ItemStats[this.activeItem.name] !== undefined && ItemStats[this.activeItem.name].atlas !== undefined) {
-            this.itemAttachment = new CharacterAttachments(this.position, undefined, this.activeItem.name, 1, ItemStats[this.activeItem.name].animation, ItemStats[this.activeItem.name].bones);
+            this.itemAttachment = new CharacterAttachments(this.position, this.activeItem.name, 1, ItemStats[this.activeItem.name].animation, ItemStats[this.activeItem.name].bones);
             this.itemAttachment.GameBegin();
             this.itemAttachment.ChangeAnimation(this.currentAnimation.Clone(), true);
 
@@ -586,11 +658,15 @@ class Character extends GameObject {
         }
     }
 
-    LoadAtlas() {
-        if (ObjectsHasBeenInitialized === false) {
-            window.requestAnimationFrame(() => this.LoadAtlas());
-        } else {
-            CanvasDrawer.GCD.LoadNewSpriteAtlas(this.spriteSheet, 32, this.canvasName);
+    CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects) {
+        super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
+
+        if (this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType === BWDrawingType.None) {
+            this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
+            this.drawingOperation.shadowOperation.GenerateShadow();
+
+            this.realtimeShadow = new Shadow2D(this, this.canvasName, this.GetPosition(), new Vector2D(frame.w, frame.h), this.drawingOperation.tile);
+            this.realtimeShadow.GameBegin();
         }
     }
 
@@ -607,9 +683,14 @@ class CharacterData {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Character
+ */
 class MainCharacter extends Character {
-    constructor(spriteSheet, spriteSheetName, name, drawIndex = 0, position = new Vector2D(0, 0), animations = undefined) {
-        super(spriteSheet, spriteSheetName, drawIndex, position, animations);
+    constructor(spriteSheetName, name, drawIndex = 0, position = new Vector2D(0, 0), animations = undefined) {
+        super(spriteSheetName, drawIndex, position, animations);
         this.name = name;
         this.inventory = new Inventory(this);
         this.activeItem;
@@ -631,6 +712,7 @@ class MainCharacter extends Character {
     FlagDrawingUpdate(position) {
         if (this.light !== undefined)
             this.light.SetPosition(this.position);
+
         super.FlagDrawingUpdate(position);
     }
 
@@ -642,3 +724,106 @@ class MainCharacter extends Character {
 }
 
 export { Character, CharacterAttachments, CharacterData, MainCharacter };
+
+/*
+    UpdateRealTimeShadow() {
+        this.realTimeShadow.canvasCtx.clearRect(0, 0, this.drawingOperation.tile.size.x, this.drawingOperation.tile.size.y);
+        this.realTimeShadow.canvasCtx.drawImage(
+            AtlasController.GetAtlas(this.drawingOperation.tile.atlas).GetCanvas(),
+            this.drawingOperation.tile.GetPosX(),
+            this.drawingOperation.tile.GetPosY(),
+            this.drawingOperation.tile.size.x,
+            this.drawingOperation.tile.size.y,
+            0,
+            0,
+            this.drawingOperation.tile.size.x,
+            this.drawingOperation.tile.size.y
+        );
+
+        this.realTimeShadow.canvasCtx.drawImage(
+            AtlasController.GetAtlas(this.attachments['redHair'].drawingOperation.tile.atlas).GetCanvas(),
+            this.drawingOperation.tile.GetPosX(),
+            this.drawingOperation.tile.GetPosY(),
+            this.drawingOperation.tile.size.x,
+            this.drawingOperation.tile.size.y,
+            0,
+            0,
+            this.drawingOperation.tile.size.x,
+            this.drawingOperation.tile.size.y
+        );
+
+        this.realTimeShadow.canvasCtx.drawImage(
+            AtlasController.GetAtlas(this.attachments['underDress'].drawingOperation.tile.atlas).GetCanvas(),
+            this.drawingOperation.tile.GetPosX(),
+            this.drawingOperation.tile.GetPosY(),
+            this.drawingOperation.tile.size.x,
+            this.drawingOperation.tile.size.y,
+            0,
+            0,
+            this.drawingOperation.tile.size.x,
+            this.drawingOperation.tile.size.y
+        );
+
+        this.realTimeShadow.cutoutData = this.realTimeShadow.canvasCtx.getImageData(0, 0, this.realTimeShadow.canvas.width, this.realTimeShadow.canvas.height);
+
+        let color = LightSystem.SkyLight.color.Clone();
+        color.AlphaMultiply();
+        for (let i = 0, l = this.realTimeShadow.cutoutData.data.length; i < l; ++i) {
+            this.realTimeShadow.cutoutData.data[i] = color.red;
+            this.realTimeShadow.cutoutData.data[++i] = color.green;
+            this.realTimeShadow.cutoutData.data[++i] = color.blue;
+            if (this.realTimeShadow.cutoutData.data[i + 1] > 0) {
+                this.realTimeShadow.cutoutData.data[++i] = 160;
+            } else
+                ++i;
+        }
+
+        let overlaps = CollisionHandler.GCH.GetOverlapByClass(this.BoxCollision, 'AmbientLight');
+
+        if (overlaps !== false) {
+            let shadowPos = this.position.Clone();
+            shadowPos.y -= 15;
+            let rotation = CMath.LookAt2D(shadowPos, overlaps.collisionOwner.position.Clone());
+            rotation -= 90;
+            this.RotateRealTimeShadow(rotation);
+            let rotationArr = [new Vector4D(32, 64, 32, 0)];
+            Math3D.Rotate(0, 0, CMath.DegreesToRadians(rotation), rotationArr, new Vector(32, 32, 32));
+            this.realTimeShadow.centerPosition = new Vector2D(rotationArr[0].x, rotationArr[0].y);
+            this.realTimeShadow.centerPosition.x -= 32;
+            this.realTimeShadow.centerPosition.y -= 64 - 10;
+        }
+
+        this.realTimeShadow.canvasCtx.putImageData(this.realTimeShadow.cutoutData, 0, 0);
+    }
+
+    RotateRealTimeShadow(rotation) {
+        Math3D.RotatePixelData2D(this.realTimeShadow.cutoutData.data, new Vector2D(this.drawingOperation.tile.size.x, this.drawingOperation.tile.size.y), new Vector(0, 0, rotation), 0, new Vector(32, 32, 32));
+        this.realTimeShadow.canvasCtx.putImageData(this.realTimeShadow.cutoutData, 0, 0);
+    }
+
+    GenerateRealTimeShadow() {
+        let size = this.drawingOperation.GetSize();
+        this.realTimeShadow.canvas = document.createElement('canvas');
+        this.realTimeShadow.canvas.width = size.x;
+        this.realTimeShadow.canvas.height = size.y;
+
+        document.body.appendChild(this.realTimeShadow.canvas);
+        this.realTimeShadow.canvasCtx = this.realTimeShadow.canvas.getContext('2d');
+        this.realTimeShadow.canvasCtx.imageSmoothingEnabled = false;
+
+        this.realTimeShadow.canvasCtx.drawImage(AtlasController.GetAtlas(this.drawingOperation.tile.atlas).GetCanvas(), 0, 0);
+
+        this.realTimeShadow.cutoutData = this.realTimeShadow.canvasCtx.getImageData(0, 0, this.realTimeShadow.canvas.width, this.realTimeShadow.canvas.height);
+
+        for (let i = 0, l = this.realTimeShadow.cutoutData.data.length; i < l; ++i) {
+            this.realTimeShadow.cutoutData.data[i] = LightSystem.SkyLight.color.red;
+            this.realTimeShadow.cutoutData.data[++i] = LightSystem.SkyLight.color.green;
+            this.realTimeShadow.cutoutData.data[++i] = LightSystem.SkyLight.color.blue;
+            ++i;
+        }
+
+        this.realTimeShadow.canvasCtx.putImageData(this.realTimeShadow.cutoutData, 0, 0);
+        this.realTimeShadow.centerPosition = new Vector2D(0, 0);
+        this.realTimeShadow;
+    }
+*/

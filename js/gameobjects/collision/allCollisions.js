@@ -14,4 +14,13 @@ AllCollisions.rockStone1 = [new Vector2D(0, 0), new Vector2D(64, 0), new Vector2
 AllCollisions.rockStone2 = [new Vector2D(0, 0), new Vector2D(64, 0), new Vector2D(64, 64), new Vector2D(0, 64)];
 AllCollisions.rockStone3 = [new Vector2D(0, 0), new Vector2D(64, 0), new Vector2D(64, 64), new Vector2D(0, 64)];
 
+AllCollisions.coalRock = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(0, 32)];
+AllCollisions.ironRock = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(0, 32)];
+AllCollisions.tinRock = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(0, 32)];
+AllCollisions.copperRock = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(0, 32)];
+AllCollisions.silverRock = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(0, 32)];
+AllCollisions.goldRock = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(0, 32)];
+
+AllCollisions.lamppost = [new Vector2D(3, 0), new Vector2D(29, 0), new Vector2D(29, 64), new Vector2D(3, 64)];
+
 export { AllCollisions };

@@ -11,7 +11,19 @@ var AnimationType = {
     Single: 2, /* Only goes once */
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class CFrame {
+
+    /**
+     * Creates a new CFrame
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {Number} w 
+     * @param {Number} h 
+     */
     constructor(x, y, w, h) {
         this.x = x;
         this.y = y;
@@ -24,7 +36,16 @@ class CFrame {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class TileOffset {
+
+    /**
+     * Creates a new TileOffset
+     * @param {Vector2D} tileOffset 
+     */
     constructor(tileOffset) {
         this.tileOffset = tileOffset;
         this.tileOffset.Mult(new Vector2D(32, 32));
@@ -45,14 +66,14 @@ class TileOffset {
 class CAnimation {
 
     /**
-     * 
-     * @param {String} name 
+     * Creates a new CAnimation
+     * @param {string} name 
      * @param {Vector2D} start 
      * @param {Vector2D} end 
      * @param {Number} w 
      * @param {Number} h 
      * @param {AnimationType} animationType 
-     * @param {(Number|Array[Number])} animationSpeed 
+     * @param {(Number|Array<Number>)} animationSpeed 
      */
     constructor(name = '', start = new Vector2D(0, 0), end = new Vector2D(0, 0), w = 32, h = 32, animationType = AnimationType.Cycle, animationSpeed = 3) {
         this.name = name;
@@ -62,6 +83,7 @@ class CAnimation {
         this.w = w;
         this.h = h;
         this.currentFrame = 0;
+        this.frameUpdate = false;
         this.animationType = animationType;
 
         /**@type {(Number|Array[Number])} */
@@ -124,6 +146,8 @@ class CAnimation {
         let frameIndex = this.currentFrame,
             returnFrame = null;
 
+        this.frameUpdate = false;
+
         if (this.FrameFinished() === true) {
             this.ResetCooldown();
             this.IncrementFrame();
@@ -162,6 +186,8 @@ class CAnimation {
     }
 
     IncrementFrame() {
+        //if (this.animationStarted === true && this.animationFinished === false)
+        this.frameUpdate = true;
         this.currentFrame++;
     }
 
@@ -170,21 +196,25 @@ class CAnimation {
             case AnimationType.Cycle: this.currentFrame = 0; this.animationStarted = false; break;
 
             case AnimationType.Idle:
+                this.animationFinished = true;
+                this.animationStarted = true;
+                this.currentFrame = this.frames.length + 1;
                 break;
             case AnimationType.Single:
-                if (this.frames.length > 1)
+                if (this.frames.length > 1) {
                     this.currentFrame = -1;
+                }
                 break;
         }
     }
 
     AnimationFinished() {
         switch (this.animationType) {
-            case AnimationType.Cycle: return this.currentFrame === this.frames.length + 1;
+            case AnimationType.Cycle: return this.currentFrame >= this.frames.length + 1;
 
             case AnimationType.Idle:
             case AnimationType.Single:
-                return this.currentFrame === this.frames.length + 1;
+                return this.currentFrame >= this.frames.length + 1;
         }
     }
 
@@ -224,6 +254,10 @@ class CAnimation {
 
     GetSize() {
         return new Vector2D(this.w, this.h);
+    }
+
+    SaveToFile() {
+        return "new CAnimation('" + this.name + "', " + 'new Vector2D(' + this.start.x + ', ' + this.start.y + '), new Vector2D(' + this.end.x + ', ' + this.end.y + '), ' + this.w + ', ' + this.h + ', ' + this.animationType + ', ' + this.animationSpeed + ')';
     }
 }
 

@@ -1,4 +1,4 @@
-import { TileMaker, Tile, CanvasAtlasObject, Vector2D, CanvasDrawer, ReverseAtlasLUT } from '../../../internal.js';
+import { TileMaker, Tile, CanvasAtlasObject, Vector2D, CanvasDrawer, AtlasController, ReverseAtlasLUT } from '../../../internal.js';
 
 export function CreateNewSheet(canvas, itemIcon, spriteSize, spriteSheetName, skeletalAnimations, xorDataList) {
     let tempTile = new Tile(
@@ -24,6 +24,6 @@ export function CreateNewSheet(canvas, itemIcon, spriteSize, spriteSheetName, sk
     }
 
     let newCanvasAtlas = new CanvasAtlasObject(CanvasDrawer.GCD, canvas.toDataURL('image/png'), canvas.width, canvas.height, skeletalAnimations[0].size.x, spriteSheetName);
-    CanvasDrawer.GCD.AddAtlas(newCanvasAtlas, spriteSheetName);
+    AtlasController.AddAtlas(newCanvasAtlas, spriteSheetName);
     //TileMaker.SplitAtlasToTiles({canvas:swordCanvas, name:'swordMelee', width: swordCanvas.width,height:swordCanvas.height}, new Vector2D(64, 64));
 }

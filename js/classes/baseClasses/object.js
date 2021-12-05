@@ -7,6 +7,7 @@ import { Vector2D } from '../../internal.js';
  * @public
  */
 class Cobject {
+    /** @type {Object<string, Cobject>} */
     static AllCobjects = { };
 
     /**
@@ -23,7 +24,7 @@ class Cobject {
         /** @type {Vector2D} */
         this.size = new Vector2D(1, 1);
 
-        /** @type {String} */
+        /** @type {string} */
         this.name = '';
 
         /** @type {Object} @public */
@@ -71,12 +72,15 @@ class Cobject {
     }
 
     static AddObject(object) {
-        let uid = Cobject.GenerateUID();
-        object.UID = uid;
-        Cobject.AllCobjects[uid] = object;
+        object.UID = Cobject.GenerateUID();
+        Cobject.AllCobjects[object.UID] = object;
     }
 
     FixedUpdate(delta) {
+
+    }
+
+    EndOfFameUpdate() {
 
     }
 

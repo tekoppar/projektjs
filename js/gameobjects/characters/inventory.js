@@ -1,4 +1,4 @@
-import { Cobject, Item, Shovel, Hoe, InputHandler, GameToolbar, GUI, CanvasDrawer, Vector2D, Vector4D, ItemProp, CAnimation, AnimationType, CMath, MasterObject, ItemPrototypeList, Dictionary } from '../../internal.js';
+import { Cobject, Item, Shovel, Hoe, InputHandler, GameToolbar, GUI, CanvasDrawer, AtlasController, Vector4D, ItemProp, CAnimation, AnimationType, CMath, MasterObject, ItemPrototypeList, Dictionary } from '../../internal.js';
 
 class InventorySlot {
     constructor(slot, item) {
@@ -7,6 +7,11 @@ class InventorySlot {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends Cobject
+ */
 class Inventory extends Cobject {
     constructor(owner) {
         super();
@@ -76,6 +81,10 @@ class Inventory extends Cobject {
             return 0;
     }
 
+    /**
+     * 
+     * @param {Number} amount 
+     */
     SubtractMoney(amount) {
         this.moneyAmount -= amount;
 
@@ -83,6 +92,10 @@ class Inventory extends Cobject {
             this.inventoryHTMLValue.value = this.moneyAmount;
     }
 
+    /**
+     * 
+     * @param {Number} amount 
+     */
     AddMoney(amount) {
         this.moneyAmount += amount;
 
@@ -106,6 +119,11 @@ class Inventory extends Cobject {
         this.didInventoryChange = true;
     }
 
+    /**
+     * 
+     * @param {string} name 
+     * @param {Number} amount 
+     */
     AddNewItem(name, amount = 0) {
         let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
         if (found === undefined) {
@@ -118,7 +136,7 @@ class Inventory extends Cobject {
             }
 
             if (newItem.isStackable === true)
-                newItem.AddAmount(1);
+                newItem.AddAmount(amount > 0 ? amount : 1);
 
             this.inventoryDictionary.AddValue(newItem, 'UID');
         } else if (found !== undefined && found.isStackable === false) {
@@ -131,13 +149,13 @@ class Inventory extends Cobject {
             }
 
             if (newItem.isStackable === true)
-                found.AddAmount(1);
+                found.AddAmount(amount > 0 ? amount : 1);
             else
                 this.inventoryDictionary.AddValue(newItem, 'UID');
         } else if (found.isStackable === true) {
-            found.AddAmount(1);
+            found.AddAmount(amount > 0 ? amount : 1);
         } else {
-            this.inventory[name].AddAmount(1);
+            this.inventory[name].AddAmount(amount > 0 ? amount : 1);
 
         }
 
@@ -251,8 +269,8 @@ class Inventory extends Cobject {
 
             case 'dragend':
                 if (e.dataTransfer.dropEffect === 'none') {
-                    let canvasBB = CanvasDrawer.GCD.mainCanvas.getBoundingClientRect();
-                    canvasBB = new Vector4D(0, 0, canvasBB.width, canvasBB.height);
+                    let temp = CanvasDrawer.GCD.mainCanvas.getBoundingClientRect();
+                    let canvasBB = new Vector4D(0, 0, temp.width, temp.height);
                     let mousePos = MasterObject.MO.playerController.MouseToScreen({ target: CanvasDrawer.GCD.mainCanvas, x: e.screenX, y: e.screenY - 80 });
                     let characterPos = this.characterOwner.BoxCollision.GetRealCenterPosition();
 
@@ -264,7 +282,7 @@ class Inventory extends Cobject {
 
                         if (data.id !== undefined) {
                             let droppedItem = document.getElementById(data.id);
-                            let item = Cobject.GetObjectFromUID(data.item);
+                            let item = /** @type {Item} */ (Cobject.GetObjectFromUID(data.item));
 
                             if (item !== undefined && droppedItem !== null) {
                                 droppedItem.id = '';
@@ -274,7 +292,7 @@ class Inventory extends Cobject {
                                     item.name,
                                     mousePos,
                                     new CAnimation('null', item.sprite, item.sprite, 32, 32, AnimationType.Single, 1),
-                                    CanvasDrawer.GCD.GetAtlas(item.url),
+                                    AtlasController.GetAtlas(item.url).name,
                                     0,
                                     item
                                 );

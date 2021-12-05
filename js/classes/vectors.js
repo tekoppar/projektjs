@@ -1,4 +1,3 @@
-import { ToggleObjectsHasBeenInitialized } from "../internalVariables.js";
 import { CMath } from '../internal.js';
 
 /**
@@ -162,8 +161,8 @@ class Vector2D {
         return new Vector2D(this.x, this.y);
     }
 
-    ToString() {
-        return this.x + ', ' + this.y;
+    ToString(precision = 0) {
+        return this.x.toFixed(precision) + ', ' + this.y.toFixed(precision);
     }
 
     Rotate(center, angle) {
@@ -295,6 +294,10 @@ class Vector4D {
         return this.x == a.x && this.y == a.y && this.z == a.z && this.a == a.a;
     }
 
+    GetPosition() {
+        return new Vector2D(this.x, this.y);
+    }
+
     Clone() {
         return new Vector4D(this.x, this.y, this.z, this.a);
     }
@@ -315,6 +318,42 @@ class Matrix {
         this.x3 = x3;
         this.y3 = y3;
         this.z3 = z3;
+    }
+
+    Add(b) {
+        this.x1 += b.x1;
+        this.y1 += b.y1;
+        this.z1 += b.z1;
+        this.x2 += b.x2;
+        this.y2 += b.y2;
+        this.z2 += b.z2;
+        this.x3 += b.x3;
+        this.y3 += b.y3;
+        this.z3 += b.z3;
+    }
+
+    Set(b) {
+        this.x1 = b.x1;
+        this.y1 = b.y1;
+        this.z1 = b.z1;
+        this.x2 = b.x2;
+        this.y2 = b.y2;
+        this.z2 = b.z2;
+        this.x3 = b.x3;
+        this.y3 = b.y3;
+        this.z3 = b.z3;
+    }
+
+    SetF(f) {
+        this.x1 = f;
+        this.y1 = f;
+        this.z1 = f;
+        this.x2 = f;
+        this.y2 = f;
+        this.z2 = f;
+        this.x3 = f;
+        this.y3 = f;
+        this.z3 = f;
     }
 
     Null(b) {
@@ -571,6 +610,45 @@ class Rectangle {
 
         this.UpdateCornersData();
     }
+    
+    Floor() {
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
+        this.w = Math.floor(this.w);
+        this.h = Math.floor(this.h);
+    }
+
+    static CreateRectangleFromTwoCorners(aX, aY, bX, bY) {
+        let xMin = Math.min(aX, bX);
+        let yMin = Math.min(aY, bY);
+        let xMax = Math.max(aX, bX);
+        let yMax = Math.max(aY, bY);
+
+        if (xMax - xMin > 1 && yMax - yMin > 1)
+            return new Rectangle(xMin, yMin, xMax - xMin, yMax - yMin);
+        else
+            return null;
+    }
+
+    RelativeComponents(b) {
+        this.UpdateCornersData();
+        b.UpdateCornersData(true);
+        let overlappingCorners = b.GetOverlappingCorners(this);
+        let nonOverlappingCorners = this.GetNonOverlappingCorners(b);
+
+        let newRects = [];
+        if (overlappingCorners.length + nonOverlappingCorners.length <= 4) {
+            for (let nonI = 0, nonL = nonOverlappingCorners.length; nonI < nonL; ++nonI) {
+                for (let i = 0, l = overlappingCorners.length; i < l; ++i) {
+                    let newRect = Rectangle.CreateRectangleFromTwoCorners(nonOverlappingCorners[nonI][0], nonOverlappingCorners[nonI][1], overlappingCorners[i][0], overlappingCorners[i][1]);
+                    if (newRect !== null)
+                        newRects.push(newRect);
+                }
+            }
+        }
+
+        return newRects;
+    }
 
     Inside(position) {
         return position.x >= this.x && position.x <= this.x + this.w && position.y >= this.y && position.y <= this.y + this.h;
@@ -582,6 +660,18 @@ class Rectangle {
 
     IsRectInside(rect) {
         return this.x < rect.x && this.y < rect.y && this.x + this.w > rect.x + rect.w && this.y + this.h > rect.y + rect.h;
+    }
+
+    IsRectOverlappingOrInside(rect) {
+        return this.x <= rect.x && this.y <= rect.y && this.x + this.w >= rect.x + rect.w && this.y + this.h >= rect.y + rect.h;
+    }
+
+    IsRectOverlappingOrInsideF(x, y, w, h) {
+        return this.x <= x && this.y <= y && this.x + this.w >= x + w && this.y + this.h >= y + h;
+    }
+
+    IsCornerOverlappingOrInside(x, y, w, h) {
+        return this.InsideXY(x, y) || this.InsideXY(x + w, y) || this.InsideXY(x, y + h) || this.InsideXY(x + w, y + h);
     }
 
     IsRectOutside(rect) {
@@ -602,6 +692,10 @@ class Rectangle {
 
     Outside(rect) {
         return !(this.x < rect.x && this.y < rect.y && this.x + this.w > rect.x + rect.w && this.y + this.h > rect.y + rect.h);
+    }
+
+    OutsideXY(x, y) {
+        return x <= this.x || x >= this.x + this.w && y <= this.y || y >= this.y + this.h;
     }
 
     IsOverlaping1D(aMin, aMax, bMin, bMax) {
@@ -650,8 +744,35 @@ class Rectangle {
         return this.corners;
     }
 
+    GetCornersVector2D() {
+        return this.corners = [
+            new Vector2D(this.x, this.y),
+            new Vector2D(this.x + this.w, this.y),
+            new Vector2D(this.x, this.y + this.h),
+            new Vector2D(this.x + this.w, this.y + this.h)
+        ];
+    }
+
     GetCenterPoint() {
         return new Vector2D(this.x + this.w * 0.5, this.y + this.h * 0.5);
+    }
+
+    GetNonOverlappingCorners(a) {
+        if (a.corners === undefined)
+            a.UpdateCornersData();
+        //let corners = a.GetCorners();
+        let outsideCorners = [];
+
+        if (this.OutsideXY(a.corners[0][0], a.corners[0][1]))
+            outsideCorners.push(a.corners[0]);
+        if (this.OutsideXY(a.corners[1][0], a.corners[1][1]))
+            outsideCorners.push(a.corners[1]);
+        if (this.OutsideXY(a.corners[2][0], a.corners[2][1]))
+            outsideCorners.push(a.corners[2]);
+        if (this.OutsideXY(a.corners[3][0], a.corners[3][1]))
+            outsideCorners.push(a.corners[3]);
+
+        return outsideCorners;
     }
 
     GetOverlappingCorners(a) {
@@ -780,6 +901,10 @@ class Rectangle {
         this.h = rect.h;
     }
 
+    ToString() {
+        return this.x + ', ' + this.y + ', ' + this.w + ', ' + this.h;
+    }
+
     toJSON() {
         return {
             x: this.x,
@@ -825,12 +950,28 @@ class Polygon {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class Color {
+
+    /**
+     * Creates a new color
+     * @param {Number} red 
+     * @param {Number} green 
+     * @param {Number} blue 
+     * @param {Number} alpha 
+     */
     constructor(red = 255, green = 255, blue = 255, alpha = 1) {
+        if (alpha > 1.0)
+            this.alpha = alpha; //CMath.MapRange(alpha, 0, 255, 0, 1);
+        else
+            this.alpha = alpha;
+
         this.red = red;
         this.green = green;
         this.blue = blue;
-        this.alpha = alpha;
     }
 
     static CSS_COLOR_NAMES = [
@@ -1146,14 +1287,55 @@ class Color {
 
             splitColors = splitColors.split(',');
             return new Color(parseFloat(splitColors[0]), parseFloat(splitColors[1]), parseFloat(splitColors[2]), parseFloat(splitColors[3]));
+        } else if (color.startsWith('rgb')) {
+            let rgbaColor = color,
+                splitColors = rgbaColor.slice(rgbaColor.indexOf('(') + 1, rgbaColor.indexOf(')'));
+
+            splitColors = splitColors.split(',');
+            return new Color(parseFloat(splitColors[0]), parseFloat(splitColors[1]), parseFloat(splitColors[2]), parseFloat(splitColors[3]));
         } else
             return new Color(0, 0, 0, 0);
+    }
+
+    AlphaMultiply() {
+        this.red *= this.alpha / 255;
+        this.green *= this.alpha / 255;
+        this.blue *= this.alpha / 255;
+    }
+
+    Add(a) {
+        this.red += a.red;
+        this.green += a.green;
+        this.blue += a.blue;
+    }
+
+    AddAlpha(a) {
+        let tA = this.alpha / 255,
+            aA = a.alpha / 255;
+
+        this.red = (a.red * aA) + (this.red * (1 - aA));
+        this.green = (a.green * aA) + (this.green * (1 - aA));
+        this.blue = (a.blue * aA) + (this.blue * (1 - aA));
+    }
+
+    Sub(a) {
+        this.red -= a.red;
+        this.green -= a.green;
+        this.blue -= a.blue;
     }
 
     Mult(a) {
         this.red *= a.red;
         this.green *= a.green;
         this.blue *= a.blue;
+    }
+
+    MultAlpha(a) {
+        let tA = this.alpha / 255;
+
+        this.red = (this.red * tA) * (a.red * (1 - tA));
+        this.green = (this.green * tA) * (a.green * (1 - tA));
+        this.blue = (this.blue * tA) * (a.blue * (1 - tA));
     }
 
     MultF(float) {
@@ -1207,12 +1389,30 @@ class Color {
         this.alpha = color.alpha;
     }
 
+    Equal(b) {
+        return this.red === b.red && this.green === b.green && this.blue === b.blue;
+    }
+
+    ToInt() {
+        this.red = Math.min(Math.max(Math.round(this.red), 0), 255);
+        this.green = Math.min(Math.max(Math.round(this.green), 0), 255);
+        this.blue = Math.min(Math.max(Math.round(this.blue), 0), 255);
+        this.alpha = Math.min(Math.max(Math.round(this.alpha), 0), 1);
+    }
+
     Clone() {
         return new Color(this.red, this.green, this.blue, this.alpha);
     }
 
     ToString() {
         return `rgba(${this.red}, ${this.green}, ${this.blue}, ${this.alpha})`;
+    }
+
+    *[Symbol.iterator]() {
+        yield this.red;
+        yield this.green;
+        yield this.blue;
+        yield this.alpha;
     }
 }
 
