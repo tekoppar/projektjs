@@ -1,4 +1,4 @@
-import { Vector2D, Rectangle, ShadowCanvasOperation, ObjectType, AmbientLight, Tile, CFrame } from '../../internal.js';
+import { Vector2D, Rectangle, ShadowCanvasOperation, ObjectType, AmbientLight, Tile, CFrame, DebugDrawer } from '../../internal.js';
 
 /**
  * Enum for frustum culling state
@@ -87,9 +87,6 @@ class Operation {
      * @param {Rectangle} frustum 
      */
     FrustumCulling(frustum) {
-        if (this instanceof LightingOperation)
-            return;
-
         let tPos = this.GetPosition();
         let newState = frustum.InsideXY(tPos.x, tPos.y) || frustum.InsideXY(tPos.x + this.GetDrawSize().x, tPos.y + this.GetDrawSize().y);
         //CustomLogger.Log(this.GetOwner(), [frustum.ToString(), newState, this.frustumCulled, this.oldPosition.ToString()]);
@@ -839,6 +836,14 @@ class LightingOperation extends Operation {
         return this.light.attenuation * this.light.drawScale;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
+    GetDrawSize() {
+        return new Vector2D(this.light.attenuation, this.light.attenuation);
+    }
+
     Update(pos) {
         this.needsToBeRedrawn = true;
         super.Update(pos === undefined ? this.position : pos);
@@ -876,6 +881,35 @@ class LightingOperation extends Operation {
      */
     GetOwner() {
         return this.owner;
+    }
+
+    /**
+ * Checks if the operation is inside the view frustum
+ * @param {Rectangle} frustum 
+ */
+    FrustumCulling(frustum) {
+        let tPos = this.GetPosition().Clone();
+        tPos.SubF(this.light.halfAttenuation);
+
+        let newState = frustum.InsideXY(tPos.x, tPos.y) || frustum.InsideXY(tPos.x + this.GetDrawSize().x, tPos.y + this.GetDrawSize().y);
+        //CustomLogger.Log(this.GetOwner(), [frustum.ToString(), newState, this.frustumCulled, this.oldPosition.ToString()]);
+
+        if (this.frustumCulled === true && newState === true && this.frustumState !== FrustumCullingState.Visible) {
+            this.UpdateDrawState(true);
+            this.frustumState = FrustumCullingState.Visible;
+        } else if (frustum.InsideXY(tPos.x, tPos.y) === false && frustum.InsideXY(tPos.x + this.GetDrawSize().x, tPos.y + this.GetDrawSize().y) === true) {
+            this.UpdateDrawState(true);
+            this.frustumState = FrustumCullingState.PartiallyCulled;
+        } else if (frustum.InsideXY(tPos.x, tPos.y) === true && frustum.InsideXY(tPos.x + this.GetDrawSize().x, tPos.y + this.GetDrawSize().y) === false) {
+            this.UpdateDrawState(true);
+            this.frustumState = FrustumCullingState.PartiallyCulled;
+        }
+
+        this.frustumCulled = !newState;
+        if (this.frustumCulled === true) {
+            this.UpdateDrawState(false);
+            this.frustumState = FrustumCullingState.Culled;
+        }
     }
 
     /**

@@ -658,6 +658,27 @@ class CanvasDrawer {
     DrawGameObjectsLoop(delta) {
         this.gameObjectDrawingOperations.sort(sortDrawOperations);
 
+        for (let i = 0, l = this.gameObjectDrawingOperations.length; i < l; ++i) {
+            const tObject = this.gameObjectDrawingOperations[i];
+
+            switch (tObject.constructor) {
+                case DrawingOperation:
+                    if (this.cameraRect.Equal(this.lastCameraRect) === false) {
+                        tObject.FrustumCulling(this.cameraRect);
+                    }
+                    break;
+                case RectOperation:
+                    break;
+                case PathOperation:
+                    break;
+                case LightingOperation:
+                    if (this.cameraRect.Equal(this.lastCameraRect) === false) {
+                        tObject.FrustumCulling(this.cameraRect);
+                    }
+                    break;
+            }
+        }
+
         for (let i = 0, l = this.clearOperations.length; i < l; ++i) {
             this.ClearCanvas(this.clearOperations[i]);
         }
@@ -693,7 +714,7 @@ class CanvasDrawer {
         this.gameObjectDrawingOperationsUpdate = [];
 
         for (let i = 0, l = this.gameObjectDrawingOperations.length; i < l; ++i) {
-            const tObject = this.gameObjectDrawingOperations[i];
+            const tObject = /**@type {DrawingOperation}*/ (this.gameObjectDrawingOperations[i]);
 
             if (tObject.shouldDelete === true) {
                 this.gameObjectDrawingOperations.splice(i, 1);
@@ -702,10 +723,6 @@ class CanvasDrawer {
             } else {
                 switch (tObject.constructor) {
                     case DrawingOperation:
-                        if (this.cameraRect.Equal(this.lastCameraRect) === false) {
-                            tObject.FrustumCulling(this.cameraRect);
-                        }
-
                         if (tObject.tile !== undefined && tObject.DrawState() === true && tObject.frustumCulled === false && tObject.shouldDelete === false || tObject.updateRects !== undefined) {
                             this.DrawOnCanvas(tObject);
                         }
@@ -722,7 +739,7 @@ class CanvasDrawer {
                         }
                         break;
                     case LightingOperation:
-                        if (tObject.DrawState() === true || tObject.updateRects !== undefined) {
+                        if (tObject.DrawState() === true && tObject.frustumCulled === false || tObject.updateRects !== undefined) {
                             this.DrawOnCanvas(tObject);
                         }
                         break;
@@ -813,6 +830,20 @@ class CanvasDrawer {
         );
         CanvasDrawer.GCD.frameBufferCtx.globalCompositeOperation = 'source-over';
 
+        CanvasDrawer.GCD.lightSystem.lightingV2Ctx.globalCompositeOperation = 'copy';
+        CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
+            CanvasDrawer.GCD.lightSystem.lightingV2,
+            0,
+            0,
+            CanvasDrawer.GCD.lightSystem.lightingV2.width,
+            CanvasDrawer.GCD.lightSystem.lightingV2.height,
+            CanvasDrawer.GCD.canvasOffset.x - cameraRect.x,
+            CanvasDrawer.GCD.canvasOffset.y - cameraRect.y,
+            CanvasDrawer.GCD.lightSystem.lightingV2.width,
+            CanvasDrawer.GCD.lightSystem.lightingV2.height
+        );
+        CanvasDrawer.GCD.lightSystem.lightingV2Ctx.globalCompositeOperation = 'source-over';
+
         CanvasDrawer.GCD.lastCameraRect.x = CanvasDrawer.GCD.cameraRect.x;
         CanvasDrawer.GCD.lastCameraRect.y = CanvasDrawer.GCD.cameraRect.y;
         CanvasDrawer.GCD.lastCameraRect.w = CanvasDrawer.GCD.cameraRect.w;
@@ -831,17 +862,7 @@ class CanvasDrawer {
         CanvasDrawer.GCD.mainCanvasCtx.globalCompositeOperation = 'multiply';
         CanvasDrawer.GCD.lightSystem.UpdateCanvas();
 
-        CanvasDrawer.GCD.mainCanvasCtx.drawImage(
-            CanvasDrawer.GCD.lightSystem.ambientFrameBuffer,
-            cameraRect.x,
-            cameraRect.y,
-            cameraRect.z,
-            cameraRect.a,
-            0,
-            0,
-            CanvasDrawer.GCD.mainCanvas.width,
-            CanvasDrawer.GCD.mainCanvas.height
-        );
+        CanvasDrawer.GCD.mainCanvasCtx.drawImage(CanvasDrawer.GCD.lightSystem.ambientFrameBuffer, 0, 0);
         //CanvasDrawer.GCD.lightSystem.DrawLightingLoop();
         //CanvasDrawer.GCD.mainCanvasCtx.globalCompositeOperation = 'soft-light';
         //CanvasDrawer.GCD.mainCanvasCtx.drawImage(CanvasDrawer.GCD.lightSystem.lightFrameBuffer, cameraRect.x, cameraRect.y, cameraRect.z, cameraRect.a, 0, 0, CanvasDrawer.GCD.mainCanvas.width, CanvasDrawer.GCD.mainCanvas.height);
@@ -965,18 +986,18 @@ class CanvasDrawer {
             //this.lightSystem.lightFrameBufferCtx.clearRect(drawingOperation.light.position.x - (sizeF / 2), drawingOperation.light.position.y - (sizeF / 2), sizeF, sizeF);
 
             CanvasDrawer.GCD.lightSystem.lightingV2Ctx.clearRect(
-                drawingOperation.oldPosition.x - drawingOperation.light.halfAttenuation,
-                drawingOperation.oldPosition.y - drawingOperation.light.halfAttenuation,
+                (drawingOperation.light.position.x - drawingOperation.light.halfAttenuation) - this.canvasOffset.x,
+                (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation) - this.canvasOffset.y,
                 drawingOperation.light.attenuation,
                 drawingOperation.light.attenuation
             );
-            CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
+            /*CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
                 new Vector2D(drawingOperation.oldPosition.x - drawingOperation.light.halfAttenuation, drawingOperation.oldPosition.y - drawingOperation.light.halfAttenuation),
                 new Vector2D(drawingOperation.light.attenuation, drawingOperation.light.attenuation),
                 drawingOperation.light.lightData.data,
                 true,
                 false
-            );
+            );*/
             this.CheckClearOverlapping(new Vector2D(drawingOperation.position.x - (sizeF * 0.5), drawingOperation.position.y - (sizeF * 0.5)), new Vector2D(sizeF, sizeF), drawingOperation);
         }
     }
@@ -1313,7 +1334,7 @@ class CanvasDrawer {
                             drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
                             drawingOperation.updateRects[i].w,
                             drawingOperation.updateRects[i].h,
-                            drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y,
+                            drawingOperation.updateRects[i].x - this.canvasOffset.x, drawingOperation.updateRects[i].y - this.canvasOffset.y,
                             drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h
                         );
                     } else {
@@ -1337,7 +1358,7 @@ class CanvasDrawer {
                             drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
                             drawingOperation.updateRects[i].w,
                             drawingOperation.updateRects[i].h,
-                            drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y,
+                            drawingOperation.updateRects[i].x - this.canvasOffset.x, drawingOperation.updateRects[i].y - this.canvasOffset.y,
                             drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h
                         );
                     }

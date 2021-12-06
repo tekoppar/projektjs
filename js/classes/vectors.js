@@ -48,6 +48,11 @@ class Vector2D {
         }
     }
 
+    SubF(f) {
+        this.x -= f;
+        this.y -= f;
+    }
+
     static Sub(a, b) {
         return new Vector2D(a.x - b.x, a.y - b.y);
     }
@@ -610,7 +615,7 @@ class Rectangle {
 
         this.UpdateCornersData();
     }
-    
+
     Floor() {
         this.x = Math.floor(this.x);
         this.y = Math.floor(this.y);
