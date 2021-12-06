@@ -445,8 +445,11 @@ class DrawingOperation extends Operation {
      */
     Update(position = undefined) {
         super.Update(position);
-        this.centerPosition.x = position.x;
-        this.centerPosition.y = position.y;
+
+        if (position !== undefined) {
+            this.centerPosition.x = position.x;
+            this.centerPosition.y = position.y;
+        }
         this.tile.needsToBeRedrawn = true;
         //this.updateRects = undefined;
     }
@@ -460,7 +463,7 @@ class DrawingOperation extends Operation {
     UpdateOperation(frame, position, canvas) {
         this.Update(this.tile.position);
         this.tile.position = position;
- 
+
         if (frame !== undefined && frame !== null) {
             this.tile.tilePosition.x = frame.x;
             this.tile.tilePosition.y = frame.y;

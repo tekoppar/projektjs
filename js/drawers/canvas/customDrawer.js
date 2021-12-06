@@ -1,4 +1,4 @@
-import { DebugDrawer, Vector2D, Tile, AtlasController, RectMerge, Operation, OverlapOICheck, AmbientLight, ArrayUtility, BWDrawingType, Props, AllCollisions, CollisionTypeCheck, Polygon, ClearOperation, TileData, InputHandler, CollisionHandler, LightFalloffType, BoxCollision, PolygonCollision, worldTiles, Brush, BrushDrawState, BrushType, RectOperation, PathOperation, TextOperation, DrawingOperation, OperationType, TileLUT, SelectedTileEditor, UIDrawer, MasterObject, CMath, Rectangle, LightingOperation, Color, LightSystem, XHRUtility } from '../../internal.js';
+import { DebugDrawer, Vector2D, Tile, AtlasController, RectMerge, Operation, OverlapOICheck, AmbientLight, ArrayUtility, BWDrawingType, Props, AllCollisions, CollisionTypeCheck, Polygon, ClearOperation, TileData, InputHandler, CollisionHandler, LightFalloffType, BoxCollision, PolygonCollision, worldTiles, Brush, BrushDrawState, BrushType, RectOperation, PathOperation, TextOperation, DrawingOperation, OperationType, TileLUT, SelectedTileEditor, UIDrawer, MasterObject, CMath, Rectangle, LightingOperation, Color, LightSystem, XHRUtility, CustomLogger } from '../../internal.js';
 
 let mouseToAtlasRectMap = {};
 
@@ -932,6 +932,8 @@ class CanvasDrawer {
             size.Floor();
             drawingOperation.drawingCanvas.getContext('2d').clearRect(oldPosition.x - this.canvasOffset.x, oldPosition.y - this.canvasOffset.y, size.x, size.y);
 
+            CanvasDrawer.GCD.lightSystem.lightingV2Ctx.clearRect(oldPosition.x - this.canvasOffset.x, oldPosition.y - this.canvasOffset.y, size.x, size.y);
+
             if (drawingOperation.debugDraw === true)
                 DebugDrawer.AddDebugRectOperation(new Rectangle(oldPosition.x - this.canvasOffset.x, oldPosition.y - this.canvasOffset.y, size.x, size.y), 0.016, CMath.CSS_COLOR_NAMES[24], true);
 
@@ -961,6 +963,13 @@ class CanvasDrawer {
             let sizeF = drawingOperation.GetSize();
             //drawingOperation.drawingCanvas.getContext('2d').clearRect(drawingOperation.oldPosition.x - (sizeF * 0.5), drawingOperation.oldPosition.y - (sizeF * 0.5), sizeF, sizeF);
             //this.lightSystem.lightFrameBufferCtx.clearRect(drawingOperation.light.position.x - (sizeF / 2), drawingOperation.light.position.y - (sizeF / 2), sizeF, sizeF);
+
+            CanvasDrawer.GCD.lightSystem.lightingV2Ctx.clearRect(
+                drawingOperation.oldPosition.x - drawingOperation.light.halfAttenuation,
+                drawingOperation.oldPosition.y - drawingOperation.light.halfAttenuation,
+                drawingOperation.light.attenuation,
+                drawingOperation.light.attenuation
+            );
             CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
                 new Vector2D(drawingOperation.oldPosition.x - drawingOperation.light.halfAttenuation, drawingOperation.oldPosition.y - drawingOperation.light.halfAttenuation),
                 new Vector2D(drawingOperation.light.attenuation, drawingOperation.light.attenuation),
@@ -1084,6 +1093,7 @@ class CanvasDrawer {
 
         drawingOperation.isVisible = true;
         if (drawingOperation instanceof DrawingOperation) {
+            CanvasDrawer.GCD.lightSystem.lightingV2Ctx.globalCompositeOperation = 'source-atop';
             if (drawingOperation.updateRects !== undefined) {
                 for (let i = 0; i < drawingOperation.updateRects.length; ++i) {
                     if (drawingOperation.operationType !== OperationType.shadow2D) {
@@ -1102,7 +1112,7 @@ class CanvasDrawer {
 
                     if (drawingOperation.operationType === OperationType.shadow2D) {
                         let owner = drawingOperation.GetOwner();
-                        CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
+                        /*CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
                             new Vector2D((Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x), (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y)),
                             new Vector2D(Math.floor(drawingOperation.updateRects[i].w), Math.floor(drawingOperation.updateRects[i].h)),
                             ArrayUtility.GetSubrect2D(
@@ -1114,6 +1124,16 @@ class CanvasDrawer {
                                 owner.shadowObject.shadowData.data
                             ),
                             false
+                        );*/
+
+                        CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
+                            owner.shadowObject.canvas,
+                            (Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x) - Math.floor(owner.BoxCollision.position.x),
+                            (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y) - Math.floor(owner.BoxCollision.position.y),
+                            Math.floor(drawingOperation.updateRects[i].w),
+                            Math.floor(drawingOperation.updateRects[i].h),
+                            (Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x), (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y),
+                            Math.floor(drawingOperation.updateRects[i].w), Math.floor(drawingOperation.updateRects[i].h)
                         );
                     }
 
@@ -1123,7 +1143,7 @@ class CanvasDrawer {
                         drawingOperation.shadowOperation.ChangeColor(tempcolorPicked);
 
                         let owner = drawingOperation.GetOwner();
-                        CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
+                        /*CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
                             new Vector2D((Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x), (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y)),
                             new Vector2D(Math.floor(drawingOperation.updateRects[i].w), Math.floor(drawingOperation.updateRects[i].h)),
                             ArrayUtility.GetSubrect2D(
@@ -1135,6 +1155,17 @@ class CanvasDrawer {
                                 drawingOperation.shadowOperation.shadowData.data
                             ),
                             false
+                        );*/
+
+                        CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
+                            drawingOperation.shadowOperation.shadowCanvas,
+                            (Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x) - Math.floor(owner.BoxCollision.position.x),
+                            (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y) - Math.floor(owner.BoxCollision.position.y),
+                            Math.floor(drawingOperation.updateRects[i].w),
+                            Math.floor(drawingOperation.updateRects[i].h),
+                            (Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x),
+                            (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y),
+                            Math.floor(drawingOperation.updateRects[i].w), Math.floor(drawingOperation.updateRects[i].h)
                         );
                     }
                 }
@@ -1152,7 +1183,7 @@ class CanvasDrawer {
                         drawingOperation.GetDrawSize().y
                     );
                 } else {
-                    CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
+                    /*CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
                         new Vector2D(
                             (drawingOperation.tile.position.x - this.canvasOffset.x),
                             (drawingOperation.tile.position.y - this.canvasOffset.y)
@@ -1160,6 +1191,18 @@ class CanvasDrawer {
                         new Vector2D(drawingOperation.GetOwner().shadowObject.GetSize().x, drawingOperation.GetOwner().shadowObject.GetSize().y),
                         drawingOperation.GetOwner().shadowObject.shadowData.data,
                         false
+                    );*/
+
+                    CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
+                        drawingOperation.GetOwner().shadowObject.canvas,
+                        0,
+                        0,
+                        drawingOperation.GetOwner().shadowObject.GetSize().x,
+                        drawingOperation.GetOwner().shadowObject.GetSize().y,
+                        (drawingOperation.tile.position.x - this.canvasOffset.x),
+                        (drawingOperation.tile.position.y - this.canvasOffset.y),
+                        drawingOperation.GetOwner().shadowObject.GetSize().x,
+                        drawingOperation.GetOwner().shadowObject.GetSize().y
                     );
                 }
 
@@ -1167,7 +1210,7 @@ class CanvasDrawer {
                     let tempcolorPicked = this.lightSystem.GetColor(drawingOperation.centerPosition);
                     tempcolorPicked.AlphaMultiply();
                     drawingOperation.shadowOperation.ChangeColor(tempcolorPicked);
-                    CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
+                    /*CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
                         new Vector2D(
                             drawingOperation.tile.position.x - this.canvasOffset.x,
                             drawingOperation.tile.position.y - this.canvasOffset.y
@@ -1175,6 +1218,18 @@ class CanvasDrawer {
                         drawingOperation.tile.size,
                         drawingOperation.shadowOperation.shadowData.data,
                         false
+                    );*/
+
+                    CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
+                        drawingOperation.shadowOperation.shadowCanvas,
+                        0,
+                        0,
+                        drawingOperation.tile.size.x,
+                        drawingOperation.tile.size.y,
+                        drawingOperation.tile.position.x - this.canvasOffset.x,
+                        drawingOperation.tile.position.y - this.canvasOffset.y,
+                        drawingOperation.tile.size.x,
+                        drawingOperation.tile.size.y,
                     );
                 }
             }
@@ -1231,6 +1286,7 @@ class CanvasDrawer {
 
             context.globalAlpha = oldAlpha;
         } else if (drawingOperation instanceof LightingOperation) {
+            CanvasDrawer.GCD.lightSystem.lightingV2Ctx.globalCompositeOperation = 'source-over';
             if (drawingOperation.updateRects !== undefined) {
                 if (drawingOperation.updateRectsPixelData.length === 0) {
                     drawingOperation.updateRects = RectMerge(drawingOperation.updateRects);
@@ -1238,7 +1294,7 @@ class CanvasDrawer {
 
                 for (let i = 0; i < drawingOperation.updateRects.length; ++i) {
                     if (drawingOperation.updateRectsPixelData === undefined || drawingOperation.updateRectsPixelData[i] === undefined) {
-                        CanvasDrawer.GCD.lightSystem.DrawToFramebufferTest(
+                        /*CanvasDrawer.GCD.lightSystem.DrawToFramebufferTest(
                             new Vector2D(drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y),
                             new Vector2D(drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h),
                             drawingOperation.light.GetSubRectSpeed(
@@ -1249,9 +1305,19 @@ class CanvasDrawer {
                                 true
                             ),
                             true
+                        );*/
+
+                        CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
+                            drawingOperation.light.colorFrameBuffer,
+                            drawingOperation.updateRects[i].x - (drawingOperation.light.position.x - drawingOperation.light.halfAttenuation),
+                            drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
+                            drawingOperation.updateRects[i].w,
+                            drawingOperation.updateRects[i].h,
+                            drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y,
+                            drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h
                         );
                     } else {
-                        CanvasDrawer.GCD.lightSystem.DrawToFramebufferAlpha(
+                        /*CanvasDrawer.GCD.lightSystem.DrawToFramebufferAlpha(
                             new Vector2D(drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y),
                             new Vector2D(drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h),
                             drawingOperation.light.GetSubRectSpeed(
@@ -1263,11 +1329,21 @@ class CanvasDrawer {
                             true,
                             true,
                             drawingOperation.updateRectsPixelData[i]
+                        );*/
+
+                        CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
+                            drawingOperation.light.colorFrameBuffer,
+                            drawingOperation.updateRects[i].x - (drawingOperation.light.position.x - drawingOperation.light.halfAttenuation),
+                            drawingOperation.updateRects[i].y - (drawingOperation.light.position.y - drawingOperation.light.halfAttenuation),
+                            drawingOperation.updateRects[i].w,
+                            drawingOperation.updateRects[i].h,
+                            drawingOperation.updateRects[i].x, drawingOperation.updateRects[i].y,
+                            drawingOperation.updateRects[i].w, drawingOperation.updateRects[i].h
                         );
                     }
                 }
             } else {
-                CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
+                /*CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
                     new Vector2D(
                         (drawingOperation.position.x - this.canvasOffset.x) - drawingOperation.light.halfAttenuation,
                         (drawingOperation.position.y - this.canvasOffset.y) - drawingOperation.light.halfAttenuation
@@ -1275,6 +1351,16 @@ class CanvasDrawer {
                     new Vector2D(drawingOperation.light.attenuation, drawingOperation.light.attenuation),
                     drawingOperation.light.colorData.data,
                     true
+                );*/
+
+                CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
+                    drawingOperation.light.colorFrameBuffer,
+                    0,
+                    0,
+                    drawingOperation.light.attenuation, drawingOperation.light.attenuation,
+                    (drawingOperation.position.x - this.canvasOffset.x) - drawingOperation.light.halfAttenuation,
+                    (drawingOperation.position.y - this.canvasOffset.y) - drawingOperation.light.halfAttenuation,
+                    drawingOperation.light.attenuation, drawingOperation.light.attenuation
                 );
             }
 

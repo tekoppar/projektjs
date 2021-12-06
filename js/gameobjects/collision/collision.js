@@ -1,4 +1,4 @@
-import { Vector2D, Rectangle, DebugDrawer, Vector4D, Vector } from '../../internal.js';
+import { Vector2D, Rectangle, DebugDrawer, Vector4D, Vector, CustomLogger } from '../../internal.js';
 
 const OverlapCheckEnum = {
     Intersect: false,
@@ -426,7 +426,7 @@ class CollisionHandler {
                 if (collision.collisionOwner !== quadOverlaps[i].collisionOwner) {
                     if (OverlapCheckType.Intersect && collision.GetIntersections(quadOverlaps[i].GetPoints()) > 0) {
                         overlaps.push(quadOverlaps[i]);
-                    } else if (OverlapCheckType.Overlaps && collision.DoOverlap(quadOverlaps[i], true)) {
+                    } else if (OverlapCheckType.Overlaps && collision.DoOverlap(quadOverlaps[i], true) && quadOverlaps[i].enableCollision === false) {
                         overlaps.push(quadOverlaps[i]);
                     } else if (OverlapCheckType.Inside && collision.boundingBox.Inside(quadOverlaps[i].boundingBox)) {
                         overlaps.push(quadOverlaps[i]);
@@ -480,11 +480,11 @@ class Collision {
         this.collisionOwner = owner;
 
         /** @type {Rectangle} */
-        this.boundingBox = new Rectangle(1, 1, 1, 1);
+        this.boundingBox = new Rectangle(position.x, position.y, size.x, size.y);
 
         /** @type {boolean} */
         this.debugDraw = true;
-
+        
         if (register === true)
             CollisionHandler.GCH.AddCollision(this);
     }
@@ -610,14 +610,6 @@ class Collision {
         } else {
             return [];
         }
-    }
-
-    /**
-     * 
-     * @returns {Rectangle}
-     */
-    GetBoundingBox() {
-        return new Rectangle(this.position.x, this.position.y, this.size.x, this.size.y);
     }
 
     /**
@@ -820,6 +812,54 @@ class Collision {
         return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
     }
 
+    SetPosition(position) {
+        if (this.overlapEvents) {
+            let overlaps = CollisionHandler.GCH.GetOverlaps(this, false, OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
+
+            let bb = this.GetBoundingBox().Clone();
+                bb.Floor();
+                bb.UpdateCornersData();
+            for (let i = 0, l = overlaps.length; i < l; ++i) {
+                overlaps[i].OnOverlap(this, bb.Clone());
+            }
+        }
+
+        this.position.x = position.x;
+        this.position.y = position.y;
+        this.CalculateBoundingBox();
+        this.UpdateCollision();
+    }
+
+    /**
+     * 
+     * @returns {Rectangle}
+     */
+     GetBoundingBox() {
+        if (this.position !== null && this.position !== undefined) {
+            this.boundingBox.x = this.position.x;
+            this.boundingBox.y = this.position.y;
+        }
+        return this.boundingBox;
+    }
+
+    CopyBoundingBox(bb) {
+        if (this.position !== null && this.position !== undefined) {
+            this.boundingBox.x = this.position.x;
+            this.boundingBox.y = this.position.y;
+        }
+        bb.x = this.boundingBox.x;
+        bb.y = this.boundingBox.y;
+        bb.w = this.boundingBox.w;
+        bb.h = this.boundingBox.h;
+    }
+
+    CalculateBoundingBox() {
+        this.boundingBox.x = this.position.x;
+        this.boundingBox.y = this.position.y;
+        this.boundingBox.w = this.size.x;
+        this.boundingBox.h = this.size.y;
+    }
+
     /**
      * 
      * @param {Number} damage 
@@ -827,6 +867,16 @@ class Collision {
      */
     OnHit(damage, source) {
         this.collisionOwner.OnHit(damage, source);
+    }
+
+    /**
+     * 
+     * @param {Collision} overlap 
+     * @param {Rectangle} boundingBox 
+     */
+    OnOverlap(overlap, boundingBox) {
+        if (this.collisionOwner !== undefined && this.collisionOwner.OnOverlap !== undefined)
+            this.collisionOwner.OnOverlap(boundingBox, overlap.collisionOwner);
     }
 }
 
@@ -855,36 +905,6 @@ class BoxCollision extends Collision {
 
     Delete() {
         super.Delete();
-    }
-
-    /**
-     * 
-     * @returns {Rectangle}
-     */
-    GetBoundingBox() {
-        if (this.position !== null && this.position !== undefined) {
-            this.boundingBox.x = this.position.x;
-            this.boundingBox.y = this.position.y;
-        }
-        return this.boundingBox;
-    }
-
-    CopyBoundingBox(bb) {
-        if (this.position !== null && this.position !== undefined) {
-            this.boundingBox.x = this.position.x;
-            this.boundingBox.y = this.position.y;
-        }
-        bb.x = this.boundingBox.x;
-        bb.y = this.boundingBox.y;
-        bb.w = this.boundingBox.w;
-        bb.h = this.boundingBox.h;
-    }
-
-    CalculateBoundingBox() {
-        this.boundingBox.x = this.position.x;
-        this.boundingBox.y = this.position.y;
-        this.boundingBox.w = this.size.x;
-        this.boundingBox.h = this.size.y;
     }
 }
 

@@ -1,14 +1,36 @@
-import { Vector2D, Hoe, Shovel, Axe, Weapon, Seed, Controller, Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Rock, Item } from '../internal.js';
+import { Vector2D, Hoe, Shovel, Axe, MainCharacter, Weapon, Seed, Controller, Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Rock, Item, CustomLogger } from '../internal.js';
 
+/**
+ * @class
+ * @constructor
+ */
 class PlayerController extends Controller {
+
+    /**
+     * 
+     * @param {MainCharacter} player 
+     */
     constructor(player) {
         super();
+
+        /** @type {MainCharacter} */
         this.playerCharacter = player;
+
+        /** @type {Crafting} */
         this.crafting = new Crafting();
+
+        /** @type {Camera} */
         this.playerCamera = new Camera(this, new Vector2D(CanvasDrawer.GCD.mainCanvas.width, CanvasDrawer.GCD.mainCanvas.height));
+
+        /** @type {Minimap} */
         this.minimap = new Minimap(player);
+
         this.mouseToAtlasRectMap = {};
+
+        /** @type {Vector2D} */
         this.mousePosition = new Vector2D(0, 0);
+
+        /** @type {boolean} */
         this.drawPreviewCursor = false;
     }
 

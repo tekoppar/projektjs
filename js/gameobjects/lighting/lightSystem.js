@@ -1,4 +1,4 @@
-import { Cobject, Color, Vector2D, CMath, MasterObject, Mastertime, Graph, GraphPoint, DrawingOperation, AmbientLight } from '../../internal.js';
+import { Cobject, Color, Vector2D, CMath, MasterObject, Mastertime, Graph, GraphPoint, DrawingOperation, AmbientLight, CanvasDrawer, CanvasUtility } from '../../internal.js';
 
 /**
  * @readonly
@@ -112,6 +112,8 @@ class SkyLight extends Cobject {
             this.previousColor = this.color.Clone();
             this.didLightChange = true;
         }
+
+        CanvasDrawer.GCD.lightSystem.lightingV2Ctx.fillStyle = this.color.ToString();
     }
 
     FixedUpdate() {
@@ -143,6 +145,11 @@ class SkyLight extends Cobject {
  * @extends Cobject
  */
 class LightSystem extends Cobject {
+    static _Instance;
+
+    /** @type {Array<AmbientLight>} */
+    static AllAmbientLights = [];
+
     static SkyLight = new SkyLight(new Color(25, 25, 25, 255), new Color(32, 57, 79, 255));
     static LightLUT = [
         { d: 0, c: 1, l: 1.4, q: 0.047 },
@@ -162,6 +169,7 @@ class LightSystem extends Cobject {
 
     constructor() {
         super(new Vector2D(0, 0));
+        LightSystem._Instance = this;
 
         /** @type { HTMLCanvasElement } */
         this.lightFrameBuffer = document.createElement('canvas');
@@ -171,6 +179,9 @@ class LightSystem extends Cobject {
 
         /** @type { HTMLCanvasElement } */
         this.ambientFrameBuffer = document.createElement('canvas');
+
+        /** @type { HTMLCanvasElement } */
+        this.lightingV2 = document.createElement('canvas');
 
         const canvasEl = document.getElementById('game-canvas');
         this.lightFrameBuffer.setAttribute('width', canvasEl.getAttribute('width'));
@@ -185,6 +196,10 @@ class LightSystem extends Cobject {
         this.ambientFrameBuffer.setAttribute('height', canvasEl.getAttribute('height'));
         document.body.appendChild(this.ambientFrameBuffer);
 
+        this.lightingV2.setAttribute('width', canvasEl.getAttribute('width'));
+        this.lightingV2.setAttribute('height', canvasEl.getAttribute('height'));
+        document.body.appendChild(this.lightingV2);
+
         /** @type {CanvasRenderingContext2D} */
         this.lightIntensityBufferCtx = this.lightIntensityBuffer.getContext('2d', { willReadFrequently: true });
         this.lightIntensityBufferCtx.imageSmoothingEnabled = true;
@@ -197,6 +212,10 @@ class LightSystem extends Cobject {
         this.ambientFrameBufferCtx = this.ambientFrameBuffer.getContext('2d', { willReadFrequently: true });
         this.ambientFrameBufferCtx.imageSmoothingEnabled = true;
 
+        /** @type {CanvasRenderingContext2D} */
+        this.lightingV2Ctx = this.lightingV2.getContext('2d', { willReadFrequently: true });
+        this.lightingV2Ctx.imageSmoothingEnabled = true;
+
         //this.ambientFrameBufferCtx.fillStyle = LightSystem.SkyLight.color.ToString();//'rgb(5, 5, 5)';
         //this.ambientFrameBufferCtx.fillRect(0, 0, this.ambientFrameBuffer.width, this.ambientFrameBuffer.height);
 
@@ -205,8 +224,8 @@ class LightSystem extends Cobject {
         this.lightFrameBufferCtx.fillRect(0, 0, this.lightFrameBuffer.width, this.lightFrameBuffer.height);
 
         /** @type {ImageData } */
-        this.lightData = this.lightFrameBufferCtx.getImageData(0, 0, this.lightFrameBuffer.width, this.lightFrameBuffer.height);
-        
+        this.lightData;// = this.lightFrameBufferCtx.getImageData(0, 0, this.lightFrameBuffer.width, this.lightFrameBuffer.height);
+
         /** @type {ImageData } */
         this.lightIntensityData;
 
@@ -215,9 +234,8 @@ class LightSystem extends Cobject {
 
     /**
      * Clears the ambient frame buffer and fills it with the skylight color.
-     * @param {Number} delta 
      */
-    DrawLightingLoop(delta) {
+    DrawLightingLoop() {
         //this.ambientFrameBufferCtx.clearRect(0, 0, this.ambientFrameBuffer.width, this.ambientFrameBuffer.height);
         this.ambientFrameBufferCtx.fillStyle = LightSystem.SkyLight.color.ToString();//'rgb(5, 5, 5)';
         this.ambientFrameBufferCtx.fillRect(0, 0, this.ambientFrameBuffer.width, this.ambientFrameBuffer.height);
@@ -395,7 +413,7 @@ class LightSystem extends Cobject {
             }
         }
 
-        this.lightData.data.set(data);
+        //this.lightData.data.set(data);
     }
 
 
@@ -461,7 +479,7 @@ class LightSystem extends Cobject {
             }
         }
 
-        this.lightData.data.set(data);
+        //this.lightData.data.set(data);
     }
 
     /**
@@ -633,7 +651,7 @@ class LightSystem extends Cobject {
             }
         }
 
-        this.lightData.data.set(data);
+        //this.lightData.data.set(data);
     }
 
     /**
@@ -762,10 +780,9 @@ class LightSystem extends Cobject {
     }
 
     UpdateCanvas() {
-        this.DrawLightingLoop(0);
-        this.lightFrameBufferCtx.putImageData(this.lightData, 0, 0);
-        this.ambientFrameBufferCtx.drawImage(this.lightFrameBuffer, 0, 0);
-
+        this.DrawLightingLoop();
+        //this.lightFrameBufferCtx.putImageData(this.lightData, 0, 0);
+        this.ambientFrameBufferCtx.drawImage(this.lightingV2, 0, 0);
     }
 
     FixedUpdate() {
@@ -793,7 +810,29 @@ class LightSystem extends Cobject {
         super.GameBegin();
         this.lightFrameBufferCtx.globalCompositeOperation = 'hard-light';
         this.ambientFrameBufferCtx.globalCompositeOperation = 'source-over';
-        this.DrawLightingLoop(0);
+        this.DrawLightingLoop();
+
+        this.lightingV2Ctx.fillStyle = LightSystem.SkyLight.color.ToString();
+        this.lightingV2Ctx.fillRect(0, 0, this.lightingV2.width, this.lightingV2.height);
+
+        this.lightingV2Ctx.globalCompositeOperation = 'source-over';
+        for (let i = 0, l = LightSystem.AllAmbientLights.length; i < l; ++i) {
+            LightSystem.AllAmbientLights[i].GenerateLightImage();
+            this.lightingV2Ctx.drawImage(
+                LightSystem.AllAmbientLights[i].colorFrameBuffer,
+                0,
+                0,
+                LightSystem.AllAmbientLights[i].attenuation,
+                LightSystem.AllAmbientLights[i].attenuation,
+                LightSystem.AllAmbientLights[i].position.x - LightSystem.AllAmbientLights[i].halfAttenuation,
+                LightSystem.AllAmbientLights[i].position.y - LightSystem.AllAmbientLights[i].halfAttenuation,
+                LightSystem.AllAmbientLights[i].attenuation,
+                LightSystem.AllAmbientLights[i].attenuation
+            );
+        }
+
+        this.lightData = this.lightingV2Ctx.getImageData(0, 0, this.lightingV2.width, this.lightingV2.height);
+        this.lightingV2Ctx.clearRect(0, 0, this.lightingV2.width, this.lightingV2.height);
     }
 
     static GetLightLUT(distance) {

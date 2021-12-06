@@ -109,6 +109,6 @@ new Tree('treeBirch', new Vector2D(446, 194), null, 'treeBirch1', 0, new Vector4
 new Tree('treeBirch', new Vector2D(862, 292), null, 'treeBirch2', 0, new Vector4D(16, 16, 0, 0), 'birchLog', new Rectangle(23, 18, 32, 32)),
 new ExtendedProp('lamppost', new Vector2D(193, 269), undefined, 'lamppost', 0, new Vector4D(16, 16, 0, 0)),
 new Tree('treeBirch', new Vector2D(180, 407), null, 'treeBirch2', 0, new Vector4D(16, 16, 0, 0), 'birchLog', new Rectangle(23, 18, 32, 32)),
-new ExtendedProp('fence_b_c_t', new Vector2D(334, 536.3333282470703), new CAnimation('null', new Vector2D(0, 1), new Vector2D(0, 1), 32, 32, 2, 1), 'fence', 0, new Vector4D(3, 24, 0, -8))
+new ExtendedProp('fence_b_c_t', new Vector2D(334 + 256, 536), new CAnimation('null', new Vector2D(0, 1), new Vector2D(0, 1), 32, 32, 2, 1), 'fence', 0, new Vector4D(3, 24, 0, -8))
 ]; 
  export { Props };

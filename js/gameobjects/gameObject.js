@@ -1,4 +1,4 @@
-import { Vector2D, Cobject, AtlasController, ObjectType, BoxCollision, CollisionHandler, ShadowCanvasObject, PolygonCollision, CanvasDrawer, DrawingOperation, OperationType, Tile, Collision, CAnimation } from '../internal.js'
+import { Vector2D, Cobject, AtlasController, ObjectType, CustomLogger, BoxCollision, CollisionHandler, ShadowCanvasObject, PolygonCollision, CanvasDrawer, DrawingOperation, OperationType, Tile, Collision, CAnimation, DebugDrawer, Rectangle } from '../internal.js'
 
 /**
  * Creates a new Cobject
@@ -76,15 +76,16 @@ class Pawn extends Cobject {
      * @param {Vector2D} position 
      */
     SetPosition(position) {
-        this.drawingOperation.Update(new Vector2D(this.BoxCollision.position.x, this.BoxCollision.position.y));
+        if (this.drawingOperation !== undefined)
+            this.drawingOperation.Update(new Vector2D(this.BoxCollision.position.x, this.BoxCollision.position.y));
+
         super.SetPosition(position);
 
-        this.BoxCollision.position = this.GetPosition().Clone();
-        this.BoxCollision.CalculateBoundingBox();
-        this.BoxCollision.UpdateCollision();
-        this.drawingOperation.tile.position = this.GetPosition();
-        this.drawingOperation.UpdateDrawState(true);
-
+        this.BoxCollision.SetPosition(this.GetPosition());
+        if (this.drawingOperation !== undefined) {
+            this.drawingOperation.tile.position = this.GetPosition();
+            this.drawingOperation.UpdateDrawState(true);
+        }
     }
 
     NeedsRedraw(position) {
@@ -136,6 +137,7 @@ class Pawn extends Cobject {
                 canvasObject
             );
 
+            this.drawingOperation.oldPosition = this.position.Clone();
             CanvasDrawer.GCD.AddDrawOperation(this.drawingOperation, operationType);
             //this.drawingOperation.Update(position);
         } else {
@@ -199,6 +201,34 @@ class Pawn extends Cobject {
         CanvasDrawer.GCD.AddDrawOperation(newOperation, operationType);
         return newOperation;
     }
+
+    /**
+     * 
+     * @param {Rectangle} boundingBox 
+     * @param {Object} overlappingObject 
+     */
+    OnOverlap(boundingBox, overlappingObject) {
+        /*if (this.drawingOperation !== undefined) {
+            let rectA = this.BoxCollision.GetBoundingBox();
+            rectA = rectA.Clone()
+
+            rectA.Floor();
+            rectA.UpdateCornersData();
+            let intersection = rectA.GetIntersection(boundingBox);
+
+            if (intersection !== undefined) {
+                if (intersection.Equal(boundingBox) === true) {
+                    this.drawingOperation.UpdateDrawState(true);
+                } else {
+                    this.drawingOperation.AddUpdateRect(intersection);
+                    this.drawingOperation.isVisible = false;
+                }
+
+                if (CanvasDrawer.GCD.gameObjectDrawingOperationsUpdate.indexOf(this.drawingOperation) === -1)
+                    CanvasDrawer.GCD.gameObjectDrawingOperationsUpdate.push(this.drawingOperation);
+            }
+        }*/
+    }
 }
 
 /**
@@ -253,9 +283,6 @@ class GameObject extends Pawn {
 
     FixedUpdate() {
         super.FixedUpdate();
-
-        if (this.enableCollision === true)
-            this.CheckCollision();
     }
 
     /**
@@ -265,8 +292,12 @@ class GameObject extends Pawn {
     SetPosition(position) {
         super.SetPosition(position);
 
-        this.BlockingCollision.position = this.position.Clone();
-        this.BlockingCollision.CalculateBoundingBox();
+        if (this.BlockingCollision !== undefined) {
+            this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
+            //this.BlockingCollision.position = this.position.Clone();
+            this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5, y: this.BlockingCollision.size.y - this.BlockingCollision.size.y });
+            this.BlockingCollision.CalculateBoundingBox();
+        }
     }
 
     NeedsRedraw(position) {
@@ -293,10 +324,6 @@ class GameObject extends Pawn {
 
     FlagDrawingUpdate(position) {
         super.FlagDrawingUpdate(position);
-    }
-
-    CheckCollision() {
-        return CollisionHandler.GCH.CheckCollisions(this.BoxCollision);
     }
 
     /**
@@ -373,6 +400,7 @@ class Shadow extends Pawn {
             this.BoxCollision.boundingBox.h = this.size.y;
 
             this.BoxCollision.UpdateCollision();
+            this.BoxCollision.overlapEvents = false;
         }
 
         this.CreateDrawOperation({ x: 0, y: 0, w: this.size.x, h: this.size.y }, new Vector2D(this.position.x - this.size.x / 2, this.position.y - this.size.y / 2), true, this.canvas, OperationType.shadow);

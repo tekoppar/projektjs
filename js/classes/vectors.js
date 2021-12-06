@@ -802,8 +802,15 @@ class Rectangle {
         if (insideCorners.length === 1) {
             let insideCornersA = a.GetOverlappingCorners(this);
 
-            if (insideCornersA.length === 1)
-                return new Rectangle(Math.min(insideCorners[0][0], insideCornersA[0][0]), Math.min(insideCorners[0][1], insideCornersA[0][1]), Math.abs(insideCorners[0][0] - insideCornersA[0][0]), Math.abs(insideCorners[0][1] - insideCornersA[0][1]));
+            if (insideCornersA.length === 1) {
+                let minX = Math.min(insideCorners[0][0], insideCornersA[0][0]),
+                    minY = Math.min(insideCorners[0][1], insideCornersA[0][1]),
+                    maxX = Math.max(insideCorners[0][0], insideCornersA[0][0]),
+                    maxY = Math.max(insideCorners[0][1], insideCornersA[0][1]);
+
+                return new Rectangle(minX, minY, Math.abs(maxX - minX), Math.abs(maxY - minY));
+                //return new Rectangle(Math.min(insideCorners[0][0], insideCornersA[0][0]), Math.min(insideCorners[0][1], insideCornersA[0][1]), Math.abs(insideCorners[0][0] - insideCornersA[0][0]), Math.abs(insideCorners[0][1] - insideCornersA[0][1]));
+            }
 
             if (insideCornersA.length > 1) {
                 let minX, maxX, minY, maxY;

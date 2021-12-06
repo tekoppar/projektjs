@@ -1,4 +1,4 @@
-import { Cobject, Color, Math3D, Vector2D, Vector, CanvasDrawer, OperationType, LightingOperation, BoxCollision, IsLittleEndian, CMath } from '../../internal.js';
+import { Cobject, LightSystem, Color, Math3D, Vector2D, Vector, CanvasDrawer, OperationType, LightingOperation, BoxCollision, IsLittleEndian, CMath } from '../../internal.js';
 
 /**
  * Enum for light falloff type
@@ -119,6 +119,8 @@ class AmbientLight extends Cobject {
         this.drawingOperation = new LightingOperation(this, position, CanvasDrawer.GCD.frameBuffer, this);
         this.drawingOperation.owner = this;
         CanvasDrawer.GCD.AddDrawOperation(this.drawingOperation, OperationType.gameObjects);
+
+        LightSystem.AllAmbientLights.push(this);
     }
 
     SetPosition(position) {

@@ -41,7 +41,7 @@ class CharacterAttachments extends GameObject {
         this.currentAnimation = undefined;
 
         this.skeletonBones = skeletonBones;
-        
+
         /** @type {String} */
         this.name = name;
 
@@ -94,12 +94,6 @@ class CharacterAttachments extends GameObject {
 
         if (this.currentAnimation !== undefined && this.currentAnimation.frameUpdate === true && this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None) {
             this.drawingOperation.shadowOperation.UpdateShadow();
-        }
-
-        if (this.drawingOperation !== undefined && this.BoxCollision !== undefined && this.drawingOperation.shadowOperation !== undefined) {
-            CustomLogger.Log(this, [this.drawingOperation.shadowOperation.drawType, this.position.y]);
-            //CustomLogger.Log(this, [this.drawingOperation.oldPosition.ToString(), this.position.ToString()]);
-            //DebugDrawer.AddDebugRectOperation(new Rectangle(this.drawingOperation.tile.GetPosX(), this.drawingOperation.tile.GetPosY(), 32, 32), 0.016, 'orange', true);
         }
     }
 
@@ -284,7 +278,7 @@ class Character extends GameObject {
      * @param {Number} drawIndex 
      * @param {Object.<string, CAnimation>} animations 
      */
-    AddAttachment(name, drawIndex, animations = undefined) {
+    AddAttachment(name, drawIndex = 0, animations = undefined) {
         let newAttachment = new CharacterAttachments(this.position, name, drawIndex, animations);
         newAttachment.GameBegin();
         this.attachments[name] = newAttachment;
@@ -305,21 +299,24 @@ class Character extends GameObject {
                 this.shadowAttachment.ChangeAnimation(animation.Clone());
 
             this.size = this.BoxCollision.size = new Vector2D(animation.h, animation.w);
-            this.BoxCollision.CalculateBoundingBox();
-            this.BoxCollision.position = this.GetPosition();
+            this.BoxCollision.SetPosition(this.GetPosition());
+            //this.BoxCollision.CalculateBoundingBox();
+            //this.BoxCollision.position = this.GetPosition();
 
             if (this.itemAttachment !== undefined) {
                 this.itemAttachment.ChangeAnimation(animation.Clone(), true);
-                this.itemAttachment.BoxCollision.CalculateBoundingBox();
-                this.itemAttachment.BoxCollision.position = this.GetPosition();
+                this.itemAttachment.BoxCollision.SetPosition(this.GetPosition());
+                //this.itemAttachment.BoxCollision.CalculateBoundingBox();
+                //this.itemAttachment.BoxCollision.position = this.GetPosition();
                 this.itemAttachment.size = this.itemAttachment.BoxCollision.size = new Vector2D(32, 32);// new Vector2D(animation.h, animation.w);
             }
 
             let keys = Object.keys(this.attachments);
             for (let i = 0, l = keys.length; i < l; ++i) {
                 this.attachments[keys[i]].ChangeAnimation(animation.Clone());
-                this.attachments[keys[i]].BoxCollision.CalculateBoundingBox();
-                this.attachments[keys[i]].BoxCollision.position = this.GetPosition();
+                this.attachments[keys[i]].BoxCollision.SetPosition(this.GetPosition());
+                //this.attachments[keys[i]].BoxCollision.CalculateBoundingBox();
+                //this.attachments[keys[i]].BoxCollision.position = this.GetPosition();
                 this.attachments[keys[i]].size = this.attachments[keys[i]].BoxCollision.size = new Vector2D(animation.h, animation.w);
             }
         }
@@ -352,6 +349,20 @@ class Character extends GameObject {
     NeedsRedraw(position) {
         super.NeedsRedraw(position);
 
+        this.BoxCollision.SetPosition(this.BoxCollision.position);
+
+        if (this.shadowAttachment !== undefined)
+            this.shadowAttachment.BoxCollision.SetPosition(this.shadowAttachment.BoxCollision.position);
+
+        if (this.itemAttachment !== undefined)
+            this.itemAttachment.BoxCollision.SetPosition(this.itemAttachment.BoxCollision.position);
+
+        let keys = Object.keys(this.attachments);
+        for (let i = 0, l = keys.length; i < l; ++i) {
+            if (this.attachments[keys[i]] !== undefined)
+                this.attachments[keys[i]].BoxCollision.SetPosition(this.attachments[keys[i]].BoxCollision.position);
+        }
+
         if (this.drawingOperation !== undefined)
             this.FlagDrawingUpdate(position);
 
@@ -361,7 +372,7 @@ class Character extends GameObject {
         if (this.itemAttachment !== undefined && this.itemAttachment.drawingOperation !== undefined)
             this.itemAttachment.FlagDrawingUpdate(position);
 
-        let keys = Object.keys(this.attachments);
+        keys = Object.keys(this.attachments);
         for (let i = 0, l = keys.length; i < l; ++i) {
             if (this.attachments[keys[i]].drawingOperation !== undefined)
                 this.attachments[keys[i]].FlagDrawingUpdate(position);
@@ -378,12 +389,14 @@ class Character extends GameObject {
             this.NeedsRedraw(this.GetPosition());
 
             if (this.shadowAttachment !== undefined) {
-                this.shadowAttachment.position = this.position.Clone();
+                //this.shadowAttachment.position = this.position.Clone();
+                this.shadowAttachment.SetPosition(this.position.Clone());
                 this.shadowAttachment.PlayAnimaion(this.GetPosition());
             }
 
             if (this.itemAttachment !== undefined && this.itemAttachment.currentAnimation !== undefined) {
-                this.itemAttachment.position = this.GetPosition().Clone();
+                //this.itemAttachment.position = this.GetPosition().Clone();
+                this.itemAttachment.SetPosition(this.GetPosition());
 
                 if (this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame] !== undefined) {
                     this.itemAttachment.offset.x = this.itemAttachment.skeletonBones[this.itemAttachment.currentAnimation.name].bones[this.itemAttachment.currentAnimation.currentFrame].x;
@@ -453,9 +466,12 @@ class Character extends GameObject {
 
             let keys = Object.keys(this.attachments);
             for (let i = 0, l = keys.length; i < l; ++i) {
-                this.attachments[keys[i]].position = this.position.Clone();
+                this.attachments[keys[i]].SetPosition(this.position);
+                //this.attachments[keys[i]].position = this.position.Clone();
                 this.attachments[keys[i]].PlayAnimaion(this.GetPosition());
             }
+
+            this.UpdateRealTimeShadow();
         } else {
             if (this.shadowAttachment !== undefined)
                 this.shadowAttachment.currentAnimation.GetFrame();
@@ -540,6 +556,25 @@ class Character extends GameObject {
         }
     }
 
+    UpdateRealTimeShadow() {
+        if (this.drawingOperation !== undefined && this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None)
+            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
+
+        if (this.realtimeShadow !== undefined) {
+            this.realtimeShadow.position = this.position.Clone();
+            this.realtimeShadow.AddShadow(this.drawingOperation.tile);
+            this.realtimeShadow.AddShadow(this.shadowAttachment.drawingOperation.tile);
+
+            let keys = Object.keys(this.attachments);
+            for (let i = 0, l = keys.length; i < l; ++i) {
+                if (this.attachments[keys[i]] !== undefined && this.attachments[keys[i]].drawingOperation !== undefined)
+                    this.realtimeShadow.AddShadow(this.attachments[keys[i]].drawingOperation.tile);
+            }
+
+            this.realtimeShadow.UpdateShadow(this.drawingOperation.tile);
+        }
+    }
+
     UpdateMovement() {
         if (this.currentAnimation.AnimationLocked() === true)
             return;
@@ -554,13 +589,14 @@ class Character extends GameObject {
             this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
             this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5, y: this.BlockingCollision.size.y - this.BlockingCollision.size.y });
 
-            if (this.CheckCollision() === true) {
+            if (CollisionHandler.GCH.CheckCollisions(this.BlockingCollision) === true) {
                 this.previousPosition = this.GetPosition();
                 this.position.Add(Vector2D.Mult(this.MovementSpeed, this.Velocity));
+                this.SetPosition(this.position);
+                this.UpdateRealTimeShadow();
             } else {
-                this.BoxCollision.position = this.GetPosition();
-                this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
-                this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5, y: this.BlockingCollision.size.y - this.BlockingCollision.size.y });
+                this.SetPosition(this.position);
+                this.UpdateRealTimeShadow();
             }
         }
     }
@@ -573,10 +609,6 @@ class Character extends GameObject {
         this.BoxCollision.position = position;
         this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
         this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5, y: 32 });
-    }
-
-    CheckCollision() {
-        return CollisionHandler.GCH.CheckCollisions(this.BlockingCollision);
     }
 
     /**
@@ -614,23 +646,6 @@ class Character extends GameObject {
 
         if (this.currentAnimation !== undefined) {
             this.PlayAnimation();
-
-            if (this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None)
-                this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
-
-            if (this.realtimeShadow !== undefined) {
-                this.realtimeShadow.position = this.position.Clone();
-                this.realtimeShadow.AddShadow(this.drawingOperation.tile);
-                this.realtimeShadow.AddShadow(this.shadowAttachment.drawingOperation.tile);
-
-                let keys = Object.keys(this.attachments);
-                for (let i = 0, l = keys.length; i < l; ++i) {
-                    if (this.attachments[keys[i]] !== undefined && this.attachments[keys[i]].drawingOperation !== undefined)
-                        this.realtimeShadow.AddShadow(this.attachments[keys[i]].drawingOperation.tile);
-                }
-
-                this.realtimeShadow.UpdateShadow(this.drawingOperation.tile);
-            }
         }
 
         this.UpdateMovement();
