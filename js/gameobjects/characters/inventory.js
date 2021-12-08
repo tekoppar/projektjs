@@ -1,4 +1,7 @@
-import { Cobject, Item, Shovel, Hoe, InputHandler, Vector2D, GameToolbar, GUI, CanvasDrawer, AtlasController, Vector4D, ItemProp, CAnimation, AnimationType, MasterObject, ItemPrototypeList, Dictionary } from '../../internal.js';
+import {
+    Cobject, Item, InputHandler, Vector2D, GameToolbar, GUI, CanvasDrawer, AtlasController,
+    Vector4D, ItemProp, CAnimation, AnimationType, MasterObject, ItemPrototypeList, Dictionary
+} from '../../internal.js';
 
 class InventorySlot {
     constructor(slot, item) {

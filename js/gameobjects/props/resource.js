@@ -1,4 +1,7 @@
-import { ExtendedProp, Rectangle, Vector2D, Vector4D, CanvasDrawer, OperationType, ItemProp, AtlasController, CMath, BoxCollision, AllCollisions, resourceSprites, CollisionHandler, BWDrawingType, CAnimation } from "../../internal.js";
+import {
+    ExtendedProp, Rectangle, Vector2D, Vector4D, CanvasDrawer, OperationType, ItemProp,
+    AtlasController, CMath, BoxCollision, AllCollisions, resourceSprites, CollisionHandler, BWDrawingType, CAnimation
+} from "../../internal.js";
 
 /**
  * @class

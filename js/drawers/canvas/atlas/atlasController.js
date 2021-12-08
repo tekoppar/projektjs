@@ -112,6 +112,12 @@ class AtlasController {
         this.hasLoadedAllImages["terrainoutside"] = false;
         this.LoadSpriteAtlas("/content/sprites/Collection/victorian-streets.png", 512, 3072, 32, "victorianstreets");
         this.hasLoadedAllImages["victorianstreets"] = false;
+        this.LoadSpriteAtlas("/content/sprites/Collection/walls.png", 2048, 3072, 32, "walls");
+        this.hasLoadedAllImages["walls"] = false;
+        this.LoadSpriteAtlas("/content/sprites/Collection/windows-doors.png", 1024, 1024, 32, "windowsdoors");
+        this.hasLoadedAllImages["windowsdoors"] = false;
+        this.LoadSpriteAtlas("/content/sprites/Collection/roofs.png", 2048, 2048, 32, "roofs");
+        this.hasLoadedAllImages["windowsdoors"] = false;
         this.LoadSpriteAtlas("/content/sprites/items/items1.png", 512, 512, 32, "items1");
         this.hasLoadedAllImages["items1"] = false;
         this.LoadSpriteAtlas('/content/sprites/items/ore.png', 512, 512, 32, 'ore');

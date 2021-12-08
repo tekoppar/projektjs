@@ -1,4 +1,9 @@
-import { GameObject, Inventory, ItemStats, Item, InputState, UsableItem, Collision, AmbientLight, AtlasController, Vector2D, Shadow2D, BoxCollision, CollisionHandler, OperationType, CMath, ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings, ParticleType, AnimationType, CustomLogger, BWDrawingType, CAnimation, PlayerController } from '../../internal.js';
+import {
+    GameObject, Inventory, ItemStats, Item, InputState, UsableItem, Collision, AmbientLight,
+    AtlasController, Vector2D, Shadow2D, BoxCollision, CollisionHandler, OperationType, CMath,
+    ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings,
+    ParticleType, AnimationType, CustomLogger, BWDrawingType, CAnimation, PlayerController, ShadowCanvasObject
+} from '../../internal.js';
 
 const FacingDirection = {
     Left: 0,
@@ -86,7 +91,7 @@ class CharacterAttachments extends GameObject {
         this.CreateDrawOperation(this.currentAnimation.GetFrame(), position, false, this.canvas, OperationType.gameObjects);
 
         if (this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None)
-            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
+            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile, true);
     }
 
     FixedUpdate() {
@@ -269,6 +274,7 @@ class Character extends GameObject {
         /** @type {BoxCollision} */
         this.BlockingCollision = new BoxCollision(this.GetPosition(), new Vector2D(16, 16), true, this, true);
 
+        /** @type {Shadow2D} */
         this.realtimeShadow = undefined;
     }
 
@@ -319,6 +325,9 @@ class Character extends GameObject {
                 //this.attachments[keys[i]].BoxCollision.position = this.GetPosition();
                 this.attachments[keys[i]].size = this.attachments[keys[i]].BoxCollision.size = new Vector2D(animation.h, animation.w);
             }
+
+            if (this.realtimeShadow !== undefined)
+                this.realtimeShadow.BoxCollision.SetPosition(this.realtimeShadow.BoxCollision.position);
         }
     }
 
@@ -377,6 +386,12 @@ class Character extends GameObject {
             if (this.attachments[keys[i]].drawingOperation !== undefined)
                 this.attachments[keys[i]].FlagDrawingUpdate(position);
         }
+
+        if (this.drawingOperation !== undefined && this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None)
+            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile, true);
+
+        if (this.realtimeShadow !== undefined)
+            this.UpdateRealTimeShadow();
     }
 
     PlayAnimation() {
@@ -421,9 +436,6 @@ class Character extends GameObject {
             }
 
             this.CreateDrawOperation(frame, this.GetPosition(), true, this.canvas, OperationType.gameObjects);
-
-            if (this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None)
-                this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
 
             let facingDirection = this.GetFacingDirection();
             switch (facingDirection) {
@@ -557,8 +569,11 @@ class Character extends GameObject {
     }
 
     UpdateRealTimeShadow() {
+        if (this.realtimeShadow.shadowObject.UpdatedThisFrame === true)
+            return;
+
         if (this.drawingOperation !== undefined && this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None)
-            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
+            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile, true);
 
         if (this.realtimeShadow !== undefined) {
             this.realtimeShadow.position = this.position.Clone();
@@ -587,6 +602,7 @@ class Character extends GameObject {
             this.BoxCollision.position.Add(Vector2D.Mult(this.MovementSpeed, this.Velocity));
 
             this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
+            this.BoxCollision.position = this.GetPosition();
             this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5, y: this.BlockingCollision.size.y - this.BlockingCollision.size.y });
 
             if (CollisionHandler.GCH.CheckCollisions(this.BlockingCollision) === true) {
@@ -704,7 +720,7 @@ class Character extends GameObject {
                 break;
         }
 
-        this.NeedsRedraw(this.GetPosition());
+        //this.NeedsRedraw(this.GetPosition());
     }
 
     StopMovement() {
@@ -728,7 +744,7 @@ class Character extends GameObject {
         }
 
         this.MovementSpeed.y = this.MovementSpeed.x = speed;
-        this.NeedsRedraw(this.GetPosition());
+        //this.NeedsRedraw(this.GetPosition());
     }
 
     Interact() {

@@ -111,6 +111,19 @@ function HTMLStringToNode(string) {
     return div;
 }
 
+function SwitchTab(event) {
+    if (event.target.dataset.tabid !== undefined) {
+        let children = document.getElementById('container-controls').children[1].children;
+        for (let i = 0, l = children.length; i < l; ++i) {
+            children[i].style.display = 'none';
+        }
+
+        children[event.target.dataset.tabid].style.display = 'flex';
+    }
+}
+
+document.getElementById('container-controls').children[0].addEventListener('click', SwitchTab);
+
 let includeTemplates = function appendTemplates(content) {
     let container = document.createElement('div');
     container.innerHTML = content;

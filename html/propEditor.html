@@ -1,15 +1,10 @@
 <style>
     .prop-editor {
-        display: flex;
+        display: none;
         flex-direction: column;
-        width: max-content;
         background-color: black;
         border-radius: 3px;
         padding: 5px;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
         box-sizing: content-box;
         overflow: hidden;
         visibility: collapse;
@@ -101,12 +96,8 @@
 </style>
 
 <div class="prop-editor" id="prop-editor">
-    <div class="prop-editor-container">
         <div id="prop-editor-grid" class="prop-editor-grid"></div>
-    </div>
     <div class="prop-editor-controls">
-        <button id="prop-editor-copy">Copy Prop</button>
         <button id="prop-editor-collision">Edit Prop Collision</button>
-        <button id="prop-editor-close">Close</button>
     </div>
 </div>

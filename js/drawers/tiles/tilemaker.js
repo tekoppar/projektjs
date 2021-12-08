@@ -9,12 +9,12 @@ class TileMaker {
             let canvas = AtlasController.GetAtlas(drawingTile.atlas).GetCanvas();
             tempCanvas.getContext('2d').drawImage(
                 canvas,
-                drawingTile.GetPosX(),
-                drawingTile.GetPosY(),
+                drawingTile.tilePosition.x * 32,
+                drawingTile.tilePosition.y * 32,
                 drawingTile.size.x,
                 drawingTile.size.y,
-                x * 32,
-                y * 32,
+                x * 32 + drawingTile.position.x,
+                y * 32 + drawingTile.position.y,
                 drawingTile.size.x,
                 drawingTile.size.y
             );
@@ -32,11 +32,14 @@ class TileMaker {
 
                 if (Array.isArray(tileLayout[y][x]) === true) {
                     for (let i = 0, l = tileLayout[y][x].length; i < l; ++i) {
-                        TileMaker.DrawOnCanvas(tempCanvas, tiles[tileLayout[y][x][i]], x, y);
+                        if (tileLayout[y][x][i] !== null)
+                            TileMaker.DrawOnCanvas(tempCanvas, tiles[tileLayout[y][x][i]], x, y);
                     }
                 } else {
-                    let drawingTile = tiles[tileLayout[y][x]];
-                    TileMaker.DrawOnCanvas(tempCanvas, drawingTile, x, y);
+                    if (tileLayout[y][x] !== null) {
+                        let drawingTile = tiles[tileLayout[y][x]];
+                        TileMaker.DrawOnCanvas(tempCanvas, drawingTile, x, y);
+                    }
                 }
             }
         }
@@ -178,6 +181,7 @@ class TileMaker {
     }
 
     static GenerateCustomTiles() {
+        const f = null;
         TileMaker.CustomTiles = {
             seedStand: {
                 name: 'pepoSeedShop',
@@ -540,12 +544,73 @@ class TileMaker {
             lamppost: {
                 name: 'lamppost',
                 tiles: [
-                    new Tile(new Vector2D(0, 0,), new Vector2D(27, 34), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, 0,), new Vector2D(27, 35), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(27, 34), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(27, 35), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
                 ],
                 tileLayout: [
                     [0],
                     [1]
+                ]
+            },
+            house1: {
+                name: 'house1',
+                tiles: [
+                    new Tile(new Vector2D(0, 0), new Vector2D(36, 29), new Vector2D(96, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(36, 31), new Vector2D(96, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(36, 29), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(36, 31), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(38, 29), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+
+                    new Tile(new Vector2D(0, 0), new Vector2D(38, 31), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(26, 25), new Vector2D(32, 32), true, 'windowsdoors', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(27, 25), new Vector2D(32, 32), true, 'windowsdoors', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(26, 26), new Vector2D(32, 32), true, 'windowsdoors', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(27, 26), new Vector2D(32, 32), true, 'windowsdoors', 0, TileType.Prop, TileTerrain.Wood),
+
+                    new Tile(new Vector2D(0, 0), new Vector2D(25, 53), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(20, 2), new Vector2D(32, 32), true, 'windowsdoors', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(20, 3), new Vector2D(32, 32), true, 'windowsdoors', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(0, 2), new Vector2D(32, 128), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(1, 1), new Vector2D(32, 64), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+
+                    new Tile(new Vector2D(0, 0), new Vector2D(2, 0), new Vector2D(32, 96), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(3, 1), new Vector2D(32, 64), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(4, 2), new Vector2D(32, 128), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+
+                    new Tile(new Vector2D(0, 0), new Vector2D(50, 0), new Vector2D(64, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(50, 1), new Vector2D(64, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(3, 9), new Vector2D(64, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(51, 0), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+
+                    new Tile(new Vector2D(0, 0), new Vector2D(54, 0), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(55, 0), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(54, 1), new Vector2D(64, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(0, 9), new Vector2D(64, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(54, 0), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(25, 68), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+
+                    new Tile(new Vector2D(0, 0), new Vector2D(1, 4), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+
+                    new Tile(new Vector2D(0, 0), new Vector2D(55, 1), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+
+                    new Tile(new Vector2D(0, 0), new Vector2D(25, 69), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+
+                    new Tile(new Vector2D(0, 0), new Vector2D(1, 2), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(2, 3), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(51, 1), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(3, 3), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(3, 4), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(25, 55), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                ],
+                tileLayout: [
+                    [f, f, f, 15, f, f, f],
+                    [f, f, 14, f, 16, f, f],
+                    [25, f, f, f, f, 20, f],
+                    [26, 26, [30, 31], [30, 32], [30, 34], 21, 21],
+                    [22, [30, 23], [30, 28], 30, [30, 35], [30, 18], f],
+                    [[27, 24], [27, 29], 27, 27, 27, [27,19], [27, 33]],
+                    [2, 4, [10, 6], [10, 7], 0, 11, f],
+                    [3, 5, [36, 8], [36, 9], 1, 12, f],
                 ]
             },
         };

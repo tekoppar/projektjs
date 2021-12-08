@@ -236,14 +236,13 @@ class TileData {
 
         TileData.tileGUI.propEditor = clone.getElementById('tile-lut-editor-prop-editor');
 
-        document.body.appendChild(clone);
+        document.getElementById('container-controls').children[1].appendChild(clone);
 
         TileData.tileGUI.tileterrain.addEventListener('change', this);
         TileData.tileGUI.tiletype.addEventListener('change', this);
         TileData.tileGUI.button.addEventListener('click', this);
         TileData.tileGUI.export.addEventListener('click', this);
         TileData.tileGUI.collisionEditor.addEventListener('click', this);
-        TileData.tileGUI.propEditor.addEventListener('click', this);
 
         TileData.tileGUI.filtertileterrain.addEventListener('input', this);
         TileData.tileGUI.filtertileterrain.children[0].addEventListener('click', this);

@@ -10,6 +10,9 @@ class Cobject {
     /** @type {Object<string, Cobject>} */
     static AllCobjects = { };
 
+    /** @type {Array<String>} */
+    static KeysAllCobjects = [];
+
     /**
      * Create an Object
      * @param {Vector2D} position - position vector of the object
@@ -71,6 +74,7 @@ class Cobject {
         if (Cobject.AllCobjects[object.UID] === undefined)
             return;
 
+        Cobject.KeysAllCobjects.splice(Cobject.KeysAllCobjects.indexOf(object.GUID), 1);
         delete Cobject.AllCobjects[object.UID];
     }
 
@@ -100,13 +104,14 @@ class Cobject {
     static AddObject(object) {
         object.UID = Cobject.GenerateUID();
         Cobject.AllCobjects[object.UID] = object;
+        Cobject.KeysAllCobjects.push(object.UID);
     }
 
     FixedUpdate(delta) {
 
     }
 
-    EndOfFameUpdate() {
+    EndOfFrameUpdate() {
 
     }
 

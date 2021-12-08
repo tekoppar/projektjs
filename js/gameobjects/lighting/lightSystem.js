@@ -1,4 +1,7 @@
-import { Cobject, Color, Vector2D, CMath, MasterObject, Mastertime, Graph, GraphPoint, DrawingOperation, AmbientLight, CanvasDrawer, CanvasUtility } from '../../internal.js';
+import {
+    Cobject, Color, Vector2D, CMath, MasterObject, Mastertime, Graph, GraphPoint,
+    DrawingOperation, AmbientLight, CanvasDrawer, CanvasUtility
+} from '../../internal.js';
 
 /**
  * @readonly
@@ -186,7 +189,7 @@ class LightSystem extends Cobject {
         const canvasEl = document.getElementById('game-canvas');
         this.lightFrameBuffer.setAttribute('width', canvasEl.getAttribute('width'));
         this.lightFrameBuffer.setAttribute('height', canvasEl.getAttribute('height'));
-        document.body.appendChild(this.lightFrameBuffer);
+        //document.body.appendChild(this.lightFrameBuffer);
 
         this.lightIntensityBuffer.setAttribute('width', canvasEl.getAttribute('width'));
         this.lightIntensityBuffer.setAttribute('height', canvasEl.getAttribute('height'));
@@ -194,11 +197,11 @@ class LightSystem extends Cobject {
 
         this.ambientFrameBuffer.setAttribute('width', canvasEl.getAttribute('width'));
         this.ambientFrameBuffer.setAttribute('height', canvasEl.getAttribute('height'));
-        document.body.appendChild(this.ambientFrameBuffer);
+        //document.body.appendChild(this.ambientFrameBuffer);
 
         this.lightingV2.setAttribute('width', canvasEl.getAttribute('width'));
         this.lightingV2.setAttribute('height', canvasEl.getAttribute('height'));
-        document.body.appendChild(this.lightingV2);
+        //document.body.appendChild(this.lightingV2);
 
         /** @type {CanvasRenderingContext2D} */
         this.lightIntensityBufferCtx = this.lightIntensityBuffer.getContext('2d', { willReadFrequently: true });
@@ -670,6 +673,22 @@ class LightSystem extends Cobject {
     }
 
     /**
+     * 
+     * @param {Vector2D} position 
+     * @returns {Array<AmbientLight>}
+     */
+    GetOverlappingLights(position) {
+        let lights = [];
+
+        for (let i = 0, l = LightSystem.AllAmbientLights.length; i < l; ++i) {
+            if (LightSystem.AllAmbientLights[i].BoxCollision.boundingBox.InsideXY(position.x, position.y))
+                lights.push(LightSystem.AllAmbientLights[i]);
+        }
+
+        return lights;
+    }
+
+    /**
      * Gets the color from the light data and returns the color.
      * @param {Vector2D} position - Position in the array to get the pixel
      * @returns {Color}
@@ -678,8 +697,8 @@ class LightSystem extends Cobject {
         if (this.lightData === undefined || this.lightData.data === undefined)
             return LightSystem.SkyLight.color.Clone();
 
-        let index = Math.floor(position.y) * (this.lightFrameBuffer.width * 4) + Math.floor(position.x) * 4,
-            ambientColor = LightSystem.SkyLight.color.Clone(),
+        let lights = this.GetOverlappingLights(position),
+            index = Math.floor(position.y) * (this.lightFrameBuffer.width * 4) + Math.floor(position.x) * 4,
             color = new Color(
                 this.lightData.data[index],
                 this.lightData.data[index + 1],
@@ -687,6 +706,20 @@ class LightSystem extends Cobject {
                 this.lightData.data[index + 3]
             );
 
+        if (lights.length > 0) {
+            let relativePosition = position.Clone();
+            relativePosition.x -= lights[0].BoxCollision.boundingBox.x;
+            relativePosition.y -= lights[0].BoxCollision.boundingBox.y;
+            index = Math.floor(relativePosition.y) * (lights[0].colorFrameBuffer.width * 4) + Math.floor(relativePosition.x) * 4;
+            color = new Color(
+                lights[0].colorData.data[index],
+                lights[0].colorData.data[index + 1],
+                lights[0].colorData.data[index + 2],
+                lights[0].colorData.data[index + 3]
+            );
+        }
+
+        let ambientColor = LightSystem.SkyLight.color.Clone();
         ambientColor.AddAlpha(color);
 
         /*color = new Color(

@@ -1,4 +1,7 @@
-import { Vector2D, Hoe, Shovel, Axe, MainCharacter, Weapon, Seed, Controller, Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Rock, Item, CustomLogger } from '../internal.js';
+import {
+    Vector2D, Hoe, Shovel, Axe, MainCharacter, Weapon, Seed, Controller,
+    Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Rock, Item, CustomLogger
+} from '../internal.js';
 
 /**
  * @class
@@ -38,8 +41,8 @@ class PlayerController extends Controller {
         super.FixedUpdate();
     }
 
-    EndOfFameUpdate() {
-        super.EndOfFameUpdate();
+    EndOfFrameUpdate() {
+        super.EndOfFrameUpdate();
         this.playerCamera.SetCameraPosition(this.playerCharacter.GetPosition());
     }
 
@@ -145,6 +148,10 @@ class PlayerController extends Controller {
         }
     }
 
+    /**
+     * 
+     * @param {boolean} state 
+     */
     TogglePreviewCursor(state) {
         this.drawPreviewCursor = state;
         CanvasDrawer.GCD.drawTileCursorPreview = state;

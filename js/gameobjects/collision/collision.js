@@ -225,7 +225,7 @@ class CollisionHandler {
         let canvas = document.getElementById('game-canvas');
 
         /** @type {QuadTree} */
-        this.QuadTree = QuadTree.MasterQuadTree = new QuadTree(0, new Rectangle(0, 0, parseFloat(canvas.getAttribute('width')), parseFloat(canvas.getAttribute('height'))));
+        this.QuadTree = QuadTree.MasterQuadTree = new QuadTree(0, new Rectangle(0, 0, 10000, 10000));
     }
 
     FixedUpdate() {
@@ -300,7 +300,7 @@ class CollisionHandler {
         quadOverlaps = quadOverlaps.concat(this.QuadTree.Get(collision.GetBoundingBox()));
 
         for (let i = 0, l = quadOverlaps.length; i < l; ++i) {
-            if ((collision.DoIntersect(quadOverlaps[i]) === true || collision.GetIntersections(quadOverlaps[i].GetPoints()) > 0) && collision.collisionOwner !== quadOverlaps[i].collisionOwner && quadOverlaps[i].enableCollision === true) {
+            if (collision.GetIntersections(quadOverlaps[i].GetPoints()) > 0 && collision.collisionOwner !== quadOverlaps[i].collisionOwner && quadOverlaps[i].enableCollision === true) {
                 return false;
             }
         }
@@ -407,12 +407,11 @@ class CollisionHandler {
     /**
      * 
      * @param {Collision} collision 
-     * @param {boolean} debugDraw 
      * @param {Object} OverlapCheckType 
      * @param {CollisionTypeCheck} CollisionCheckType 
      * @returns {Array<Collision>}
      */
-    GetOverlaps(collision, debugDraw = false, OverlapCheckType = DefaultOverlapCheck, CollisionCheckType = CollisionTypeCheck.Overlap) {
+    GetOverlaps(collision, OverlapCheckType = DefaultOverlapCheck, CollisionCheckType = CollisionTypeCheck.Overlap) {
         let overlaps = [],
             quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox());
 
@@ -435,8 +434,6 @@ class CollisionHandler {
             } else if (CollisionCheckType === CollisionTypeCheck.All) {
                 overlaps.push(quadOverlaps[i]);
             }
-            if (debugDraw)
-                DebugDrawer.AddDebugRectOperation(quadOverlaps[i].GetBoundingBox(), 0.1, 'orange');
         }
 
         quadOverlaps = null;
@@ -614,6 +611,7 @@ class Collision {
 
     /**
      * 
+     * @private
      * @param {Number} aMin 
      * @param {Number} aMax 
      * @param {Number} bMin 
@@ -814,7 +812,7 @@ class Collision {
 
     SetPosition(position) {
         if (this.overlapEvents) {
-            let overlaps = CollisionHandler.GCH.GetOverlaps(this, false, OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
+            let overlaps = CollisionHandler.GCH.GetOverlaps(this, OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
 
             let bb = this.GetBoundingBox().Clone();
                 bb.Floor();

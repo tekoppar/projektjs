@@ -25,7 +25,7 @@ export { XHRUtility } from './classes/utility/xhr.js';
 
 export { PageFetcher } from './classes/utility/pageFetcher.js';
 
-export { AllCollisions } from './gameobjects/collision/allCollisions.js';
+export { AllCollisions, AllBlockingCollisions } from './gameobjects/collision/allCollisions.js';
 
 export { Collision, BoxCollision, CollisionHandler, PolygonCollision, OverlapCheckEnum, OverlapOICheck, OverlapOverlapsCheck, CollisionTypeCheck } from './gameobjects/collision/collision.js';
 

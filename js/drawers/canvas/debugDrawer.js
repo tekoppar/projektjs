@@ -40,6 +40,18 @@ class DebugDrawer extends Cobject {
 
         /** @type {CanvasRenderingContext2D} */
         this.gameDebugCanvasCtx = undefined;
+
+        /** @type {Vector2D} */
+        this.offset = new Vector2D(0, 0);
+    }
+
+    /**
+     * 
+     * @param {Vector2D} offset 
+     */
+    SetOffset(offset) {
+        this.offset.x = offset.x;
+        this.offset.y = offset.y;
     }
 
     /**
@@ -60,9 +72,9 @@ class DebugDrawer extends Cobject {
                 break;
             case PolygonCollision:
                 if (object.enableCollision === true)
-                    s = Color.CSS_COLOR_TABLE.darkmagenta;
+                    s = Color.CSS_COLOR_TABLE.magenta;
                 else
-                    s = Color.CSS_COLOR_TABLE.darkblue;
+                    s = Color.CSS_COLOR_TABLE.blue;
 
                 break;
             case Collision: s = Color.CSS_COLOR_TABLE.sienna; break;
@@ -175,8 +187,8 @@ class DebugDrawer extends Cobject {
         switch (drawingOperation.constructor) {
             case RectOperation:
                 size.Set(drawingOperation.GetSize());
-                drawingOperation.drawingCanvas.getContext('2d').clearRect(oldPosition.x - 1, oldPosition.y - 1, size.x + 2, size.y + 2);
-                drawingOperation.drawingCanvas.getContext('2d').clearRect(drawingOperation.position.x - 1, drawingOperation.position.y - 1, size.x + 2, size.y + 2);
+                drawingOperation.drawingCanvas.getContext('2d').clearRect(oldPosition.x - 1 - this.offset.x, oldPosition.y - 1 - this.offset.y, size.x + 2, size.y + 2);
+                drawingOperation.drawingCanvas.getContext('2d').clearRect(drawingOperation.position.x - 1 - this.offset.x, drawingOperation.position.y - 1 - this.offset.y, size.x + 2, size.y + 2);
                 break;
             case PathOperation:
                 let boundingBox = Polygon.CalculateBoundingBox(drawingOperation.path);
@@ -184,7 +196,7 @@ class DebugDrawer extends Cobject {
                 boundingBox.y -= 1;
                 boundingBox.z += 2;
                 boundingBox.a += 2;
-                drawingOperation.drawingCanvas.getContext('2d').clearRect(boundingBox.x, boundingBox.y, boundingBox.z, boundingBox.a);
+                drawingOperation.drawingCanvas.getContext('2d').clearRect(boundingBox.x - this.offset.x, boundingBox.y - this.offset.y, boundingBox.z, boundingBox.a);
                 break;
         }
     }
@@ -206,11 +218,11 @@ class DebugDrawer extends Cobject {
 
                 if (drawingOperation.fillOrOutline === false) {
                     context.fillStyle = drawingOperation.color;
-                    context.fillRect(drawingOperation.position.x, drawingOperation.position.y, drawingOperation.size.x, drawingOperation.size.y);
+                    context.fillRect(drawingOperation.position.x - this.offset.x, drawingOperation.position.y - this.offset.y, drawingOperation.size.x, drawingOperation.size.y);
                 }
                 else {
                     context.strokeStyle = drawingOperation.color;
-                    context.strokeRect(drawingOperation.position.x + 1, drawingOperation.position.y + 1, drawingOperation.size.x - 2, drawingOperation.size.y - 2);
+                    context.strokeRect(drawingOperation.position.x + 1 - this.offset.x, drawingOperation.position.y + 1 - this.offset.y, drawingOperation.size.x - 2, drawingOperation.size.y - 2);
                 }
 
                 context.globalAlpha = 0.3;
@@ -231,27 +243,33 @@ class DebugDrawer extends Cobject {
      * @returns {void}
      */
     DrawDebugCanvas(collision) {
-        if (collision.debugDraw === false)
+        if (collision.debugDraw === false) {
+            this.gameDebugCanvasCtx.globalAlpha = 1.0;
+            this.gameDebugCanvasCtx.fillStyle = 'red';
+            this.gameDebugCanvasCtx.clearRect(Math.floor(collision.collisionOwner.position.x) - this.offset.x - 2, Math.floor(collision.collisionOwner.position.y) - this.offset.y - 2, 4, 4);
+            this.gameDebugCanvasCtx.fillRect(Math.floor(collision.collisionOwner.position.x) - this.offset.x - 2, Math.floor(collision.collisionOwner.position.y) - this.offset.y - 2, 4, 4);
             return;
+        }
 
         let color = this.GetColor(collision);
         if (collision.enableCollision === true)
             color.MultF(0.7);
 
         this.gameDebugCanvasCtx.fillStyle = color.ToString();
+        this.gameDebugCanvasCtx.globalAlpha = 0.5;
 
         switch (collision.constructor) {
             case BoxCollision:
-                this.gameDebugCanvasCtx.clearRect(collision.boundingBox.x, collision.boundingBox.y, collision.boundingBox.w, collision.boundingBox.h);
-                this.gameDebugCanvasCtx.fillRect(collision.boundingBox.x, collision.boundingBox.y, collision.boundingBox.w, collision.boundingBox.h);
+                this.gameDebugCanvasCtx.clearRect(collision.boundingBox.x - this.offset.x, collision.boundingBox.y - this.offset.y, collision.boundingBox.w, collision.boundingBox.h);
+                this.gameDebugCanvasCtx.fillRect(collision.boundingBox.x - this.offset.x, collision.boundingBox.y - this.offset.y, collision.boundingBox.w, collision.boundingBox.h);
                 break;
 
             case PolygonCollision:
                 this.gameDebugCanvasCtx.beginPath();
-                this.gameDebugCanvasCtx.moveTo(collision.points[0].x, collision.points[0].y);
+                this.gameDebugCanvasCtx.moveTo(collision.points[0].x - this.offset.x, collision.points[0].y - this.offset.y);
 
                 for (let point of collision.points) {
-                    this.gameDebugCanvasCtx.lineTo(point.x, point.y);
+                    this.gameDebugCanvasCtx.lineTo(point.x - this.offset.x, point.y - this.offset.y);
                 }
 
                 this.gameDebugCanvasCtx.closePath();
@@ -259,8 +277,8 @@ class DebugDrawer extends Cobject {
                 break;
 
             case Collision:
-                this.gameDebugCanvasCtx.clearRect(collision.boundingBox.x, collision.boundingBox.y, collision.boundingBox.w, collision.boundingBox.h);
-                this.gameDebugCanvasCtx.fillRect(collision.boundingBox.x, collision.boundingBox.y, collision.boundingBox.w, collision.boundingBox.h);
+                this.gameDebugCanvasCtx.clearRect(collision.boundingBox.x - this.offset.x, collision.boundingBox.y - this.offset.y, collision.boundingBox.w, collision.boundingBox.h);
+                this.gameDebugCanvasCtx.fillRect(collision.boundingBox.x - this.offset.x, collision.boundingBox.y - this.offset.y, collision.boundingBox.w, collision.boundingBox.h);
                 break;
         }
     }
@@ -269,7 +287,7 @@ class DebugDrawer extends Cobject {
 
     }
 
-    EndOfFameUpdate() {
+    EndOfFrameUpdate() {
 
     }
 
@@ -299,7 +317,7 @@ class DebugDrawer extends Cobject {
         this.gameDebugCanvas.setAttribute('width', canvasEl.getAttribute('width'));
         this.gameDebugCanvas.setAttribute('height', canvasEl.getAttribute('height'));
         this.gameDebugCanvas.id = 'GameDebugCanvas';
-        document.body.appendChild(this.gameDebugCanvas);
+        //document.body.appendChild(this.gameDebugCanvas);
         this.gameDebugCanvasCtx = this.gameDebugCanvas.getContext('2d');
         this.gameDebugCanvasCtx.imageSmoothingEnabled = false;
         this.gameDebugCanvasCtx.globalAlpha = 0.3;

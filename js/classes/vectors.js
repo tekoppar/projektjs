@@ -67,6 +67,11 @@ class Vector2D {
         }
     }
 
+    MultF(f) {
+        this.x *= f;
+        this.y *= f;
+    }
+
     static Mult(a, b) {
         return new Vector2D(a.x * b.x, a.y * b.y);
     }
@@ -582,6 +587,10 @@ class Rectangle {
         this.UpdateCornersData();
     }
 
+    static Add(a, b) {
+        return new Rectangle(a.x + b.x, a.y + b.y, a.w + b.w, a.h + b.h);
+    }
+
     Sub(a) {
         if (a.x !== undefined) {
             this.x -= a.x;
@@ -596,6 +605,10 @@ class Rectangle {
         }
 
         this.UpdateCornersData();
+    }
+
+    static Sub(a, b) {
+        return new Rectangle(a.x - b.x, a.y - b.y, a.w - b.w, a.h - b.h);
     }
 
     Mult(a) {
@@ -703,6 +716,15 @@ class Rectangle {
         return x <= this.x || x >= this.x + this.w && y <= this.y || y >= this.y + this.h;
     }
 
+    /**
+     * 
+     * @private
+     * @param {Number} aMin 
+     * @param {Number} aMax 
+     * @param {Number} bMin 
+     * @param {Number} bMax 
+     * @returns {boolean}
+     */
     IsOverlaping1D(aMin, aMax, bMin, bMax) {
         return aMax > bMin && bMax > aMin;
     }
@@ -1416,6 +1438,7 @@ class Color {
         return new Color(this.red, this.green, this.blue, this.alpha);
     }
 
+    /** @todo Very expensive, needs to be cached for future use */
     ToString() {
         return `rgba(${this.red}, ${this.green}, ${this.blue}, ${this.alpha})`;
     }

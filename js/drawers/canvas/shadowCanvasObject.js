@@ -5,7 +5,7 @@ import { Vector2D, BoxCollision, AtlasController, Tile, LightSystem, CollisionHa
  * @enum {Number}
  */
 const ShadowRotationLUT = {
-    'mainP':90,
+    'mainP': 90,
     'birchLog': 0,
     'stonePiece': 45,
     'coal': 90,
@@ -27,7 +27,7 @@ const ShadowRotationLUT = {
  * @class
  * @constructor
  */
- class ShadowCanvasObject {
+class ShadowCanvasObject {
     constructor() {
         /** @type {HTMLCanvasElement} */
         this.canvas;
@@ -43,6 +43,9 @@ const ShadowRotationLUT = {
 
         /** @type {boolean} */
         this.firstDraw = false;
+
+        /** @type {boolean} */
+        this.UpdatedThisFrame = false;
     }
 
     /**
@@ -79,10 +82,14 @@ const ShadowRotationLUT = {
     UpdateRealTimeShadow(name, position, boxCollision, tile) {
         let biggest = Math.max(tile.size.x, tile.size.y);
 
+        this.canvasCtx.globalCompositeOperation = 'source-atop';
+        this.canvasCtx.fillStyle = LightSystem.SkyLight.color.ToString();
+        this.canvasCtx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.canvasCtx.globalCompositeOperation = 'source-over';
         this.shadowData = this.canvasCtx.getImageData(0, 0, this.canvas.width, this.canvas.height);
         this.firstDraw = false;
 
-        let color = LightSystem.SkyLight.color.Clone();
+        /*let color = LightSystem.SkyLight.color.Clone();
         for (let i = 0, l = this.shadowData.data.length; i < l; ++i) {
             this.shadowData.data[i] = color.red;
             this.shadowData.data[++i] = color.green;
@@ -91,7 +98,7 @@ const ShadowRotationLUT = {
                 this.shadowData.data[++i] = 160;
             } else
                 ++i;
-        }
+        }*/
 
         let overlaps = CollisionHandler.GCH.GetOverlapByClass(boxCollision, 'AmbientLight');
 
@@ -100,7 +107,10 @@ const ShadowRotationLUT = {
             shadowPos.y -= 15;
             let rotation = CMath.LookAt2D(shadowPos, overlaps.collisionOwner.GetPosition().Clone());
             rotation -= ShadowRotationLUT[name] !== undefined ? ShadowRotationLUT[name] : 90;
-            this.RotateRealTimeShadow(rotation, tile);
+
+            Math3D.RotatePixelData2D(this.shadowData.data, new Vector2D(biggest, biggest), new Vector(0, 0, rotation), 0, new Vector(biggest / 2, biggest / 2, biggest / 2));
+            this.canvasCtx.putImageData(this.shadowData, 0, 0);
+
             let rotationArr = [new Vector4D(biggest / 2, biggest, biggest / 2, 0)];
             Math3D.Rotate(0, 0, CMath.DegreesToRadians(rotation), rotationArr, new Vector(biggest / 2, biggest / 2, biggest / 2));
             this.centerPosition = new Vector2D(rotationArr[0].x, rotationArr[0].y);
@@ -108,18 +118,9 @@ const ShadowRotationLUT = {
             this.centerPosition.y -= tile.size.y - 10;
 
             //this.canvasCtx.putImageData(this.shadowData, 0, 0);
-        }
-    }
 
-    /**
-     * 
-     * @param {Number} rotation 
-     * @param {Tile} tile 
-     */
-    RotateRealTimeShadow(rotation, tile) {
-        let biggest = Math.max(tile.size.x, tile.size.y);
-        Math3D.RotatePixelData2D(this.shadowData.data, new Vector2D(biggest, biggest), new Vector(0, 0, rotation), 0, new Vector(biggest / 2, biggest / 2, biggest / 2));
-        this.canvasCtx.putImageData(this.shadowData, 0, 0);
+            this.UpdatedThisFrame = true;
+        }
     }
 
     /**
@@ -133,7 +134,7 @@ const ShadowRotationLUT = {
         this.canvas.width = biggest;
         this.canvas.height = biggest;
 
-        document.body.appendChild(this.canvas);
+        //document.body.appendChild(this.canvas);
         this.canvasCtx = this.canvas.getContext('2d');
         this.canvasCtx.imageSmoothingEnabled = false;
 

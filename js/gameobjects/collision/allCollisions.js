@@ -1,6 +1,7 @@
 import { Vector2D } from '../../internal.js'
 
 let AllCollisions = {};
+let AllBlockingCollisions = {};
 
 AllCollisions.treeBirch1 = [new Vector2D(46, 160), new Vector2D(35, 156), new Vector2D(40, 147), new Vector2D(41, 80), new Vector2D(14, 73), new Vector2D(1, 66), new Vector2D(2, 36), new Vector2D(21, 5), new Vector2D(40, 0), new Vector2D(68, 3), new Vector2D(84, 15), new Vector2D(95, 40), new Vector2D(95, 59), new Vector2D(81, 77), new Vector2D(56, 79), new Vector2D(57, 147), new Vector2D(62, 155), ];
 AllCollisions.treeBirch2 = [new Vector2D(49, 128), new Vector2D(35, 124), new Vector2D(40, 116), new Vector2D(40, 80), new Vector2D(14, 73), new Vector2D(1, 66), new Vector2D(2, 36), new Vector2D(18, 9), new Vector2D(41, 0), new Vector2D(57, 1), new Vector2D(69, 4), new Vector2D(84, 15), new Vector2D(95, 41), new Vector2D(95, 56), new Vector2D(81, 76), new Vector2D(56, 80), new Vector2D(56, 116), new Vector2D(62, 122), ];
@@ -23,4 +24,27 @@ AllCollisions.goldRock = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(
 
 AllCollisions.lamppost = [new Vector2D(3, 0), new Vector2D(29, 0), new Vector2D(29, 64), new Vector2D(3, 64)];
 
-export { AllCollisions };
+AllCollisions.house1 = [new Vector2D(0, 0), new Vector2D(224, 0), new Vector2D(224, 256), new Vector2D(0, 256)];
+AllBlockingCollisions.house1 = [new Vector2D(0, 160), new Vector2D(224, 160), new Vector2D(224, 256), new Vector2D(0, 256)];
+
+AllBlockingCollisions.stonewall_l_c_r = [new Vector2D(12, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(12, 32)];
+AllBlockingCollisions.stonewall_m_c_lr = [new Vector2D(0, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(0, 32)];
+AllBlockingCollisions.stonewall_r_c_l = [new Vector2D(0, 22), new Vector2D(20, 22), new Vector2D(20, 32), new Vector2D(0, 32)];
+
+AllBlockingCollisions.stonewall_b_c_t = [new Vector2D(12, 0), new Vector2D(20, 0), new Vector2D(20, 32), new Vector2D(12, 32)];
+AllBlockingCollisions.stonewall_m_c_td = [new Vector2D(12, 0), new Vector2D(20, 0), new Vector2D(20, 32), new Vector2D(12, 32)];
+AllBlockingCollisions.stonewall_t_c_b = [new Vector2D(12, 20), new Vector2D(20, 20), new Vector2D(20, 32), new Vector2D(12, 32)];
+
+AllBlockingCollisions.stonewall_tl_c_br = [new Vector2D(12, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(12, 32)];
+AllBlockingCollisions.stonewall_t_c_lbr = [new Vector2D(0, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(0, 32)];
+AllBlockingCollisions.stonewall_tr_c_lb = [new Vector2D(0, 22), new Vector2D(20, 22), new Vector2D(20, 32), new Vector2D(0, 32)];
+
+AllBlockingCollisions.stonewall_l_c_trb = [new Vector2D(12, 0), new Vector2D(20, 0), new Vector2D(20, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(12, 32)];
+AllBlockingCollisions.stonewall_m_c_ltrb = [new Vector2D(0, 22), new Vector2D(12, 22), new Vector2D(12, 0), new Vector2D(20, 0), new Vector2D(20, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(0, 32)];
+AllBlockingCollisions.stonewall_r_c_ltb = [new Vector2D(0, 22), new Vector2D(12, 22), new Vector2D(12, 0), new Vector2D(20, 0), new Vector2D(20, 32), new Vector2D(0, 32)];
+
+AllBlockingCollisions.stonewall_bl_c_tr = [new Vector2D(12, 0), new Vector2D(20, 0), new Vector2D(20, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(12, 32)];
+AllBlockingCollisions.stonewall_b_c_ltr = [new Vector2D(0, 22), new Vector2D(12, 22), new Vector2D(12, 0), new Vector2D(20, 0), new Vector2D(20, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(0, 32)];
+AllBlockingCollisions.stonewall_br_c_lt = [new Vector2D(0, 22), new Vector2D(12, 22), new Vector2D(12, 0), new Vector2D(20, 0), new Vector2D(20, 32), new Vector2D(0, 32)];
+
+export { AllCollisions, AllBlockingCollisions };

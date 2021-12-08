@@ -1,4 +1,9 @@
-import { ObjectsHasBeenInitialized, LightSystem, Rectangle, DrawingOperation, CAnimation, AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler, Plant, AllPlantData, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite, Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController } from '../internal.js';
+import {
+    ObjectsHasBeenInitialized, LightSystem, Rectangle, DrawingOperation, CAnimation,
+    AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler,
+    Plant, AllPlantData, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite,
+    Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController
+} from '../internal.js';
 import { GenerateCustomSheets } from '../drawers/tiles/TileMakerCustomSheets/tileMakerCustomSheetsImports.js';
 
 var GlobalFrameCounter = 0;
@@ -87,6 +92,7 @@ class MasterObject {
 
         document.getElementById('framestep-enable').addEventListener('mouseup', this);
         document.getElementById('framestep-next').addEventListener('mouseup', this);
+        window.addEventListener('resize', this);
     }
 
     CheckIfClassesInitialized() {
@@ -154,6 +160,7 @@ class MasterObject {
     GameBegin() {
         if (this.gameHasBegun === false) {
             CanvasDrawer.GCD.GameBegin();
+            InputHandler.GIH.AddListener(CanvasDrawer.GCD);
             LightSystem.SkyLight.Update();
 
             for (let i = 0; i < AllPlants.length; ++i) {
@@ -166,6 +173,8 @@ class MasterObject {
                 Cobject.AllCobjects[key].GameBegin();
             }
         }
+
+        this.CheckFullscreen();
 
         window.requestAnimationFrame(GlobalLoop);
     }
@@ -187,29 +196,24 @@ class MasterObject {
 
         LightSystem.SkyLight.Update();
 
-        for (const key in Cobject.AllCobjects) {
-            Cobject.AllCobjects[key].FixedUpdate(delta);
+        for (let i = 0, l = Cobject.KeysAllCobjects.length; i < l; ++i) {
+            Cobject.AllCobjects[Cobject.KeysAllCobjects[i]].FixedUpdate(delta);
         }
 
         CanvasDrawer.GCD.DrawLoop(delta);
 
-        for (const key in Cobject.AllCobjects) {
-            Cobject.AllCobjects[key].EndOfFameUpdate();
+        for (let i = 0, l = Cobject.KeysAllCobjects.length; i < l; ++i) {
+            Cobject.AllCobjects[Cobject.KeysAllCobjects[i]].EndOfFrameUpdate();
         }
     }
 
     GameLoop() {
-        document.getElementById('custom-logs').innerText = this.Mastertime.TimeOfDay.toTimeString();
         this.Mastertime.Next();
         this.GameLoopActions(this.frameStepping === false ? this.Mastertime.Delta() : 16);
         CollisionHandler.GCH.FixedUpdate();
+        CanvasDrawer.DrawToMain(this.playerController.playerCamera.GetRect());
 
-        CanvasDrawer.DrawToMain(this.playerController.playerCamera);
-
-        this.CheckFullscreen();
-
-        GlobalFrameCounter++;
-
+        ++GlobalFrameCounter;
         if (this.frameStepping === false) {
             window.requestAnimationFrame(GlobalLoop);
         }
@@ -230,7 +234,7 @@ class MasterObject {
             document.getElementById('container-game').style.width = '1920px';
             document.getElementById('container-game').style.height = '1080px';
             document.getElementById('container-game').style.gridColumn = 'center';
-            document.getElementById('container-game').style.gridRow = 'center';
+            document.getElementById('container-game').style.gridRow = 'content';
             //@ts-ignore
             document.body.querySelector('div.controls').style.display = 'block';
             document.getElementById('tile-lut-editor').style.display = 'flex';
@@ -247,6 +251,10 @@ class MasterObject {
                 } else if (e.target.id === 'framestep-enable') {
                     this.ToggleFrameStepping();
                 }
+                break;
+
+            case 'resize':
+                this.CheckFullscreen();
                 break;
         }
     }

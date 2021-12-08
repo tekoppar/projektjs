@@ -23,11 +23,29 @@ const InputType = {
     mouse: 1,
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class Input {
+
+    /**
+     * 
+     * @param {String} key 
+     * @param {InputType} inputType 
+     */
     constructor(key, inputType = InputType.keyboard) {
+
+        /** @type {String} */
         this.key = key;
+
+        /** @type {InputState} */
         this.state = InputState.Null;
+
+        /** @type {Vector2D} */
         this.position = new Vector2D(0, 0);
+
+        /** @type {InputType} */
         this.inputType = inputType;
     }
 
@@ -37,11 +55,17 @@ class Input {
     }
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class InputHandler {
     static GIH = new InputHandler();
 
     constructor() {
         this.gameCanvas = document.getElementById('game-canvas');
+
+        /** @type {Object.<string, Input>} */
         this.keysPressed = {
             '0': new Input('0'),
             '1': new Input('1'),

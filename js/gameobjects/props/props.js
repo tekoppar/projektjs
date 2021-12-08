@@ -1,4 +1,7 @@
-import { GameObject, Vector2D, Vector4D, AtlasController, BWDrawingType, OperationType, PolygonCollision, BoxCollision, Shadow, CAnimation, AllCollisions } from '../../internal.js';
+import {
+    GameObject, Vector2D, Vector4D, AtlasController, BWDrawingType, OperationType,
+    PolygonCollision, BoxCollision, Shadow, CAnimation, AllCollisions, AllBlockingCollisions
+} from '../../internal.js';
 
 /**
  * @class
@@ -129,6 +132,8 @@ class ExtendedProp extends Prop {
 
         if (animations instanceof CAnimation)
             this.currentAnimation = animations.Clone();
+        else if (animations !== null && animations !== undefined && animations.name !== undefined)
+            this.currentAnimation = new CAnimation(animations.name, animations.start, animations.end, animations.w, animations.h, animations.animationType, animations.animationSpeed);
 
         this.shadow = undefined;
     }
@@ -187,14 +192,31 @@ class ExtendedProp extends Prop {
             ));
         }
 
-        this.BlockingCollision = new BoxCollision(this.BoxCollision.position.Clone(), this.blockingCollisionSize.GetPosition(), true, this, true);
+        if (AllBlockingCollisions[this.name] !== undefined) {
+            let tempArr = AllBlockingCollisions[this.name];
+            polygonCollision = tempArr.CloneObjects();
+
+            if (this.blockingCollisionSize.a > 0)
+                this.drawingOperation.collisionSize.y = this.blockingCollisionSize.a;
+
+            this.BlockingCollision = new PolygonCollision(
+                this.BoxCollision.position.Clone(),
+                this.blockingCollisionSize.GetPosition(),
+                polygonCollision,
+                true,
+                this,
+                true
+            )
+        } else
+            this.BlockingCollision = new BoxCollision(this.BoxCollision.position.Clone(), this.blockingCollisionSize.GetPosition(), true, this, true);
 
         this.BlockingCollision.position = this.position.Clone(); //this.BoxCollision.GetRealCenterPosition().Clone();
         this.BlockingCollision.position.x -= this.BlockingCollision.size.x * 0.5 - this.blockingCollisionSize.z;
         this.BlockingCollision.position.y -= this.BlockingCollision.size.y - this.blockingCollisionSize.a;
         //this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x / 2 + this.blockingCollisionSize.z, y: this.BlockingCollision.size.y + this.blockingCollisionSize.a });
 
-        this.BlockingCollision.UpdateCollision();
+        this.BoxCollision.SetPosition(this.BoxCollision.position);
+        this.BlockingCollision.SetPosition(this.BlockingCollision.position);
 
         if (createShadow) {
             this.shadow = new Shadow(this, this.name + 'Shadow', this.position.Clone());// new Vector2D(this.BoxCollision.position.x, this.BoxCollision.GetCenterTilePosition().y + size.y + 1));

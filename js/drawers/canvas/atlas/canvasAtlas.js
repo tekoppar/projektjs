@@ -1,4 +1,4 @@
-import { Vector2D, Tile, TileType, TileTerrain, AtlasController, correctMouse, CMath, LightSystem, CanvasDrawer, BWDrawingType } from '../../../internal.js';
+import { Vector2D, Tile, TileType, TileTerrain, AtlasController, correctMouse, CMath, LightSystem, CanvasDrawer, BWDrawingType, Color } from '../../../internal.js';
 
 /**
  * @class
@@ -212,18 +212,18 @@ class ShadowCanvasOperation {
             this.shadowCanvas.setAttribute('width', this.canvasObject.width.toFixed());
             this.shadowCanvas.setAttribute('height', this.canvasObject.height.toFixed());
         }
-        document.body.appendChild(this.shadowCanvas);
+        //document.body.appendChild(this.shadowCanvas);
         this.shadowCanvasCtx = this.shadowCanvas.getContext('2d');
         this.shadowCanvasCtx.imageSmoothingEnabled = false;
 
-        this.shadowData;
+        //this.shadowData;
         this.drawType = BWDrawingType.None;
         this.lastShadowColor = LightSystem.SkyLight.color.Clone();
 
         this.GenerateShadow();
     }
 
-    UpdateShadow(tile) {
+    UpdateShadow(tile, forceUpdate) {
         if (tile === undefined)
             return;
 
@@ -239,10 +239,10 @@ class ShadowCanvasOperation {
             tile.size.x,
             tile.size.y
         );
-        this.shadowData = this.shadowCanvasCtx.getImageData(0, 0, this.shadowCanvas.width, this.shadowCanvas.height);
+        //this.shadowData = this.shadowCanvasCtx.getImageData(0, 0, this.shadowCanvas.width, this.shadowCanvas.height);
 
         this.GenerateShadow();
-        this.ChangeColor(this.lastShadowColor);
+        this.ChangeColor(this.lastShadowColor, forceUpdate);
         //this.bwCanvasCtx.putImageData(this.cutoutData, 0, 0);
     }
 
@@ -250,7 +250,12 @@ class ShadowCanvasOperation {
         if (this.shadowCanvas === undefined)
             return;
 
-        this.shadowData = this.shadowCanvasCtx.getImageData(0, 0, this.shadowCanvas.width, this.shadowCanvas.height);
+        this.shadowCanvasCtx.globalCompositeOperation = 'source-in';
+        this.shadowCanvasCtx.fillStyle = LightSystem.SkyLight.color.ToString();
+        this.shadowCanvasCtx.fillRect(0, 0, this.shadowCanvas.width, this.shadowCanvas.height);
+        this.shadowCanvasCtx.globalCompositeOperation = 'source-over';
+
+        /*this.shadowData = this.shadowCanvasCtx.getImageData(0, 0, this.shadowCanvas.width, this.shadowCanvas.height);
 
         for (let i = 0, l = this.shadowData.data.length; i < l; ++i) {
             this.shadowData.data[i] = LightSystem.SkyLight.color.red;
@@ -259,37 +264,73 @@ class ShadowCanvasOperation {
             ++i;
         }
 
-        this.shadowCanvasCtx.putImageData(this.shadowData, 0, 0);
+        this.shadowCanvasCtx.putImageData(this.shadowData, 0, 0);*/
         //this.bwCanvasCtx.globalCompositeOperation = 'source-in';
     }
 
-    ChangeColor(color) {
+    ChangeColor(color = undefined, forceUpdate = false) {
         if (this.shadowCanvas === undefined)
             return;
 
-        this.lastShadowColor = color.Clone();
+        if (forceUpdate === false && color.Equal(this.lastShadowColor) === true)
+            return;
 
-        let index = this.shadowCanvas.height * this.shadowCanvas.width * 4,
-            time = 0;
+        this.lastShadowColor.Set(color);
 
+        let gradient;
         switch (this.drawType) {
             case BWDrawingType.Behind:
-                for (let y = this.shadowCanvas.height; y > 0; y--) {
+                gradient = this.shadowCanvasCtx.createLinearGradient(0, this.shadowCanvas.height - 100, 0, this.shadowCanvas.height);
+
+                let gradientColor = new Color(
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.red, LightSystem.SkyLight.color.red, CMath.EaseIn(100 / 100)), 0, 255)),
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.green, LightSystem.SkyLight.color.green, CMath.EaseIn(100 / 100)), 0, 255)),
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.blue, LightSystem.SkyLight.color.blue, CMath.EaseIn(100 / 100)), 0, 255)),
+                    255
+                );
+                gradient.addColorStop(0, gradientColor.ToString());
+
+                gradientColor = new Color(
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.red, LightSystem.SkyLight.color.red, CMath.EaseIn(0 / 100)), 0, 255)),
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.green, LightSystem.SkyLight.color.green, CMath.EaseIn(0 / 100)), 0, 255)),
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.blue, LightSystem.SkyLight.color.blue, CMath.EaseIn(0 / 100)), 0, 255)),
+                    255
+                );
+                gradient.addColorStop(1, gradientColor.ToString());
+                /*for (let y = this.shadowCanvas.height; y > 0; y--) {
+                    if (time <= 100) {
+                        let gradientColor = new Color(
+                            Math.floor(CMath.Clamp(CMath.Lerp(color.red, LightSystem.SkyLight.color.red, CMath.EaseIn(time / 100)), 0, 255)),
+                            Math.floor(CMath.Clamp(CMath.Lerp(color.green, LightSystem.SkyLight.color.green, CMath.EaseIn(time / 100)), 0, 255)),
+                            Math.floor(CMath.Clamp(CMath.Lerp(color.blue, LightSystem.SkyLight.color.blue, CMath.EaseIn(time / 100)), 0, 255)),
+                            255
+                        );
+                        gradient.addColorStop(CMath.Clamp(time / 100, 0, 1), gradientColor.ToString());
+                    }
                     for (let x = this.shadowCanvas.width; x > 0; x--) {
                         if (this.shadowData.data[index + 3] > 0) {
-                            this.shadowData.data[index] = CMath.Clamp(CMath.Lerp(color.red, LightSystem.SkyLight.color.red, CMath.EaseIn(time / 100)), 0, 255);
-                            this.shadowData.data[index + 1] = CMath.Clamp(CMath.Lerp(color.green, LightSystem.SkyLight.color.green, CMath.EaseIn(time / 100)), 0, 255);
-                            this.shadowData.data[index + 2] = CMath.Clamp(CMath.Lerp(color.blue, LightSystem.SkyLight.color.blue, CMath.EaseIn(time / 100)), 0, 255);
+                            //this.shadowData.data[index] = CMath.Clamp(CMath.Lerp(color.red, LightSystem.SkyLight.color.red, CMath.EaseIn(time / 100)), 0, 255);
+                            //this.shadowData.data[index + 1] = CMath.Clamp(CMath.Lerp(color.green, LightSystem.SkyLight.color.green, CMath.EaseIn(time / 100)), 0, 255);
+                            //this.shadowData.data[index + 2] = CMath.Clamp(CMath.Lerp(color.blue, LightSystem.SkyLight.color.blue, CMath.EaseIn(time / 100)), 0, 255);
                         }
                         index -= 4;
                     }
 
                     if (time <= 100)
                         time++;
-                }
+                }*/
+                this.shadowCanvasCtx.globalCompositeOperation = 'source-in';
+                this.shadowCanvasCtx.fillStyle = gradient;
+                this.shadowCanvasCtx.fillRect(0, 0, this.shadowCanvas.width, this.shadowCanvas.height);
+                this.shadowCanvasCtx.globalCompositeOperation = 'source-over';
                 break;
             case BWDrawingType.Front:
-                for (let y = this.shadowCanvas.height; y > 0; y--) {
+                gradient = this.shadowCanvasCtx.createLinearGradient(0, 0, 0, this.shadowCanvas.height);
+                gradient.addColorStop(0, LightSystem.SkyLight.color.ToString());
+                gradient.addColorStop(1, LightSystem.SkyLight.color.ToString());
+                /*for (let y = this.shadowCanvas.height; y > 0; y--) {
+                    if (time <= 100) {
+                    }
                     for (let x = this.shadowCanvas.width; x > 0; x--) {
                         if (this.shadowData.data[index + 3] > 0) {
                             this.shadowData.data[index] = LightSystem.SkyLight.color.red;
@@ -301,11 +342,15 @@ class ShadowCanvasOperation {
 
                     if (time <= 100)
                         time++;
-                }
+                }*/
+                this.shadowCanvasCtx.globalCompositeOperation = 'source-in';
+                this.shadowCanvasCtx.fillStyle = gradient;
+                this.shadowCanvasCtx.fillRect(0, 0, this.shadowCanvas.width, this.shadowCanvas.height);
+                this.shadowCanvasCtx.globalCompositeOperation = 'source-over';
                 break;
         }
 
-        this.shadowCanvasCtx.putImageData(this.shadowData, 0, 0);
+        //this.shadowCanvasCtx.putImageData(this.shadowData, 0, 0);
         //this.bwCanvasCtx.fillStyle = color.ToString();
         //this.bwCanvasCtx.fillRect(0, 0, this.bwCanvas.width, this.bwCanvas.height);
     }

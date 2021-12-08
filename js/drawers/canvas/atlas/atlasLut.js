@@ -7,6 +7,7 @@ AtlasLUT.shortSwordFemale = { url: '/content/sprites/items/weapons/short_sword_f
 AtlasLUT.terrain = { url: '/content/sprites/terrain_atlas.png', size: new Vector2D(1024, 1056), tileSize: new Vector2D(32, 32), name: 'terrain' };
 AtlasLUT.crops = { url: '/content/sprites/crops.png', size: new Vector2D(1024, 1024), tileSize: new Vector2D(32, 32), name: 'crops' };
 AtlasLUT.fence = { url: '/content/sprites/fence.png', size: new Vector2D(1024, 1024), tileSize: new Vector2D(32, 32), name: 'fence' };
+AtlasLUT.victorianstreets = { url: '/content/sprites/Collection/victorian-streets.png', size: new Vector2D(512, 3072), tileSize: new Vector2D(32, 32), name: 'victorianstreets' };
 AtlasLUT.uipieces = { url: '/content/sprites/ui_big_pieces.png', size: new Vector2D(864, 568), tileSize: new Vector2D(32, 32), name: 'uipieces' };
 AtlasLUT.fruitsveggies = { url: '/content/sprites/fruits-veggies.png', size: new Vector2D(1024, 1536), tileSize: new Vector2D(32, 32), name: 'fruitsveggies' };
 AtlasLUT.fruitsveggiesseeds = { url: '/content/sprites/fruits-veggies-seeds.png', size: new Vector2D(1024, 512), tileSize: new Vector2D(32, 32), name: 'fruitsveggiesseeds' };

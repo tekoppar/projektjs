@@ -16,9 +16,10 @@
 }
 
 html {
-    background: linear-gradient(0deg, rgba(163, 216, 238, 1) 0%, rgba(96, 179, 246, 1) 55%);
+    /*background: linear-gradient(0deg, rgba(163, 216, 238, 1) 0%, rgba(96, 179, 246, 1) 55%);*/
     width: 100%;
     height: 100%;
+    background-color: rgb(25, 25, 25);
 }
 
 body {
@@ -26,10 +27,11 @@ body {
     height: 100%;
     padding: 0px;
     margin: 0px;
-    background-image: url(/content/cornground.webp);
+    /*background-image: url(/content/cornground.webp);
     background-repeat: repeat-x;
     background-size: 25%;
-    background-position: bottom;
+    background-position: bottom;*/
+    background-color: rgb(25, 25, 25);
 }
 
 .clouds {
@@ -73,17 +75,36 @@ body {
 }
 
 .controls {
-    position: sticky;
-    top: 0%;
-    z-index: 9999999999;
+    grid-row:help;
+    grid-column: left / span 2;
 }
 
 .container-main {
     display: grid;
-    grid-template-columns: [left] auto [center] 60% [right] auto;
-    grid-template-rows: [help] max-content [content] auto;
+    grid-template-columns: [left] 0.5fr [center] 1920px [right] 0.5fr;
+    grid-template-rows: [help] 0.5fr [content] 1080px [bottom] 0.5fr;
     height: 100%;
     justify-items: center;
+}
+
+.container-game {
+    grid-column: center;
+    grid-row: content;
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    background-color: transparent;
+    padding: 0px;
+    margin: 0px;
+}
+
+.container-controls {
+    display:flex;
+    flex-direction: column;
+    grid-row: help / span 3;
+    grid-column: right;
+    width: 100%;
+    height: 100%;
 }
 
 .container-login {

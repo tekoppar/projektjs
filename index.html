@@ -5,17 +5,6 @@
         position: relative;
     }
 
-    .container-game {
-        grid-column: center;
-        grid-row: center;
-        width: 1920px;
-        height: 1080px;
-        position: relative;
-        background-color: transparent;
-        padding: 0px;
-        margin: 0px;
-    }
-
     .absolute-canvas {
         position: absolute;
         pointer-events: none;
@@ -35,27 +24,24 @@
 </head>
 
 <body>
-    <div class="clouds"></div>
-    <div class="clouds clouds-small"></div>
-    <div class="clouds clouds-small2"></div>
-    <div class="controls">
-        <button id="save-canvas">Save</button>
-        <button id="enable-painting">Paint</button>
-        <button id="enable-debug">Debug Draw</button>
-        <input type="number" id="size-x" data-type="size" value="1">
-        <input type="number" id="size-y" data-type="size" value="1">
-        <select id="brush-draw-state">
-            <option value="Normal" selected>Normal</option>
-            <option value="DrawOntop">Draw Ontop</option>
-            <option value="DrawBeneath">Draw Beneath</option>
-        </select>
-        <button id="framestep-enable">Enable Framestep</button>
-        <button id="framestep-next">Framestep</button>
-        <label id="grid-mouse" style="width:150px;display:inline-block;"></label>
-        <label id="custom-logs" style="color:white;background-color: black;width:400px;display:inline-block;"></label>
-    </div>
     <div id="gameobject-draw-debug" style="position: absolute; left:0px; top:400px;width:250px;height:600px;background-color: black;padding:5px;color:white;white-space: pre;"></div>
     <div class="container-main">
+        <div class="controls">
+            <button id="save-canvas">Save</button>
+            <button id="enable-painting">Paint</button>
+            <button id="enable-debug">Debug Draw</button>
+            <input type="number" id="size-x" data-type="size" value="1">
+            <input type="number" id="size-y" data-type="size" value="1">
+            <select id="brush-draw-state">
+                <option value="Normal" selected>Normal</option>
+                <option value="DrawOntop">Draw Ontop</option>
+                <option value="DrawBeneath">Draw Beneath</option>
+            </select>
+            <button id="framestep-enable">Enable Framestep</button>
+            <button id="framestep-next">Framestep</button>
+            <label id="grid-mouse" style="width:150px;display:inline-block;color:whitesmoke"></label>
+            <label id="custom-logs" style="color:whitesmoke;width:400px;display:inline-block;"></label>
+        </div>
         <div id="container-game" class="container-game">
             <canvas style="position:absolute" id="game-canvas" width="1920" height="1080" oncontextmenu="return false;"></canvas>
             <canvas class="absolute-canvas" id="sprite-objects-canvas" width="1920" height="1080"></canvas>
@@ -84,6 +70,15 @@
                         <label class="toolbar-item-text">5</label>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div id="container-controls" class="container-controls">
+            <div class="tabs-manager">
+                <button id="tile-lut-editor-tile-editor" data-tabId="0">Tile Editor</button>
+                <button id="prop-editor-open" data-tabId="1">Prop Editor</button>
+            </div>
+            <div class="tabs-container" style="display:flex;height:100%;">
+
             </div>
         </div>
     </div>

@@ -447,7 +447,9 @@ class DrawingOperation extends Operation {
             this.centerPosition.x = position.x;
             this.centerPosition.y = position.y;
         }
-        this.tile.needsToBeRedrawn = true;
+
+        if (this.frustumState !== FrustumCullingState.Culled)
+            this.tile.needsToBeRedrawn = true;
         //this.updateRects = undefined;
     }
 

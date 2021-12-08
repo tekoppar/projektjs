@@ -1,4 +1,7 @@
-import { Vector2D, Cobject, AtlasController, ObjectType, CustomLogger, BoxCollision, CollisionHandler, ShadowCanvasObject, PolygonCollision, CanvasDrawer, DrawingOperation, OperationType, Tile, Collision, CAnimation, DebugDrawer, Rectangle } from '../internal.js'
+import {
+    Vector2D, Cobject, AtlasController, ObjectType, BoxCollision, ShadowCanvasObject,
+    PolygonCollision, CanvasDrawer, DrawingOperation, OperationType, Tile, CAnimation, Rectangle
+} from '../internal.js'
 
 /**
  * Creates a new Cobject
@@ -137,7 +140,7 @@ class Pawn extends Cobject {
                 canvasObject
             );
 
-            this.drawingOperation.oldPosition = this.position.Clone();
+            this.drawingOperation.oldPosition = this.GetPosition().Clone();
             CanvasDrawer.GCD.AddDrawOperation(this.drawingOperation, operationType);
             //this.drawingOperation.Update(position);
         } else {
@@ -475,6 +478,12 @@ class Shadow2D extends Pawn {
 
     FixedUpdate() {
         super.FixedUpdate();
+    }
+
+    EndOfFrameUpdate() {
+        super.EndOfFrameUpdate();
+
+        this.shadowObject.UpdatedThisFrame = false;
     }
 
     GameBegin() {
