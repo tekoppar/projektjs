@@ -50,7 +50,7 @@ class Inventory extends Cobject {
         /** @type {Number} */
         this.moneyAmount = 0;
 
-        /** @type {Dictionary} */
+        /** @type {Dictionary<Item>} */
         this.inventoryDictionary = new Dictionary('name');
     }
 
@@ -67,7 +67,7 @@ class Inventory extends Cobject {
             this.inventoryHTML.setAttribute('droppable', 'true');
             this.inventoryHTML.addEventListener('drop', this);
             this.inventoryHTML.addEventListener('dragover', this);
-            window.addEventListener('dragend', this);
+            document.getElementById('container-game').addEventListener('drop', this);
             this.inventoryHTMLValue = clone.querySelector('input.inventory-input-value');
 
             this.inventoryHTML.appendChild(clone);
@@ -90,7 +90,7 @@ class Inventory extends Cobject {
 
     /**
      * 
-     * @param {String} name 
+     * @param {string} name 
      * @returns {Item}
      */
     GetItem(name) {
@@ -103,7 +103,7 @@ class Inventory extends Cobject {
 
     /**
      * 
-     * @param {String} name 
+     * @param {string} name 
      * @param {Number} amount 
      * @returns {boolean}
      */
@@ -117,13 +117,13 @@ class Inventory extends Cobject {
 
     /**
      * 
-     * @param {String} name 
+     * @param {string} name 
      * @returns {Number}
      */
     GetItemAmount(name) {
         let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
         if (found !== undefined) {
-            return found.GetAmount();
+            return found.GetAmountAsNumber();
         } else
             return 0;
     }
@@ -215,14 +215,14 @@ class Inventory extends Cobject {
 
     /**
      * 
-     * @param {String} name 
+     * @param {string} name 
      * @param {Number} amount 
      */
     RemoveAmount(name, amount) {
         let found = this.inventoryDictionary.GetValueByProperty(name, 'name');
 
         if (found !== undefined) {
-            if (found.GetAmount() > 1)
+            if (found.GetAmountAsNumber() > 1)
                 found.RemoveAmount(Number(amount));
             else {
                 this.inventoryDictionary.RemoveValue(this.inventoryDictionary.GetHashByProperty(found.UID, 'UID'));
@@ -238,10 +238,15 @@ class Inventory extends Cobject {
      */
     RemoveItem(item) {
         if (this.inventoryDictionary.GetHashByProperty(item.UID, 'UID')) {
-            let found = this.inventoryDictionary.GetValueByProperty(item.UID, 'UID');
+            let found = /** @type {Item} */ (this.inventoryDictionary.GetValueByProperty(item.UID, 'UID'));
 
-            if (found.GetAmount() > 1) {
+            if (found.GetAmountAsNumber() > 1) {
                 found.RemoveAmount(Number(item.amount));
+
+                if (found.GetAmountAsNumber() < 1) {
+                    this.inventoryDictionary.RemoveValue(this.inventoryDictionary.GetHashByProperty(item.UID, 'UID'));
+                    GameToolbar.RemoveToolbarItem(item);
+                }
             } else {
                 this.inventoryDictionary.RemoveValue(this.inventoryDictionary.GetHashByProperty(item.UID, 'UID'));
                 GameToolbar.RemoveToolbarItem(item);
@@ -280,7 +285,7 @@ class Inventory extends Cobject {
 
                 let div = clone.querySelector('div.inventory-item-sprite');
                 div.style.backgroundPosition = '-' + (value.sprite.x * value.sprite.z) * 1.35 + 'px -' + (value.sprite.y * value.sprite.a) * 1.5 + 'px';
-                div.style.backgroundSize = value.atlas.x * 1.35 + 'px ' + value.atlas.y * 1.5 + 'px';
+                div.style.backgroundSize = value.atlasSize.x * 1.35 + 'px ' + value.atlasSize.y * 1.5 + 'px';
                 div.style.backgroundImage = 'url(' + value.url + ')';
 
                 if (value.amount > 0)
@@ -316,7 +321,7 @@ class Inventory extends Cobject {
 
     CEvent(eventType, key, data) {
         switch (eventType) {
-            case 'input':
+            case 'inventory':
                 if ((key === 'i' || key === 'tab') && data.eventType === 2) {
                     this.ShowInventory();
                 }
@@ -335,8 +340,14 @@ class Inventory extends Cobject {
                 }
                 break;
 
-            case 'dragend':
-                if (e.dataTransfer.dropEffect === 'none') {
+            case 'dragover':
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                break;
+
+            case 'drop':
+                e.preventDefault();
+                if (e.target.id === 'game-canvas') {
                     let temp = CanvasDrawer.GCD.mainCanvas.getBoundingClientRect();
                     let canvasBB = new Vector4D(0, 0, temp.width, temp.height);
                     let mousePos = MasterObject.MO.playerController.MouseToScreen({ target: CanvasDrawer.GCD.mainCanvas, x: e.screenX, y: e.screenY - 80 });
@@ -359,11 +370,12 @@ class Inventory extends Cobject {
                                 var newDroppedItem = new ItemProp(
                                     item.name,
                                     mousePos,
-                                    new CAnimation('null', new Vector2D(item.sprite.x, item.sprite.y), new Vector2D(item.sprite.z, item.sprite.a), 32, 32, AnimationType.Single, 1),
+                                    new CAnimation('null', new Vector2D(item.sprite.x, item.sprite.y), new Vector2D(item.sprite.x, item.sprite.y), item.sprite.z, item.sprite.a, AnimationType.Single, 1),
                                     AtlasController.GetAtlas(item.url).name,
                                     0,
                                     item
                                 );
+
                                 newDroppedItem.GameBegin();
 
                                 this.DropItem(item);
@@ -372,17 +384,19 @@ class Inventory extends Cobject {
                             }
                         }
                     }
+                } else {
+                    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                    let droppedItem = document.getElementById(data.id);
+                    let item = /** @type {Item} */ (Cobject.GetObjectFromUID(data.item));
+
+                    droppedItem.id = '';
+                    if (item instanceof Item) {
+                        let name = item.name,
+                            amount = item.GetAmountAsNumber();
+                        item.inventory.RemoveItem(item);
+                        this.AddNewItem(name, amount);
+                    }
                 }
-                break;
-
-            case 'dragover':
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                break;
-
-            case 'drop':
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
                 break;
 
             case 'dragstart':

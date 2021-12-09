@@ -22,7 +22,7 @@ class Prop extends GameObject {
     constructor(name, position, animations, canvasName, drawIndex = 0) {
         super(canvasName, position, false, drawIndex);
 
-        /** @type {String} */
+        /** @type {string} */
         this.name = name;
 
         if (animations instanceof CAnimation)

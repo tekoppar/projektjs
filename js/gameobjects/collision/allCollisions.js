@@ -27,6 +27,12 @@ AllCollisions.lamppost = [new Vector2D(3, 0), new Vector2D(29, 0), new Vector2D(
 AllCollisions.house1 = [new Vector2D(0, 0), new Vector2D(224, 0), new Vector2D(224, 256), new Vector2D(0, 256)];
 AllBlockingCollisions.house1 = [new Vector2D(0, 160), new Vector2D(224, 160), new Vector2D(224, 256), new Vector2D(0, 256)];
 
+AllCollisions.HouseTest = [new Vector2D(0, 0), new Vector2D(256, 0), new Vector2D(256, 320), new Vector2D(0, 320)];
+AllBlockingCollisions.HouseTest = [new Vector2D(64, 160), new Vector2D(224, 160), new Vector2D(224, 288), new Vector2D(64, 288)];
+
+AllCollisions.storageChest = [new Vector2D(0, 0), new Vector2D(64, 0), new Vector2D(64, 64), new Vector2D(0, 64)];
+AllBlockingCollisions.storageChest = [new Vector2D(0, 32), new Vector2D(64, 32), new Vector2D(64, 64), new Vector2D(0, 64)];
+
 AllBlockingCollisions.stonewall_l_c_r = [new Vector2D(12, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(12, 32)];
 AllBlockingCollisions.stonewall_m_c_lr = [new Vector2D(0, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(0, 32)];
 AllBlockingCollisions.stonewall_r_c_l = [new Vector2D(0, 22), new Vector2D(20, 22), new Vector2D(20, 32), new Vector2D(0, 32)];

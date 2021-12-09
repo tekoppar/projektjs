@@ -1,14 +1,16 @@
-import { DebugDrawer, Rectangle } from '../../internal.js';
+import { DebugDrawer, Rectangle, Color } from '../../internal.js';
 
 class RectConnection {
     constructor(x, y, w, h, parentRect) {
         this.x = x;
         this.y = y;
-        this.w = h;
-        this.h = w;
+        this.w = w;
+        this.h = h;
         this.rect = parentRect;
     }
 }
+
+let rectMergeCallIndex = 0;
 
 /**
  * Merges overlapping rectangles from an array 
@@ -17,6 +19,7 @@ class RectConnection {
  * @todo doesnt work with non overlapping rectangles
  */
 export function RectMerge(rects) {
+    rectMergeCallIndex++;
     if (rects.length === 1)
         return rects;
 
@@ -86,7 +89,7 @@ export function RectMerge(rects) {
             maxY = pairs[i][1].y;
         }
 
-        if (currentPairs[0].x + currentPairs[0].w <= pairs[i][0].x) {
+        if (currentPairs[0].x + currentPairs[0].w <= pairs[i][0].x || currentPairs[1].x + currentPairs[1].w <= pairs[i][0].x) {
             flagNew = true;
             maxY = pairs[i][1].y;
         }
@@ -115,16 +118,25 @@ export function RectMerge(rects) {
                 currentXEnd = pairs[i][0].x + pairs[i][0].w;
             }
 
+            /*if (i === l - 1 && (newRectangles[newRectangles.length - 1].x + newRectangles[newRectangles.length - 1].w) < (pairs[i][0].rect.x + pairs[i][0].rect.w)) {
+                temp.w = pairs[i][0].w;
+                temp.h = Math.abs(minY - maxY);
+                newRectangles.push(temp);
+            }*/
+
             currentPairs = pairs[i];
             flagNew = false;
         }
     }
 
-    /*for (let i = 0, l = newRectangles.length; i < l; ++i) {
-        DebugDrawer.AddDebugRectOperation(newRectangles[i], 0.016, 'purple', true);
+    /*for (let i = 0, l = rects.length; i < l; ++i) {
+        DebugDrawer.AddDebugRectOperation(rects[i], 0.016, Color.CSS_COLOR_NAMES[(rectMergeCallIndex + 1 % (Color.CSS_COLOR_NAMES.length - 1))], false);
+    }
+    for (let i = 0, l = newRectangles.length; i < l; ++i) {
+        DebugDrawer.AddDebugRectOperation(newRectangles[i], 0.016, Color.CSS_COLOR_NAMES[(rectMergeCallIndex % (Color.CSS_COLOR_NAMES.length - 1))], true);
     }*/
 
-    //console.log('sorted', rects, corners, pairs, newRectangles);
+    console.log('sorted', rects, corners, pairs, newRectangles);
 
     return newRectangles;
 }

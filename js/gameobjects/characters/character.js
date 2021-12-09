@@ -30,7 +30,7 @@ class CharacterAttachments extends GameObject {
     /**
      * 
      * @param {Vector2D} position 
-     * @param {String} name 
+     * @param {string} name 
      * @param {Number} drawIndex 
      * @param {Object.<string, CAnimation>} animations 
      * @param {*} skeletonBones 
@@ -47,7 +47,7 @@ class CharacterAttachments extends GameObject {
 
         this.skeletonBones = skeletonBones;
 
-        /** @type {String} */
+        /** @type {string} */
         this.name = name;
 
         /** @type {Vector2D} */
@@ -229,7 +229,7 @@ class Character extends GameObject {
 
     /**
      * 
-     * @param {String} spriteSheetName 
+     * @param {string} spriteSheetName 
      * @param {Number} drawIndex 
      * @param {Vector2D} position 
      * @param {Object.<string, CAnimation>} animations 
@@ -700,7 +700,7 @@ class Character extends GameObject {
 
     /**
      * 
-     * @param {String} direction 
+     * @param {string} direction 
      * @param {Number} value 
      * @returns {void}
      */
@@ -730,7 +730,7 @@ class Character extends GameObject {
 
     /**
      * 
-     * @param {String} type 
+     * @param {string} type 
      * @param {Number} speed 
      * @returns {void}
      */
@@ -858,16 +858,16 @@ class MainCharacter extends Character {
 
     /**
      * 
-     * @param {String} spriteSheetName 
-     * @param {String} name 
+     * @param {string} spriteSheetName 
+     * @param {string} name 
      * @param {Number} drawIndex 
      * @param {Vector2D} position
-     * @param {Object.<String, CAnimation>} animations 
+     * @param {Object.<string, CAnimation>} animations 
      */
     constructor(spriteSheetName, name, drawIndex = 0, position = new Vector2D(0, 0), animations = undefined) {
         super(spriteSheetName, drawIndex, position, animations);
 
-        /** @type {String} */
+        /** @type {string} */
         this.name = name;
 
         /** @type {Inventory} */

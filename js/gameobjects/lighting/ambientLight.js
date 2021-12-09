@@ -37,7 +37,7 @@ class AmbientLight extends Cobject {
     constructor(position, color = new Color(243, 197, 47), attenuation = 100, intensity = 750.0, colorIntensity = 1.0, lightConstant = 600, lightLinear = 0.2, lightQuad = 0.4, drawScale = 1, lightFalloffType = LightFalloffType.InverseSquareLaw) {
         super(position);
 
-        /**@type {String} */
+        /**@type {string} */
         this.name = 'AmbientLight' + this.UID;
 
         /**@type {Color} */
@@ -102,14 +102,14 @@ class AmbientLight extends Cobject {
         this.frameBuffer = document.createElement('canvas');
         this.frameBuffer.setAttribute('width', this.attenuation.toString());
         this.frameBuffer.setAttribute('height', this.attenuation.toString());
-        document.body.appendChild(this.frameBuffer);
+        document.getElementById('container-allcanvases').appendChild(this.frameBuffer);
         this.frameBufferCtx = this.frameBuffer.getContext('2d');
         this.frameBufferCtx.imageSmoothingEnabled = true;
 
         this.colorFrameBuffer = document.createElement('canvas');
         this.colorFrameBuffer.setAttribute('width', this.attenuation.toString());
         this.colorFrameBuffer.setAttribute('height', this.attenuation.toString());
-        document.body.appendChild(this.colorFrameBuffer);
+        document.getElementById('container-allcanvases').appendChild(this.colorFrameBuffer);
         this.colorFrameBufferCtx = this.colorFrameBuffer.getContext('2d');
         this.colorFrameBufferCtx.imageSmoothingEnabled = true;
 
@@ -388,6 +388,10 @@ class AmbientLight extends Cobject {
         this.colorFrameBufferCtx.putImageData(this.colorData, 0, 0);
 
         this.finished = true;
+
+        this.BoxCollision.position.y += (this.BoxCollision.size.y * 0.15) * 0.5;
+        this.BoxCollision.size.y -= this.BoxCollision.size.y * 0.15;
+        this.BoxCollision.SetPosition(this.BoxCollision.position);
     }
 
     FixedUpdate() {

@@ -842,6 +842,10 @@ class Tile {
         }
     }
 
+    SaveToFile() {
+        return 'new Tile(' + this.position.SaveToFile() + ', ' + this.tilePosition.SaveToFile() + ', ' + this.size.SaveToFile() + ', ' + this.transparent.toString() + ", '" + this.atlas + "', " + this.drawIndex.toString() + ', TileType.Prop, TileTerrain.Wood)';
+    }
+
     handleEvent(e) {
         switch (e.type) {
             case 'click':

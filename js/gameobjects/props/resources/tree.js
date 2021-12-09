@@ -51,7 +51,7 @@ class Tree extends Resource {
     }
 
     SaveToFile() {
-        return "new Tree('" + this.name + "', new Vector2D(" + this.position.x + ', ' + this.position.y + '), ' + this.animations + ", '" + this.canvasName + "', " + this.drawIndex + ', new Vector4D(' + this.blockingCollisionSize.x + ', ' + this.blockingCollisionSize.y + ', ' + this.blockingCollisionSize.z + ', ' + this.blockingCollisionSize.a + "), '"  + this.resourceName + "', new Rectangle(" + this.secondStageFrame.x + ', ' + this.secondStageFrame.y + ', ' + this.secondStageFrame.w + ', ' + this.secondStageFrame.h + '))';
+        return "new Tree('" + this.name + "', new Vector2D(" + this.position.x + ', ' + this.position.y + '), ' + this.animations + ", '" + this.canvasName + "', " + this.drawIndex + ', new Vector4D(' + this.blockingCollisionSize.x + ', ' + this.blockingCollisionSize.y + ', ' + this.blockingCollisionSize.z + ', ' + this.blockingCollisionSize.a + "), '" + this.resourceName + "', new Rectangle(" + this.secondStageFrame.x + ', ' + this.secondStageFrame.y + ', ' + this.secondStageFrame.w + ', ' + this.secondStageFrame.h + '))';
     }
 
     CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects) {
@@ -61,8 +61,10 @@ class Tree extends Resource {
             this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
             this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
 
-            this.realtimeShadow = new Shadow2D(this, this.canvasName, this.GetPosition(), new Vector2D(frame.w, frame.h), this.drawingOperation.tile);
-            this.realtimeShadow.GameBegin();
+            if (this.realtimeShadow === undefined) {
+                this.realtimeShadow = new Shadow2D(this, this.canvasName, this.GetPosition(), new Vector2D(frame.w, frame.h), this.drawingOperation.tile);
+                this.realtimeShadow.GameBegin();
+            }
 
             this.realtimeShadow.SetPosition(new Vector2D(this.position.x + (this.realtimeShadow.shadowObject.GetSize().x - this.size.x) / 2, this.position.y));
             this.realtimeShadow.AddShadow(this.drawingOperation.tile);

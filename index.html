@@ -9,6 +9,23 @@
         position: absolute;
         pointer-events: none;
     }
+
+    .container-framebuffers {
+        grid-column: center;
+        grid-row: bottom;
+        display: flex;
+        flex-direction: row;
+        max-width: 1920px;
+        flex-wrap: wrap;
+    }
+    .container-framebuffers > canvas {
+        flex-basis:25%;
+        flex-shrink: 2;
+        flex-grow: 1;
+        width: 100%;
+        max-width: 50%;
+        height: auto;
+    }
 </style>
 
 <head>
@@ -81,6 +98,10 @@
 
             </div>
         </div>
+        <div id="container-framebuffers" class="container-framebuffers">
+
+        </div>
+        <div id="container-allcanvases" style="grid-column: center;grid-row: canvas;"></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js" integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ==" crossorigin="anonymous" defer>
     </script>

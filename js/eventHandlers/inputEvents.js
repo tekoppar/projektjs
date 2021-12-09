@@ -31,12 +31,12 @@ class Input {
 
     /**
      * 
-     * @param {String} key 
+     * @param {string} key 
      * @param {InputType} inputType 
      */
     constructor(key, inputType = InputType.keyboard) {
 
-        /** @type {String} */
+        /** @type {string} */
         this.key = key;
 
         /** @type {InputState} */

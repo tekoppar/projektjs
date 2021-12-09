@@ -1,4 +1,4 @@
-import { Vector2D, ExtendedProp, AtlasController, Item, OperationType, Shadow2D, BWDrawingType } from '../../internal.js';
+import { Vector2D, ExtendedProp, AtlasController, Item, OperationType, Shadow2D, BWDrawingType, CAnimation } from '../../internal.js';
 
 /**
  * @class
@@ -19,6 +19,8 @@ class ItemProp extends ExtendedProp {
     constructor(name, position, animations, canvasName, drawIndex = 0, item = undefined) {
         super(name, position, animations, canvasName, drawIndex);
         this.isVisible = true;
+
+        /** @type {CAnimation} */
         this.currentAnimation = animations.Clone();
         this.shadow = undefined;
         this.life = 100;
@@ -28,15 +30,15 @@ class ItemProp extends ExtendedProp {
     }
 
     GameBegin() {
-        super.GameBegin(undefined, this.GetPosition().Clone(), new Vector2D(32, 32), this.currentAnimation.GetFrame(), false);
+        super.GameBegin(undefined, this.GetPosition().Clone(), this.currentAnimation.GetSize().Clone(), this.currentAnimation.GetFrame(), false);
     }
 
     Delete() {
         super.Delete();
-        
+
         if (this.realtimeShadow !== undefined)
             this.realtimeShadow.Delete();
-            
+
         this.item = undefined;
         this.currentAnimation = undefined;
     }
@@ -80,8 +82,10 @@ class ItemProp extends ExtendedProp {
             this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
             this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
 
-            this.realtimeShadow = new Shadow2D(this, this.canvasName, this.GetPosition(), new Vector2D(frame.w, frame.h), this.drawingOperation.tile);
-            this.realtimeShadow.GameBegin();
+            if (this.realtimeShadow === undefined) {
+                this.realtimeShadow = new Shadow2D(this, this.canvasName, this.GetPosition(), new Vector2D(frame.w, frame.h), this.drawingOperation.tile);
+                this.realtimeShadow.GameBegin();
+            }
 
             this.realtimeShadow.SetPosition(new Vector2D(this.position.x + (this.realtimeShadow.shadowObject.GetSize().x - this.size.x) / 2, this.position.y));
             this.realtimeShadow.AddShadow(this.drawingOperation.tile);

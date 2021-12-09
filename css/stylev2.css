@@ -82,7 +82,7 @@ body {
 .container-main {
     display: grid;
     grid-template-columns: [left] 0.5fr [center] 1920px [right] 0.5fr;
-    grid-template-rows: [help] 0.5fr [content] 1080px [bottom] 0.5fr;
+    grid-template-rows: [help] 0.5fr [content] 1080px [bottom] 0.5fr [canvas] auto;
     height: 100%;
     justify-items: center;
 }

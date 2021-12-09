@@ -27,7 +27,7 @@ class Pawn extends Cobject {
 
         this.canvas;
 
-        /** @type {String} */
+        /** @type {string} */
         this.canvasName = canvasName;
 
         /** @type {boolean} */
@@ -364,7 +364,7 @@ class Shadow extends Pawn {
         /** @type {CAnimation} */
         this.currentAnimation = undefined;
 
-        /** @type {String} */
+        /** @type {string} */
         this.name = 'shadow' + this.UID;
 
         /** @type {*} */
@@ -450,14 +450,14 @@ class Shadow2D extends Pawn {
         /** @type {CAnimation} */
         this.currentAnimation = undefined;
 
-        /** @type {String} */
+        /** @type {string} */
         this.name = 'shadow2D' + this.UID;
 
         /** @type {Object} */
         this.parent = parent;
 
         /** @type {ShadowCanvasObject} */
-        this.shadowObject = new ShadowCanvasObject();
+        this.shadowObject = new ShadowCanvasObject(this);
         this.shadowObject.GenerateRealTimeShadow(shadowSize, tile);
 
         /** @type {ObjectType} */
@@ -502,6 +502,7 @@ class Shadow2D extends Pawn {
 
         this.CreateDrawOperation({ x: 0, y: 0, w: this.size.x, h: this.size.y }, new Vector2D(this.position.x - this.size.x / 2, this.position.y - this.size.y / 2), true, this.canvas, OperationType.shadow);
         this.drawingOperation.collisionSize = this.shadowObject.GetSize();
+        this.shadowObject.SetParentBoxCollision(this.BoxCollision);
     }
 
     NeedsRedraw(position) {

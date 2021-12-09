@@ -24,13 +24,13 @@ class Item extends Cobject {
 
     /**
      * Creates a new Item
-     * @param {String} name 
+     * @param {string} name 
      * @param {Number} amount 
      */
     constructor(name, amount = 0) {
         super();
 
-        /**@type {String} */
+        /**@type {string} */
         this.name = name;
 
         /**@type {Number} */
@@ -40,9 +40,9 @@ class Item extends Cobject {
         this.sprite = inventoryItemIcons[name].sprite;
 
         /**@type {Vector2D} */
-        this.atlas = inventoryItemIcons[name].atlas;
+        this.atlasSize = inventoryItemIcons[name].atlasSize;
 
-        /**@type {String} */
+        /**@type {string} */
         this.url = inventoryItemIcons[name].url;
 
         /**@type {boolean} */
@@ -64,7 +64,7 @@ class Item extends Cobject {
 
     /**
      * 
-     * @returns {String}
+     * @returns {string}
      */
     GetRealName() {
         let realName = this.name.replace(/([A-Z])/g, ' $1');
@@ -98,7 +98,7 @@ class Item extends Cobject {
 
     /**
      * 
-     * @returns {Number|String}
+     * @returns {Number|string}
      */
     GetAmount() {
         if (this.amount < 1000)
@@ -109,6 +109,14 @@ class Item extends Cobject {
             return Math.floor(this.amount / 1000 / 1000) + 'm';
         else
             return Math.floor(this.amount / 1000 / 1000 / 1000) + 'b';
+    }
+
+    /**
+     * 
+     * @returns {Number} 
+     */
+    GetAmountAsNumber() {
+        return this.amount;
     }
 
     /**
@@ -139,7 +147,7 @@ class UsableItem extends Item {
 
     /**
      * 
-     * @param {String} name 
+     * @param {string} name 
      * @param {Number} amount 
      */
     constructor(name, amount) {
@@ -196,7 +204,7 @@ class Hoe extends UsableItem {
 
     /**
      * 
-     * @param {String} name 
+     * @param {string} name 
      * @param {Number} amount 
      */
     constructor(name, amount) {
@@ -241,7 +249,7 @@ class Shovel extends UsableItem {
 
     /**
      * 
-     * @param {String} name 
+     * @param {string} name 
      * @param {Number} amount 
      */
     constructor(name, amount) {
@@ -268,7 +276,7 @@ class Axe extends UsableItem {
 
     /**
      * 
-     * @param {String} name 
+     * @param {string} name 
      * @param {Number} amount 
      */
     constructor(name, amount) {
@@ -303,7 +311,7 @@ class Pickaxe extends UsableItem {
 
     /**
      * 
-     * @param {String} name 
+     * @param {string} name 
      * @param {Number} amount 
      */
     constructor(name, amount) {
@@ -335,7 +343,7 @@ class Weapon extends UsableItem {
 
     /**
      * 
-     * @param {String} name 
+     * @param {string} name 
      * @param {Number} amount 
      */
     constructor(name, amount) {

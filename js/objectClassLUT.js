@@ -1,4 +1,4 @@
-import { Tree, Rock, Shop, Prop, ExtendedProp } from './internal.js';
+import { Tree, Rock, Shop, Prop, ExtendedProp, Storage } from './internal.js';
 
 const ObjectClassLUT = {
     pepoSeedShop: Shop.prototype,
@@ -11,6 +11,8 @@ const ObjectClassLUT = {
     treePine2v2: Tree.prototype,
     treePine3v2: Tree.prototype,
     house1: ExtendedProp.prototype,
+    HouseTest: ExtendedProp.prototype,
+    storageChest: Storage.prototype,
     bush1: ExtendedProp.prototype,
     bush2: ExtendedProp.prototype,
     rockStone1: Rock.prototype,

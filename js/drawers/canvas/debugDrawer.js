@@ -317,7 +317,7 @@ class DebugDrawer extends Cobject {
         this.gameDebugCanvas.setAttribute('width', canvasEl.getAttribute('width'));
         this.gameDebugCanvas.setAttribute('height', canvasEl.getAttribute('height'));
         this.gameDebugCanvas.id = 'GameDebugCanvas';
-        //document.body.appendChild(this.gameDebugCanvas);
+        document.getElementById('container-framebuffers').appendChild(this.gameDebugCanvas);
         this.gameDebugCanvasCtx = this.gameDebugCanvas.getContext('2d');
         this.gameDebugCanvasCtx.imageSmoothingEnabled = false;
         this.gameDebugCanvasCtx.globalAlpha = 0.3;

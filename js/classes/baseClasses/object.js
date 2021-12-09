@@ -10,7 +10,7 @@ class Cobject {
     /** @type {Object<string, Cobject>} */
     static AllCobjects = { };
 
-    /** @type {Array<String>} */
+    /** @type {Array<string>} */
     static KeysAllCobjects = [];
 
     /**
@@ -58,7 +58,7 @@ class Cobject {
 
     /**
      * @static
-     * @param {String} uid 
+     * @param {string} uid 
      * @returns {Object} 
      */
     static GetObjectFromUID(uid) {
@@ -80,7 +80,7 @@ class Cobject {
 
     /**
      * @static
-     * @returns {String}
+     * @returns {string}
      */
     static GenerateUID() {
         let array = new Uint32Array(3);

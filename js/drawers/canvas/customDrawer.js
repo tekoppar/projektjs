@@ -1,9 +1,9 @@
 import {
     DebugDrawer, Vector2D, Tile, AtlasController, RectMerge, Operation, OverlapOICheck, AmbientLight,
     BWDrawingType, Props, AllCollisions, CollisionTypeCheck, Polygon, ClearOperation, TileData, InputHandler,
-    CollisionHandler, LightFalloffType, BoxCollision, PolygonCollision, worldTiles, Brush, BrushDrawState,
+    CollisionHandler, LightFalloffType, BoxCollision, worldTiles, Brush, BrushDrawState, Shadow2D,
     BrushType, RectOperation, PathOperation, TextOperation, DrawingOperation, OperationType, TileLUT,
-    SelectedTileEditor, UIDrawer, MasterObject, PawnSetupParams, Rectangle, LightingOperation, Color, LightSystem, XHRUtility, CustomLogger, PropEditor
+    SelectedTileEditor, UIDrawer, MasterObject, Rectangle, LightingOperation, Color, LightSystem, XHRUtility, PropEditor
 } from '../../internal.js';
 
 let mouseToAtlasRectMap = {};
@@ -313,7 +313,7 @@ class CanvasDrawer {
         this.frameBuffer = document.createElement('canvas');
         this.frameBuffer.setAttribute('width', this.mainCanvas.getAttribute('width'));
         this.frameBuffer.setAttribute('height', this.mainCanvas.getAttribute('height'));
-        //document.body.appendChild(this.frameBuffer);
+        document.getElementById('container-framebuffers').appendChild(this.frameBuffer);
 
         /** @type {CanvasRenderingContext2D} */
         this.frameBufferCtx = this.frameBuffer.getContext('2d');
@@ -323,7 +323,7 @@ class CanvasDrawer {
         this.frameBufferTerrain = document.createElement('canvas');
         this.frameBufferTerrain.setAttribute('width', this.mainCanvas.getAttribute('width'));
         this.frameBufferTerrain.setAttribute('height', this.mainCanvas.getAttribute('height'));
-        //document.body.appendChild(this.frameBufferTerrain);
+        document.getElementById('container-framebuffers').appendChild(this.frameBufferTerrain);
 
         /** @type {CanvasRenderingContext2D} */
         this.frameBufferTerrainCtx = this.frameBufferTerrain.getContext('2d');
@@ -629,10 +629,10 @@ class CanvasDrawer {
                 LightFalloffType.InverseSquareLaw
             ),
             new AmbientLight(
-                new Vector2D(577, 512),
+                new Vector2D(577, 524),
                 Color.ColorToRGBA('orange'),
-                256,
-                600,
+                368,
+                1000,
                 1.0,
                 700,
                 4.2,
@@ -889,11 +889,11 @@ class CanvasDrawer {
             this.DrawTerrainLoop();
 
         this.ClearEffectsLoop();
-        this.DebugDrawer.DrawDebugLoop(delta);
         //this.DrawDebugLoop(delta);
         this.DrawGameObjectsLoop(delta);
         this.DrawEffectsLoop(delta);
         this.DrawGUILoop(delta);
+        this.DebugDrawer.DrawDebugLoop(delta);
     }
 
     /**
@@ -1227,15 +1227,15 @@ class CanvasDrawer {
                             drawingOperation.tile.GetPosY() + ((drawingOperation.updateRects[i].y - this.canvasOffset.y) - (drawingOperation.tile.position.y - this.canvasOffset.y)),
                             drawingOperation.updateRects[i].w,
                             drawingOperation.updateRects[i].h,
-                            drawingOperation.updateRects[i].x - this.canvasOffset.x,
-                            drawingOperation.updateRects[i].y - this.canvasOffset.y,
+                            Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x,
+                            Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y,
                             drawingOperation.updateRects[i].w,
                             drawingOperation.updateRects[i].h
                         );
                     }
 
                     if (drawingOperation.operationType === OperationType.shadow2D) {
-                        let owner = drawingOperation.GetOwner();
+                        let owner = /** @type {Shadow2D} */ (drawingOperation.GetOwner());
                         /*CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
                             new Vector2D((Math.floor(drawingOperation.updateRects[i].x) - this.canvasOffset.x), (Math.floor(drawingOperation.updateRects[i].y) - this.canvasOffset.y)),
                             new Vector2D(Math.floor(drawingOperation.updateRects[i].w), Math.floor(drawingOperation.updateRects[i].h)),
@@ -1264,7 +1264,7 @@ class CanvasDrawer {
                     }
 
                     if (drawingOperation.shadowOperation !== undefined && drawingOperation.shadowOperation.drawType !== BWDrawingType.None) {
-                        let tempcolorPicked = this.lightSystem.GetColor(drawingOperation.centerPosition);
+                        let tempcolorPicked = this.lightSystem.GetColor(drawingOperation.GetOwner().position);
                         tempcolorPicked.AlphaMultiply();
                         drawingOperation.shadowOperation.ChangeColor(tempcolorPicked);
 
@@ -1304,8 +1304,8 @@ class CanvasDrawer {
                         drawingOperation.tile.GetPosY(),
                         drawingOperation.tile.size.x,
                         drawingOperation.tile.size.y,
-                        drawingOperation.tile.position.x - this.canvasOffset.x,
-                        drawingOperation.tile.position.y - this.canvasOffset.y,
+                        Math.floor(drawingOperation.tile.position.x) - this.canvasOffset.x,
+                        Math.floor(drawingOperation.tile.position.y) - this.canvasOffset.y,
                         drawingOperation.GetDrawSize().x,
                         drawingOperation.GetDrawSize().y
                     );
@@ -1319,6 +1319,7 @@ class CanvasDrawer {
                         drawingOperation.GetOwner().shadowObject.shadowData.data,
                         false
                     );*/
+                    //drawingOperation.GetOwner().shadowObject.DrawToFramebuffer(CanvasDrawer.GCD.lightSystem.lightingV2);
 
                     CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
                         drawingOperation.GetOwner().shadowObject.canvas,
@@ -1326,15 +1327,15 @@ class CanvasDrawer {
                         0,
                         drawingOperation.GetOwner().shadowObject.GetSize().x,
                         drawingOperation.GetOwner().shadowObject.GetSize().y,
-                        (drawingOperation.tile.position.x - this.canvasOffset.x),
-                        (drawingOperation.tile.position.y - this.canvasOffset.y),
+                        Math.floor((drawingOperation.tile.position.x - this.canvasOffset.x)),
+                        Math.floor((drawingOperation.tile.position.y - this.canvasOffset.y)),
                         drawingOperation.GetOwner().shadowObject.GetSize().x,
                         drawingOperation.GetOwner().shadowObject.GetSize().y
                     );
                 }
 
                 if (drawingOperation.shadowOperation !== undefined && drawingOperation.shadowOperation.drawType !== BWDrawingType.None) {
-                    let tempcolorPicked = this.lightSystem.GetColor(drawingOperation.centerPosition);
+                    let tempcolorPicked = this.lightSystem.GetColor(drawingOperation.GetOwner().position);
                     tempcolorPicked.AlphaMultiply();
                     drawingOperation.shadowOperation.ChangeColor(tempcolorPicked);
                     /*CanvasDrawer.GCD.lightSystem.DrawToFramebuffer(
@@ -1353,8 +1354,8 @@ class CanvasDrawer {
                         0,
                         drawingOperation.tile.size.x,
                         drawingOperation.tile.size.y,
-                        drawingOperation.tile.position.x - this.canvasOffset.x,
-                        drawingOperation.tile.position.y - this.canvasOffset.y,
+                        Math.floor(drawingOperation.tile.position.x - this.canvasOffset.x),
+                        Math.floor(drawingOperation.tile.position.y - this.canvasOffset.y),
                         drawingOperation.tile.size.x,
                         drawingOperation.tile.size.y,
                     );
@@ -1550,7 +1551,7 @@ class CanvasDrawer {
      * 
      * @param {Array<Vector2D>} path 
      * @param {Number} lifetime 
-     * @param {String} color 
+     * @param {string} color 
      */
     AddPathOperation(path, lifetime = 5, color = 'red') {
         this.gameObjectDrawingOperations.push(new PathOperation(path, this.DebugDrawer.gameDebugCanvas, color, false, 0, lifetime, 1));

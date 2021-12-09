@@ -135,6 +135,12 @@ class PlayerController extends Controller {
                             this.playerCharacter.StopMovement();
                             break;
 
+                        case 'tab':
+                            if (data.eventType === 2) {
+                                this.playerCharacter.inventory.ShowInventory();
+                            }
+                        break;
+
                         case 'e':
                             if (data.eventType == 3) {
                                 this.playerCharacter.Interact();

@@ -1,4 +1,5 @@
 import { CMath } from '../internal.js';
+import { ToggleObjectsHasBeenInitialized } from '../internalVariables.js';
 
 /**
  * @class
@@ -181,6 +182,10 @@ class Vector2D {
         this.y = rotatedPosition.y;
     }
 
+    SaveToFile() {
+        return 'new Vector2D(' + this.x + ', ' + this.y + ')';
+    }
+
     toJSON() {
         return {
             x: this.x,
@@ -232,6 +237,18 @@ class Vector {
 
     Equal(a) {
         return this.x == a.x && this.y == a.y && this.z == a.z;
+    }
+
+    SaveToFile() {
+        return 'new Vector(' + this.x + ', ' + this.y + ', ' + this.z + ')';
+    }
+
+    toJSON() {
+        return {
+            x: this.x,
+            y: this.y,
+            z: this.z
+        };
     }
 }
 
@@ -310,6 +327,19 @@ class Vector4D {
 
     Clone() {
         return new Vector4D(this.x, this.y, this.z, this.a);
+    }
+
+    SaveToFile() {
+        return 'new Vector4D(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.a + ')';
+    }
+
+    toJSON() {
+        return {
+            x: this.x,
+            y: this.y,
+            z: this.z,
+            a: this.a
+        };
     }
 }
 
@@ -938,6 +968,10 @@ class Rectangle {
     ToString() {
         return this.x + ', ' + this.y + ', ' + this.w + ', ' + this.h;
     }
+    
+    SaveToFile() {
+        return 'new Rectangle(' + this.x + ', ' + this.y + ', ' + this.w + ', ' + this.h + ')';
+    }
 
     toJSON() {
         return {
@@ -1441,6 +1475,19 @@ class Color {
     /** @todo Very expensive, needs to be cached for future use */
     ToString() {
         return `rgba(${this.red}, ${this.green}, ${this.blue}, ${this.alpha})`;
+    }
+
+    SaveToFile() {
+        return 'new Color(' + this.red + ', ' + this.green + ', ' + this.blue + ', ' + this.alpha + ')';
+    }
+
+    toJSON() {
+        return {
+            red: this.red,
+            green: this.green,
+            blue: this.blue,
+            alpha: this.alpha,
+        };
     }
 
     *[Symbol.iterator]() {

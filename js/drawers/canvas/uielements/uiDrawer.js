@@ -8,11 +8,11 @@ class UIDrawer {
 
     /**
      * 
-     * @param {String} spriteSheet 
+     * @param {string} spriteSheet 
      * @param {CanvasDrawer} canvasDrawer 
      */
     constructor(spriteSheet, canvasDrawer) {
-        /** @type {String} */
+        /** @type {string} */
         this.spriteSheet = spriteSheet;
 
         /** @type {CanvasDrawer} */

@@ -144,7 +144,6 @@ class SkyLight extends Cobject {
 /**
  * @class
  * @constructor
- * @public
  * @extends Cobject
  */
 class LightSystem extends Cobject {
@@ -197,11 +196,11 @@ class LightSystem extends Cobject {
 
         this.ambientFrameBuffer.setAttribute('width', canvasEl.getAttribute('width'));
         this.ambientFrameBuffer.setAttribute('height', canvasEl.getAttribute('height'));
-        //document.body.appendChild(this.ambientFrameBuffer);
+        document.getElementById('container-framebuffers').appendChild(this.ambientFrameBuffer);
 
         this.lightingV2.setAttribute('width', canvasEl.getAttribute('width'));
         this.lightingV2.setAttribute('height', canvasEl.getAttribute('height'));
-        //document.body.appendChild(this.lightingV2);
+        document.getElementById('container-framebuffers').appendChild(this.lightingV2);
 
         /** @type {CanvasRenderingContext2D} */
         this.lightIntensityBufferCtx = this.lightIntensityBuffer.getContext('2d', { willReadFrequently: true });

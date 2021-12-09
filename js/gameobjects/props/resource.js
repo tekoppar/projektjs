@@ -37,7 +37,7 @@ class Resource extends ExtendedProp {
         /** @type {boolean} */
         this.isSecondStage = false;
 
-        /** @type {String} */
+        /** @type {string} */
         this.resourceName = resourceName;
 
         if (secondStageFrame instanceof Rectangle)

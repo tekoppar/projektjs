@@ -110,7 +110,7 @@ class Crafting extends Cobject {
 
                 let div = clone.querySelector('div.crafting-item-sprite');
                 div.style.backgroundPosition = '-' + (inventoryItemIcons[recipe.name].sprite.x * inventoryItemIcons[recipe.name].sprite.z) * 1.35 + 'px -' + (inventoryItemIcons[recipe.name].sprite.y * inventoryItemIcons[recipe.name].sprite.a) * 1.5 + 'px';
-                div.style.backgroundSize = inventoryItemIcons[recipe.name].atlas.x * 1.35 + 'px ' + inventoryItemIcons[recipe.name].atlas.y * 1.5 + 'px';
+                div.style.backgroundSize = inventoryItemIcons[recipe.name].atlasSize.x * 1.35 + 'px ' + inventoryItemIcons[recipe.name].atlasSize.y * 1.5 + 'px';
                 div.style.backgroundImage = 'url(' + inventoryItemIcons[recipe.name].url + ')';
 
                 clone.querySelector('div.inventory-item').dataset.craftingItem = recipe.name;
@@ -127,10 +127,10 @@ class Crafting extends Cobject {
             document.getElementById('crafting-item-name').innerText = this.craftingRecipe.name[0].toUpperCase() + this.craftingRecipe.name.slice(1);
 
             let div = document.getElementById('crafting-item-details-sprite');
-            let xVal = inventoryItemIcons[this.craftingRecipe.name].atlas.x / 32 * parseFloat(div.style.width),
-                yVal = inventoryItemIcons[this.craftingRecipe.name].atlas.y / 32 * parseFloat(div.style.height),
-                xPos = (xVal / inventoryItemIcons[this.craftingRecipe.name].atlas.x) * inventoryItemIcons[this.craftingRecipe.name].sprite.x * 32,
-                yPos = (yVal / inventoryItemIcons[this.craftingRecipe.name].atlas.y) * inventoryItemIcons[this.craftingRecipe.name].sprite.y * 32;
+            let xVal = inventoryItemIcons[this.craftingRecipe.name].atlasSize.x / 32 * parseFloat(div.style.width),
+                yVal = inventoryItemIcons[this.craftingRecipe.name].atlasSize.y / 32 * parseFloat(div.style.height),
+                xPos = (xVal / inventoryItemIcons[this.craftingRecipe.name].atlasSize.x) * inventoryItemIcons[this.craftingRecipe.name].sprite.x * 32,
+                yPos = (yVal / inventoryItemIcons[this.craftingRecipe.name].atlasSize.y) * inventoryItemIcons[this.craftingRecipe.name].sprite.y * 32;
 
             div.style.backgroundPosition = '-' + xPos + 'px -' + yPos + 'px';
             div.style.backgroundSize = xVal + 'px ' + yVal + 'px';
@@ -155,10 +155,10 @@ class Crafting extends Cobject {
 
                 div = clone.querySelector('div.inventory-item-sprite-32');
 
-                xVal = inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].atlas.x / 32 * parseFloat(div.style.width);
-                yVal = inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].atlas.y / 32 * parseFloat(div.style.height);
-                xPos = (xVal / inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].atlas.x) * inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].sprite.x * 32;
-                yPos = (yVal / inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].atlas.y) * inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].sprite.y * 32;
+                xVal = inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].atlasSize.x / 32 * parseFloat(div.style.width);
+                yVal = inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].atlasSize.y / 32 * parseFloat(div.style.height);
+                xPos = (xVal / inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].atlasSize.x) * inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].sprite.x * 32;
+                yPos = (yVal / inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].atlasSize.y) * inventoryItemIcons[this.craftingRecipe.resourceList[i].resource].sprite.y * 32;
 
                 div.style.backgroundPosition = '-' + xPos + 'px -' + yPos + 'px';
                 div.style.backgroundSize = xVal + 'px ' + yVal + 'px';

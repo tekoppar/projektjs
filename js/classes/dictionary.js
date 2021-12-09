@@ -1,13 +1,14 @@
+//@ts-check
+
 /**
- * @class
- * @constructor
+ * @template Key, Value
  */
 class DictionaryValue {
 
     /**
      * 
-     * @param {Object} key 
-     * @param {Object} value 
+     * @param {Key} key 
+     * @param {Value} value 
      */
     constructor(key, value) {
         this.key = key;
@@ -16,8 +17,7 @@ class DictionaryValue {
 }
 
 /**
- * @class
- * @constructor
+ * @template Value
  */
 class Dictionary {
 
@@ -27,7 +27,11 @@ class Dictionary {
      */
     constructor(key) {
         this.key = key;
+
+        /** @type {Array<string>} */
         this.hashes = [];
+
+        /** @type {Object.<string, DictionaryValue<string, Value>>} */
         this.dictionaryValues = {};
     }
 
@@ -42,6 +46,11 @@ class Dictionary {
         return this.iterator();
     }
 
+    /**
+     * 
+     * @param {Value} value 
+     * @param {string} hashProperty 
+     */
     AddValue(value, hashProperty = 'UID') {
         let hash = this.GenerateHash(value[hashProperty]);
         this.hashes.push(hash);

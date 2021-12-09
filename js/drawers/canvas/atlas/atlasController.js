@@ -128,6 +128,10 @@ class AtlasController {
         this.hasLoadedAllImages["chickenWalk"] = false;
         this.LoadSpriteAtlas("/content/sprites/animals/duck_walk.png", 128, 160, 32, "duckWalk");
         this.hasLoadedAllImages["duckWalk"] = false;
+        this.LoadSpriteAtlas("/content/sprites/cottage.png", 512, 512, 32, 'cottage');
+        this.hasLoadedAllImages['cottage'] = false;
+        this.LoadSpriteAtlas("/content/sprites/Collection/container.png", 512, 2048, 32, 'container');
+        this.hasLoadedAllImages['container'] = false;
 
         this.LoadSpriteAtlas("/content/sprites/lpcfemalelight_updated.png", 832, 1856, 64, "femaleLight");
         this.hasLoadedAllImages["femaleLight"] = false;

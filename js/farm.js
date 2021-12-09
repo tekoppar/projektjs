@@ -31,7 +31,7 @@ Object.defineProperty(Array.prototype, 'CloneObjects', {
 });
 
 /**
- * @memberof String
+ * @memberof string
  */
 Object.defineProperty(String.prototype, 'hashCode', {
     value: function () {
@@ -46,7 +46,7 @@ Object.defineProperty(String.prototype, 'hashCode', {
 });
 
 /**
- * @memberof String
+ * @memberof string
  */
 Object.defineProperty(String.prototype, 'chopLeft', {
     value() {
@@ -55,7 +55,7 @@ Object.defineProperty(String.prototype, 'chopLeft', {
 });
 
 /**
- * @memberof String
+ * @memberof string
  */
 Object.defineProperty(String.prototype, 'chopRight', {
     value() {
@@ -113,7 +113,7 @@ function HTMLStringToNode(string) {
 
 function SwitchTab(event) {
     if (event.target.dataset.tabid !== undefined) {
-        let children = document.getElementById('container-controls').children[1].children;
+        let children = /** @type {HTMLCollectionOf<HTMLDivElement>} */ (document.getElementById('container-controls').children[1].children);
         for (let i = 0, l = children.length; i < l; ++i) {
             children[i].style.display = 'none';
         }
@@ -122,6 +122,16 @@ function SwitchTab(event) {
     }
 }
 
+function dragEvent(e) {
+    switch (e.type) {
+        case 'dragover':
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            break;
+    }
+}
+
+window.addEventListener('dragover', dragEvent);
 document.getElementById('container-controls').children[0].addEventListener('click', SwitchTab);
 
 let includeTemplates = function appendTemplates(content) {
@@ -138,6 +148,7 @@ PageFetcher.GPF.AddRequest(includeTemplates, '/html/inventory.html');
 PageFetcher.GPF.AddRequest(includeTemplates, '/html/tileLUTEditor.html');
 PageFetcher.GPF.AddRequest(includeGUI, '/html/collisionEditor.html');
 PageFetcher.GPF.AddRequest(includeGUI, '/html/propEditor.html');
+PageFetcher.GPF.AddRequest(includeGUI, '/html/tileMakerEditor.html');
 PageFetcher.GPF.AddRequest(includeTemplates, '/html/craftingWindow.html');
 
 window.onload = function () {

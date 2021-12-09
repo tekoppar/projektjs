@@ -1,4 +1,4 @@
-import { Vector2D, BoxCollision, AtlasController, Tile, LightSystem, CollisionHandler, Math3D, CMath, Vector4D, Vector } from '../../internal.js';
+import { Vector2D, CanvasDrawer, BoxCollision, AtlasController, Tile, LightSystem, CollisionHandler, Math3D, CMath, Vector4D, Vector, OverlapOverlapsCheck, CollisionTypeCheck, Shadow2D, Rectangle } from '../../internal.js';
 
 /**
  * @readonly
@@ -28,7 +28,12 @@ const ShadowRotationLUT = {
  * @constructor
  */
 class ShadowCanvasObject {
-    constructor() {
+
+    /**
+     * 
+     * @param {Shadow2D} owner 
+     */
+    constructor(owner) {
         /** @type {HTMLCanvasElement} */
         this.canvas;
 
@@ -46,6 +51,23 @@ class ShadowCanvasObject {
 
         /** @type {boolean} */
         this.UpdatedThisFrame = false;
+
+        /** @type {Shadow2D} */
+        this.owner = owner;
+
+        /** @type {BoxCollision} @private */
+        this.parentBoxCollision;
+
+        /** @type {Vector2D} */
+        this.tileSize = new Vector2D(32, 32);
+    }
+
+    /**
+     * 
+     * @param {BoxCollision} boxCollision 
+     */
+    SetParentBoxCollision(boxCollision) {
+        this.parentBoxCollision = boxCollision;
     }
 
     /**
@@ -54,6 +76,8 @@ class ShadowCanvasObject {
      */
     DrawToShadowCanvas(tile) {
         let biggest = Math.max(tile.size.x, tile.size.y);
+        this.tileSize.x = tile.size.x;
+        this.tileSize.y = tile.size.y;
 
         if (this.firstDraw === false) {
             this.canvasCtx.clearRect(0, 0, biggest, biggest);
@@ -123,6 +147,73 @@ class ShadowCanvasObject {
         }
     }
 
+    DrawNewShadowFrame() {
+        this.canvasCtx.globalCompositeOperation = 'source-atop';
+        this.canvasCtx.fillStyle = LightSystem.SkyLight.color.ToString();
+        this.canvasCtx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.canvasCtx.globalCompositeOperation = 'source-over';
+        this.shadowData = this.canvasCtx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+        this.firstDraw = false;
+    }
+
+    /**
+     * 
+     * @param {HTMLCanvasElement} canvas
+     */
+    DrawToFramebuffer(canvas) {
+        let overlaps = CollisionHandler.GCH.GetOverlapsByClass(this.parentBoxCollision, 'AmbientLight', OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
+
+        if (overlaps.length > 0) {
+            this.DrawNewShadowFrame();
+            let cachedArr = Uint8ClampedArray.from(this.shadowData.data);
+            let position = this.owner.parent.position.Clone();
+            let biggest = Math.max(this.tileSize.x, this.tileSize.y);
+
+            for (let i = 0, l = overlaps.length; i < l; ++i) {
+                if (Math.abs(overlaps[i].GetCenterPositionV2().Distance(this.owner.parent.position)) > overlaps[i].size.y * 0.67)
+                    continue;
+
+                this.shadowData.data.set(cachedArr);
+
+                let shadowPos = position.Clone();
+                shadowPos.y -= 15;
+                let rotation = CMath.LookAt2D(shadowPos, overlaps[i].collisionOwner.GetPosition().Clone());
+                rotation -= ShadowRotationLUT[this.owner.name] !== undefined ? ShadowRotationLUT[this.owner.name] : 90;
+
+                Math3D.RotatePixelData2D(this.shadowData.data, new Vector2D(biggest, biggest), new Vector(0, 0, rotation), 0, new Vector(biggest / 2, biggest / 2, biggest / 2));
+
+                let tempCanvas = document.createElement('canvas');
+                tempCanvas.width = this.canvas.width;
+                tempCanvas.height = this.canvas.height;
+                tempCanvas.getContext('2d').putImageData(this.shadowData, 0, 0);
+
+                let rotationArr = [new Vector4D(biggest / 2, biggest, biggest / 2, 0)];
+                Math3D.Rotate(0, 0, CMath.DegreesToRadians(rotation), rotationArr, new Vector(biggest / 2, biggest / 2, biggest / 2));
+                this.centerPosition = new Vector2D(rotationArr[0].x, rotationArr[0].y);
+                this.centerPosition.x -= this.tileSize.x / 2;
+                this.centerPosition.y -= this.tileSize.y - 10;
+
+                canvas.getContext('2d').drawImage(
+                    tempCanvas,
+                    0,
+                    0,
+                    this.canvas.width,
+                    this.canvas.height,
+                    (this.owner.parent.GetPosition().x - CanvasDrawer.GCD.canvasOffset.x) - this.centerPosition.x,
+                    (this.owner.parent.GetPosition().y - CanvasDrawer.GCD.canvasOffset.y) - this.centerPosition.y,
+                    this.canvas.width,
+                    this.canvas.height,
+                );
+
+                tempCanvas.remove();
+
+                //this.canvasCtx.putImageData(this.shadowData, 0, 0);
+
+                this.UpdatedThisFrame = true;
+            }
+        }
+    }
+
     /**
      * 
      * @param {Vector2D} size 
@@ -134,7 +225,7 @@ class ShadowCanvasObject {
         this.canvas.width = biggest;
         this.canvas.height = biggest;
 
-        //document.body.appendChild(this.canvas);
+        document.getElementById('container-allcanvases').appendChild(this.canvas);
         this.canvasCtx = this.canvas.getContext('2d');
         this.canvasCtx.imageSmoothingEnabled = false;
 

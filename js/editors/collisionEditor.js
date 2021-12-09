@@ -130,7 +130,6 @@ class CollisionEditor {
         }
         ctx.globalAlpha = 1;
         ctx.closePath();
-        ctx.lineS
         ctx.lineWidth = 3;
         ctx.stroke();
     }

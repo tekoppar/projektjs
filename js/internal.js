@@ -1,12 +1,14 @@
 export { ObjectsHasBeenInitialized, ToggleObjectsHasBeenInitialized, IsLittleEndian, TestingEnum, CURRENT_TEST } from './internalVariables.js';
 export { EditorState } from './globalEnums.js'; 
 
-export { PawnSetupParams } from './gameobjects/AllPawnsSetupsParams.js';
+export { PawnSetupParams } from './gameobjects/setups/AllPawnsSetupsParams.js';
 
 export { PerformanceTester } from './classes/utility/perf.js';
 
 export { CanvasUtility } from './classes/utility/canvasUtility.js';
 export { ArrayUtility } from './classes/utility/arrayUtility.js';
+export { ObjectUtility } from './classes/utility/objectUtility.js';
+export { ImageUtility } from './classes/utility/imageUtility.js';
 
 export { ObjectType, BWDrawingType } from './classes/baseClasses/globalEnums.js';
 
@@ -58,6 +60,8 @@ export { CollisionEditor } from './editors/collisionEditor.js';
 
 export { PropEditor } from './editors/propEditor.js';
 
+export { TileMakerEditor } from './editors/tileMakerEditor.js'
+
 export { CustomEventHandler } from './eventHandlers/customEvents.js';
 export { InputHandler, InputState } from './eventHandlers/inputEvents.js';
 
@@ -96,12 +100,13 @@ export { resourceSprites } from './gameobjects/props/resources/resourceSprites.j
 
 export { Prop, ExtendedProp } from './gameobjects/props/props.js';
 export { Resource } from './gameobjects/props/resource.js';
+export { Storage } from './gameobjects/props/storage.js';
 export { ItemProp } from './gameobjects/props/itemprop.js';
 
 export { Tree } from './gameobjects/props/resources/tree.js';
 export { Rock } from './gameobjects/props/resources/rock.js';
 
-export { Props } from './gameobjects/AllGameObjects.js';
+export { Props } from './gameobjects/setups/AllGameObjects.js';
 
 export { Plant, AllPlantData } from './gameobjects/props/plants/plants.js';
 export { Character, MainCharacter, CharacterAttachments } from './gameobjects/characters/character.js';

@@ -10,7 +10,7 @@ class CanvasSprite {
      * @param {Number} y 
      * @param {Number} width 
      * @param {Number} height 
-     * @param {String} atlas 
+     * @param {string} atlas 
      * @param {boolean} isTransparent 
      */
     constructor(x, y, width, height, atlas, isTransparent = undefined) {

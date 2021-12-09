@@ -188,19 +188,19 @@ class TextOperation extends Operation {
 
     /**
      * 
-     * @param {String} text 
+     * @param {string} text 
      * @param {Vector2D} pos 
      * @param {boolean} clear 
      * @param {HTMLCanvasElement} drawingCanvas 
-     * @param {String} font 
+     * @param {string} font 
      * @param {Number} size 
-     * @param {String} color 
+     * @param {string} color 
      * @param {Number} drawIndex 
      */
     constructor(text, pos, clear, drawingCanvas, font = 'sans-serif', size = 18, color = 'rgb(243, 197, 47)', drawIndex = 0) {
         super(drawingCanvas, OperationType.gui);
 
-        /** @type {String} */
+        /** @type {string} */
         this.text = text;
 
         /** @type {Vector2D} */
@@ -209,13 +209,13 @@ class TextOperation extends Operation {
         /** @type {boolean} */
         this.clear = clear;
 
-        /** @type {String} */
+        /** @type {string} */
         this.font = font;
 
         /** @type {Number} */
         this.size = size;
 
-        /** @type {String} */
+        /** @type {string} */
         this.color = color;
 
         /** @type {Number} */
@@ -268,7 +268,7 @@ class RectOperation extends Operation {
      * @param {Vector2D} pos 
      * @param {Vector2D} size 
      * @param {HTMLCanvasElement} drawingCanvas 
-     * @param {String} color 
+     * @param {string} color 
      * @param {boolean} clear 
      * @param {Number} drawIndex 
      * @param {Number} lifetime 
@@ -290,7 +290,7 @@ class RectOperation extends Operation {
         /** @type {Vector2D} */
         this.size = size;
 
-        /** @type {String} */
+        /** @type {string} */
         this.color = color;
 
         /** @type {Number} */
@@ -623,7 +623,7 @@ class PathOperation extends Operation {
      * 
      * @param {Array<Vector2D>} path 
      * @param {HTMLCanvasElement} drawingCanvas 
-     * @param {String} color 
+     * @param {string} color 
      * @param {boolean} clear 
      * @param {Number} drawIndex 
      * @param {Number} lifetime 
@@ -638,7 +638,7 @@ class PathOperation extends Operation {
         /** @type {boolean} */
         this.clear = clear;
 
-        /** @type {String} */
+        /** @type {string} */
         this.color = color;
 
         /** @type {Number} */

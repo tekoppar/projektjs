@@ -54,6 +54,9 @@ class Shop extends Prop {
         this.gameObjectUsing = undefined;
         this.shopHTMLInfo;
         this.valueAmount = '';
+
+        /** @type {PolygonCollision} */
+        this.BlockingCollision
     }
 
     AddItem(item) {
@@ -170,7 +173,7 @@ class Shop extends Prop {
 
             let div = clone.querySelector('div.inventory-item-sprite');
             div.style.backgroundPosition = '-' + (this.marketItems[keys[i]].sprite.x * this.marketItems[keys[i]].sprite.z) * 1.35 + 'px -' + (this.marketItems[keys[i]].sprite.y * this.marketItems[keys[i]].sprite.a) * 1.5 + 'px';
-            div.style.backgroundSize = this.marketItems[keys[i]].atlas.x * 1.35 + 'px ' + this.marketItems[keys[i]].atlas.y * 1.5 + 'px';
+            div.style.backgroundSize = this.marketItems[keys[i]].atlasSize.x * 1.35 + 'px ' + this.marketItems[keys[i]].atlasSize.y * 1.5 + 'px';
             div.style.backgroundImage = 'url(' + this.marketItems[keys[i]].url + ')';
 
             clone.children[0].addEventListener('mouseenter', this);

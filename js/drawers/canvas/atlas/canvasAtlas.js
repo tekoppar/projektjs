@@ -43,7 +43,7 @@ class CanvasAtlas {
     }
 
     ImageLoaded() {
-        document.body.appendChild(this.canvasObject.canvas);
+        document.getElementById('container-allcanvases').appendChild(this.canvasObject.canvas);
         this.canvasObject.canvas.id = this.name;
         this.canvasObject.canvas.addEventListener('mousedown', this);
         this.canvasObject.canvas.addEventListener('mouseup', this);
@@ -212,7 +212,7 @@ class ShadowCanvasOperation {
             this.shadowCanvas.setAttribute('width', this.canvasObject.width.toFixed());
             this.shadowCanvas.setAttribute('height', this.canvasObject.height.toFixed());
         }
-        //document.body.appendChild(this.shadowCanvas);
+        document.getElementById('container-allcanvases').appendChild(this.shadowCanvas);
         this.shadowCanvasCtx = this.shadowCanvas.getContext('2d');
         this.shadowCanvasCtx.imageSmoothingEnabled = false;
 
@@ -280,20 +280,20 @@ class ShadowCanvasOperation {
         let gradient;
         switch (this.drawType) {
             case BWDrawingType.Behind:
-                gradient = this.shadowCanvasCtx.createLinearGradient(0, this.shadowCanvas.height - 100, 0, this.shadowCanvas.height);
+                gradient = this.shadowCanvasCtx.createLinearGradient(0, Math.max(this.shadowCanvas.height - 256, 0), 0, this.shadowCanvas.height);
 
                 let gradientColor = new Color(
-                    Math.floor(CMath.Clamp(CMath.Lerp(color.red, LightSystem.SkyLight.color.red, CMath.EaseIn(100 / 100)), 0, 255)),
-                    Math.floor(CMath.Clamp(CMath.Lerp(color.green, LightSystem.SkyLight.color.green, CMath.EaseIn(100 / 100)), 0, 255)),
-                    Math.floor(CMath.Clamp(CMath.Lerp(color.blue, LightSystem.SkyLight.color.blue, CMath.EaseIn(100 / 100)), 0, 255)),
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.red, LightSystem.SkyLight.color.red, CMath.EaseIn(256 / 256)), 0, 255)),
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.green, LightSystem.SkyLight.color.green, CMath.EaseIn(256 / 256)), 0, 255)),
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.blue, LightSystem.SkyLight.color.blue, CMath.EaseIn(256 / 256)), 0, 255)),
                     255
                 );
                 gradient.addColorStop(0, gradientColor.ToString());
 
                 gradientColor = new Color(
-                    Math.floor(CMath.Clamp(CMath.Lerp(color.red, LightSystem.SkyLight.color.red, CMath.EaseIn(0 / 100)), 0, 255)),
-                    Math.floor(CMath.Clamp(CMath.Lerp(color.green, LightSystem.SkyLight.color.green, CMath.EaseIn(0 / 100)), 0, 255)),
-                    Math.floor(CMath.Clamp(CMath.Lerp(color.blue, LightSystem.SkyLight.color.blue, CMath.EaseIn(0 / 100)), 0, 255)),
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.red, LightSystem.SkyLight.color.red, CMath.EaseIn(0 / 256)), 0, 255)),
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.green, LightSystem.SkyLight.color.green, CMath.EaseIn(0 / 256)), 0, 255)),
+                    Math.floor(CMath.Clamp(CMath.Lerp(color.blue, LightSystem.SkyLight.color.blue, CMath.EaseIn(0 / 256)), 0, 255)),
                     255
                 );
                 gradient.addColorStop(1, gradientColor.ToString());

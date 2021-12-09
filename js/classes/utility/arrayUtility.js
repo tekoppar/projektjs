@@ -41,6 +41,67 @@ class ArrayUtility {
 
         return subRectData;
     }
+
+    static ToString(array, level = 0) {
+        let s;
+        if (level === 0)
+            s = '[\r\n';
+        else
+            s = '[';
+
+        for (let i = 0, l = array.length; i < l; ++i) {
+            if (Array.isArray(array[i])) {
+                s += ArrayUtility.ToString(array[i], level + 1);
+            } else {
+                s += array[i];
+            }
+
+            if (i < l - 1) {
+                if (level === 0)
+                    s += ', \r\n';
+                else
+                    s += ', ';
+            }
+        }
+
+        if (level === 0)
+            s += '\r\n]';
+        else
+            s += ']';
+
+        return s;
+    }
+
+    static ObjectAsArrayToString(object, toStringFunc = undefined, level = 0) {
+        let s;
+        if (level === 0)
+            s = '[\r\n';
+        else
+            s = '[';
+        let keys = Object.keys(object);
+
+        for (let i = 0, l = keys.length; i < l; ++i) {
+            if (toStringFunc !== undefined && object[keys[i]][toStringFunc.name] !== undefined) {
+                s += toStringFunc.call(object[keys[i]]);
+            }
+            else if (object[keys[i]].ToString !== undefined)
+                s += object[keys[i]].ToString();
+            else if (object[keys[i]].toString !== undefined)
+                s += object[keys[i]].toString();
+            else
+                s += object[keys[i]];
+
+            if (i < l - 1)
+                s += ', \r\n';
+        }
+
+        if (level === 0)
+            s += '\r\n]';
+        else
+            s += ']';
+
+        return s;
+    }
 }
 
 export { ArrayUtility }; 

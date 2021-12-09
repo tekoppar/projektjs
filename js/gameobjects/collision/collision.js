@@ -377,7 +377,7 @@ class CollisionHandler {
      * 
      * @param {Collision} collision 
      * @param {string} className 
-     * @returns 
+     * @returns {(Collision|false)}
      */
     GetOverlapByClass(collision, className) {
         let quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox()),
@@ -423,6 +423,44 @@ class CollisionHandler {
 
             if (collision.collisionOwner !== undefined && quadOverlaps[i].collisionOwner !== undefined) {
                 if (collision.collisionOwner !== quadOverlaps[i].collisionOwner) {
+                    if (OverlapCheckType.Intersect && collision.GetIntersections(quadOverlaps[i].GetPoints()) > 0) {
+                        overlaps.push(quadOverlaps[i]);
+                    } else if (OverlapCheckType.Overlaps && collision.DoOverlap(quadOverlaps[i], true) && quadOverlaps[i].enableCollision === false) {
+                        overlaps.push(quadOverlaps[i]);
+                    } else if (OverlapCheckType.Inside && collision.boundingBox.Inside(quadOverlaps[i].boundingBox)) {
+                        overlaps.push(quadOverlaps[i]);
+                    }
+                }
+            } else if (CollisionCheckType === CollisionTypeCheck.All) {
+                overlaps.push(quadOverlaps[i]);
+            }
+        }
+
+        quadOverlaps = null;
+        return overlaps;
+    }
+
+    /**
+     * 
+     * @param {Collision} collision 
+     * @param {string} className
+     * @param {Object} OverlapCheckType 
+     * @param {CollisionTypeCheck} CollisionCheckType 
+     * @returns {Array<Collision>}
+     */
+     GetOverlapsByClass(collision, className, OverlapCheckType = DefaultOverlapCheck, CollisionCheckType = CollisionTypeCheck.Overlap) {
+        let overlaps = [],
+            quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox());
+
+        for (let i = 0, l = quadOverlaps.length; i < l; ++i) {
+            if (quadOverlaps[i].overlapEvents === true && (CollisionCheckType !== CollisionTypeCheck.Overlap && CollisionCheckType !== CollisionTypeCheck.All))
+                continue;
+            if (quadOverlaps[i].enableCollision === true && (CollisionCheckType !== CollisionTypeCheck.Blocking && CollisionCheckType !== CollisionTypeCheck.All))
+                continue;
+
+            if (collision.collisionOwner !== undefined && quadOverlaps[i].collisionOwner !== undefined) {
+                let objPrototype = Object.getPrototypeOf(quadOverlaps[i].collisionOwner);
+                if (objPrototype.constructor.name === className && collision.collisionOwner !== quadOverlaps[i].collisionOwner) {
                     if (OverlapCheckType.Intersect && collision.GetIntersections(quadOverlaps[i].GetPoints()) > 0) {
                         overlaps.push(quadOverlaps[i]);
                     } else if (OverlapCheckType.Overlaps && collision.DoOverlap(quadOverlaps[i], true) && quadOverlaps[i].enableCollision === false) {

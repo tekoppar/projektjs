@@ -2,7 +2,7 @@ import {
     ObjectsHasBeenInitialized, LightSystem, Rectangle, DrawingOperation, CAnimation,
     AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler,
     Plant, AllPlantData, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite,
-    Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController
+    Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController, TileMakerEditor, ImageUtility
 } from '../internal.js';
 import { GenerateCustomSheets } from '../drawers/tiles/TileMakerCustomSheets/tileMakerCustomSheetsImports.js';
 
@@ -162,6 +162,7 @@ class MasterObject {
             CanvasDrawer.GCD.GameBegin();
             InputHandler.GIH.AddListener(CanvasDrawer.GCD);
             LightSystem.SkyLight.Update();
+            let tileMakerEditor = new TileMakerEditor();
 
             for (let i = 0; i < AllPlants.length; ++i) {
                 CustomEventHandler.AddListener(AllPlants[i]);
@@ -187,7 +188,8 @@ class MasterObject {
     }
 
     NextFrame() {
-        window.requestAnimationFrame(GlobalLoop);
+        if (this.frameStepping)
+            window.requestAnimationFrame(GlobalLoop);
     }
 
     GameLoopActions(delta) {
@@ -197,13 +199,15 @@ class MasterObject {
         LightSystem.SkyLight.Update();
 
         for (let i = 0, l = Cobject.KeysAllCobjects.length; i < l; ++i) {
-            Cobject.AllCobjects[Cobject.KeysAllCobjects[i]].FixedUpdate(delta);
+            if (Cobject.KeysAllCobjects[i] !== undefined && Cobject.AllCobjects[Cobject.KeysAllCobjects[i]] !== undefined)
+                Cobject.AllCobjects[Cobject.KeysAllCobjects[i]].FixedUpdate(delta);
         }
 
         CanvasDrawer.GCD.DrawLoop(delta);
 
         for (let i = 0, l = Cobject.KeysAllCobjects.length; i < l; ++i) {
-            Cobject.AllCobjects[Cobject.KeysAllCobjects[i]].EndOfFrameUpdate();
+            if (Cobject.KeysAllCobjects[i] !== undefined && Cobject.AllCobjects[Cobject.KeysAllCobjects[i]] !== undefined)
+                Cobject.AllCobjects[Cobject.KeysAllCobjects[i]].EndOfFrameUpdate();
         }
     }
 
