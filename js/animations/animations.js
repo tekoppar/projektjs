@@ -186,9 +186,20 @@ class CAnimation {
     }
 
     IncrementFrame() {
+        switch (this.animationType) {
+            case AnimationType.Cycle:
+                this.frameUpdate = true;
+                this.currentFrame++;
+                break;
+
+            case AnimationType.Idle:
+            case AnimationType.Single:
+                if (this.animationFinished === false) {
+                    this.frameUpdate = true;
+                    this.currentFrame++;
+                }
+        }
         //if (this.animationStarted === true && this.animationFinished === false)
-        this.frameUpdate = true;
-        this.currentFrame++;
     }
 
     ResetFrame() {
@@ -203,6 +214,7 @@ class CAnimation {
             case AnimationType.Single:
                 if (this.frames.length > 1) {
                     this.currentFrame = -1;
+                    this.animationFinished = true;
                 }
                 break;
         }
@@ -214,6 +226,7 @@ class CAnimation {
 
             case AnimationType.Idle:
             case AnimationType.Single:
+            default:
                 return this.currentFrame >= this.frames.length + 1;
         }
     }

@@ -402,6 +402,7 @@ class AmbientLight extends Cobject {
         super.Delete();
     }
 
+    //@ts-ignore
     CEvent(eventType, data) {
 
     }

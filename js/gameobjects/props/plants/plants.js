@@ -1,4 +1,4 @@
-import { CMath, Prop, Item, CanvasDrawer, CanvasSprite, Rectangle, OperationType, Vector2D, CAnimation } from '../../../internal.js'
+import { CMath, Prop, Item, CanvasDrawer, CanvasSprite, Rectangle, OperationType, Vector2D, CAnimation, CustomLogger } from '../../../internal.js'
 
 /**
  * @class
@@ -116,10 +116,10 @@ class Plant extends Prop {
 
     PlayAnimation() {
         if (this.currentAnimation !== null && this.currentAnimation !== undefined) {
-            if (this.animations !== null && this.animations.grow !== undefined && this.currentAnimation.name === 'picked' && this.currentAnimation.animationFinished === true) {
+            /*if (this.animations !== null && this.animations.grow !== undefined && this.currentAnimation.name === 'picked' && this.currentAnimation.animationFinished === true) {
                 this.currentAnimation = this.animations.grow.Clone();
                 this.currentAnimation.SetSpeed(this.plantData.growthSpeed);
-            }
+            }*/
 
             if ((this.currentAnimation.name === 'grow' || this.currentAnimation.name === 'seed') && this.currentAnimation.animationFinished === true)
                 this.plantData.hasFinishedGrowing = true;

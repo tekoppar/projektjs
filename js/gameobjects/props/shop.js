@@ -250,6 +250,7 @@ class Shop extends Prop {
         }
     }
 
+    //@ts-ignore
     CEvent(eventType, key, data) {
         switch (eventType) {
             case 'use':

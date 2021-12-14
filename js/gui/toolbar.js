@@ -8,6 +8,8 @@ class GameToolbar extends Cobject {
         this.toolbar = document.getElementById('game-gui-toolbar');
         this.toolbar.addEventListener('click', this);
         this.activeToolbar;
+
+        /** @type {Object.<string, UsableItem>}>} */
         this.toolbarItems = {};
         this.didToolbarChange = false;
 
@@ -97,7 +99,7 @@ class GameToolbar extends Cobject {
             let item = this.toolbarItems[keys[i]];
             let div = this.toolbar.children[keys[i]].querySelector('div.toolbar-item-sprite');
             div.style.backgroundPosition = '-' + (item.sprite.x * item.sprite.z) * 1.35 + 'px -' + (item.sprite.y * item.sprite.a) * 1.5 + 'px';
-            div.style.backgroundSize = item.atlas.x * 1.35 + 'px ' + item.atlas.y * 1.5 + 'px';
+            div.style.backgroundSize = item.atlasSize.x * 1.35 + 'px ' + item.atlasSize.y * 1.5 + 'px';
             div.style.backgroundImage = 'url(' + item.url + ')';
 
             if (item instanceof UsableItem && div.parentNode.querySelector('div.rogress-bar-mini') === null) {
@@ -132,7 +134,7 @@ class GameToolbar extends Cobject {
 
                 const data = JSON.parse(e.dataTransfer.getData('text/plain'));
                 let droppedItem = document.getElementById(data.id);
-                let item = Cobject.GetObjectFromUID(data.item);
+                let item = /** @type {Item} */ (Cobject.GetObjectFromUID(data.item));
 
                 droppedItem.id = '';
                 if (item instanceof Item) {

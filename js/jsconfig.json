@@ -1,0 +1,25 @@
+{
+    "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es2017",
+        "checkJs": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "alwaysStrict": true,
+        "noImplicitAny": false,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "suppressExcessPropertyErrors": false,
+        "suppressImplicitAnyIndexErrors": false,
+        "strictFunctionTypes": true,
+        "strictNullChecks": false,
+        "strictPropertyInitialization": false,
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}

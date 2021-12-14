@@ -107,8 +107,8 @@ class Math3D {
                 }
 
                 index = Math.floor(rpy + offset) * (size.x * 4) + Math.floor(rpx) * 4;
-                if ((index % 4) === 0)
-                    index += index % 4;
+                /*if ((index % 4) === 0)
+                    index += index % 4;*/
 
                 if (tPoints[index] !== undefined && points[pointIndex + 3] > 0) {
                     tPoints[index] = points[pointIndex];
@@ -118,8 +118,8 @@ class Math3D {
                 }
 
                 index = Math.ceil(rpy + offset) * (size.x * 4) + Math.ceil(rpx) * 4;
-                if ((index % 4) === 0)
-                    index += index % 4;
+                /*if ((index % 4) === 0)
+                    index += index % 4;*/
 
                 if (tPoints[index] !== undefined && points[pointIndex + 3] > 0) {
                     tPoints[index] = points[pointIndex];
@@ -166,8 +166,8 @@ class Math3D {
 
         Math3D.Rotate(CMath.DegreesToRadians(rotationVector.x), CMath.DegreesToRadians(rotationVector.y), CMath.DegreesToRadians(rotationVector.z), pointData, center);
 
-        let newIndexFloor = 0,
-            newIndexCeil = 0;
+        let newIndexFloor = 0;
+            //newIndexCeil = 0;
 
         for (let i = 0, l = pointData.length; i < l; ++i) {
             newIndexFloor = (Math.floor(pointData[i].x) * 4) + (Math.floor(pointData[i].y + yOffset) * size.x * 4);

@@ -1,5 +1,4 @@
 import { CMath } from '../internal.js';
-import { ToggleObjectsHasBeenInitialized } from '../internalVariables.js';
 
 /**
  * @class
@@ -26,15 +25,31 @@ class Vector2D {
         }
     }
 
+    /**
+     * 
+     * @param {Number} f 
+     */
     AddF(f) {
         this.x += f;
         this.y += f;
     }
 
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Number} f 
+     * @returns {Vector2D}
+     */
     static AddF(a, f) {
         return new Vector2D(a.x + f, a.y + f);
     }
 
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Vector2D} b
+     * @returns {Vector2D}
+     */
     static Add(a, b) {
         return new Vector2D(a.x + b.x, a.y + b.y);
     }
@@ -49,13 +64,33 @@ class Vector2D {
         }
     }
 
+    /**
+     * 
+     * @param {Number} f 
+     */
     SubF(f) {
         this.x -= f;
         this.y -= f;
     }
 
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Vector2D} b 
+     * @returns {Vector2D}
+     */
     static Sub(a, b) {
         return new Vector2D(a.x - b.x, a.y - b.y);
+    }
+
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Vector2D} b 
+     * @returns {Vector2D}
+     */
+    static SubAbs(a, b) {
+        return new Vector2D(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
     }
 
     Mult(a) {
@@ -68,13 +103,33 @@ class Vector2D {
         }
     }
 
+    /**
+     * 
+     * @param {Number} f 
+     */
     MultF(f) {
         this.x *= f;
         this.y *= f;
     }
 
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Vector2D} b 
+     * @returns {Vector2D}
+     */
     static Mult(a, b) {
         return new Vector2D(a.x * b.x, a.y * b.y);
+    }
+
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Number} f
+     * @returns {Vector2D}
+     */
+    static MultF(a, f) {
+        return new Vector2D(a.x * f, a.y * f);
     }
 
     Div(a) {
@@ -87,20 +142,44 @@ class Vector2D {
         }
     }
 
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Vector2D} b 
+     * @returns 
+     */
     static Div(a, b) {
         return new Vector2D(a.x / b.x, a.y / b.y);
     }
 
-    static DivX(a, b) {
-        return new Vector2D(a.x / b, a.y / b);
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Number} f 
+     * @returns 
+     */
+    static DivX(a, f) {
+        return new Vector2D(a.x / f, a.y / f);
     }
 
-    static Min(vec, a) {
-        return new Vector2D(vec.x < a ? a : vec.x, vec.y < a ? a : vec.y);
+    /**
+     * 
+     * @param {Vector2D} vec 
+     * @param {Number} f 
+     * @returns 
+     */
+    static Min(vec, f) {
+        return new Vector2D(vec.x < f ? f : vec.x, vec.y < f ? f : vec.y);
     }
 
-    static Max(vec, a) {
-        return new Vector2D(vec.x > a ? a : vec.x, vec.y > a ? a : vec.y);
+    /**
+     * 
+     * @param {Vector2D} vec 
+     * @param {Number} f 
+     * @returns 
+     */
+    static Max(vec, f) {
+        return new Vector2D(vec.x > f ? f : vec.x, vec.y > f ? f : vec.y);
     }
 
     Ceil() {
@@ -133,6 +212,11 @@ class Vector2D {
         this.y = Math.abs(this.y);
     }
 
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @returns {boolean}
+     */
     Equal(a) {
         return this.x == a.x && this.y == a.y;
     }
@@ -141,6 +225,55 @@ class Vector2D {
         return new Vector2D(Math.sqrt(this.x), Math.sqrt(this.y));
     }
 
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Vector2D} b 
+     * @returns {Number}
+     */
+    static Dot(a, b) {
+        return a.x * b.x + a.y * b.y;
+    }
+
+    Magnitude() {
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+    }
+
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @returns {Number}
+     */
+    static Magnitude(a) {
+        return Math.sqrt(Math.pow(a.x, 2) + Math.pow(a.y, 2));
+    }
+
+    LengthSquared() {
+        return (this.x * this.x) + (this.y * this.y);
+    }
+
+    Normalize() {
+        let v = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+
+        this.x = this.x / v;
+        this.y = this.y / v;
+    }
+
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @returns {Vector2D}
+     */
+    static Normalize(a) {
+        let v = Math.sqrt(Math.pow(a.x, 2) + Math.pow(a.y, 2));
+        return new Vector2D(a.x / v, a.y / v);
+    }
+
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @returns {Number}
+     */
     Distance(a) {
         let y = a.x - this.x;
         let x = a.y - this.y;
@@ -149,43 +282,96 @@ class Vector2D {
         //return Math.sqrt(Math.pow(this.x - a.x, 2)) + Math.sqrt(Math.pow(this.y - a.y, 2));
     }
 
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Number} t 
+     * @returns {Vector2D}
+     */
     Lerp(a, t) {
         return new Vector2D(this.x + (a.x - this.x) * t, this.y + (a.y - this.y) * t);
     }
 
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Number} v 
+     * @returns {Vector2D}
+     */
     LerpValue(a, v) {
         let distance = this.Distance(a);
         let t = v / distance;
         return this.Lerp(a, t);
     }
 
+    /**
+     * 
+     * @param {Vector2D} checkPos 
+     * @param {Number} range 
+     * @returns {boolean}
+     */
     CheckInRange(checkPos, range = 100.0) {
         return this.Distance(checkPos) < range;
     }
 
+    /**
+     * 
+     * @param {Vector2D} a 
+     */
     Set(a) {
         this.x = a.x;
         this.y = a.y;
     }
 
+    /**
+     * 
+     * @param {Number} f 
+     */
+     SetF(f) {
+        this.x = f;
+        this.y = f;
+    }
+
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     Clone() {
         return new Vector2D(this.x, this.y);
     }
 
+    /**
+     * 
+     * @param {Number} precision 
+     * @returns {string}
+     */
     ToString(precision = 0) {
         return this.x.toFixed(precision) + ', ' + this.y.toFixed(precision);
     }
 
+    /**
+     * 
+     * @param {Vector2D} center 
+     * @param {Number} angle 
+     */
     Rotate(center, angle) {
         let rotatedPosition = CMath.Rotate(center, this, angle);
         this.x = rotatedPosition.x;
         this.y = rotatedPosition.y;
     }
 
+    /**
+     * Returns a how to construct this object as a string
+     * @returns {string}
+     */
     SaveToFile() {
         return 'new Vector2D(' + this.x + ', ' + this.y + ')';
     }
 
+    /**
+     * 
+     * @returns {{x:Number,y:Number}}
+     */
     toJSON() {
         return {
             x: this.x,
@@ -586,7 +772,7 @@ class Rectangle {
     static OVERLAP_RANGE = 0;
 
     /**
-     * 
+     * Creates a new Rectangle
      * @param {Number} x 
      * @param {Number} y 
      * @param {Number} w 
@@ -598,6 +784,7 @@ class Rectangle {
         this.w = w;
         this.h = h;
 
+        /** @type {Array<Number[]>} */
         this.corners = undefined;
     }
 
@@ -617,6 +804,12 @@ class Rectangle {
         this.UpdateCornersData();
     }
 
+    /**
+     * 
+     * @param {Rectangle} a 
+     * @param {Rectangle} b 
+     * @returns {Rectangle}
+     */
     static Add(a, b) {
         return new Rectangle(a.x + b.x, a.y + b.y, a.w + b.w, a.h + b.h);
     }
@@ -637,6 +830,12 @@ class Rectangle {
         this.UpdateCornersData();
     }
 
+    /**
+     * 
+     * @param {Rectangle} a 
+     * @param {Rectangle} b 
+     * @returns {Rectangle}
+     */
     static Sub(a, b) {
         return new Rectangle(a.x - b.x, a.y - b.y, a.w - b.w, a.h - b.h);
     }
@@ -666,6 +865,14 @@ class Rectangle {
         this.h = Math.floor(this.h);
     }
 
+    /**
+     * 
+     * @param {Number} aX 
+     * @param {Number} aY 
+     * @param {Number} bX 
+     * @param {Number} bY 
+     * @returns {Rectangle}
+     */
     static CreateRectangleFromTwoCorners(aX, aY, bX, bY) {
         let xMin = Math.min(aX, bX);
         let yMin = Math.min(aY, bY);
@@ -698,30 +905,75 @@ class Rectangle {
         return newRects;
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     * @returns {boolean}
+     */
     Inside(position) {
         return position.x >= this.x && position.x <= this.x + this.w && position.y >= this.y && position.y <= this.y + this.h;
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @returns {boolean}
+     */
     InsideXY(x, y) {
         return x >= this.x && x <= this.x + this.w && y >= this.y && y <= this.y + this.h;
     }
 
+    /**
+     * 
+     * @param {Rectangle} rect 
+     * @returns {boolean}
+     */
     IsRectInside(rect) {
         return this.x < rect.x && this.y < rect.y && this.x + this.w > rect.x + rect.w && this.y + this.h > rect.y + rect.h;
     }
 
+    /**
+     * 
+     * @param {Rectangle} rect 
+     * @returns {boolean}
+     */
     IsRectOverlappingOrInside(rect) {
-        return this.x <= rect.x && this.y <= rect.y && this.x + this.w >= rect.x + rect.w && this.y + this.h >= rect.y + rect.h;
+        this.UpdateCornersData();
+        rect.UpdateCornersData();
+        return this.InsideXY(rect.corners[0][0], rect.corners[0][1]) || this.InsideXY(rect.corners[1][0], rect.corners[1][1]) || this.InsideXY(rect.corners[2][0], rect.corners[2][1]) || this.InsideXY(rect.corners[3][0], rect.corners[3][1]) || rect.InsideXY(this.corners[0][0], this.corners[0][1]) || rect.InsideXY(this.corners[1][0], this.corners[1][1]) || rect.InsideXY(this.corners[2][0], this.corners[2][1]) || rect.InsideXY(this.corners[3][0], this.corners[3][1]);
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {Number} w 
+     * @param {Number} h 
+     * @returns {boolean}
+     */
     IsRectOverlappingOrInsideF(x, y, w, h) {
-        return this.x <= x && this.y <= y && this.x + this.w >= x + w && this.y + this.h >= y + h;
+        return this.InsideXY(x, y) || this.InsideXY(x + w, y) || this.InsideXY(x + w, y + h) || this.InsideXY(x, y + h);
+        //return this.x <= x || this.y <= y || this.x + this.w >= x + w || this.y + this.h >= y + h;
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {Number} w 
+     * @param {Number} h 
+     * @returns {boolean}
+     */
     IsCornerOverlappingOrInside(x, y, w, h) {
         return this.InsideXY(x, y) || this.InsideXY(x + w, y) || this.InsideXY(x, y + h) || this.InsideXY(x + w, y + h);
     }
 
+    /**
+     * 
+     * @param {Rectangle} rect 
+     * @returns {boolean}
+     */
     IsRectOutside(rect) {
         return this.x > rect.x && this.y > rect.y && this.x + this.w < rect.x + rect.w && this.y + this.h < rect.y + rect.h;
     }
@@ -729,19 +981,31 @@ class Rectangle {
     static InsideRectTest() {
         let a = new Rectangle(563, 11, 64, 64);
         let b = new Rectangle(586, 59, 16, 16);
-        let trueValue = a.IsRectInside(b);
-        let falseValue = b.IsRectInside(a);
-        console.log(trueValue, falseValue);
+        let trueValue = a.IsRectOverlappingOrInside(b);
+        let trueValue1 = a.IsRectOverlappingOrInsideF(b.x, b.y, b.w, b.h);
+        let falseValue = b.IsRectOverlappingOrInside(a);
+        console.log(trueValue, trueValue1, falseValue);
 
         trueValue = b.IsRectOutside(a);
         falseValue = a.IsRectOutside(b);
         console.log(trueValue, falseValue);
     }
 
+    /**
+     * 
+     * @param {Rectangle} rect 
+     * @returns {boolean}
+     */
     Outside(rect) {
         return !(this.x < rect.x && this.y < rect.y && this.x + this.w > rect.x + rect.w && this.y + this.h > rect.y + rect.h);
     }
 
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @returns {boolean}
+     */
     OutsideXY(x, y) {
         return x <= this.x || x >= this.x + this.w && y <= this.y || y >= this.y + this.h;
     }
@@ -759,10 +1023,19 @@ class Rectangle {
         return aMax > bMin && bMax > aMin;
     }
 
+    /**
+     * 
+     * @param {Rectangle} a 
+     * @returns {boolean}
+     */
     Overlaps(a) {
         return this.IsOverlaping1D(this.x - Rectangle.OVERLAP_RANGE, (this.x - Rectangle.OVERLAP_RANGE) + (this.w + Rectangle.OVERLAP_RANGE), a.x - Rectangle.OVERLAP_RANGE, (a.x - Rectangle.OVERLAP_RANGE) + (a.w + Rectangle.OVERLAP_RANGE)) && this.IsOverlaping1D(this.y - Rectangle.OVERLAP_RANGE, (this.y - Rectangle.OVERLAP_RANGE) + (this.h + Rectangle.OVERLAP_RANGE), a.y - Rectangle.OVERLAP_RANGE, (a.y - Rectangle.OVERLAP_RANGE) + (a.h + Rectangle.OVERLAP_RANGE));
     }
 
+    /**
+     * 
+     * @param {boolean} forceUpdate 
+     */
     UpdateCornersData(forceUpdate = false) {
         if (this.corners === undefined || forceUpdate === true) {
             //0: top left, 1: top right, 2: bottom left, 3: bottom right
@@ -787,6 +1060,10 @@ class Rectangle {
         }
     }
 
+    /**
+     * 
+     * @returns {Array<Array<Number>>}
+     */
     GetCorners() {
         if (this.corners === undefined) {
             //0: top left, 1: top right, 2: bottom left, 3: bottom right
@@ -801,19 +1078,32 @@ class Rectangle {
         return this.corners;
     }
 
+    /**
+     * 
+     * @returns {Array<Vector2D>}
+     */
     GetCornersVector2D() {
-        return this.corners = [
+        return [
             new Vector2D(this.x, this.y),
             new Vector2D(this.x + this.w, this.y),
-            new Vector2D(this.x, this.y + this.h),
-            new Vector2D(this.x + this.w, this.y + this.h)
+            new Vector2D(this.x + this.w, this.y + this.h),
+            new Vector2D(this.x, this.y + this.h)
         ];
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetCenterPoint() {
         return new Vector2D(this.x + this.w * 0.5, this.y + this.h * 0.5);
     }
 
+    /**
+     * 
+     * @param {Rectangle} a 
+     * @returns {Array<Array<Number>>}
+     */
     GetNonOverlappingCorners(a) {
         if (a.corners === undefined)
             a.UpdateCornersData();
@@ -832,6 +1122,11 @@ class Rectangle {
         return outsideCorners;
     }
 
+    /**
+     * 
+     * @param {Rectangle} a 
+     * @returns {Array<Array<Number>>}
+     */
     GetOverlappingCorners(a) {
         if (a.corners === undefined)
             a.UpdateCornersData();
@@ -850,7 +1145,12 @@ class Rectangle {
         return insideCorners;
     }
 
-    GetIntersection(a, debug = false) {
+    /**
+     * 
+     * @param {Rectangle} a 
+     * @returns {Rectangle}
+     */
+    GetIntersection(a) {
         let insideCorners = this.GetOverlappingCorners(a);
 
         if (insideCorners.length === 0)
@@ -935,6 +1235,10 @@ class Rectangle {
         return undefined;
     }
 
+    /**
+     * 
+     * @param {Rectangle} a 
+     */
     Set(a) {
         this.x = a.x;
         this.y = a.y;
@@ -942,6 +1246,11 @@ class Rectangle {
         this.h = a.h;
     }
 
+    /**
+     * 
+     * @param {Rectangle} a 
+     * @returns {boolean}
+     */
     Equal(a) {
         return this.x === a.x && this.y === a.y && this.w === a.w && this.h === a.h;
     }
@@ -954,10 +1263,18 @@ class Rectangle {
         this.corners = undefined;
     }
 
+    /**
+     * 
+     * @returns {Rectangle}
+     */
     Clone() {
         return new Rectangle(this.x, this.y, this.w, this.h);
     }
 
+    /**
+     * 
+     * @param {Rectangle} rect 
+     */
     Copy(rect) {
         this.x = rect.x;
         this.y = rect.y;
@@ -965,14 +1282,26 @@ class Rectangle {
         this.h = rect.h;
     }
 
+    /**
+     * 
+     * @returns {string}
+     */
     ToString() {
         return this.x + ', ' + this.y + ', ' + this.w + ', ' + this.h;
     }
-    
+
+    /**
+     * Returns a how to construct this object as a string
+     * @returns {string}
+     */
     SaveToFile() {
         return 'new Rectangle(' + this.x + ', ' + this.y + ', ' + this.w + ', ' + this.h + ')';
     }
 
+    /**
+     * 
+     * @returns {{x:Number, y:Number, w:Number, h:Number, c:string}}
+     */
     toJSON() {
         return {
             x: this.x,
@@ -993,6 +1322,93 @@ class Direction {
         this.x = x;
         this.y = y;
         this.forward = angle;
+    }
+}
+
+/**
+ * @class
+ * @constructor
+ */
+class Line {
+
+    /**
+     * 
+     * @param {Vector2D} a 
+     * @param {Vector2D} b 
+     */
+    constructor(a = new Vector2D(0, 0), b = new Vector2D(0, 0)) {
+        if (a.y < b.y) {
+            this.a = a;
+            this.b = b;
+        } else {
+            this.a = b;
+            this.b = a;
+        }
+    }
+
+    Set(a, b) {
+        if (a.y < b.y) {
+            this.a = a;
+            this.b = b;
+        } else {
+            this.a = b;
+            this.b = a;
+        }
+    }
+
+    Delta() {
+        return Vector2D.Sub(this.b, this.a);
+    }
+
+    LineSlope(a, b) {
+        let x = Math.abs(a.y - b.y);
+        let y = Math.abs(a.x - b.x)
+        return x === 0 && y === 0 ? 0 : x / y;
+    }
+
+    LineIntercept(a, b) {
+        let slope = this.LineSlope(a, b);
+        return a.y - slope * a.x;
+    }
+
+    PointAlongLineAtDistance(distance) {
+        let slope = this.LineSlope(this.a, this.b);
+        let vA = this.a.x > this.b.x ? this.b : this.a;
+        let vB = this.a.x > this.b.x ? this.a : this.b;
+        let point = { x: Math.abs(vA.x - vB.x), y: Math.abs(vA.y - vB.y) };
+        let y = slope * (distance - point.x) + point.y;
+        return new Vector2D(distance + vA.x, y + vA.y);
+    }
+
+    ClosestPointAlongLine(position) {
+        let ap = Vector2D.SubAbs(position, this.a),
+            ab = Vector2D.SubAbs(this.b, this.a);
+
+        /*if (distance < 0)
+            return this.a.Clone();
+        else if (distance > 1)
+            return this.b.Clone();
+        else*/
+        return Vector2D.Add(this.a, Vector2D.MultF(ab, CMath.Clamp(Vector2D.Dot(ap, ab) / ab.LengthSquared(), 0, 1)));
+    }
+
+    static ClosestPointAlongLine(a, b, position) {
+        let ap = Vector2D.Sub(position, a),
+            ab = Vector2D.Sub(b, a);
+
+        ap.Abs();
+        ab.Abs();
+
+        let magnitudeAB = ab.LengthSquared();
+        let abAPDot = Vector2D.Dot(ap, ab);
+        let distance = CMath.Clamp(abAPDot / magnitudeAB, 0, 1);
+
+        /*if (distance < 0)
+            return a
+        else if (distance > 1)
+            return b;
+        else*/
+        return Vector2D.Add(a, Vector2D.MultF(ab, distance));
     }
 }
 
@@ -1378,8 +1794,7 @@ class Color {
     }
 
     AddAlpha(a) {
-        let tA = this.alpha / 255,
-            aA = a.alpha / 255;
+        let aA = a.alpha / 255;
 
         this.red = (a.red * aA) + (this.red * (1 - aA));
         this.green = (a.green * aA) + (this.green * (1 - aA));
@@ -1468,6 +1883,10 @@ class Color {
         this.alpha = Math.min(Math.max(Math.round(this.alpha), 0), 1);
     }
 
+    /**
+     * 
+     * @returns {Color}
+     */
     Clone() {
         return new Color(this.red, this.green, this.blue, this.alpha);
     }
@@ -1477,10 +1896,18 @@ class Color {
         return `rgba(${this.red}, ${this.green}, ${this.blue}, ${this.alpha})`;
     }
 
+    /**
+     * Returns a how to construct this object as a string
+     * @returns {string}
+     */
     SaveToFile() {
         return 'new Color(' + this.red + ', ' + this.green + ', ' + this.blue + ', ' + this.alpha + ')';
     }
 
+    /**
+     * 
+     * @returns {{red:Number, green:Number, blue:Number, alpha:Number}}
+     */
     toJSON() {
         return {
             red: this.red,
@@ -1498,4 +1925,4 @@ class Color {
     }
 }
 
-export { Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Polygon, Color };
+export { Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Line, Polygon, Color };

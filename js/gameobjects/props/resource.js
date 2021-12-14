@@ -120,7 +120,7 @@ class Resource extends ExtendedProp {
         if (this.shadow !== undefined)
             this.shadow.Delete();
         this.drawingOperation.Delete();
-        this.drawingOperation = undefined;
+        this.drawingOperation = null;
 
         window.requestAnimationFrame(() => this.CreateSecondStage());
     }
@@ -157,6 +157,7 @@ class Resource extends ExtendedProp {
         }
     }
 
+    //@ts-ignore
     CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects, canvasObject = undefined) {
         super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
 

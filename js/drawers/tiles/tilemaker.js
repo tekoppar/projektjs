@@ -1,4 +1,4 @@
-import { CanvasDrawer, CanvasAtlasObject, TileData, AtlasController, Tile, TileType, TileTerrain, Vector2D, Vector, CMath, Math3D } from '../../internal.js';
+import { CanvasDrawer, CanvasAtlasObject, AtlasController, Tile, TileType, TileTerrain, Vector2D, Vector, Math3D } from '../../internal.js';
 import { XORCanvasSprite } from './TileMakerCustomSheets/customSheetsFunctions.js';
 
 class TileMaker {
@@ -49,12 +49,12 @@ class TileMaker {
     }
 
     static SplitAtlasToTiles(atlas, tileSize) {
-        let splitPosition = new Vector2D(0, 0),
+        let //splitPosition = new Vector2D(0, 0),
             loopX = atlas.width / tileSize.x,
             loopY = atlas.height / tileSize.y;
 
         let canvas = atlas.canvas;
-        let ctx = canvas.getContext('2d');
+        //let ctx = canvas.getContext('2d');
         let tempCanvas = document.createElement('canvas');
         tempCanvas.width = tileSize.x;
         tempCanvas.height = tileSize.y;
@@ -130,7 +130,7 @@ class TileMaker {
     static CanvasPortionToImage(tile) {
         if (AtlasController.GetAtlas(tile.atlas) !== undefined) {
             let canvas = AtlasController.GetAtlas(tile.atlas).GetCanvas();
-            let ctx = canvas.getContext('2d');
+            //let ctx = canvas.getContext('2d');
             let tempCanvas = document.createElement('canvas');
             tempCanvas.width = tile.size.x;
             tempCanvas.height = tile.size.y;
@@ -181,7 +181,7 @@ class TileMaker {
     }
 
     static GenerateCustomTiles() {
-        const f = null;
+        //const f = null;
         TileMaker.CustomTiles = {
             seedStand: {
                 name: 'pepoSeedShop',
@@ -552,8 +552,8 @@ class TileMaker {
                     [1]
                 ]
             },
-            storageChest: {
-                name: 'storageChest',
+            woodenChest: {
+                name: 'woodenChest',
                 tiles: [
                     new Tile(new Vector2D(0, 0), new Vector2D(0, 13), new Vector2D(32, 32), true, 'container', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(1, 13), new Vector2D(32, 32), true, 'container', 0, TileType.Prop, TileTerrain.Wood),
@@ -574,15 +574,12 @@ class TileMaker {
                     new Tile(new Vector2D(0, 0), new Vector2D(2, 1), new Vector2D(32, 32), false, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(4, 11), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(3, 1), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, 10), new Vector2D(51, 3), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(1, 9), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(1, 10), new Vector2D(32, 32), false, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(2, 0), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(2, 1), new Vector2D(32, 32), false, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(3, 2), new Vector2D(32, 32), false, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(3, 9), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, 10), new Vector2D(50, 3), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, -16), new Vector2D(54, 3), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, -16), new Vector2D(55, 3), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(54, 0), new Vector2D(32, 32), false, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, -16), new Vector2D(55, 3), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
@@ -596,10 +593,11 @@ class TileMaker {
                     new Tile(new Vector2D(0, 0), new Vector2D(4, 9), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(3, 9), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(51, 0), new Vector2D(32, 32), false, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, 10), new Vector2D(50, 3), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, -16), new Vector2D(4, 0), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 16), new Vector2D(56, 35), new Vector2D(32, 32), false, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(10, 16), new Vector2D(56, 43), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(8, 16), new Vector2D(56, 43), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, -16), new Vector2D(2, 11), new Vector2D(32, 32), false, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, 16), new Vector2D(53, 3), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, -16), new Vector2D(0, 19), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(54, 0), new Vector2D(32, 32), false, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, -16), new Vector2D(0, 0), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(57, 40), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
@@ -610,11 +608,12 @@ class TileMaker {
                     new Tile(new Vector2D(0, 0), new Vector2D(59, 40), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(3, 4), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(50, 0), new Vector2D(32, 32), false, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, 10), new Vector2D(50, 5), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, -16), new Vector2D(56, 35), new Vector2D(32, 32), false, 'walls', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, -16), new Vector2D(53, 3), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(56, 37), new Vector2D(32, 32), false, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(8, -8), new Vector2D(19, 3), new Vector2D(32, 32), true, 'windowsdoors', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(56, 37), new Vector2D(32, 32), false, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(55, 1), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(58, 38), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, 0), new Vector2D(61, 41), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(61, 37), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(8, 0), new Vector2D(56, 42), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(55, 1), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(57, 36), new Vector2D(32, 32), false, 'walls', 0, TileType.Prop, TileTerrain.Wood),
@@ -628,11 +627,13 @@ class TileMaker {
                     new Tile(new Vector2D(0, 0), new Vector2D(57, 36), new Vector2D(32, 32), false, 'walls', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(58, 43), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(57, 42), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(58, 37), new Vector2D(32, 32), false, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(50, 1), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(59, 38), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, 0), new Vector2D(60, 41), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(60, 37), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(-8, 0), new Vector2D(58, 42), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(50, 1), new Vector2D(32, 32), true, 'roofs', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(0, -16), new Vector2D(56, 37), new Vector2D(32, 32), false, 'walls', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(8, 0), new Vector2D(61, 40), new Vector2D(32, 32), true, 'walls', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(59, 35), new Vector2D(32, 32), false, 'walls', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(57, 35), new Vector2D(32, 32), false, 'walls', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(0, 0), new Vector2D(26, 25), new Vector2D(32, 32), true, 'windowsdoors', 0, TileType.Prop, TileTerrain.Wood),
@@ -660,20 +661,138 @@ class TileMaker {
                     new Tile(new Vector2D(-16, 0), new Vector2D(27, 6), new Vector2D(32, 32), false, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(-16, 0), new Vector2D(25, 10), new Vector2D(32, 32), false, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
                     new Tile(new Vector2D(16, 0), new Vector2D(26, 10), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(-16, 0), new Vector2D(25, 10), new Vector2D(32, 32), false, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
-                    new Tile(new Vector2D(-16, 0), new Vector2D(27, 8), new Vector2D(32, 32), false, 'terrain', 0, TileType.Prop, TileTerrain.Wood)
+                    new Tile(new Vector2D(-16, 0), new Vector2D(25, 10), new Vector2D(32, 32), false, 'terrain', 0, TileType.Prop, TileTerrain.Wood)
                 ],
                 tileLayout: [
-                    [[], [], [], [], [0], [], [], []],
-                    [[], [], [], [1, 2], [10], [4, 5], [], []],
-                    [[], [6], [7], [8], [9, 10], [11], [26], [28]],
-                    [[14], [17], [16, 17], [18], [19, 23, 37, 23, 23], [24], [25, 26, 27], [28]],
-                    [[29], [30, 31], [32, 33], [34, 35], [36, 37, 38], [39, 40], [41], [42]],
-                    [[], [43, 44], [45, 46, 47, 48], [57, 50, 59], [57, 59, 56, 55, 56], [57, 58, 59], [60, 61, 62, 63], []],
-                    [[], [64], [65], [68, 67], [68, 69], [70, 71], [72], []],
-                    [[], [], [73, 74, 75], [76, 77, 81, 79], [80, 81, 82], [83], [84, 85], []],
-                    [[], [], [86, 87], [88], [89], [92], [91, 92], []],
-                    [[], [], [], [], [93], [], [], []]
+                    [[], [], [], [0], [], []],
+                    [[], [], [1, 2], [9], [4, 5], []],
+                    [[], [6], [7], [8, 9], [10], [23]],
+                    [[14], [13, 14], [15], [16, 20, 35, 20, 20], [21], [22, 23, 24]],
+                    [[25, 26, 27, 28, 29], [30, 31], [32, 33], [34, 35, 36], [37, 38], [39]],
+                    [[40, 41], [84, 47, 44, 45, 46, 47], [56, 49, 58], [56, 58, 55, 54, 55], [56, 57, 58], [85, 64, 61, 62, 63, 64]],
+                    [[65], [66], [69, 68], [69, 70], [71, 72], [73]],
+                    [[], [74, 75, 76], [77, 78, 82, 80], [81, 82, 83], [84], [85, 86]],
+                    [[], [87, 88], [89], [90], [93], [92, 93]]
+                ]
+            },
+            planningTable: {
+                name: 'planningTable',
+                tiles: [
+                    new Tile(new Vector2D(0, 0), new Vector2D(4, 71), new Vector2D(32, 32), true, 'victorianmarket', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(6, 71), new Vector2D(32, 32), true, 'victorianmarket', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(-16, 6), new Vector2D(3, 1), new Vector2D(32, 32), true, 'documents', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(-16, 0), new Vector2D(24, 11), new Vector2D(32, 32), true, 'interiorobjects', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 8), new Vector2D(1, 2), new Vector2D(32, 32), true, 'documents', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(-32, 0), new Vector2D(0, 2), new Vector2D(32, 32), true, 'documents', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(4, 72), new Vector2D(32, 32), true, 'victorianmarket', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(6, 72), new Vector2D(32, 32), true, 'victorianmarket', 0, TileType.Prop, TileTerrain.Wood)
+                ],
+                tileLayout: [
+                    [[0], [1, 2, 3, 4, 5]],
+                    [[6], [7]]
+                ]
+            },
+            waterFilledBoat: {
+                name: 'waterFilledBoat',
+                tiles: [
+                    new Tile(new Vector2D(0, 0), new Vector2D(29, 27), new Vector2D(32, 32), true, 'exteriorobjects', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(30, 27), new Vector2D(32, 32), true, 'exteriorobjects', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(31, 27), new Vector2D(32, 32), true, 'exteriorobjects', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(29, 29), new Vector2D(32, 32), true, 'exteriorobjects', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(29, 28), new Vector2D(32, 32), true, 'exteriorobjects', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(30, 28), new Vector2D(32, 32), true, 'exteriorobjects', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(31, 28), new Vector2D(32, 32), true, 'exteriorobjects', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(29, 30), new Vector2D(32, 32), true, 'exteriorobjects', 0, TileType.Prop, TileTerrain.Wood)
+                ],
+                tileLayout: [
+                    [[0], [1], [2], [3]],
+                    [[4], [5], [6], [7]],
+                ]
+            },
+            stoneSmelter: {
+                name: 'stoneSmelter',
+                tiles: [
+                    new Tile(new Vector2D(0, 0), new Vector2D(0, 13), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(1, 13), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(0, 14), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(1, 14), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(0, 15), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(1, 15), new Vector2D(32, 32), true, 'ore', 0, TileType.Prop, TileTerrain.Wood)
+                ],
+                tileLayout: [
+                    [[0], [1]],
+                    [[2], [3]],
+                    [[4], [5]],
+                ]
+            },
+            anvil: {
+                name: 'anvil',
+                tiles: [
+                    new Tile(new Vector2D(0, 0), new Vector2D(10, 13), new Vector2D(32, 32), true, 'blacksmithsmelter', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(11, 13), new Vector2D(32, 32), true, 'blacksmithsmelter', 0, TileType.Prop, TileTerrain.Wood)
+                ],
+                tileLayout: [
+                    [[0], [1]],
+                ]
+            },
+            workbench: {
+                name: 'workbench',
+                tiles: [
+                    new Tile(new Vector2D(0, 0), new Vector2D(8, 15), new Vector2D(32, 32), true, 'blacksmithsmelter', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(9, 15), new Vector2D(32, 32), true, 'blacksmithsmelter', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(8, 16), new Vector2D(32, 32), true, 'blacksmithsmelter', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(9, 16), new Vector2D(32, 32), true, 'blacksmithsmelter', 0, TileType.Prop, TileTerrain.Wood)
+                ],
+                tileLayout: [
+                    [[0], [1]],
+                    [[2], [3]],
+                ]
+            },
+            choppingBlock: {
+                name: 'choppingBlock',
+                tiles: [
+                    new Tile(new Vector2D(0, 0), new Vector2D(12, 12), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(1, 1), new Vector2D(32, 32), true, 'farmingfishing', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(13, 12), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(12, 13), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(9, -4), new Vector2D(9, 12), new Vector2D(32, 32), true, 'woodshop', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(13, 13), new Vector2D(32, 32), true, 'terrain', 0, TileType.Prop, TileTerrain.Wood)
+                ],
+                tileLayout: [
+                    [[0], [1, 2]],
+                    [[3, 4], [5]]
+                ]
+            },
+            planerBench: {
+                name: 'planerBench',
+                tiles: [
+                    new Tile(new Vector2D(0, 0), new Vector2D(0, 0), new Vector2D(32, 32), true, 'woodshop', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(1, 0), new Vector2D(32, 32), true, 'woodshop', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(2, 0), new Vector2D(32, 32), true, 'woodshop', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(0, 1), new Vector2D(32, 32), true, 'woodshop', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(1, 1), new Vector2D(32, 32), true, 'woodshop', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(2, 1), new Vector2D(32, 32), true, 'woodshop', 0, TileType.Prop, TileTerrain.Wood)
+                ],
+                tileLayout: [
+                    [[0], [1], [2]],
+                    [[3], [4], [5]],
+                ]
+            },
+            stoneCutter: {
+                name: 'stoneCutter',
+                tiles: [
+                    new Tile(new Vector2D(0, 0), new Vector2D(11, 42), new Vector2D(32, 32), true, 'victorianmarket', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(10, 11), new Vector2D(32, 32), true, 'blacksmithsmelter', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(13, 42), new Vector2D(32, 32), true, 'victorianmarket', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(11, 11), new Vector2D(32, 32), true, 'blacksmithsmelter', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(11, 43), new Vector2D(32, 32), true, 'victorianmarket', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(10, 12), new Vector2D(32, 32), true, 'blacksmithsmelter', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(13, 43), new Vector2D(32, 32), true, 'victorianmarket', 0, TileType.Prop, TileTerrain.Wood),
+                    new Tile(new Vector2D(0, 0), new Vector2D(11, 12), new Vector2D(32, 32), true, 'blacksmithsmelter', 0, TileType.Prop, TileTerrain.Wood)
+                ],
+                tileLayout: [
+                    [[0, 1], [2, 3]],
+                    [[4, 5], [6, 7]],
                 ]
             }
         };

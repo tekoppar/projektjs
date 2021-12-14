@@ -1,4 +1,4 @@
-import { CanvasDrawer, ObjectsHasBeenInitialized, AtlasController, inventoryItemIcons, AllAnimationSkeletonsList, AllAnimationsList, Vector2D } from '../../../internal.js';
+import { ObjectsHasBeenInitialized, AtlasController, inventoryItemIcons, AllAnimationSkeletonsList, AllAnimationsList, Vector2D } from '../../../internal.js';
 import { CreateNewSheet } from './tileMakerSword.js';
 
 function GenerateCustomSheets() {

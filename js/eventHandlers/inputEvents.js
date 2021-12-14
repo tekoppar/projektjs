@@ -50,8 +50,39 @@ class Input {
     }
 
     State(s, p) {
-        this.state = s;
-        this.position = p;
+        switch (s) {
+            case InputState.OnPressed:
+                if (this.state !== InputState.Pressed) {
+                    this.state = s;
+                    this.position = p;
+                } else if (s === InputState.OnPressed && this.state === InputState.Pressed) {
+                    this.state = InputState.Pressed;
+                    this.position = p;
+                }
+                break;
+
+            case InputState.Pressed:
+                this.state = s;
+                this.position = p;
+                break;
+
+            case InputState.OnReleased:
+                if (this.state !== InputState.Released) {
+                    this.state = s;
+                    this.position = p;
+                } else if (s === InputState.OnReleased && this.state === InputState.Released) {
+                    this.state = InputState.Released;
+                    this.position = p;
+                }
+                break;
+
+            case InputState.Released:
+                this.state = s;
+                this.position = p;
+                break;
+
+            case InputState.Null: this.state = null; this.position = p; break;
+        }
     }
 }
 
@@ -87,6 +118,7 @@ class InputHandler {
             'c': new Input('c'),
             'p': new Input('p'),
             'g': new Input('g'),
+            'b': new Input('b'),
             'tab': new Input('tab'),
             'escape': new Input('escape'),
             'backspace': new Input('backspace'),
@@ -151,6 +183,7 @@ class InputHandler {
                     case 56: this.AddInput('8', InputState.OnPressed); break;
                     case 57: this.AddInput('9', InputState.OnPressed); break;
                     case 65: this.AddInput('a', InputState.OnPressed); break;
+                    case 66: this.AddInput('b', InputState.OnPressed); break;
                     case 67: this.AddInput('c', InputState.OnPressed); break;
                     case 68: this.AddInput('d', InputState.OnPressed); break;
                     case 69: this.AddInput('e', InputState.OnPressed); break;
@@ -183,16 +216,17 @@ class InputHandler {
                     case 55: this.AddInput('7', InputState.OnReleased); break;
                     case 56: this.AddInput('8', InputState.OnReleased); break;
                     case 57: this.AddInput('9', InputState.OnReleased); break;
-                    case 65: this.keysPressed['a'].State(InputState.OnReleased); break;
-                    case 68: this.keysPressed['d'].State(InputState.OnReleased); break;
+                    case 65: this.AddInput('a', InputState.OnReleased); break;
+                    case 66: this.AddInput('b', InputState.OnReleased); break;
+                    case 68: this.AddInput('d', InputState.OnReleased); break;
                     case 67: this.AddInput('c', InputState.OnReleased); break;
-                    case 69: this.keysPressed['e'].State(InputState.OnReleased); break;
+                    case 69: this.AddInput('e', InputState.OnReleased); break;
                     case 71: this.AddInput('g', InputState.OnReleased); MasterObject.MO.NextFrame(); break;
-                    case 73: this.keysPressed['i'].State(InputState.OnReleased); break;
+                    case 73: this.AddInput('i', InputState.OnReleased); break;
                     case 80: this.AddInput('p', InputState.OnReleased); MasterObject.MO.ToggleFrameStepping(); break;
                     case 81: this.AddInput('q', InputState.OnReleased); break;
-                    case 83: this.keysPressed['s'].State(InputState.OnReleased); break;
-                    case 87: this.keysPressed['w'].State(InputState.OnReleased); break;
+                    case 83: this.AddInput('s', InputState.OnReleased); break;
+                    case 87: this.AddInput('w', InputState.OnReleased); break;
                 }
                 break;
             case 'mousedown':
@@ -212,6 +246,7 @@ class InputHandler {
         }
     }
 
+    //@ts-ignore
     FixedUpdate(delta) {
         let keys = Object.keys(this.keysPressed);
 

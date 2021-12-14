@@ -1,4 +1,4 @@
-import { Vector2D, CanvasDrawer, BoxCollision, AtlasController, Tile, LightSystem, CollisionHandler, Math3D, CMath, Vector4D, Vector, OverlapOverlapsCheck, CollisionTypeCheck, Shadow2D, Rectangle } from '../../internal.js';
+import { Vector2D, CanvasDrawer, BoxCollision, AtlasController, Tile, LightSystem, CollisionHandler, Math3D, CMath, Vector4D, Vector, OverlapOverlapsCheck, CollisionTypeCheck, Shadow2D } from '../../internal.js';
 
 /**
  * @readonly
@@ -127,9 +127,10 @@ class ShadowCanvasObject {
         let overlaps = CollisionHandler.GCH.GetOverlapByClass(boxCollision, 'AmbientLight');
 
         if (overlaps !== false) {
+            let overlapPosition =  overlaps.collisionOwner.GetPosition();
             let shadowPos = position.Clone();
             shadowPos.y -= 15;
-            let rotation = CMath.LookAt2D(shadowPos, overlaps.collisionOwner.GetPosition().Clone());
+            let rotation = CMath.LookAt2D(shadowPos, overlapPosition.Clone());
             rotation -= ShadowRotationLUT[name] !== undefined ? ShadowRotationLUT[name] : 90;
 
             Math3D.RotatePixelData2D(this.shadowData.data, new Vector2D(biggest, biggest), new Vector(0, 0, rotation), 0, new Vector(biggest / 2, biggest / 2, biggest / 2));
@@ -161,7 +162,7 @@ class ShadowCanvasObject {
      * @param {HTMLCanvasElement} canvas
      */
     DrawToFramebuffer(canvas) {
-        let overlaps = CollisionHandler.GCH.GetOverlapsByClass(this.parentBoxCollision, 'AmbientLight', OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
+        let overlaps = CollisionHandler.GCH.GetOverlapsByClassName(this.parentBoxCollision, 'AmbientLight', OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
 
         if (overlaps.length > 0) {
             this.DrawNewShadowFrame();

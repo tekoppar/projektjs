@@ -119,7 +119,7 @@ class TileData {
     static CanvasPortionToImage(tile) {
         if (AtlasController.GetAtlas(tile.atlas) !== undefined) {
             let canvas = AtlasController.GetAtlas(tile.atlas).GetCanvas();
-            let ctx = canvas.getContext('2d');
+            //let ctx = canvas.getContext('2d');
             let tempCanvas = document.createElement('canvas');
             tempCanvas.setAttribute('height', tile.size.y);
             tempCanvas.setAttribute('width', tile.size.x);
@@ -236,7 +236,7 @@ class TileData {
 
         TileData.tileGUI.propEditor = clone.getElementById('tile-lut-editor-prop-editor');
 
-        document.getElementById('container-controls').children[1].appendChild(clone);
+        document.getElementById('container-controls-fixed').children[1].appendChild(clone);
 
         TileData.tileGUI.tileterrain.addEventListener('change', this);
         TileData.tileGUI.tiletype.addEventListener('change', this);
@@ -343,7 +343,7 @@ class TileData {
             case 'click':
                 switch (e.target.id) {
                     case 'tile-lut-editor-add':
-                        if (Array.isArray(CanvasDrawer.GCD.selectedSprite) === false)
+                        if (CanvasDrawer.GCD.selectedSprite instanceof Tile)
                             TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite);
                         else {
                             for (let i = 0, l = CanvasDrawer.GCD.selectedSprite.length; i < l; ++i) {
@@ -370,7 +370,7 @@ class TileData {
                         break;
 
                     case 'tile-lut-editor-collision-editor':
-                        if (CanvasDrawer.GCD.selectedSprite !== undefined)
+                        if (CanvasDrawer.GCD.selectedSprite !== undefined && CanvasDrawer.GCD.selectedSprite instanceof Tile)
                             CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite);
                         break;
 
@@ -383,7 +383,7 @@ class TileData {
             case 'change':
                 switch (e.target.id) {
                     case 'tile-lut-editor-tileterrain':
-                        if (Array.isArray(CanvasDrawer.GCD.selectedSprite) === false) {
+                        if (CanvasDrawer.GCD.selectedSprite instanceof Tile) {
                             CanvasDrawer.GCD.selectedSprite.tileTerrain = TileData.tileGUI.tileterrain.selectedIndex;
                             TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite);
                         } else {
@@ -395,7 +395,7 @@ class TileData {
                         break;
 
                     case 'tile-lut-editor-tiletype':
-                        if (Array.isArray(CanvasDrawer.GCD.selectedSprite) === false) {
+                        if (CanvasDrawer.GCD.selectedSprite instanceof Tile) {
                             CanvasDrawer.GCD.selectedSprite.tileType = TileData.tileGUI.tiletype.selectedIndex;
                             TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite);
                         } else {
@@ -426,7 +426,7 @@ class TileF {
 
         for (let i = 0, l = operations.length; i < l; ++i) {
             //let tilePaintULDRMatrix = TileF.ConstructPaintULDRMatrix(operations[i].tile);
-            let centerTileOffset = TileF.GetTileOffsets(operations[i].tile);
+            //let centerTileOffset = TileF.GetTileOffsets(operations[i].tile);
             let centerTile = TileF.GetCenterTile(tile);
             tile.tilePosition.Add(centerTile);
             //let paintTiles = TileF.ConstructTilePaintMatrix(tile, tilePaintULDRMatrix.ToArray());
@@ -441,7 +441,7 @@ class TileF {
         for (let i = 0, l = operations.length; i < l; ++i) {
             let trueMatrix = TileF.ConstructAtlasTileMatrix(operations[i].tile);
             trueMatrix.y2 = 0;
-            let uldr = trueMatrix.ToBinary();
+            //let uldr = trueMatrix.ToBinary();
             //console.log(trueMatrix.To3DArray(), GetAtlasTileMatrix(uldr.replace('0x', '')));
             //uldr = GetAtlasTileMatrix(uldr.replace('0x', ''));
             //let aroundTiles = TileF.GetSurroundingTiles(operations[i].tile.position, trueMatrix);
@@ -517,9 +517,9 @@ class TileF {
 
         surroundingTiles = surroundingTiles.Filter(['tile', 'tileSet'], 'soilTiled');
         surroundingTiles.ConvertToBinary();
-        let tempM = surroundingTiles.Clone();
-        let tempMBinary = tempM.ToBinary();
-        let testM = GetAtlasTileMatrix(tempMBinary.replace('0x', ''));
+        //let tempM = surroundingTiles.Clone();
+        //let tempMBinary = tempM.ToBinary();
+        //let testM = GetAtlasTileMatrix(tempMBinary.replace('0x', ''));
         //console.log(surroundingTiles.To3DArray(), tempM, testM);
         //surroundingTiles.InvertMatrix();
         let uldr = surroundingTiles.ToBinary();
@@ -607,6 +607,7 @@ class TileF {
             case TileULDR.TileULDRLUT.DownLeft: return new Vector2D(-1, 1);
             case TileULDR.TileULDRLUT.Down: return new Vector2D(0, 1);
             case TileULDR.TileULDRLUT.DownRight: return new Vector2D(1, 1);
+            default: return new Vector2D(0, 0);
         }
     }
 

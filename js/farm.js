@@ -2,8 +2,9 @@
 import { PageFetcher } from './classes/utility/pageFetcher.js';
 import { Props } from './gameobjects/AllGameObjects.js'; */
 
-import { MasterObject, PageFetcher, Props } from './internal.js';
+import { MasterObject, PageFetcher } from './internal.js';
 
+//@ts-ignore
 class SpriteObject {
     constructor(x, y, w, h, canvas, name) {
         this.x = x;
@@ -113,7 +114,7 @@ function HTMLStringToNode(string) {
 
 function SwitchTab(event) {
     if (event.target.dataset.tabid !== undefined) {
-        let children = /** @type {HTMLCollectionOf<HTMLDivElement>} */ (document.getElementById('container-controls').children[1].children);
+        let children = /** @type {HTMLCollectionOf<HTMLDivElement>} */ (document.getElementById('container-controls-fixed').children[1].children);
         for (let i = 0, l = children.length; i < l; ++i) {
             children[i].style.display = 'none';
         }
@@ -132,7 +133,7 @@ function dragEvent(e) {
 }
 
 window.addEventListener('dragover', dragEvent);
-document.getElementById('container-controls').children[0].addEventListener('click', SwitchTab);
+document.getElementById('container-controls-fixed').children[0].addEventListener('click', SwitchTab);
 
 let includeTemplates = function appendTemplates(content) {
     let container = document.createElement('div');
@@ -150,6 +151,7 @@ PageFetcher.GPF.AddRequest(includeGUI, '/html/collisionEditor.html');
 PageFetcher.GPF.AddRequest(includeGUI, '/html/propEditor.html');
 PageFetcher.GPF.AddRequest(includeGUI, '/html/tileMakerEditor.html');
 PageFetcher.GPF.AddRequest(includeTemplates, '/html/craftingWindow.html');
+PageFetcher.GPF.AddRequest(includeTemplates, '/html/buildingWindow.html');
 
 window.onload = function () {
     window.requestAnimationFrame(() => MasterObject.MO.GameStart());

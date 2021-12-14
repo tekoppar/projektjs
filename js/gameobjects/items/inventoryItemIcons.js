@@ -1,4 +1,4 @@
-import { Vector4D, Vector2D, Vector } from '../../internal.js';
+import { Vector4D, Vector2D } from '../../internal.js';
 
 /**
  * @type {Object.<string, {sprite: Vector4D, atlasSize: Vector2D, url: string}>}
@@ -61,6 +61,7 @@ Object.assign(inventoryItemIcons, {
 Object.assign(inventoryItemIcons, {
     shovel: { sprite: new Vector4D(1, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
     hoe: { sprite: new Vector4D(4, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+    bucket: { sprite: new Vector4D(4, 5, 32, 32), atlasSize: new Vector2D(512, 2048), url: '/content/sprites/Collection/container.png' },
 
     ironAxe: { sprite: new Vector4D(1, 0, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
     steelAxe: { sprite: new Vector4D(1, 2, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
@@ -83,6 +84,7 @@ Object.assign(inventoryItemIcons, {
     compositeBow: { sprite: new Vector4D(4, 1, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
 
     birchLog: { sprite: new Vector4D(5, 0, 32, 32), atlasSize: new Vector2D(640, 640), url: '/content/sprites/farming_fishing.png' },
+    flitch: { sprite: new Vector4D(6, 12, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
     stonePiece: { sprite: new Vector4D(26, 25, 32, 32), atlasSize: new Vector2D(1024, 1216), url: '/content/sprites/terrain_atlas.png' },
 
     coalLump: { sprite: new Vector4D(0, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
@@ -102,6 +104,29 @@ Object.assign(inventoryItemIcons, {
     goldBar: { sprite: new Vector4D(5, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
     bronzeBar: { sprite: new Vector4D(6, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
     steelBar: { sprite: new Vector4D(7, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+
+    birchPlank: { sprite: new Vector4D(0, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+    birchBeam: { sprite: new Vector4D(11, 12, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+    sawDust: { sprite: new Vector4D(0, 15, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+
+    stoneBlock: { sprite: new Vector4D(13, 23, 32, 32), atlasSize: new Vector2D(1024, 1216), url: '/content/sprites/terrain_atlas.png' },
+
+    mallet: { sprite: new Vector4D(0, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+    copingSaw: { sprite: new Vector4D(1, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+    ironHandSaw: { sprite: new Vector4D(2, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+    plane: { sprite: new Vector4D(4, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+    ironHammer: { sprite: new Vector4D(5, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+    layoutSquare: { sprite: new Vector4D(6, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+    brace: { sprite: new Vector4D(7, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+    rawhideHammer: { sprite: new Vector4D(8, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+    chisel: { sprite: new Vector4D(10, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+    pincer: { sprite: new Vector4D(13, 9, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+
+    woodenChest: {sprite: new Vector4D(1, 8, 32, 32), atlasSize: new Vector2D(512, 2048), url: '/content/sprites/Collection/container.png' },
+    stoneSmelter: {sprite: new Vector4D(0, 13, 64, 96), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+    anvil: {sprite: new Vector4D(10, 13, 64, 32), atlasSize: new Vector2D(1024, 1024), url: '/content/sprites/Collection/blacksmith-smelter.png' },
+    workbench: {sprite: new Vector4D(8, 15, 64, 64), atlasSize: new Vector2D(1024, 1024), url: '/content/sprites/Collection/blacksmith-smelter.png' },
+    choppingBlock: {sprite: new Vector4D(23, 18, 32, 32), atlasSize: new Vector2D(1024, 1216), url: '/content/sprites/terrain_atlas.png' },
 });
 
 export { inventoryItemIcons };

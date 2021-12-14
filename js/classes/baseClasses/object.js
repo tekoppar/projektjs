@@ -74,7 +74,7 @@ class Cobject {
         if (Cobject.AllCobjects[object.UID] === undefined)
             return;
 
-        Cobject.KeysAllCobjects.splice(Cobject.KeysAllCobjects.indexOf(object.GUID), 1);
+        Cobject.KeysAllCobjects.splice(Cobject.KeysAllCobjects.indexOf(object.UID), 1);
         delete Cobject.AllCobjects[object.UID];
     }
 
@@ -107,8 +107,8 @@ class Cobject {
         Cobject.KeysAllCobjects.push(object.UID);
     }
 
+    //@ts-ignore
     FixedUpdate(delta) {
-
     }
 
     EndOfFrameUpdate() {
@@ -119,6 +119,7 @@ class Cobject {
         Cobject.DeleteObject(this);
     }
 
+    //@ts-ignore
     CEvent(eventType, data) {
 
     }

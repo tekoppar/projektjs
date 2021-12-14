@@ -1,3 +1,5 @@
+import { CraftingRecipes } from '../../internal.js';
+
 let PawnSetupParams = {};
 
 PawnSetupParams.treeBirch1 = ['treeBirch', [0.5, 0], undefined, 'treeBirch1'];
@@ -13,7 +15,18 @@ PawnSetupParams.treePine3v2 = ['treePine', [0.5, 0], undefined, 'treePine3v2'];
 PawnSetupParams.house1 = ['house1', [0.5, 0], undefined, 'house1'];
 PawnSetupParams.HouseTest = ['HouseTest', [0.5, 0], undefined, 'HouseTest'];
 
-PawnSetupParams.storageChest = ['storageChest', [0.5, 0], undefined, 'storageChest'];
+PawnSetupParams.woodenChest = ['woodenChest', [0.5, 0], undefined, 'woodenChest'];
+
+PawnSetupParams.stoneSmelter = ['Stone Smelter', [0.5, 0], undefined, 'stoneSmelter', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListSmelter];
+PawnSetupParams.anvil = ['Anvil', [0.5, 0], undefined, 'anvil', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListAnvil];
+PawnSetupParams.workbench = ['Workbench', [0.5, 0], undefined, 'workbench', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListWorkbench];
+PawnSetupParams.choppingBlock = ['Chopping Block', [0.5, 0], undefined, 'choppingBlock', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListChoppingBlock, 0, { x: 64, y: 64, z: 0, a: 32 }];
+PawnSetupParams.planerBench = ['Planer Bench', [0.5, 0], undefined, 'planerBench', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListPlanerBench];
+PawnSetupParams.stoneCutter = ['Stone Cutter', [0.5, 0], undefined, 'stoneCutter', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListStoneCutter, 0, { x: 0, y: 0, z: 0, a: -32 }];
+
+PawnSetupParams.planningTable = ['planningTable', [0.5, 0], undefined, 'planningTable'];
+
+PawnSetupParams.waterFilledBoat = ['waterFilledBoat', [0.5, 0], undefined, 'waterFilledBoat'];
 
 PawnSetupParams.bush1 = ['bush1', [0.5, 0], { name: 'null', start: { x: 14, y: 32 }, end: { x: 14, y: 32 }, w: 32, h: 32, animationType: 2, animationSpeed: 1 }, 'terrain', 0, { x: 20, y: 10, w: 0, h: 0 }];
 PawnSetupParams.bush2 = ['bush2', [0.5, 0], { name: 'null', start: { x: 15, y: 32 }, end: { x: 15, y: 32 }, w: 32, h: 32, animationType: 2, animationSpeed: 1 }, 'terrain', 0, { x: 20, y: 10, w: 0, h: 0 }];

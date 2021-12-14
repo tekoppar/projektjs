@@ -14,7 +14,7 @@ class CustomLogger extends Cobject {
         this.logEl = document.getElementById('gameobject-draw-debug');
     }
 
-    FixedUpdate(delta) {
+    FixedUpdate() {
         this.ClearLogs();
         this.DrawToLogs();
     }

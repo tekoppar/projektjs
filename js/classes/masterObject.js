@@ -1,8 +1,8 @@
 import {
     ObjectsHasBeenInitialized, LightSystem, Rectangle, DrawingOperation, CAnimation,
     AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler,
-    Plant, AllPlantData, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite,
-    Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController, TileMakerEditor, ImageUtility
+    Plant, AllPlantData, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite, RectMerge,
+    Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController, TileMakerEditor, CustomLogger
 } from '../internal.js';
 import { GenerateCustomSheets } from '../drawers/tiles/TileMakerCustomSheets/tileMakerCustomSheetsImports.js';
 
@@ -90,8 +90,14 @@ class MasterObject {
 
         MasterObject.LogicTests();
 
-        document.getElementById('framestep-enable').addEventListener('mouseup', this);
-        document.getElementById('framestep-next').addEventListener('mouseup', this);
+        const framestemEnable = document.getElementById('framestep-enable');
+        if (framestemEnable !== null)
+            framestemEnable.addEventListener('mouseup', this);
+
+        const framestemNext = document.getElementById('framestep-next');
+        if (framestemNext !== null)
+            framestemNext.addEventListener('mouseup', this);
+
         window.addEventListener('resize', this);
     }
 
@@ -162,7 +168,7 @@ class MasterObject {
             CanvasDrawer.GCD.GameBegin();
             InputHandler.GIH.AddListener(CanvasDrawer.GCD);
             LightSystem.SkyLight.Update();
-            let tileMakerEditor = new TileMakerEditor();
+            new TileMakerEditor();
 
             for (let i = 0; i < AllPlants.length; ++i) {
                 CustomEventHandler.AddListener(AllPlants[i]);
@@ -176,6 +182,12 @@ class MasterObject {
         }
 
         this.CheckFullscreen();
+
+        RectMerge([
+            new Rectangle(0, 0, 50, 250),
+            new Rectangle(40, 200, 50, 40),
+            new Rectangle(60, 80, 50, 150)
+        ]);
 
         window.requestAnimationFrame(GlobalLoop);
     }
@@ -225,25 +237,33 @@ class MasterObject {
 
     CheckFullscreen() {
         if (window.innerHeight == screen.height) {
-            document.getElementById('container-game').style.width = '2560px';
-            document.getElementById('container-game').style.height = '1440px';
-            document.getElementById('container-game').style.gridColumn = 'unset';
-            document.getElementById('container-game').style.gridRow = 'unset';
-            //@ts-ignore
-            document.body.querySelector('div.controls').style.display = 'none';
-            document.getElementById('tile-lut-editor').style.display = 'none';
-            //@ts-ignore
-            document.firstElementChild.style.overflow = 'clip';
+            const containerGame = document.getElementById('container-game');
+            const lutEditor = document.getElementById('tile-lut-editor');
+            if (containerGame !== null && lutEditor !== null) {
+                containerGame.style.width = '2560px';
+                containerGame.style.height = '1440px';
+                containerGame.style.gridColumn = 'unset';
+                containerGame.style.gridRow = 'unset';
+                //@ts-ignore
+                document.body.querySelector('div.controls').style.display = 'none';
+                lutEditor.style.display = 'none';
+                //@ts-ignore
+                document.firstElementChild.style.overflow = 'clip';
+            }
         } else {
-            document.getElementById('container-game').style.width = '1920px';
-            document.getElementById('container-game').style.height = '1080px';
-            document.getElementById('container-game').style.gridColumn = 'center';
-            document.getElementById('container-game').style.gridRow = 'content';
-            //@ts-ignore
-            document.body.querySelector('div.controls').style.display = 'block';
-            document.getElementById('tile-lut-editor').style.display = 'flex';
-            //@ts-ignore
-            document.firstElementChild.style.overflow = 'auto';
+            const containerGame = document.getElementById('container-game');
+            const lutEditor = document.getElementById('tile-lut-editor');
+            if (containerGame !== null && lutEditor !== null) {
+                containerGame.style.width = '1920px';
+                containerGame.style.height = '1080px';
+                containerGame.style.gridColumn = 'center';
+                containerGame.style.gridRow = 'content';
+                //@ts-ignore
+                document.body.querySelector('div.controls').style.display = 'block';
+                lutEditor.style.display = 'flex';
+                //@ts-ignore
+                document.firstElementChild.style.overflow = 'auto';
+            }
         }
     }
 

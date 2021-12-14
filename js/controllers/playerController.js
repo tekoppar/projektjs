@@ -1,6 +1,6 @@
 import {
-    Vector2D, Hoe, Shovel, Axe, MainCharacter, Weapon, Seed, Controller,
-    Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Rock, Item, CustomLogger
+    Vector2D, Hoe, Shovel, Axe, MainCharacter, Weapon, Seed, Controller, CraftingRecipes,
+    Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Item, Building, CustomLogger
 } from '../internal.js';
 
 /**
@@ -20,7 +20,10 @@ class PlayerController extends Controller {
         this.playerCharacter = player;
 
         /** @type {Crafting} */
-        this.crafting = new Crafting();
+        this.crafting = new Crafting(undefined, 'Crafting', CraftingRecipes.CraftingRecipeList);
+        
+        /** @type {Building} */
+        this.building = new Building();
 
         /** @type {Camera} */
         this.playerCamera = new Camera(this, new Vector2D(CanvasDrawer.GCD.mainCanvas.width, CanvasDrawer.GCD.mainCanvas.height));
@@ -79,8 +82,11 @@ class PlayerController extends Controller {
         this.playerCharacter.inventory.AddItem(new Item('steelBar', 25));
         this.playerCharacter.inventory.AddMoney(5000);
         this.playerCharacter.controller = this;
-        this.crafting.characterOwner = this.playerCharacter;
+        this.crafting.owner = this.playerCharacter;
         this.crafting.SetupCrafting();
+
+        this.building.characterOwner = this.playerCharacter;
+        this.building.SetupBuilding();
 
         //this.playerCharacter.SetActiveItem(this.playerCharacter.inventory.GetItem('ironAxe'));
 
@@ -111,6 +117,9 @@ class PlayerController extends Controller {
                         case 'w': this.playerCharacter.UpdateDirection('y', 1); break;
                         case 'd': this.playerCharacter.UpdateDirection('x', -1); break;
                         case 's': this.playerCharacter.UpdateDirection('y', -1); break;
+                        case 'e':
+                                this.playerCharacter.Interact();
+                            break;
                         case 'leftShift': this.playerCharacter.SetMovement('running', -3); break;
                         case 'leftMouse':
                             if (data.eventType === 0)
@@ -143,7 +152,12 @@ class PlayerController extends Controller {
 
                         case 'e':
                             if (data.eventType == 3) {
-                                this.playerCharacter.Interact();
+                                this.playerCharacter.StoppedInteracting();
+                            }
+                            break;
+                        case 'c':
+                            if (data.eventType === 2) {
+                                this.crafting.CEvent('use', this.playerCharacter);
                             }
                             break;
 
@@ -178,7 +192,7 @@ class PlayerController extends Controller {
                     let temp = this.playerCharacter.BoxCollision.GetCenterPosition();
                     temp.SnapToGridF(32);
 
-                    CanvasDrawer.GCD.UpdateTilePreview(temp, this.mousePosition.Clone());
+                    CanvasDrawer.GCD.UpdateTilePreview(this.mousePosition.Clone());
                 }
                 break;
         }

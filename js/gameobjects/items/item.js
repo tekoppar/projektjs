@@ -1,4 +1,4 @@
-import { Cobject, ItemStats, Vector2D, Inventory, Collision, inventoryItemIcons, CustomEventHandler, CollisionHandler, CanvasDrawer, Tile, TileType, TileF, TileLUT, ItemValues, CanvasSprite, CMath, Vector4D } from '../../internal.js';
+import { Cobject, ItemStats, Vector2D, Inventory, Collision, inventoryItemIcons, CustomEventHandler, CollisionHandler, CanvasDrawer, Tile, TileType, TileF, TileLUT, ItemValues, CanvasSprite, CMath, Vector4D, AtlasController } from '../../internal.js';
 
 let stackableItems = {};
 
@@ -13,6 +13,16 @@ Object.assign(stackableItems, {
     ironSword: false,
     steelSword: false,
     goldSword: false,
+    mallet: false,
+    copingSaw: false,
+    ironHandSaw: false,
+    plane: false,
+    ironHammer: false,
+    layoutSquare: false,
+    brace: false,
+    rawhideHammer: false,
+    chisel: false,
+    pincer: false,
 });
 
 /**
@@ -44,6 +54,9 @@ class Item extends Cobject {
 
         /**@type {string} */
         this.url = inventoryItemIcons[name].url;
+
+        /** @type {string} */
+        this.atlas = AtlasController.GetAtlas(this.url).name;
 
         /**@type {boolean} */
         this.isUsableItem = this.amount > 0 ? true : false;
@@ -123,6 +136,7 @@ class Item extends Cobject {
      * 
      * @param {Collision} ownerCollision 
      */
+    //@ts-ignore
     UseItem(ownerCollision) {
         this.RemoveAmount(1);
         this.inventory.didInventoryChange = true;

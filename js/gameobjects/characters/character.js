@@ -1,8 +1,8 @@
 import {
-    GameObject, Inventory, ItemStats, Item, InputState, UsableItem, Collision, AmbientLight,
+    GameObject, Inventory, ItemStats, InputState, UsableItem, Collision, AmbientLight,
     AtlasController, Vector2D, Shadow2D, BoxCollision, CollisionHandler, OperationType, CMath,
     ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings,
-    ParticleType, AnimationType, CustomLogger, BWDrawingType, CAnimation, PlayerController, ShadowCanvasObject
+    ParticleType, AnimationType, BWDrawingType, CAnimation, PlayerController, CustomLogger
 } from '../../internal.js';
 
 const FacingDirection = {
@@ -16,6 +16,7 @@ const FacingDirection = {
             case 1: return 'Right';
             case 2: return 'Up';
             case 3: return 'Down';
+            default: return 'Down';
         }
     }
 };
@@ -643,6 +644,8 @@ class Character extends GameObject {
             else
                 return FacingDirection.Down;
         }
+
+        return FacingDirection.Down;
     }
 
     GameBegin() {
@@ -756,6 +759,15 @@ class Character extends GameObject {
         }
     }
 
+    StoppedInteracting() {
+        let overlaps = CollisionHandler.GCH.GetInRange(this.BoxCollision, 100);
+
+        for (let overlap of overlaps) {
+            if (overlap.CEvent !== undefined)
+                overlap.CEvent('useStopped', this);
+        }
+    }
+
     /**
      * 
      * @param {UsableItem} item 
@@ -832,6 +844,7 @@ class Character extends GameObject {
         }
     }
 
+    //@ts-ignore
     CEvent(eventType, key, data) {
         switch (eventType) {
         }

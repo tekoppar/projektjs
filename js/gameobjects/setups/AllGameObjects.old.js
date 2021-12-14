@@ -1,4 +1,4 @@
-import { Vector2D, Vector4D, Tree, ExtendedProp, CAnimation, AnimationType, Rock, Rectangle } from '../internal.js';
+import { Vector2D, Vector4D, Tree, ExtendedProp, CAnimation, AnimationType, Rock, Rectangle } from '../../internal.js';
 
 let Props = [];
 

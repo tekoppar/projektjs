@@ -1,5 +1,3 @@
-import { Cobject } from '../internal.js';
-
 class CustomEventData {
     constructor(eventName, otherObject) {
         this.eventName = eventName;
@@ -15,6 +13,7 @@ class CustomEventHandler {
         this.customEvents = [];
     }
 
+    //@ts-ignore
     FixedUpdate(delta) {
         if (this.customEvents.length > 0) {
             for (let y = 0, lY = this.customEvents.length; y < lY; ++y) {

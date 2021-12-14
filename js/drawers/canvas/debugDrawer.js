@@ -283,7 +283,7 @@ class DebugDrawer extends Cobject {
         }
     }
 
-    FixedUpdate(delta) {
+    FixedUpdate() {
 
     }
 
@@ -295,7 +295,7 @@ class DebugDrawer extends Cobject {
         Cobject.DeleteObject(this);
     }
 
-    CEvent(eventType, data) {
+    CEvent() {
 
     }
 

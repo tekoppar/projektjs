@@ -1,4 +1,12 @@
-import { Item, AllAnimationsList, Plant, AllPlantData, CollisionHandler, CustomEventHandler, GUI, Vector2D, CanvasDrawer } from '../../../internal.js';
+import { Item, AllAnimationsList, Plant, AllPlantData, CollisionHandler, CustomEventHandler, GUI, CanvasDrawer } from '../../../internal.js';
+
+/**
+ * @readonly
+ * @enum {Number}
+ */
+const SeedTypeEnum = {
+    PotatoSeed: 0
+}
 
 /**
  * @class
@@ -11,9 +19,9 @@ class Seed extends Item {
      * Creates a new Seed
      * @param {string} name 
      * @param {Number} amount 
-     * @param {*} seedType 
+     * @param {SeedTypeEnum} seedType 
      */
-    constructor(name, amount, seedType) {
+    constructor(name, amount, seedType = SeedTypeEnum.PotatoSeed) {
         super(name, amount);
         this.SeedType = seedType;
     }

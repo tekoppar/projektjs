@@ -1,4 +1,4 @@
-import { CAnimation, AnimationType, Vector2D, CMath, Direction } from '../internal.js';
+import { CAnimation, AnimationType, Vector2D, Direction } from '../internal.js';
 
 let AllAnimationsList = {},
     AllAnimationSkeletonsList = {};

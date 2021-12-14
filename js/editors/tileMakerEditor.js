@@ -1,4 +1,4 @@
-import { CanvasDrawer, Vector2D, AllCollisions, AtlasController, Tile, TileType, TileTerrain, ArrayUtility, ObjectUtility } from '../internal.js';
+import { CanvasDrawer, Vector2D, AllCollisions, AtlasController, Tile, TileType, TileTerrain, ArrayUtility } from '../internal.js';
 
 /**
  * @class
@@ -16,6 +16,8 @@ class TileMakerEditor {
 
         /** @type {Vector2D} */
         this.tileOffset = new Vector2D(0, 0);
+
+        this.appendTile = false;
 
         /** @type {HTMLDivElement} */
         this.container;
@@ -90,8 +92,6 @@ class TileMakerEditor {
         this.inputTileName = /** @type {HTMLInputElement} */ (document.getElementById('tilemaker-editor-tilename'));
         this.inputTileWidth = /** @type {HTMLInputElement} */ (document.getElementById('tilemaker-editor-tilewidth'));
         this.inputTileHeight = /** @type {HTMLInputElement} */ (document.getElementById('tilemaker-editor-tileheight'));
-
-        this.SetGridSize(new Vector2D(32, 32));
 
         this.gridHTML.addEventListener('mousemove', this);
         this.gridHTML.addEventListener('mousedown', this);
@@ -200,23 +200,6 @@ class TileMakerEditor {
         //controlsContainer.style.height = size.y + 'px';
     }
 
-    /**
-     * 
-     * @param {Vector2D} spriteSize 
-     */
-    SetGridSize(spriteSize) {
-        //this.canvas.setAttribute('width', (spriteSize.x * 4).toString());
-        //this.canvas.setAttribute('height', (spriteSize.y * 4).toString());
-        //this.canvas.nextElementSibling.setAttribute('width', this.canvas.getAttribute('width'));
-        //this.canvas.nextElementSibling.setAttribute('height', this.canvas.getAttribute('height'));
-        //this.container.setAttribute('width', (spriteSize.x * 4).toString());
-        //this.container.setAttribute('height', (spriteSize.y * 4).toString());
-        //this.gridHTML.style.backgroundSize = parseFloat(this.canvas.getAttribute('width')) / spriteSize.x + 'px ' + parseFloat(this.canvas.getAttribute('height')) / spriteSize.y + 'px';
-        //this.gridSize = new Vector2D(parseFloat(this.canvas.getAttribute('width')) / spriteSize.x, parseFloat(this.canvas.getAttribute('height')) / spriteSize.y);
-        //this.tilemakerPositions = new Array(spriteSize.x * spriteSize.y);
-        //this.tilemakerPositions.fill(null, 0, spriteSize.x * spriteSize.y);
-    }
-
     SetTiles(name, tiles, tileLayout) {
         this.tileName = name;
         this.inputTileName.value = this.tileName;
@@ -271,7 +254,7 @@ class TileMakerEditor {
         for (let i = 0, l = keys.length; i < l; ++i) {
             const tObject = this.tiles[keys[i]];
             if (tObject.position.Equal(newTile.position) && tObject.tilePosition.Equal(newTile.tilePosition) && tObject.size.Equal(newTile.size) && tObject.atlas === newTile.atlas) {
-                if (newTile.IsTransparent() === true)
+                if (newTile.IsTransparent() === true || this.appendTile === true)
                     this.tileLayout[this.selectedGrid.y][this.selectedGrid.x].push(i);
                 else
                     this.tileLayout[this.selectedGrid.y][this.selectedGrid.x] = [i];
@@ -389,7 +372,6 @@ class TileMakerEditor {
     Open() {
         this.container.style.visibility = 'visible';
         this.positionMap = {};
-        this.SetGridSize(new Vector2D(32, 32));
         this.DrawSprite();
     }
 
@@ -443,7 +425,7 @@ class TileMakerEditor {
                         break;
 
                     case 'tilemaker-editor': this.Open(); break;
-                    case 'tilemaker-editor-close': this.Close();
+                    case 'tilemaker-editor-close': this.Close(); break;
                     case 'tilemaker-editor-updatesize': this.UpdateTileLayoutArray(); this.ChangeCanvas(this.gridSize); this.DrawTiles(); break;
                     case 'tilemaker-editor-insertcolumn': this.ChangeRowColumnTileLayout(false, false); break;
                     case 'tilemaker-editor-insertrow': this.ChangeRowColumnTileLayout(true, false); break;
@@ -464,6 +446,7 @@ class TileMakerEditor {
                     case 'tilemaker-editor-tileheight': this.gridSize.y = Number(this.inputTileHeight.value); break;
                     case 'tilemaker-editor-tileoffset-x': this.tileOffset.x = Number(this.inputTileOffsetX.value); break;
                     case 'tilemaker-editor-tileoffset-y': this.tileOffset.y = Number(this.inputTileOffsetY.value); break;
+                    case 'tilemaker-editor-appendtile': this.appendTile = e.target.checked; break;
                 }
                 break;
         }

@@ -10,6 +10,7 @@ const ParticleType = {
     Color: 1,
 }
 
+//@ts-ignore
 function generateImageFromColor(color, rectangle) {
     let tempCanvas = document.createElement('canvas');
     tempCanvas.width = rectangle.w;
@@ -135,12 +136,16 @@ class ParticleGenerator {
     }
 }
 
+/**
+ * @interface
+ */
 class ParticleFilter {
     constructor(runOnce = false) {
         this.runOnce = runOnce;
         this.hasRun = false;
     }
 
+    //@ts-ignore
     ApplyFilter(particle, delta) {
         this.hasRun = true;
     }
@@ -153,6 +158,7 @@ class ParticleFilterSize extends ParticleFilter {
         this.uniform = uniform;
     }
 
+    //@ts-ignore
     ApplyFilter(particle, delta) {
         let tempSize = this.size.Clone();
 
@@ -183,6 +189,7 @@ class ParticleFilter2DMovement extends ParticleFilter {
         this.maxMovement = maxMovement;
     }
 
+    //@ts-ignore
     ApplyFilter(particle, delta) {
         if (particle instanceof SpriteParticle) {
             if (particle.filterLifetimes['ParticleFilter2DMovement'] === undefined) {
@@ -219,6 +226,7 @@ class ParticleFilterRandomPosition extends ParticleFilter {
         this.maxRange = maxRange;
     }
 
+    //@ts-ignore
     ApplyFilter(particle, delta) {
         particle.position.x = CMath.RandomFloat(this.minRange.x, this.maxRange.x);
         particle.position.y = CMath.RandomFloat(this.minRange.y, this.maxRange.y);
@@ -231,6 +239,7 @@ class ParticleFilterRotate extends ParticleFilter {
         this.range = new Vector2D(minRotate, maxRotate);
     }
 
+    //@ts-ignore
     ApplyFilter(particle, delta) {
         particle.path[0] = CMath.Rotate(particle.path[0], particle.path[0], CMath.RandomFloat(this.range.x, this.range.y));
         particle.path[1] = CMath.Rotate(particle.path[0], particle.path[1], CMath.RandomFloat(this.range.x, this.range.y));
@@ -315,6 +324,7 @@ class ParticleSystem extends Cobject {
         super.Delete();
     }
 
+    //@ts-ignore
     CEvent(eventType, data) {
 
     }

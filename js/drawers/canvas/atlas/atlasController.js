@@ -32,6 +32,11 @@ class AtlasController {
         return undefined;
     }
 
+    /**
+     * 
+     * @param {string} name 
+     * @returns {CanvasAtlas}
+     */
     static GetAtlas(name) {
         return AtlasController._Instance.GetAtlas(name);
     }
@@ -133,6 +138,25 @@ class AtlasController {
         this.LoadSpriteAtlas("/content/sprites/Collection/container.png", 512, 2048, 32, 'container');
         this.hasLoadedAllImages['container'] = false;
 
+        this.LoadSpriteAtlas('/content/sprites/Collection/blacksmith-smelter.png', 1024, 1024, 32, 'blacksmithsmelter');
+        this.hasLoadedAllImages['blacksmithsmelter'] = false;
+        this.LoadSpriteAtlas('/content/sprites/Collection/woodshop.png', 512, 512, 32, 'woodshop');
+        this.hasLoadedAllImages['woodshop'] = false;
+        this.LoadSpriteAtlas('/content/sprites/Collection/victorian-market.png', 512, 2560, 32, 'victorianmarket');
+        this.hasLoadedAllImages['victorianmarket'] = false;
+
+        this.LoadSpriteAtlas('/content/sprites/Collection/Exterior_Tiles.png', 1024, 1024, 32, 'exteriorobjects');
+        this.hasLoadedAllImages['exteriorobjects'] = false;
+        this.LoadSpriteAtlas('/content/sprites/Collection/Interior.png', 1024, 1024, 32, 'interiorobjects');
+        this.hasLoadedAllImages['interiorobjects'] = false;
+        this.LoadSpriteAtlas('/content/sprites/Collection/Outside-Objects.png', 1024, 1024, 32, 'outsideobjects');
+        this.hasLoadedAllImages['outsideobjects'] = false;
+        this.LoadSpriteAtlas('/content/sprites/Collection/tailor.png', 512, 512, 32, 'tailor');
+        this.hasLoadedAllImages['tailor'] = false;
+
+        this.LoadSpriteAtlas('/content/sprites/items/documents.png', 128, 96, 32, 'documents');
+        this.hasLoadedAllImages['documents'] = false;
+
         this.LoadSpriteAtlas("/content/sprites/lpcfemalelight_updated.png", 832, 1856, 64, "femaleLight");
         this.hasLoadedAllImages["femaleLight"] = false;
         this.LoadSpriteAtlas('/content/sprites/red.png', 832, 1344, 64, 'redHair');
@@ -142,9 +166,9 @@ class AtlasController {
         this.LoadSpriteAtlas('./content/sprites/lpc_shadow.png', 832, 1344, 64, 'shadow');
         this.hasLoadedAllImages['shadow'] = false;
 
-        this.LoadSpriteAtlas("/content/sprites/ui/inputLeft.png", 16, 16, 16, "inputLeft");
+        this.LoadSpriteAtlas("/content/sprites/ui/inputLeft.png", 16, 26, 16, "inputLeft");
         this.hasLoadedAllImages["inputLeft"] = false;
-        this.LoadSpriteAtlas("/content/sprites/ui/inputRight.png", 16, 16, 16, "inputRight");
+        this.LoadSpriteAtlas("/content/sprites/ui/inputRight.png", 16, 26, 16, "inputRight");
         this.hasLoadedAllImages["inputRight"] = false;
         this.LoadSpriteAtlas("/content/sprites/ui/inputMiddle.png", 32, 26, 32, "inputMiddle");
         this.hasLoadedAllImages["inputMiddle"] = false;

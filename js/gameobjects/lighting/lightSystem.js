@@ -1,11 +1,12 @@
 import {
     Cobject, Color, Vector2D, CMath, MasterObject, Mastertime, Graph, GraphPoint,
-    DrawingOperation, AmbientLight, CanvasDrawer, CanvasUtility
+    DrawingOperation, AmbientLight, CanvasDrawer
 } from '../../internal.js';
 
 /**
  * @readonly
  */
+//@ts-ignore
 const LightMultiply = 0.3333333;
 
 /**
@@ -127,6 +128,7 @@ class SkyLight extends Cobject {
         super.Delete();
     }
 
+    //@ts-ignore
     CEvent(eventType, data) {
 
     }
@@ -284,7 +286,6 @@ class LightSystem extends Cobject {
             x = startX,
             index = -1,
             pixelsIndex = 0,
-            grayColor = 0,
             preWidth = this.lightFrameBuffer.width,
             data;
 
@@ -428,7 +429,6 @@ class LightSystem extends Cobject {
             x = startX,
             index = -1,
             pixelsIndex = 0,
-            grayColor = 0,
             preWidth = this.lightFrameBuffer.width,
             data;
 
@@ -440,8 +440,6 @@ class LightSystem extends Cobject {
 
         if (isLight === true) {
             if (addSubtract === true) {
-                let dest = new Color(0, 0, 0, 0),
-                    source = new Color(0, 0, 0, 0);
                 for (y = startY; y < endY; ++y) {
                     for (x = startX; x < endX; ++x) {
                         index = (y * preWidth * 4) + x * 4;
@@ -503,7 +501,6 @@ class LightSystem extends Cobject {
             x = startX,
             index = -1,
             pixelsIndex = 0,
-            grayColor = 0,
             preWidth = this.lightFrameBuffer.width,
             data = this.lightData.data;
 
@@ -830,6 +827,7 @@ class LightSystem extends Cobject {
         super.Delete();
     }
 
+    //@ts-ignore
     CEvent(eventType, data) {
 
     }
@@ -940,6 +938,12 @@ class LightSystem extends Cobject {
                 l: CMath.Lerp(LightSystem.LightLUT[11].l, LightSystem.LightLUT[12].l, distance.mapRange(600, 3250, 0, 1)),
                 q: CMath.Lerp(LightSystem.LightLUT[11].q, LightSystem.LightLUT[12].q, distance.mapRange(600, 3250, 0, 1))
             };
+
+        return {
+            c: CMath.Lerp(LightSystem.LightLUT[0].c, LightSystem.LightLUT[1].c, distance.mapRange(7, 13, 0, 1)),
+            l: CMath.Lerp(LightSystem.LightLUT[0].l, LightSystem.LightLUT[1].l, distance.mapRange(7, 13, 0, 1)),
+            q: CMath.Lerp(LightSystem.LightLUT[0].q, LightSystem.LightLUT[1].q, distance.mapRange(7, 13, 0, 1))
+        };
     }
 }
 

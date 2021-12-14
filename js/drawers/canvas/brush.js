@@ -1,4 +1,4 @@
-import { Vector2D, Tile, DrawingOperation, CanvasSprite, RectOperation, LightingOperation } from "../../internal.js";
+import { Vector2D, Tile, DrawingOperation, RectOperation, LightingOperation } from "../../internal.js";
 
 /**
  * Enum for editor state
@@ -125,7 +125,7 @@ class Brush {
 
             case BrushType.box:
                 let orgSize = new Vector2D(this.canvasSprite.size.y, this.canvasSprite.size.x);
-                let orgPos = this.canvasSprite.tilePosition.Clone();
+                //let orgPos = this.canvasSprite.tilePosition.Clone();
                 let splitSprites = this.SplitMultiSelection(this.canvasSprite);
                 let x = this.settings.brushSize.x === 1 ? 0 : Math.ceil(this.settings.brushSize.x * 0.5 * -1);
 

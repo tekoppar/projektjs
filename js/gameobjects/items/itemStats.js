@@ -44,11 +44,108 @@ ItemStats.pickaxe = {
     tilePreview: true,
     characterAnimation: 'melee',
     animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
-    atlas: 'shortSwordFemale', bones: AllAnimationSkeletonsList.femaleAnimations.sword
+    atlas: 'shortSwordFemale',
+    bones: AllAnimationSkeletonsList.femaleAnimations.sword
 };
 ItemStats.hoe = {
     durability: 250,
     tilePreview: true
+};
+
+ItemStats.bucket = {
+    durability: 250,
+    tilePreview: false
+};
+
+ItemStats.mallet = {
+    durability: 250,
+    damage: new Vector2D(5, 10),
+    tilePreview: false,
+    characterAnimation: 'melee',
+    animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
+    atlas: 'woodshop',
+    bones: AllAnimationSkeletonsList.femaleAnimations.sword
+};
+ItemStats.copingSaw = {
+    durability: 250,
+    damage: new Vector2D(5, 10),
+    tilePreview: false,
+    characterAnimation: 'melee',
+    animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
+    atlas: 'woodshop',
+    bones: AllAnimationSkeletonsList.femaleAnimations.sword
+};
+ItemStats.ironHandSaw = {
+    durability: 250,
+    damage: new Vector2D(5, 10),
+    tilePreview: false,
+    characterAnimation: 'melee',
+    animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
+    atlas: 'woodshop',
+    bones: AllAnimationSkeletonsList.femaleAnimations.sword
+};
+ItemStats.plane = {
+    durability: 250,
+    damage: new Vector2D(5, 10),
+    tilePreview: false,
+    characterAnimation: 'melee',
+    animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
+    atlas: 'woodshop',
+    bones: AllAnimationSkeletonsList.femaleAnimations.sword
+};
+ItemStats.ironHammer = {
+    durability: 250,
+    damage: new Vector2D(5, 10),
+    tilePreview: false,
+    characterAnimation: 'melee',
+    animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
+    atlas: 'woodshop',
+    bones: AllAnimationSkeletonsList.femaleAnimations.sword
+};
+ItemStats.layoutSquare = {
+    durability: 250,
+    damage: new Vector2D(5, 10),
+    tilePreview: false,
+    characterAnimation: 'melee',
+    animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
+    atlas: 'woodshop',
+    bones: AllAnimationSkeletonsList.femaleAnimations.sword
+};
+ItemStats.brace = {
+    durability: 250,
+    damage: new Vector2D(5, 10),
+    tilePreview: false,
+    characterAnimation: 'melee',
+    animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
+    atlas: 'woodshop',
+    bones: AllAnimationSkeletonsList.femaleAnimations.sword
+};
+ItemStats.rawhideHammer = {
+    durability: 250,
+    damage: new Vector2D(5, 10),
+    tilePreview: false,
+    characterAnimation: 'melee',
+    animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
+    atlas: 'woodshop',
+    bones: AllAnimationSkeletonsList.femaleAnimations.sword
+};
+ItemStats.chisel = {
+    durability: 250,
+    damage: new Vector2D(5, 10),
+    tilePreview: false,
+    characterAnimation: 'melee',
+    animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
+    atlas: 'woodshop',
+    bones: AllAnimationSkeletonsList.femaleAnimations.sword
+};
+ItemStats.pincer = {
+    durability: 250,
+    damage: new Vector2D(5, 10),
+    tilePreview: false,
+    characterAnimation: 'melee',
+    animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
+    atlas: 'woodshop',
+    bones: AllAnimationSkeletonsList.femaleAnimations.sword
 };
 
 ItemStats.ironSword = {

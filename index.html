@@ -18,8 +18,9 @@
         max-width: 1920px;
         flex-wrap: wrap;
     }
-    .container-framebuffers > canvas {
-        flex-basis:25%;
+
+    .container-framebuffers>canvas {
+        flex-basis: 25%;
         flex-shrink: 2;
         flex-grow: 1;
         width: 100%;
@@ -90,18 +91,20 @@
             </div>
         </div>
         <div id="container-controls" class="container-controls">
-            <div class="tabs-manager">
-                <button id="tile-lut-editor-tile-editor" data-tabId="0">Tile Editor</button>
-                <button id="prop-editor-open" data-tabId="1">Prop Editor</button>
-            </div>
-            <div class="tabs-container" style="display:flex;height:100%;">
+            <div id="container-controls-fixed" style="display: flex;flex-direction: column;position: fixed;">
+                <div class="tabs-manager">
+                    <button id="tile-lut-editor-tile-editor" data-tabId="0">Tile Editor</button>
+                    <button id="prop-editor-open" data-tabId="1">Prop Editor</button>
+                </div>
+                <div class="tabs-container" style="display:flex;height:100%;">
 
+                </div>
             </div>
         </div>
         <div id="container-framebuffers" class="container-framebuffers">
 
         </div>
-        <div id="container-allcanvases" style="grid-column: center;grid-row: canvas;"></div>
+        <div id="container-allcanvases" style="grid-column: left / span 2;grid-row: canvas;max-width: 100%;display:flex;flex-wrap: wrap;flex-direction: row;justify-content: flex-start; align-items: flex-start;"></div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js" integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ==" crossorigin="anonymous" defer>
     </script>

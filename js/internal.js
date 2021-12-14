@@ -1,8 +1,6 @@
 export { ObjectsHasBeenInitialized, ToggleObjectsHasBeenInitialized, IsLittleEndian, TestingEnum, CURRENT_TEST } from './internalVariables.js';
 export { EditorState } from './globalEnums.js'; 
 
-export { PawnSetupParams } from './gameobjects/setups/AllPawnsSetupsParams.js';
-
 export { PerformanceTester } from './classes/utility/perf.js';
 
 export { CanvasUtility } from './classes/utility/canvasUtility.js';
@@ -13,7 +11,7 @@ export { ImageUtility } from './classes/utility/imageUtility.js';
 export { ObjectType, BWDrawingType } from './classes/baseClasses/globalEnums.js';
 
 export { Graph, GraphPoint } from './classes/graph.js';
-export { Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Polygon, Color } from './classes/vectors.js';
+export { Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Line, Polygon, Color } from './classes/vectors.js';
 export { CMath } from './classes/math/customMath.js';
 export { Math3D } from './classes/math/3dMath.js';
 export { IntMath } from './classes/math/intMath.js';
@@ -87,7 +85,13 @@ export { Pawn, GameObject, Shadow, Shadow2D } from './gameobjects/gameObject.js'
 export { Inventory } from './gameobjects/characters/inventory.js';
 export { Crafting } from './gameobjects/crafting/crafting.js';
 export { CraftingRecipe } from './gameobjects/crafting/craftingRecipe.js';
-export { CraftingRecipeList, CraftingCategory } from './gameobjects/crafting/craftingRecipeList.js';
+export { CraftingCategory } from './gameobjects/crafting/craftingRecipeList.js';
+export * as CraftingRecipes from './gameobjects/crafting/allCraftingRecipes.js';
+
+export { BuildingZone } from './gameobjects/building/buildingZone.js';
+export { Building } from './gameobjects/building/building.js';
+export { BuildingRecipe } from './gameobjects/building/buildingRecipe.js';
+export { BuildingRecipeList, BuildingCategory } from './gameobjects/building/buildingRecipeList.js';
 
 export { AllAnimationsList, AllAnimationSkeletonsList } from './animations/AllAnimations.js';
 
@@ -101,6 +105,7 @@ export { resourceSprites } from './gameobjects/props/resources/resourceSprites.j
 export { Prop, ExtendedProp } from './gameobjects/props/props.js';
 export { Resource } from './gameobjects/props/resource.js';
 export { Storage } from './gameobjects/props/storage.js';
+export { CraftingStation } from './gameobjects/props/craftingStation.js';
 export { ItemProp } from './gameobjects/props/itemprop.js';
 
 export { Tree } from './gameobjects/props/resources/tree.js';
@@ -119,3 +124,7 @@ export { GameToolbar } from './gui/toolbar.js';
 export { MasterObject, Mastertime } from './classes/masterObject.js';
 
 export { ObjectClassLUT } from './objectClassLUT.js';
+
+export { PawnSetupParams } from './gameobjects/setups/AllPawnsSetupsParams.js';
+
+export { SaveController } from './controllers/contentSaveController.js';

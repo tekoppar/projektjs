@@ -3,6 +3,11 @@ import {
     Vector4D, ItemProp, CAnimation, AnimationType, MasterObject, ItemPrototypeList, Dictionary
 } from '../../internal.js';
 
+/**
+ * @class
+ * @constructor
+ */
+//@ts-ignore
 class InventorySlot {
     constructor(slot, item) {
         this.slot = slot;
@@ -71,6 +76,7 @@ class Inventory extends Cobject {
             this.inventoryHTMLValue = clone.querySelector('input.inventory-input-value');
 
             this.inventoryHTML.appendChild(clone);
+            this.inventoryHTML.classList.add('inventory-div');
             document.getElementById('game-gui').appendChild(this.inventoryHTML);
 
             InputHandler.GIH.AddListener(this);
@@ -273,7 +279,7 @@ class Inventory extends Cobject {
     }
 
     DisplayInventory() {
-        let keys = Object.keys(this.inventory);
+        //let keys = Object.keys(this.inventory);
         this.inventoryHTMLList.innerHTML = '';
 
         for (let value of this.inventoryDictionary) {
@@ -282,7 +288,6 @@ class Inventory extends Cobject {
             let clone = template.content.cloneNode(true);
 
             if (value !== null) {
-
                 let div = clone.querySelector('div.inventory-item-sprite');
                 div.style.backgroundPosition = '-' + (value.sprite.x * value.sprite.z) * 1.35 + 'px -' + (value.sprite.y * value.sprite.a) * 1.5 + 'px';
                 div.style.backgroundSize = value.atlasSize.x * 1.35 + 'px ' + value.atlasSize.y * 1.5 + 'px';
@@ -365,7 +370,7 @@ class Inventory extends Cobject {
 
                             if (item !== undefined && droppedItem !== null) {
                                 droppedItem.id = '';
-                                let rect = CanvasDrawer.GCD.mainCanvas.getBoundingClientRect();
+                                //let rect = CanvasDrawer.GCD.mainCanvas.getBoundingClientRect();
 
                                 var newDroppedItem = new ItemProp(
                                     item.name,
@@ -384,7 +389,7 @@ class Inventory extends Cobject {
                             }
                         }
                     }
-                } else {
+                } else if (e.target.classList.contains('inventory-div')) {
                     const data = JSON.parse(e.dataTransfer.getData('text/plain'));
                     let droppedItem = document.getElementById(data.id);
                     let item = /** @type {Item} */ (Cobject.GetObjectFromUID(data.item));

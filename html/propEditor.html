@@ -32,7 +32,8 @@
         background-size: 32px 32px;
         position: relative;
         width: 100%;
-        height: 100%;
+        height: 80%;
+        overflow-y:auto;
         background-color: rgb(26, 26, 26);
         max-width: 960px;
     }
@@ -40,20 +41,25 @@
     .prop-editor-controls {
         display: flex;
         flex-direction: row;
-        flex-wrap: nowrap; 
+        flex-wrap: nowrap;
     }
 
     .prop-editor-grid img:hover {
-        outline:2px solid #f3c52f;
-        cursor:pointer;
+        outline: 2px solid #f3c52f;
+        cursor: pointer;
     }
 
     .prop-editor-grid-selected {
-        outline:2px solid #222e63;
+        outline: 2px solid #222e63;
     }
 
-        /* Remove default bullets */
-        ul,
+    .prop-editor-selected-prop {
+        display:flex;
+        flex-direction: column;
+    }
+
+    /* Remove default bullets */
+    ul,
     #myUL {
         list-style-type: none;
     }
@@ -96,7 +102,12 @@
 </style>
 
 <div class="prop-editor" id="prop-editor">
-        <div id="prop-editor-grid" class="prop-editor-grid"></div>
+    <div id="prop-editor-selected-prop" class="prop-editor-selected-prop">
+        <input type="text" id="prop-editor-selected-prop-name">
+        <input type="number" id="prop-editor-selected-prop-positionx">
+        <input type="number" id="prop-editor-selected-prop-positiony">
+    </div>
+    <div id="prop-editor-grid" class="prop-editor-grid"></div>
     <div class="prop-editor-controls">
         <button id="prop-editor-collision">Edit Prop Collision</button>
         <button id="prop-editor-tilemaker-editor">Edit Tile</button>

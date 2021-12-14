@@ -1,6 +1,6 @@
 import {
-    ExtendedProp, Rectangle, Vector2D, Vector4D, CustomEventHandler, CanvasDrawer, OperationType, ItemProp,
-    AtlasController, CMath, BoxCollision, Inventory, AllCollisions, resourceSprites, CollisionHandler, BWDrawingType, CAnimation
+    ExtendedProp, Vector2D, Vector4D, CustomEventHandler, OperationType,
+    AtlasController, Inventory, AllCollisions, BWDrawingType, CAnimation
 } from "../../internal.js";
 
 /**
@@ -36,6 +36,7 @@ class Storage extends ExtendedProp {
         this.inventory = new Inventory(this);
     }
 
+    //@ts-ignore
     CEvent(eventType, key, data) {
         switch (eventType) {
             case 'use':
@@ -78,6 +79,7 @@ class Storage extends ExtendedProp {
         }
     }
 
+    //@ts-ignore
     CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects, canvasObject = undefined) {
         super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
 

@@ -100,6 +100,7 @@ class Dictionary {
         if (this.dictionaryValues[hash] !== undefined) {
             delete this.dictionaryValues[hash];
             this.hashes.splice(this.hashes.indexOf(hash), 1);
+            return true;
         } else
             return false;
     }

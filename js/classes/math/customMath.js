@@ -1,4 +1,4 @@
-import { Vector2D } from '../../internal.js';
+import { Vector2D, Line } from '../../internal.js';
 
 
 /**
@@ -115,6 +115,34 @@ class CMath {
         let point = { x: Math.abs(vA.x - vB.x), y: Math.abs(vA.y - vB.y) };
         let y = slope * (distance - point.x) + point.y;
         return new Vector2D(distance + vA.x, y + vA.y);
+    }
+
+    /**
+     * 
+     * @param {Array<Vector2D>} points 
+     * @param {Vector2D} position 
+     */
+    static ClosestPointOnPolygon(points, position) {
+        if (points.length < 2)
+            return null;
+
+        let line = new Line(points[0], points[1]),
+            lineTest = new Line(),
+            tDist = 999999999999999,
+            distance = position.Distance(line.ClosestPointAlongLine(position));
+
+        for (let i = 1, l = points.length; i < l; ++i) {
+            lineTest.Set(points[i], points[(i + 1) % points.length]);
+            tDist = position.Distance(lineTest.ClosestPointAlongLine(position));
+
+            if (tDist < distance) {
+                distance = tDist;
+                line.a = lineTest.a;
+                line.b = lineTest.b;
+            }
+        }
+
+        return line.ClosestPointAlongLine(position);
     }
 
     static CSS_COLOR_NAMES = [

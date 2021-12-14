@@ -1,4 +1,4 @@
-import { CanvasDrawer, Vector2D, AllCollisions, AtlasController } from '../internal.js';
+import { Vector2D, AllCollisions, AtlasController, Tile, AllBlockingCollisions } from '../internal.js';
 
 
 /**
@@ -12,7 +12,12 @@ const CollisionEditorToolEnum = {
     Moving: 2,
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class CollisionEditor {
+    /** @type {CollisionEditor} */
     static GCEditor;
 
     constructor() {
@@ -79,18 +84,34 @@ class CollisionEditor {
         //this.collisionPositions.fill(null, 0, spriteSize.x * spriteSize.y);
     }
 
-    DrawSprite() {
+    DrawSprite(tileName = undefined) {
         if (this.sprite !== undefined) {
             // @ts-ignore
             let ctx = this.canvas.getContext('2d');
             ctx.clearRect(0, 0, this.canvas.getAttribute('width'), this.canvas.getAttribute('height'));
             ctx.drawImage(AtlasController.GetAtlas(this.sprite.atlas).GetCanvas(), this.sprite.GetPosX(), this.sprite.GetPosY(), this.sprite.size.x, this.sprite.size.y, 0, 0, this.canvas.getAttribute('width'), this.canvas.getAttribute('height'));
 
-            if (AllCollisions[this.sprite.atlas] !== undefined) {
-                for (let i = 0, l = AllCollisions[this.sprite.atlas].length; i < l; ++i) {
-                    let pos = AllCollisions[this.sprite.atlas][i].Clone();
-                    pos.Mult(this.gridSize);
-                    this.AddCollisionPixels(pos);
+            if (tileName === undefined) {
+                if (AllCollisions[this.sprite.atlas] !== undefined) {
+                    for (let i = 0, l = AllCollisions[this.sprite.atlas].length; i < l; ++i) {
+                        let pos = AllCollisions[this.sprite.atlas][i].Clone();
+                        pos.Mult(this.gridSize);
+                        this.AddCollisionPixels(pos);
+                    }
+                }
+            } else {
+                if (AllCollisions[tileName] !== undefined) {
+                    for (let i = 0, l = AllCollisions[tileName].length; i < l; ++i) {
+                        let pos = AllCollisions[tileName][i].Clone();
+                        pos.Mult(this.gridSize);
+                        this.AddCollisionPixels(pos);
+                    }
+                } else if (AllBlockingCollisions[tileName] !== undefined) {
+                    for (let i = 0, l = AllBlockingCollisions[tileName].length; i < l; ++i) {
+                        let pos = AllBlockingCollisions[tileName][i].Clone();
+                        pos.Mult(this.gridSize);
+                        this.AddCollisionPixels(pos);
+                    }
                 }
             }
             this.DrawCollisionPixel();
@@ -144,14 +165,18 @@ class CollisionEditor {
         }
     }
 
-    Open(sprite) {
+    /**
+     * 
+     * @param {Tile} sprite 
+     */
+    Open(sprite, tileName = undefined) {
         if (sprite !== undefined) {
             this.container.style.visibility = 'visible';
             this.sprite = sprite;
             this.collisionPositions = [];
             this.positionMap = {};
             this.SetGridSize(this.sprite.size);
-            this.DrawSprite();
+            this.DrawSprite(tileName);
         }
     }
 

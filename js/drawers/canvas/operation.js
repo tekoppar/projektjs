@@ -1,4 +1,4 @@
-import { Vector2D, Rectangle, ShadowCanvasOperation, ObjectType, AmbientLight, Tile, CFrame, DebugDrawer } from '../../internal.js';
+import { Vector2D, Rectangle, ShadowCanvasOperation, ObjectType, AmbientLight, Tile, CFrame } from '../../internal.js';
 
 /**
  * Enum for frustum culling state
@@ -30,7 +30,6 @@ const OperationType = {
 /**
  * @class
  * @constructor
- * @public
  */
 class Operation {
     /**
@@ -163,7 +162,7 @@ class Operation {
      * @param {boolean} state 
      */
     UpdateDrawState(state) {
-
+        this.frustumCulled = state;
     }
 
     /**
@@ -174,7 +173,12 @@ class Operation {
         return false;
     }
 
-    Tick() {
+    /**
+     * 
+     * @param {Number} delta 
+     */
+    //@ts-ignore
+    Tick(delta) {
 
     }
 }
@@ -234,6 +238,10 @@ class TextOperation extends Operation {
         return this.pos;
     }
 
+    /**
+     * 
+     * @returns {Number}
+     */
     GetSize() {
         return this.text.length * this.size;
     }
@@ -654,39 +662,88 @@ class PathOperation extends Operation {
         this.alpha = alpha;
     }
 
+    /**
+     * 
+     * @returns {Number}
+     */
     GetDrawIndex() {
         return this.drawIndex;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetPosition() {
         return this.path[0];
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetDrawPosition() {
         return this.path[0];
     }
 
+    /**
+     * 
+     * @returns {Number}
+     */
     GetDrawPositionY() {
         return this.path[0].y;
     }
 
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetSize() {
         return new Vector2D(32, 32);
     }
 
+    /**
+     * 
+     * @param {Vector2D} pos 
+     */
     Update(pos) {
         this.needsToBeRedrawn = true;
+        this.UpdatePath(pos);
         super.Update(pos === undefined ? this.path[0] : pos);
     }
 
+    /**
+     * 
+     * @param {Vector2D} position 
+     */
+    UpdatePath(position) {
+        let relativePosition = this.path[0].Clone();
+        for (let i = 0, l = this.path.length; i < l; ++i) {
+            this.path[i].Sub(relativePosition);
+            this.path[i].Add(position);
+        }
+    }
+
+    /**
+     * 
+     * @returns {Vector2D}
+     */
     GetPreviousPosition() {
         return this.oldPosition === undefined ? this.path[0] : this.oldPosition;
     }
 
+    /**
+     * 
+     * @returns {boolean}
+     */
     DrawState() {
         return this.needsToBeRedrawn;
     }
 
+    /**
+     * 
+     * @param {Number} delta 
+     */
     Tick(delta) {
         this.lifeTime -= delta;
 

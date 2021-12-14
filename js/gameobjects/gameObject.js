@@ -22,8 +22,8 @@ class Pawn extends Cobject {
     constructor(canvasName, position, enableCollision = false, drawIndex = 0) {
         super(position);
 
-        if (enableCollision !== undefined)
-            this.BoxCollision = new BoxCollision(this.GetPosition(), this.size, enableCollision, this);
+        /** @type {BoxCollision} */
+        this.BoxCollision = new BoxCollision(this.GetPosition(), this.size, enableCollision, this);
 
         this.canvas;
 
@@ -70,8 +70,8 @@ class Pawn extends Cobject {
         super.GameBegin();
     }
 
-    FixedUpdate() {
-        super.FixedUpdate();
+    FixedUpdate(delta) {
+        super.FixedUpdate(delta);
     }
 
     /**
@@ -109,7 +109,7 @@ class Pawn extends Cobject {
      * @param {*} frame 
      * @param {Vector2D} position 
      * @param {boolean} clear 
-     * @param {*} canvas 
+     * @param {HTMLCanvasElement} canvas 
      * @param {OperationType} operationType 
      */
     CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects, canvasObject = undefined) {
@@ -210,6 +210,7 @@ class Pawn extends Cobject {
      * @param {Rectangle} boundingBox 
      * @param {Object} overlappingObject 
      */
+    //@ts-ignore
     OnOverlap(boundingBox, overlappingObject) {
         /*if (this.drawingOperation !== undefined) {
             let rectA = this.BoxCollision.GetBoundingBox();
@@ -264,6 +265,7 @@ class GameObject extends Pawn {
         this.BlockingCollision = undefined;
     }
 
+    //@ts-ignore
     OnHit(damage, source) {
 
     }
@@ -284,8 +286,8 @@ class GameObject extends Pawn {
         }
     }
 
-    FixedUpdate() {
-        super.FixedUpdate();
+    FixedUpdate(delta) {
+        super.FixedUpdate(delta);
     }
 
     /**
@@ -334,7 +336,7 @@ class GameObject extends Pawn {
      * @param {*} frame 
      * @param {Vector2D} position 
      * @param {boolean} clear 
-     * @param {string} canvas 
+     * @param {HTMLCanvasElement} canvas 
      * @param {OperationType} operationType 
      */
     CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects, canvasObject = undefined) {
@@ -416,6 +418,7 @@ class Shadow extends Pawn {
         this.drawingOperation.Update(this.BoxCollision.position.Clone());
     }
 
+    //@ts-ignore
     FlagDrawingUpdate(position) {
         //position.y += 32;
         super.FlagDrawingUpdate(this.GetPosition());
@@ -511,6 +514,7 @@ class Shadow2D extends Pawn {
         this.drawingOperation.Update(this.BoxCollision.position.Clone());
     }
 
+    //@ts-ignore
     FlagDrawingUpdate(position) {
         //position.y += 32;
         super.FlagDrawingUpdate(this.GetPosition());
@@ -530,11 +534,12 @@ class Shadow2D extends Pawn {
      * @param {Tile} tile 
      */
     UpdateShadow(tile) {
-        this.shadowObject.UpdateRealTimeShadow(this.name, this.position, this.BoxCollision, tile);
+        this.shadowObject.UpdateRealTimeShadow(this.name, this.position.Clone(), this.BoxCollision, tile);
         this.SetPosition(new Vector2D(this.position.x - this.shadowObject.centerPosition.x, this.position.y - this.shadowObject.centerPosition.y));
         this.drawingOperation.collisionSize = new Vector2D(0, -64);
     }
 
+    //@ts-ignore
     CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.shadow2D) {
         //document.getElementById('gameobject-draw-debug').innerHTML += frame.w + ' - ' + frame.h + '\r\n';
         super.CreateDrawOperation(frame, position, clear, this.shadowObject.canvas, OperationType.shadow2D);

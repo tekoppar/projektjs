@@ -33,6 +33,7 @@ class Minimap extends Cobject {
         super.FixedUpdate();
     }
 
+    //@ts-ignore
     CEvent(eventType, data) {
 
     }

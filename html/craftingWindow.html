@@ -256,6 +256,16 @@
         border-radius: 26px;
         overflow: clip;
         margin-top: 3px;
+        display:flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .frame-circle > img {
+        pointer-events: none;
+        max-width: 20px;
+        max-height: 20px;
+        height: 100%;
     }
 
     .attachment {
@@ -374,6 +384,12 @@
         margin-top: 1px;
         position: absolute;
     }
+
+    .inventory-item > img {
+        pointer-events: none;
+        max-width: 42px;
+        max-height: 42px;
+    }
 </style>
 <template id="template-progress-bar">
     <div class="game-panel" style="flex-direction: column;align-items: center;">
@@ -385,13 +401,11 @@
 </template>
 <template id="crafting-panel-item">
     <div class="inventory-item">
-        <div class="crafting-item-sprite"></div>
     </div>
 </template>
 <template id="crafting-panel-resource">
     <div class="crafting-item-resource-item">
         <div class="inventory-item-32" style="margin-right:5px;">
-            <div class="inventory-item-sprite-32" style="width: 26px;height: 26px;"></div>
         </div>
         <label class="crafting-item-text"></label>
     </div>
@@ -414,30 +428,29 @@
             </div>
             <div class="game-panel" style="flex-direction: column;align-items: center;">
                 <div class="game-panel" style="flex-direction: row;justify-content: center;">
-                    <div id="crafting-item-name" class="frame-small" style="height:32px;width:160px;margin-left:32px;"></div>
+                    <div class="frame-small crafting-item-name" style="height:32px;width:160px;margin-left:32px;"></div>
                     <div class="frame-thumbnail">
                         <div class="frame-circle">
-                            <div id="crafting-item-details-sprite" class="crafting-item-sprite" style="width:32px;height:32px;"></div>
                         </div>
                     </div>
                 </div>
                 <div class="attachment" style="height:4px;width:64px;"></div>
                 <div id="crafting-progress-bar" class="progress-bar">
-                    <div id="crafting-progress-bar-progresss" class="progress-bar-progress"></div>
+                    <div class="progress-bar-progress crafting-progress-bar-progresss"></div>
                 </div>
                 <div class="attachment" style="height:4px;width:64px;margin-top:-2px;"></div>
                 <div class="panel-container" style="height:min-content;min-height:128px;width:256px;margin:0px 5px 0px 5px;justify-content: center;">
                     <div class="panel panel-topmiddle"></div>
                     <div class="crafting-panel-middle">
                         <div class="crafting-item-details">
-                            <div id="crafting-item-resources"></div>
+                            <div class="crafting-item-resources"></div>
                         </div>
                     </div>
                     <div class="panel panel-bottommiddle"></div>
                 </div>
                 <div class="attachment" style="height:4px;width:64px;"></div>
                 <div class="container-ui-horizontal" style="visibility: inherit;">
-                    <button id="crafting-button-craft" class="button">Craft</button>
+                    <button class="button crafting-button-craft">Craft</button>
                 </div>
             </div>
         </div>

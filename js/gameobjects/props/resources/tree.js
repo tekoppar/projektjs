@@ -1,4 +1,4 @@
-import { Resource, Rectangle, Vector4D, Vector2D, Shadow2D, OperationType, AtlasController, BWDrawingType, ShadowCanvasObject } from '../../../internal.js';
+import { Resource, Rectangle, Vector4D, Vector2D, Shadow2D, OperationType, AtlasController, BWDrawingType } from '../../../internal.js';
 
 /**
  * @class
@@ -62,7 +62,7 @@ class Tree extends Resource {
             this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
 
             if (this.realtimeShadow === undefined) {
-                this.realtimeShadow = new Shadow2D(this, this.canvasName, this.GetPosition(), new Vector2D(frame.w, frame.h), this.drawingOperation.tile);
+                this.realtimeShadow = new Shadow2D(this, this.canvasName, this.GetPosition().Clone(), new Vector2D(frame.w, frame.h), this.drawingOperation.tile);
                 this.realtimeShadow.GameBegin();
             }
 

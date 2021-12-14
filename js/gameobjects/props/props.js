@@ -1,5 +1,5 @@
 import {
-    GameObject, Vector2D, Vector4D, AtlasController, BWDrawingType, OperationType,
+    GameObject, Vector2D, Vector4D, AtlasController, BWDrawingType, OperationType, Shadow2D,
     PolygonCollision, BoxCollision, Shadow, CAnimation, AllCollisions, AllBlockingCollisions
 } from '../../internal.js';
 
@@ -33,14 +33,13 @@ class Prop extends GameObject {
             this.animations = animations;
 
         /** @type {CAnimation} */
-        this.currentAnimation;
+        this.currentAnimation = undefined;
     }
 
     Delete() {
         super.Delete();
-        this.animations = null;
-        this.currentAnimation = null;
-        this.name = null;
+        this.animations = undefined;
+        this.currentAnimation = undefined;
     }
 
     FixedUpdate() {
@@ -63,7 +62,7 @@ class Prop extends GameObject {
     }
 
     PlayAnimation() {
-        if (this.currentAnimation !== undefined) {
+        if (this.currentAnimation !== undefined && this.currentAnimation !== null) {
             let frame = this.currentAnimation.GetFrame();
 
             if (frame !== null && frame !== undefined) {
@@ -85,6 +84,7 @@ class Prop extends GameObject {
         }
     }
 
+    //@ts-ignore
     CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects, canvasObject = undefined) {
         super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
 
@@ -127,8 +127,10 @@ class ExtendedProp extends Prop {
 
         if (blockingCollisionSize instanceof Vector4D)
             this.blockingCollisionSize = blockingCollisionSize;
-        else
+        else if (blockingCollisionSize.w !== undefined)
             this.blockingCollisionSize = new Vector4D(blockingCollisionSize.x, blockingCollisionSize.y, blockingCollisionSize.w, blockingCollisionSize.h);
+        else if (blockingCollisionSize.z !== undefined)
+            this.blockingCollisionSize = new Vector4D(blockingCollisionSize.x, blockingCollisionSize.y, blockingCollisionSize.z, blockingCollisionSize.a);
 
         if (animations instanceof CAnimation)
             this.currentAnimation = animations.Clone();
@@ -136,6 +138,7 @@ class ExtendedProp extends Prop {
             this.currentAnimation = new CAnimation(animations.name, animations.start, animations.end, animations.w, animations.h, animations.animationType, animations.animationSpeed);
 
         this.shadow = undefined;
+        this.realtimeShadow = undefined;
     }
 
     Delete() {
@@ -145,6 +148,10 @@ class ExtendedProp extends Prop {
             this.shadow.Delete();
             this.shadow = undefined;
         }
+
+        if (this.realtimeShadow !== undefined)
+            this.realtimeShadow.Delete();
+
         this.currentAnimation = undefined;
     }
 
@@ -192,11 +199,11 @@ class ExtendedProp extends Prop {
             ));
         }
 
-        if (AllBlockingCollisions[this.name] !== undefined) {
-            let tempArr = AllBlockingCollisions[this.name];
+        if (AllBlockingCollisions[this.canvasName] !== undefined || AllBlockingCollisions[this.name] !== undefined) {
+            let tempArr = AllBlockingCollisions[this.canvasName] !== undefined ? AllBlockingCollisions[this.canvasName] : AllBlockingCollisions[this.name];
             polygonCollision = tempArr.CloneObjects();
 
-            if (this.blockingCollisionSize.a > 0)
+            if (this.blockingCollisionSize.a !== 0)
                 this.drawingOperation.collisionSize.y = this.blockingCollisionSize.a;
 
             this.BlockingCollision = new PolygonCollision(
@@ -206,14 +213,13 @@ class ExtendedProp extends Prop {
                 true,
                 this,
                 true
-            )
-        } else
+            );
+        } else {
             this.BlockingCollision = new BoxCollision(this.BoxCollision.position.Clone(), this.blockingCollisionSize.GetPosition(), true, this, true);
-
-        this.BlockingCollision.position = this.position.Clone(); //this.BoxCollision.GetRealCenterPosition().Clone();
-        this.BlockingCollision.position.x -= this.BlockingCollision.size.x * 0.5 - this.blockingCollisionSize.z;
-        this.BlockingCollision.position.y -= this.BlockingCollision.size.y - this.blockingCollisionSize.a;
-        //this.BlockingCollision.position.Sub({ x: this.BlockingCollision.size.x / 2 + this.blockingCollisionSize.z, y: this.BlockingCollision.size.y + this.blockingCollisionSize.a });
+            this.BlockingCollision.position = this.position.Clone(); //this.BoxCollision.GetRealCenterPosition().Clone();
+            this.BlockingCollision.position.x -= this.BlockingCollision.size.x * 0.5 - this.blockingCollisionSize.z;
+            this.BlockingCollision.position.y -= this.BlockingCollision.size.y - this.blockingCollisionSize.a;
+        }
 
         this.BoxCollision.SetPosition(this.BoxCollision.position);
         this.BlockingCollision.SetPosition(this.BlockingCollision.position);
@@ -239,10 +245,21 @@ class ExtendedProp extends Prop {
     SetPosition(position) {
         super.SetPosition(position);
 
-        this.BlockingCollision.position = position.Clone();
-        this.BlockingCollision.position.x -= this.BlockingCollision.size.x * 0.5 - this.blockingCollisionSize.z;
-        this.BlockingCollision.position.y -= this.BlockingCollision.size.y - this.blockingCollisionSize.a;
-        this.BlockingCollision.UpdateCollision();
+        if (this.BlockingCollision instanceof BoxCollision) {
+            this.BlockingCollision.position = position.Clone();
+            this.BlockingCollision.position.x -= this.BlockingCollision.size.x * 0.5 - this.blockingCollisionSize.z;
+            this.BlockingCollision.position.y -= this.BlockingCollision.size.y - this.blockingCollisionSize.a;
+        } else {
+            this.BlockingCollision.position = this.GetPosition();
+        }
+        this.BlockingCollision.SetPosition(this.BlockingCollision.position);
+
+        if (this.realtimeShadow !== undefined) {
+            this.realtimeShadow.SetPosition(new Vector2D(this.position.x + (this.realtimeShadow.shadowObject.GetSize().x - this.size.x) / 2, this.position.y));
+            this.realtimeShadow.AddShadow(this.drawingOperation.tile);
+            this.realtimeShadow.UpdateShadow(this.drawingOperation.tile);
+        }
+        //this.BlockingCollision.UpdateCollision();
     }
 
     NeedsRedraw(position) {
@@ -259,12 +276,18 @@ class ExtendedProp extends Prop {
             this.shadow.FlagDrawingUpdate(position.Clone());
     }
 
+    //@ts-ignore
     CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects, canvasObject = undefined) {
         super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
 
         if (this.drawingOperation.shadowOperation !== undefined) {
             this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
             this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
+
+            if (this.realtimeShadow === undefined) {
+                this.realtimeShadow = new Shadow2D(this, this.canvasName, this.GetPosition().Clone(), new Vector2D(frame.w, frame.h), this.drawingOperation.tile);
+                this.realtimeShadow.GameBegin();
+            }
         }
     }
 

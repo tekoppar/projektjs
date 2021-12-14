@@ -1,9 +1,14 @@
-import { Vector2D, Rectangle, DebugDrawer, Vector4D, Vector, CustomLogger } from '../../internal.js';
+import { Vector2D, Rectangle, Vector4D, Vector } from '../../internal.js';
 
-const OverlapCheckEnum = {
-    Intersect: false,
-    Overlaps: false,
-    Inside: false,
+/**
+ * @class
+ */
+class OverlapCheckEnum {
+    constructor(intersects, overlaps, inside) {
+        this.Intersect = intersects;
+        this.Overlaps = overlaps;
+        this.Inside = inside;
+    }
 }
 
 /**
@@ -17,9 +22,9 @@ const CollisionTypeCheck = {
     Blocking: 2,
 }
 
-const DefaultOverlapCheck = { Intersect: true, Overlaps: true, Inside: true };
-const OverlapOICheck = { Intersect: false, Overlaps: true, Inside: true };
-const OverlapOverlapsCheck = { Intersect: false, Overlaps: true, Inside: false };
+const DefaultOverlapCheck = new OverlapCheckEnum(true, true, true);
+const OverlapOICheck = new OverlapCheckEnum(false, true, true);
+const OverlapOverlapsCheck = new OverlapCheckEnum(false, true, false);
 
 /**
  * @class
@@ -222,8 +227,6 @@ class CollisionHandler {
         /** @type {Array<Collision>} */
         this.EnabledCollisions = [];
 
-        let canvas = document.getElementById('game-canvas');
-
         /** @type {QuadTree} */
         this.QuadTree = QuadTree.MasterQuadTree = new QuadTree(0, new Rectangle(0, 0, 10000, 10000));
     }
@@ -407,7 +410,7 @@ class CollisionHandler {
     /**
      * 
      * @param {Collision} collision 
-     * @param {Object} OverlapCheckType 
+     * @param {OverlapCheckEnum} OverlapCheckType 
      * @param {CollisionTypeCheck} CollisionCheckType 
      * @returns {Array<Collision>}
      */
@@ -427,7 +430,7 @@ class CollisionHandler {
                         overlaps.push(quadOverlaps[i]);
                     } else if (OverlapCheckType.Overlaps && collision.DoOverlap(quadOverlaps[i], true) && quadOverlaps[i].enableCollision === false) {
                         overlaps.push(quadOverlaps[i]);
-                    } else if (OverlapCheckType.Inside && collision.boundingBox.Inside(quadOverlaps[i].boundingBox)) {
+                    } else if (OverlapCheckType.Inside && collision.boundingBox.InsideXY(quadOverlaps[i].boundingBox.x, quadOverlaps[i].boundingBox.y)) {
                         overlaps.push(quadOverlaps[i]);
                     }
                 }
@@ -444,11 +447,11 @@ class CollisionHandler {
      * 
      * @param {Collision} collision 
      * @param {string} className
-     * @param {Object} OverlapCheckType 
+     * @param {OverlapCheckEnum} OverlapCheckType 
      * @param {CollisionTypeCheck} CollisionCheckType 
      * @returns {Array<Collision>}
      */
-     GetOverlapsByClass(collision, className, OverlapCheckType = DefaultOverlapCheck, CollisionCheckType = CollisionTypeCheck.Overlap) {
+     GetOverlapsByClassName(collision, className, OverlapCheckType = DefaultOverlapCheck, CollisionCheckType = CollisionTypeCheck.Overlap) {
         let overlaps = [],
             quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox());
 
@@ -459,13 +462,49 @@ class CollisionHandler {
                 continue;
 
             if (collision.collisionOwner !== undefined && quadOverlaps[i].collisionOwner !== undefined) {
-                let objPrototype = Object.getPrototypeOf(quadOverlaps[i].collisionOwner);
-                if (objPrototype.constructor.name === className && collision.collisionOwner !== quadOverlaps[i].collisionOwner) {
+                if (quadOverlaps[i].collisionOwner.constructor.name === className && collision.collisionOwner !== quadOverlaps[i].collisionOwner) {
                     if (OverlapCheckType.Intersect && collision.GetIntersections(quadOverlaps[i].GetPoints()) > 0) {
                         overlaps.push(quadOverlaps[i]);
                     } else if (OverlapCheckType.Overlaps && collision.DoOverlap(quadOverlaps[i], true) && quadOverlaps[i].enableCollision === false) {
                         overlaps.push(quadOverlaps[i]);
-                    } else if (OverlapCheckType.Inside && collision.boundingBox.Inside(quadOverlaps[i].boundingBox)) {
+                    } else if (OverlapCheckType.Inside && collision.boundingBox.InsideXY(quadOverlaps[i].boundingBox.x, quadOverlaps[i].boundingBox.y)) {
+                        overlaps.push(quadOverlaps[i]);
+                    }
+                }
+            } else if (CollisionCheckType === CollisionTypeCheck.All) {
+                overlaps.push(quadOverlaps[i]);
+            }
+        }
+
+        quadOverlaps = null;
+        return overlaps;
+    }
+
+     /**
+     * 
+     * @param {Collision} collision 
+     * @param {Function} constructor
+     * @param {OverlapCheckEnum} OverlapCheckType 
+     * @param {CollisionTypeCheck} CollisionCheckType 
+     * @returns {Array<Collision>}
+     */
+      GetOverlapsByClass(collision, constructor, OverlapCheckType = DefaultOverlapCheck, CollisionCheckType = CollisionTypeCheck.Overlap) {
+        let overlaps = [],
+            quadOverlaps = this.QuadTree.Get(collision.GetBoundingBox());
+
+        for (let i = 0, l = quadOverlaps.length; i < l; ++i) {
+            if (quadOverlaps[i].overlapEvents === true && (CollisionCheckType !== CollisionTypeCheck.Overlap && CollisionCheckType !== CollisionTypeCheck.All))
+                continue;
+            if (quadOverlaps[i].enableCollision === true && (CollisionCheckType !== CollisionTypeCheck.Blocking && CollisionCheckType !== CollisionTypeCheck.All))
+                continue;
+
+            if (collision.collisionOwner !== undefined && quadOverlaps[i].collisionOwner !== undefined) {
+                if (quadOverlaps[i].collisionOwner instanceof constructor && collision.collisionOwner !== quadOverlaps[i].collisionOwner) {
+                    if (OverlapCheckType.Intersect && collision.GetIntersections(quadOverlaps[i].GetPoints()) > 0) {
+                        overlaps.push(quadOverlaps[i]);
+                    } else if (OverlapCheckType.Overlaps && collision.DoOverlap(quadOverlaps[i], true) && quadOverlaps[i].enableCollision === false) {
+                        overlaps.push(quadOverlaps[i]);
+                    } else if (OverlapCheckType.Inside && collision.boundingBox.InsideXY(quadOverlaps[i].boundingBox.x, quadOverlaps[i].boundingBox.y)) {
                         overlaps.push(quadOverlaps[i]);
                     }
                 }
@@ -582,7 +621,7 @@ class Collision {
     }
 
     CheckOverlap() {
-        let overlapEvent = CollisionHandler.GCH.CheckCollisions(this);
+
     }
 
     /**
@@ -785,12 +824,15 @@ class Collision {
     /**
      * 
      * @param {Vector4D} v4 
+     * @returns {boolean}
      */
     CheckIntersection(v4) {
-        let slope = this.LineSlope(v4);
-        let intersect = this.LineIntersect(slope, v4);
-        let equation = this.LineEquation(this.position.x, slope, intersect);
+        //let slope = this.LineSlope(v4);
+        //let intersect = this.LineIntersect(slope, v4);
+        //let equation = this.LineEquation(this.position.x, slope, intersect);
         let doesIntersect = this.intersects(this.position.x, this.position.y, this.position.x + this.size.x, this.position.y + this.size.y, v4.x, v4.y, v4.x + v4.z, v4.y + v4.a);
+
+        return doesIntersect;
     }
 
     /**
@@ -939,6 +981,10 @@ class BoxCollision extends Collision {
 
     }
 
+    SetPosition(position) {
+        super.SetPosition(position);
+    }
+
     Delete() {
         super.Delete();
     }
@@ -978,6 +1024,11 @@ class PolygonCollision extends Collision {
 
     Delete() {
         super.Delete();
+    }
+
+    SetPosition(position) {
+        super.SetPosition(position);
+        this.UpdatePoints();
     }
 
     UpdatePoints() {

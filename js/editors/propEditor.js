@@ -1,9 +1,19 @@
 import {
     Vector2D, CanvasDrawer, CollisionEditor, PawnSetupParams, TileMaker, Tile,
     TileType, TileTerrain, EditorState, Cobject, Tree, MasterObject, InputHandler,
-    CollisionHandler, BoxCollision, PolygonCollision, CMath, PathOperation,
-    ObjectClassLUT, Props, CanvasUtility, AtlasController, AllCollisions, TileMakerEditor
+    CollisionHandler, BoxCollision, PolygonCollision, PathOperation, GameObject,
+    ObjectClassLUT, Props, CanvasUtility, AtlasController, AllCollisions, TileMakerEditor, OverlapOverlapsCheck, CollisionTypeCheck, Pawn, AllBlockingCollisions, CustomLogger, DebugDrawer, Rectangle
 } from '../internal.js';
+
+/**
+ * @readonly
+ * @enum {Number}
+ */
+const PropEditorSelectionState = {
+    None: 0,
+    PropSelected: 1,
+    PropMoving: 2
+}
 
 /**
  * @class
@@ -25,10 +35,19 @@ class PropEditor extends Cobject {
         this.positionMap = {};
         this.openCloseButton;
 
+        /** @type {Pawn} */
         this.selectedProp;
+
+        this.selectedPropHTML;
         this.selectedPropDrawingOperation = undefined;
+
+        /** @type {BoxCollision} */
         this.overlapCollision = undefined;
+
+        /** @type {boolean} */
         this.gridAlign = false;
+
+        this.selectionState = PropEditorSelectionState.None;
 
         this.openButtonProp;
     }
@@ -38,14 +57,25 @@ class PropEditor extends Cobject {
         this.SetupHTML();
 
         InputHandler.GIH.AddListener(this);
-        this.overlapCollision = new BoxCollision(new Vector2D(0, 0), new Vector2D(32, 32), false, this, false);
+        this.overlapCollision = new BoxCollision(new Vector2D(0, 0), new Vector2D(4, 4), false, this, false);
     }
 
     FixedUpdate() {
         super.FixedUpdate();
 
-        if (this.selectedProp !== undefined)
-            this.UpdateSpritePreview();
+        if (this.selectedPropHTML !== undefined)
+            this.UpdateSpritePreview(this.selectedPropHTML.dataset.propName);
+
+        if (this.selectedProp !== undefined && this.selectionState === PropEditorSelectionState.PropMoving) {
+            let tMousePos = MasterObject.MO.playerController.mousePosition.Clone();
+            tMousePos.Add(CanvasDrawer.GCD.canvasOffset);
+
+            if (this.gridAlign)
+                tMousePos.SnapToGridF(32);
+
+            this.selectedProp.SetPosition(tMousePos);
+            this.selectedPropDrawingOperation.Update(this.selectedProp.GetPosition());
+        }
     }
 
     SetupHTML() {
@@ -55,7 +85,7 @@ class PropEditor extends Cobject {
         }
 
         this.container = document.getElementById('prop-editor');
-        document.getElementById('container-controls').children[1].appendChild(this.container);
+        document.getElementById('container-controls-fixed').children[1].appendChild(this.container);
         this.gridHTML = document.getElementById('prop-editor-grid');
         this.openCloseButton = document.getElementById('prop-editor-open');
         this.openCloseButton.addEventListener('click', this);
@@ -107,10 +137,10 @@ class PropEditor extends Cobject {
         this.editorState = EditorState.Closed;
         this.UpdateHTMLEvents();
 
-        if (this.selectedProp !== undefined)
-            this.selectedProp.classList.remove('prop-editor-grid-selected');
+        if (this.selectedPropHTML !== undefined)
+            this.selectedPropHTML.classList.remove('prop-editor-grid-selected');
 
-        this.selectedProp = undefined;
+        this.selectedPropHTML = undefined;
         CanvasDrawer.GCD.SetSelection(undefined);
     }
 
@@ -121,6 +151,7 @@ class PropEditor extends Cobject {
                 this.gridHTML.removeEventListener('mousedown', this);
                 this.gridHTML.removeEventListener('mouseup', this);
                 this.container.removeEventListener('click', this);
+                this.container.removeEventListener('input', this);
                 this.container.style.visibility = 'collapse';
                 break;
 
@@ -129,18 +160,16 @@ class PropEditor extends Cobject {
                 this.gridHTML.addEventListener('mousedown', this);
                 this.gridHTML.addEventListener('mouseup', this);
                 this.container.addEventListener('click', this);
+                this.container.addEventListener('input', this);
                 this.container.style.visibility = 'visible';
                 break;
         }
     }
 
-    UpdateSpritePreview() {
-        if (this.selectedProp.dataset === undefined)
-            return;
-
-        let params = PawnSetupParams[this.selectedProp.dataset.propName];
+    UpdateSpritePreview(propName) {
+        let params = PawnSetupParams[propName];
         let pos = MasterObject.MO.playerController.mousePosition.Clone();
-        pos.Add(CanvasDrawer.GCD.canvasOffset);
+        //pos.Sub(CanvasDrawer.GCD.canvasOffset);
         pos.x += params[1][0];
 
         if (this.gridAlign)
@@ -160,11 +189,11 @@ class PropEditor extends Cobject {
     }
 
     CreateNewObject() {
-        if (this.selectedProp.dataset === undefined)
-        return;
+        if (this.selectedPropHTML.dataset === undefined)
+            return;
 
-        if (ObjectClassLUT[this.selectedProp.dataset.propName] !== undefined) {
-            let params = PawnSetupParams[this.selectedProp.dataset.propName];
+        if (ObjectClassLUT[this.selectedPropHTML.dataset.propName] !== undefined) {
+            let params = PawnSetupParams[this.selectedPropHTML.dataset.propName];
             params = JSON.parse(JSON.stringify(params));
             let pos = MasterObject.MO.playerController.mousePosition.Clone();
             pos.Add(CanvasDrawer.GCD.canvasOffset);
@@ -174,60 +203,26 @@ class PropEditor extends Cobject {
                 pos.SnapToGridF(32);
 
             params[1] = pos;
-            let newObject = new ObjectClassLUT[this.selectedProp.dataset.propName].constructor(...params);
+            let newObject = new ObjectClassLUT[this.selectedPropHTML.dataset.propName].constructor(...params);
             Props.push(newObject);
             newObject.GameBegin();
         }
     }
 
-    CEvent(eventType, key, data) {
-        if (this.editorState === EditorState.Closed)
-            return;
+    SetSelectionData() {
+        const inputName = /** @type {HTMLInputElement} */ (document.getElementById('prop-editor-selected-prop-name'));
+        if (inputName !== null) {
+            inputName.value = this.selectedProp.name;
+        }
 
-        switch (eventType) {
-            case 'input':
-                if (key === 'leftMouse' && data.eventType === 2 && this.selectedProp === undefined) {
-                    this.overlapCollision.position.x = MasterObject.MO.playerController.mousePosition.x;
-                    this.overlapCollision.position.y = MasterObject.MO.playerController.mousePosition.y;
+        const inputX = /** @type {HTMLInputElement} */ (document.getElementById('prop-editor-selected-prop-positionx'));
+        if (inputX !== null) {
+            inputX.value = this.selectedProp.position.x.toString();
+        }
 
-                    let overlaps = CollisionHandler.GCH.GetOverlaps(this.overlapCollision);
-
-                    if (overlaps.length > 0 && overlaps[0].collisionOwner !== undefined) {
-                        this.selectedProp = overlaps[0].collisionOwner;
-
-                        if (this.selectedProp.BoxCollision instanceof PolygonCollision) {
-                            if (this.selectedPropDrawingOperation !== undefined) {
-                                this.selectedPropDrawingOperation.Delete();
-                                this.selectedPropDrawingOperation = undefined;
-                            }
-
-                            this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.GetPoints(), CanvasDrawer.GCD.DebugDrawer.gameDebugCanvas, 'white', false, 0, 5, 0.3);
-                            CanvasDrawer.GCD.AddPathObjectOperation(this.selectedPropDrawingOperation);
-
-                            let propInfo = CMath.GeneratePropertyTree(this.selectedProp);
-
-                            //document.body.appendChild(propInfo);
-                            //propInfo.addEventListener('click', this);
-                        }
-                    }
-                } else if (key === 'leftMouse' && data.eventType === 2 && this.selectedProp !== undefined) {
-                    this.CreateNewObject();
-                }
-
-                if (key === 'leftShift' && data.eventType === 0) {
-                    this.gridAlign = true;
-                }
-                if (key === 'leftShift' && data.eventType === 2) {
-                    this.gridAlign = false;
-                }
-
-                if (key === 'rightMouse' && data.eventType === 2 && this.selectedProp !== undefined) {
-                    if (this.selectedProp.classList.contains('prop-editor-grid-selected'))
-                        this.selectedProp.classList.remove('prop-editor-grid-selected');
-                    this.selectedProp = undefined;
-                    CanvasDrawer.GCD.SetSelection(undefined);
-                }
-                break;
+        const inputY = /** @type {HTMLInputElement} */ (document.getElementById('prop-editor-selected-prop-positiony'));
+        if (inputY !== null) {
+            inputY.value = this.selectedProp.position.y.toString();
         }
     }
 
@@ -252,39 +247,133 @@ class PropEditor extends Cobject {
         }
     }
 
+    CEvent(eventType, key, data) {
+        if (this.editorState === EditorState.Closed)
+            return;
+
+        switch (eventType) {
+            case 'input':
+                if (key === 'leftMouse') {
+                    if (data.eventType === 0 && this.selectedProp !== undefined && this.selectionState === PropEditorSelectionState.PropSelected)
+                        this.selectionState = PropEditorSelectionState.PropMoving;
+
+                    if (data.eventType === 0 && this.selectedPropHTML === undefined) {
+                        this.overlapCollision.position.x = MasterObject.MO.playerController.mousePosition.x;
+                        this.overlapCollision.position.y = MasterObject.MO.playerController.mousePosition.y;
+                        this.overlapCollision.position.Add(CanvasDrawer.GCD.canvasOffset);
+                        this.overlapCollision.CalculateBoundingBox();
+
+                        let propClicked = undefined;
+                        let overlaps = CollisionHandler.GCH.GetOverlapsByClass(this.overlapCollision, GameObject, OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
+                        if (overlaps.length > 0 && overlaps[0].collisionOwner !== undefined) {
+                            propClicked = overlaps[0].collisionOwner;
+                        }
+
+                        if (propClicked !== undefined) {
+                            if (this.selectedProp !== undefined && this.selectedProp === propClicked)
+                                return;
+
+                            this.selectedProp = propClicked;
+                            if (this.selectedPropDrawingOperation !== undefined) {
+                                this.selectedPropDrawingOperation.Delete();
+                                this.selectedPropDrawingOperation = undefined;
+                            }
+
+                            switch (this.selectedProp.BoxCollision.constructor) {
+                                case PolygonCollision:
+                                    this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.GetPoints(), CanvasDrawer.GCD.DebugDrawer.gameDebugCanvas, 'white', false, 0, 5, 0.3);
+                                    CanvasDrawer.GCD.AddPathObjectOperation(this.selectedPropDrawingOperation);
+                                    this.selectionState = PropEditorSelectionState.PropSelected;
+                                    break;
+
+                                case BoxCollision:
+                                    this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.boundingBox.GetCornersVector2D(), CanvasDrawer.GCD.DebugDrawer.gameDebugCanvas, 'white', false, 0, 5, 0.3);
+                                    CanvasDrawer.GCD.AddPathObjectOperation(this.selectedPropDrawingOperation);
+                                    this.selectionState = PropEditorSelectionState.PropSelected;
+                                    break;
+                            }
+                            this.SetSelectionData();
+                        } else {
+                            this.selectedProp = undefined;
+                            this.selectionState = PropEditorSelectionState.None;
+                            if (this.selectedPropDrawingOperation !== undefined) {
+                                this.selectedPropDrawingOperation.Delete();
+                                this.selectedPropDrawingOperation = undefined;
+                            }
+                        }
+                    }
+
+                    if (data.eventType === 2 && this.selectedPropHTML !== undefined && this.selectedProp === undefined)
+                        this.CreateNewObject();
+                    if (data.eventType === 2 && this.selectedProp !== undefined)
+                        this.selectionState = PropEditorSelectionState.PropSelected;
+                }
+
+                if (key === 'leftShift' && data.eventType === 0) {
+                    this.gridAlign = true;
+                }
+                if (key === 'leftShift' && data.eventType === 2) {
+                    this.gridAlign = false;
+                }
+
+                if (key === 'rightMouse' && data.eventType === 2) {
+                    if (this.selectedPropHTML !== undefined) {
+                        if (this.selectedPropHTML.classList !== undefined && this.selectedPropHTML.classList.contains('prop-editor-grid-selected'))
+                            this.selectedPropHTML.classList.remove('prop-editor-grid-selected');
+                        this.selectedPropHTML = undefined;
+                        CanvasDrawer.GCD.SetSelection(undefined);
+                    }
+
+                    if (this.selectedProp !== undefined) {
+                        this.selectedProp = undefined;
+                        this.selectionState = PropEditorSelectionState.None;
+                        if (this.selectedPropDrawingOperation !== undefined) {
+                            this.selectedPropDrawingOperation.Delete();
+                            this.selectedPropDrawingOperation = undefined;
+                        }
+                    }
+                }
+                break;
+        }
+    }
+
     handleEvent(e) {
         switch (e.type) {
             case 'click':
                 switch (e.target.id) {
                     case 'prop-editor-copy':
-                        if (this.selectedProp !== undefined && this.selectedProp.dataset.atlasName !== undefined && AtlasController.GetAtlas(this.selectedProp.dataset.atlasName) !== undefined) {
-                            let newTree = new Tree(this.selectedProp.dataset.propName, MasterObject.MO.playerController.playerCharacter.position.Clone(), undefined, this.selectedProp.dataset.atlasName);
+                        if (this.selectedPropHTML !== undefined && this.selectedPropHTML.dataset.atlasName !== undefined && AtlasController.GetAtlas(this.selectedPropHTML.dataset.atlasName) !== undefined) {
+                            let newTree = new Tree(this.selectedPropHTML.dataset.propName, MasterObject.MO.playerController.playerCharacter.position.Clone(), undefined, this.selectedPropHTML.dataset.atlasName);
                             newTree.GameBegin();
                         }
                         break;
 
                     case 'prop-editor-collision':
-                        if (CanvasDrawer.GCD.selectedSprite !== undefined)
-                            CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite);
+                        if (CanvasDrawer.GCD.selectedSprite !== undefined && CanvasDrawer.GCD.selectedSprite instanceof Tile && this.selectedPropHTML !== undefined) {
+                            if (AllCollisions[this.selectedPropHTML.dataset.propName] !== undefined || AllBlockingCollisions[this.selectedPropHTML.dataset.propName]) {
+                                CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite, this.selectedPropHTML.dataset.propName);
+                            } else
+                                CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite);
+                        }
                         break;
 
                     case 'prop-editor-open': this.ShowProps(); break;
-                    
+
                     case 'prop-editor-tilemaker-editor':
-                        if (this.selectedProp !== undefined && TileMaker.CustomTiles[this.selectedProp.dataset.atlasName] !== undefined) {
+                        if (this.selectedPropHTML !== undefined && TileMaker.CustomTiles[this.selectedPropHTML.dataset.atlasName] !== undefined) {
                             TileMakerEditor._Instance.Open();
-                            TileMakerEditor._Instance.SetTiles(this.selectedProp.dataset.atlasName, TileMaker.CustomTiles[this.selectedProp.dataset.atlasName].tiles, TileMaker.CustomTiles[this.selectedProp.dataset.atlasName].tileLayout);
-                            this.selectedProp = undefined;
+                            TileMakerEditor._Instance.SetTiles(this.selectedPropHTML.dataset.atlasName, TileMaker.CustomTiles[this.selectedPropHTML.dataset.atlasName].tiles, TileMaker.CustomTiles[this.selectedPropHTML.dataset.atlasName].tileLayout);
+                            this.selectedPropHTML = undefined;
                         }
                         break;
                 }
 
                 if (e.target.dataset.atlasName !== undefined && AtlasController.GetAtlas(e.target.dataset.atlasName) !== undefined) {
-                    if (this.selectedProp !== undefined)
-                        this.selectedProp.classList.remove('prop-editor-grid-selected');
+                    if (this.selectedPropHTML !== undefined)
+                        this.selectedPropHTML.classList.remove('prop-editor-grid-selected');
 
-                    this.selectedProp = e.target;
-                    this.selectedProp.classList.add('prop-editor-grid-selected');
+                    this.selectedPropHTML = e.target;
+                    this.selectedPropHTML.classList.add('prop-editor-grid-selected');
 
                     this.SetSelectedProp(e.target.dataset.propName);
                 } else if (e.target.classList.contains('caret') === true) {
@@ -293,6 +382,22 @@ class PropEditor extends Cobject {
                 }
                 break;
 
+            case 'input':
+                switch (e.target.id) {
+                    case 'prop-editor-selected-prop-positionx':
+                        if (this.selectedProp !== undefined) {
+                            this.selectedProp.SetPosition(new Vector2D(e.target.value, this.selectedProp.position.y));
+                            this.selectedPropDrawingOperation.Update(this.selectedProp.GetPosition());
+                        }
+                        break;
+                    case 'prop-editor-selected-prop-positiony':
+                        if (this.selectedProp !== undefined) {
+                            this.selectedProp.SetPosition(new Vector2D(this.selectedProp.position.x, e.target.value));
+                            this.selectedPropDrawingOperation.Update(this.selectedProp.GetPosition());
+                        }
+                        break;
+                }
+                break;
         }
     }
 }

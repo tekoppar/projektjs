@@ -1,5 +1,3 @@
-import { CustomLogger } from '../../internal.js';
-
 class ArrayUtility {
 
     /**
@@ -101,6 +99,21 @@ class ArrayUtility {
             s += ']';
 
         return s;
+    }
+
+    /**
+     * Clones an array of objects by creating new objects and assigning their values
+     * @template T
+     * @param {Array<T>} array 
+     * @returns {Array<T>}
+     */
+    static CloneObjects(array) {
+        /** @type {Array<T>} */
+        let arr = [];
+        for (let i = 0, l = array.length; i < l; ++i) {
+            arr.push(Object.assign(Object.create(/** @type {Object} */(array[i])), array[i]));
+        }
+        return arr;
     }
 }
 
