@@ -1,4 +1,4 @@
-import { Resource, Rectangle, Vector4D, Vector2D, Shadow2D, OperationType, AtlasController, BWDrawingType } from '../../../internal.js';
+import { Resource, Rectangle, Vector4D, Vector2D, Shadow2D, OperationType, BWDrawingType } from '../../../internal.js';
 
 /**
  * @class
@@ -7,75 +7,83 @@ import { Resource, Rectangle, Vector4D, Vector2D, Shadow2D, OperationType, Atlas
  */
 class Tree extends Resource {
 
-    /**
-     * Creates a new Tree
-     * @param {string} name 
-     * @param {Vector2D} position 
-     * @param {*} animations 
-     * @param {string} canvasName 
-     * @param {Number} drawIndex 
-     * @param {Vector4D} blockingCollisionSize 
-     * @param {string} resourceName 
-     * @param {Rectangle} secondStageFrame 
-     */
-    constructor(name, position, animations, canvasName, drawIndex = 0, blockingCollisionSize = new Vector4D(16, 16, 0, 0), resourceName = 'birchLog', secondStageFrame = new Rectangle(23, 18, 32, 32)) {
-        super(name, position, animations, canvasName, drawIndex, blockingCollisionSize, resourceName, secondStageFrame);
-        this.isVisible = true;
-        this.currentAnimation = undefined;
-        this.shadow = undefined;
-        this.life = 100;
-        this.realtimeShadow = undefined;
-    }
+	/**
+	 * Creates a new Tree
+	 * @param {string} name 
+	 * @param {Vector2D} position 
+	 * @param {*} animations 
+	 * @param {string} canvasName 
+	 * @param {Vector4D} blockingCollisionSize 
+	 * @param {Rectangle} secondStageFrame 
+	 */
+	constructor(name, position, animations, canvasName, blockingCollisionSize = new Vector4D(16, 16, 0, 0), secondStageFrame = new Rectangle(23, 18, 32, 32)) {
+		super(name, position, animations, canvasName, blockingCollisionSize, secondStageFrame);
 
-    GameBegin() {
-        super.GameBegin(false);
-    }
+		/** @type {boolean} */ this.isVisible = true;
+		/** @type {number} */ this.life = 100;
+	}
 
-    Delete() {
-        super.Delete();
+	/**
+	* 
+	* @param {Vector2D[]} polygonCollision 
+	* @param {Vector2D} position 
+	* @param {Vector2D} size 
+	* @param {Vector2D} tilePosition 
+	* @param {boolean} createShadow 
+	*/
+	GameBegin(polygonCollision = undefined, position = new Vector2D(0, 0), size = new Vector2D(0, 0), tilePosition = new Vector2D(0, 0), createShadow = false) {
+		super.GameBegin(polygonCollision, position, size, tilePosition, createShadow);
+	}
 
-        if (this.realtimeShadow !== undefined)
-            this.realtimeShadow.Delete();
-    }
+	Delete() {
+		super.Delete();
+	}
 
-    SecondStage() {
-        super.SecondStage();
-    }
+	SecondStage() {
+		super.SecondStage();
+	}
 
-    CreateSecondStage() {
-        super.CreateSecondStage();
-    }
+	CreateSecondStage() {
+		super.CreateSecondStage();
+	}
 
-    OnHit(damage, source) {
-        super.OnHit(damage, source);
-    }
+	OnHit(damage, source) {
+		super.OnHit(damage, source);
+	}
 
-    SaveToFile() {
-        return "new Tree('" + this.name + "', new Vector2D(" + this.position.x + ', ' + this.position.y + '), ' + this.animations + ", '" + this.canvasName + "', " + this.drawIndex + ', new Vector4D(' + this.blockingCollisionSize.x + ', ' + this.blockingCollisionSize.y + ', ' + this.blockingCollisionSize.z + ', ' + this.blockingCollisionSize.a + "), '" + this.resourceName + "', new Rectangle(" + this.secondStageFrame.x + ', ' + this.secondStageFrame.y + ', ' + this.secondStageFrame.w + ', ' + this.secondStageFrame.h + '))';
-    }
+	/**
+	 * Creates a new DrawingOperation
+	 * @param {*} frame 
+	 * @param {Vector2D} position 
+	 * @param {boolean} clear 
+	 * @param {HTMLCanvasElement} canvas
+	 * @param {OperationType} operationType 
+	 */
+	CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects) {
+		super.CreateDrawOperation(frame, position, clear, canvas, operationType);
 
-    CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects) {
-        super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
+		if (this.drawingOperation.shadowOperation !== undefined) {
+			this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
+			this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
 
-        if (this.drawingOperation.shadowOperation !== undefined) {
-            this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
-            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
+			if (this.realtimeShadow === undefined) {
+				this.realtimeShadow = new Shadow2D(this, this.canvasName, this.GetPosition().Clone(), new Vector2D(frame.w, frame.h), this.drawingOperation.tile);
+				this.realtimeShadow.GameBegin();
+			}
 
-            if (this.realtimeShadow === undefined) {
-                this.realtimeShadow = new Shadow2D(this, this.canvasName, this.GetPosition().Clone(), new Vector2D(frame.w, frame.h), this.drawingOperation.tile);
-                this.realtimeShadow.GameBegin();
-            }
+			this.realtimeShadow.SetPosition(new Vector2D(this.position.x + (this.realtimeShadow.shadowObject.GetSize().x - this.size.x) / 2, this.position.y));
+			this.realtimeShadow.AddShadow(this.drawingOperation.tile);
+			this.realtimeShadow.UpdateShadow(this.drawingOperation.tile);
+		}
+	}
 
-            this.realtimeShadow.SetPosition(new Vector2D(this.position.x + (this.realtimeShadow.shadowObject.GetSize().x - this.size.x) / 2, this.position.y));
-            this.realtimeShadow.AddShadow(this.drawingOperation.tile);
-            this.realtimeShadow.UpdateShadow(this.drawingOperation.tile);
+	SaveToFile() {
+		return "new Tree('" + this.name + "', " + this.position.SaveToFile() + ', ' + (this.animationsName !== undefined ? "'" + this.animationsName + "'" : undefined) + ", '" + this.canvasName + "', " + this.blockingCollisionSize.SaveToFile() + ", '" + this.resourceName + "', " + this.secondStageFrame.SaveToFile() + ')';
+	}
 
-            /*this.drawingOperation.shadowOperation.realTimeShadow = new ShadowCanvasObject();
-            this.drawingOperation.shadowOperation.realTimeShadow.GenerateRealTimeShadow(this.drawingOperation.GetSize(), this.drawingOperation.tile);
-
-            this.drawingOperation.shadowOperation.realTimeShadow.UpdateRealTimeShadow(this.name, this.position.Clone(), this.BoxCollision, this.drawingOperation.tile);*/
-        }
-    }
+	SaveObject() {
+		return "{ class: 'Tree', name: '" + this.name + "', canvasName: '" + this.canvasName + "', position: " + this.position.SaveToFile() + ' }';
+	}
 }
 
 export { Tree };

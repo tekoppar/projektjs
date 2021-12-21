@@ -1,540 +1,559 @@
 <style>
-    .panel-container {
-        display: flex;
-        min-width: 256px;
-        width: 256px;
-        flex-wrap: wrap;
-        overflow: hidden;
-    }
+	.panel-container {
+		display: flex;
+		min-width: 256px;
+		width: 256px;
+		flex-wrap: wrap;
+		overflow: hidden;
+	}
 
-    .panel {
-        background-image: url(/content/sprites/ui/border_middle.png);
-        background-position: 0 0;
-        background-size: 64px 64px;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        border: none;
-        display: block;
-        min-width: 64px;
-        min-height: 64px;
-        width: 64px;
-        height: 64px;
-        margin: 0px;
-        padding: 0px;
-        position: relative;
-        flex-basis: 64px;
-    }
+	.panel {
+		background-image: url(/content/sprites/ui/border_middle.png);
+		background-position: 0 0;
+		background-size: 64px 64px;
+		background-repeat: no-repeat;
+		background-color: transparent;
+		border: none;
+		display: block;
+		min-width: 64px;
+		min-height: 64px;
+		width: 64px;
+		height: 64px;
+		margin: 0px;
+		padding: 0px;
+		position: relative;
+		flex-basis: 64px;
+	}
 
-    .panel-topmiddle {
-        background-image: url(/content/sprites/ui/panel/panel_topmiddle.png);
-        flex-grow: 2;
-        width: calc(100% - 14px);
-        background-size: 100% 7px;
-        flex-basis: auto;
-        position: relative;
-        margin-left: 7px;
-        margin-right: 7px;
-        height: max-content;
-        min-height: 7px;
-    }
+	.panel-topmiddle {
+		background-image: url(/content/sprites/ui/panel/panel_topmiddle.png);
+		flex-grow: 2;
+		width: calc(100% - 14px);
+		background-size: 100% 7px;
+		flex-basis: auto;
+		position: relative;
+		margin-left: 7px;
+		margin-right: 7px;
+		height: max-content;
+		min-height: 7px;
+	}
 
-    .panel-topmiddle::before {
-        content: '';
-        width: 7px;
-        height: 7px;
-        display: block;
-        position: absolute;
-        background-image: url(/content/sprites/ui/panel/panel_topleft.png);
-        left: -7px;
-        background-size: 7px 7px;
-    }
+	.panel-topmiddle::before {
+		content: '';
+		width: 7px;
+		height: 7px;
+		display: block;
+		position: absolute;
+		background-image: url(/content/sprites/ui/panel/panel_topleft.png);
+		left: -7px;
+		background-size: 7px 7px;
+	}
 
-    .panel-topmiddle::after {
-        content: '';
-        width: 7px;
-        height: 7px;
-        display: block;
-        position: absolute;
-        background-image: url(/content/sprites/ui/panel/panel_topright.png);
-        right: -7px;
-        background-size: 7px 7px;
-    }
+	.panel-topmiddle::after {
+		content: '';
+		width: 7px;
+		height: 7px;
+		display: block;
+		position: absolute;
+		background-image: url(/content/sprites/ui/panel/panel_topright.png);
+		right: -7px;
+		background-size: 7px 7px;
+	}
 
-    .panel-middle {
-        background-image: url(/content/sprites/ui/border_middle.png);
-        flex-grow: 2;
-        width: calc(100% - 14px);
-        background-size: 100% 100%;
-        flex-basis: auto;
-        position: relative;
-        margin-left: 7px;
-        margin-right: 7px;
-        height: calc(100% - 14px);
-        min-height: calc(100% - 14px);
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-content: flex-start;
-    }
+	.panel-middle {
+		background-image: url(/content/sprites/ui/border_middle.png);
+		flex-grow: 2;
+		width: calc(100% - 14px);
+		background-size: 100% 100%;
+		flex-basis: auto;
+		position: relative;
+		margin-left: 7px;
+		margin-right: 7px;
+		height: calc(100% - 14px);
+		min-height: calc(100% - 14px);
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-content: flex-start;
+	}
 
-    .panel-middle::before {
-        content: '';
-        width: 7px;
-        height: 100%;
-        min-height: 100%;
-        display: block;
-        position: absolute;
-        background-image: url(/content/sprites/ui/panel/panel_middleleft.png);
-        left: -7px;
-        background-size: 7px 100%;
-    }
+	.panel-middle::before {
+		content: '';
+		width: 7px;
+		height: 100%;
+		min-height: 100%;
+		display: block;
+		position: absolute;
+		background-image: url(/content/sprites/ui/panel/panel_middleleft.png);
+		left: -7px;
+		background-size: 7px 100%;
+	}
 
-    .panel-middle::after {
-        content: '';
-        width: 7px;
-        height: 100%;
-        min-height: 100%;
-        display: block;
-        position: absolute;
-        background-image: url(/content/sprites/ui/panel/panel_middleright.png);
-        right: -7px;
-        background-size: 7px 100%;
-    }
+	.panel-middle::after {
+		content: '';
+		width: 7px;
+		height: 100%;
+		min-height: 100%;
+		display: block;
+		position: absolute;
+		background-image: url(/content/sprites/ui/panel/panel_middleright.png);
+		right: -7px;
+		background-size: 7px 100%;
+	}
 
-    .panel-bottommiddle {
-        background-image: url(/content/sprites/ui/panel/panel_bottommiddle.png);
-        flex-grow: 2;
-        width: calc(100% - 14px);
-        background-size: 100% 7px;
-        flex-basis: auto;
-        position: relative;
-        margin-left: 7px;
-        margin-right: 7px;
-        height: max-content;
-        min-height: 7px;
-    }
+	.panel-bottommiddle {
+		background-image: url(/content/sprites/ui/panel/panel_bottommiddle.png);
+		flex-grow: 2;
+		width: calc(100% - 14px);
+		background-size: 100% 7px;
+		flex-basis: auto;
+		position: relative;
+		margin-left: 7px;
+		margin-right: 7px;
+		height: max-content;
+		min-height: 7px;
+	}
 
-    .panel-bottommiddle::before {
-        content: '';
-        width: 7px;
-        height: 7px;
-        display: block;
-        position: absolute;
-        background-image: url(/content/sprites/ui/panel/panel_bottomleft.png);
-        left: -7px;
-        background-size: 7px 7px;
-    }
+	.panel-bottommiddle::before {
+		content: '';
+		width: 7px;
+		height: 7px;
+		display: block;
+		position: absolute;
+		background-image: url(/content/sprites/ui/panel/panel_bottomleft.png);
+		left: -7px;
+		background-size: 7px 7px;
+	}
 
-    .panel-bottommiddle::after {
-        content: '';
-        width: 7px;
-        height: 7px;
-        display: block;
-        position: absolute;
-        background-image: url(/content/sprites/ui/panel/panel_bottomright.png);
-        right: -7px;
-        background-size: 7px 7px;
-    }
+	.panel-bottommiddle::after {
+		content: '';
+		width: 7px;
+		height: 7px;
+		display: block;
+		position: absolute;
+		background-image: url(/content/sprites/ui/panel/panel_bottomright.png);
+		right: -7px;
+		background-size: 7px 7px;
+	}
 
-    .inventory-item {
-        background-image: url(/content/sprites/ui/panel_slot.png);
-        background-position: 0 0;
-        background-size: 64px 64px;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        min-width: 64px;
-        min-height: 64px;
-        width: 64px;
-        height: 64px;
-        margin: 0px;
-        padding: 0px;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+	.label-text {
+		margin: 0px;
+		padding: 0px;
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: none;
+		font-size: 14px;
+		font-weight: 500;
+		color: #ffcb00;
+		text-rendering: optimizeLegibility;
+		text-shadow: 0 1px 0 black;
+		pointer-events: none;
+		user-select: none;
+	}
 
-    .inventory-item-32 {
-        background-image: url(/content/sprites/ui/panel_slot.png);
-        background-position: 0 0;
-        background-size: 32px 32px;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        min-width: 32px;
-        min-height: 32px;
-        width: 32px;
-        height: 32px;
-        margin: 0px;
-        padding: 0px;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+	.inventory-item {
+		background-image: url(/content/sprites/ui/panel_slot_transparent_64.png);
+		background-position: 0 0;
+		background-size: 42px 42px;
+		background-repeat: no-repeat;
+		background-color: rgb(74, 74, 74);
+		min-width: 42px;
+		min-height: 42px;
+		width: 42px;
+		height: 42px;
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin: 1px;
+		user-select: none;
+	}
 
-    .inventory-item:hover {
-        cursor: pointer;
-        filter: brightness(1.2);
-    }
+	.inventory-item-32 {
+		background-image: url(/content/sprites/ui/panel_slot.png);
+		background-position: 0 0;
+		background-size: 32px 32px;
+		background-repeat: no-repeat;
+		background-color: transparent;
+		min-width: 32px;
+		min-height: 32px;
+		width: 32px;
+		height: 32px;
+		margin: 0px;
+		padding: 0px;
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
 
-    .inventory-item-sprite {
-        width: 42px;
-        height: 42px;
-        pointer-events: none;
-    }
+	.inventory-item:hover {
+		cursor: pointer;
+		filter: brightness(1.2);
+	}
 
-    .inventory-item-sprite-32 {
-        width: 20px;
-        height: 20px;
-        pointer-events: none;
-    }
+	.inventory-item-sprite {
+		width: 42px;
+		height: 42px;
+		pointer-events: none;
+	}
 
-    .inventory-item-text {
-        color: #f3c52f;
-        font-size: 18px;
-        -webkit-text-stroke-width: 1px;
-        -webkit-text-stroke-color: black;
-        position: absolute;
-        font-weight: 800;
-        bottom: 10%;
-        right: 20%;
-        pointer-events: none;
-        -webkit-user-select: none;
-        /* Safari */
-        -moz-user-select: none;
-        /* Firefox */
-        -ms-user-select: none;
-        /* IE10+/Edge */
-        user-select: none;
-        /* Standard */
+	.inventory-item-sprite-32 {
+		width: 20px;
+		height: 20px;
+		pointer-events: none;
+	}
 
-    }
+	.inventory-item-text {
+		color: #fff;
+		font-size: 11px;
+		position: absolute;
+		font-weight: 400;
+		bottom: 1px;
+		right: 4px;
+		pointer-events: none;
+		user-select: none;
+		text-rendering: optimizeLegibility;
+		text-shadow: 0 1px 0 black;
+	}
 
-    .inventory-item-text-32 {
-        color: #f3c52f;
-        font-size: 14px;
-        -webkit-text-stroke-width: 1px;
-        -webkit-text-stroke-color: black;
-        position: absolute;
-        font-weight: 800;
-        bottom: 10%;
-        right: 20%;
-        pointer-events: none;
-        -webkit-user-select: none;
-        /* Safari */
-        -moz-user-select: none;
-        /* Firefox */
-        -ms-user-select: none;
-        /* IE10+/Edge */
-        user-select: none;
-        /* Standard */
+	.inventory-item-text-32 {
+		color: #ffcb00;
+		font-size: 14px;
+		text-rendering: optimizeLegibility;
+		text-shadow: 0 1px 0 black;
+		position: absolute;
+		font-weight: 800;
+		bottom: 10%;
+		right: 20%;
+		pointer-events: none;
+		user-select: none;
+	}
 
-    }
+	.inventory-item-list {
+		position: absolute;
+		width: 275px;
+		max-height: 330px;
+		margin: 10px;
+		z-index: 1;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		transform: scale(92%);
+		transform-origin: top left;
+		overflow-y: auto;
+	}
 
-    .inventory-item-list {
-        position: absolute;
-        width: 275px;
-        max-height: 330px;
-        margin: 10px;
-        z-index: 1;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        transform: scale(92%);
-        transform-origin: top left;
-        overflow-y: auto;
-    }
+	.panel-item-list {
+		position: absolute;
+		width: 259px;
+		max-height: 330px;
+		margin: 10px;
+		z-index: 1;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		transform: scale(92%);
+		transform-origin: top left;
+		overflow-y: auto;
+	}
 
-    .panel-item-list {
-        position: absolute;
-        width: 259px;
-        max-height: 330px;
-        margin: 10px;
-        z-index: 1;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        transform: scale(92%);
-        transform-origin: top left;
-        overflow-y: auto;
-    }
+	.button {
+		background-image: url(/content/sprites/ui/buttonMiddle_48.png);
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		background-color: transparent;
+		margin: 0px;
+		padding: 0px;
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: none;
+		font-size: 24px;
+		color: #ffcb00;
+		margin-left: 24px;
+		margin-right: 24px;
+	}
 
-    .button {
-        background-image: url(/content/sprites/ui/buttonMiddle.png);
-        background-size: 100% 100%;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        margin: 0px;
-        padding: 0px;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: none;
-        font-size: 24px;
-        color: #f3c52f;
-        margin-left: 24px;
-        margin-right: 24px;
-    }
+	.button:hover {
+		filter: brightness(1.2);
+		cursor: pointer;
+	}
 
-    .button:hover {
-        filter: brightness(1.2);
-        cursor: pointer;
-    }
+	.button::before {
+		content: '';
+		position: absolute;
+		background-image: url(/content/sprites/ui/buttonLeft_48.png);
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		background-color: transparent;
+		height: 100%;
+		width: 100%;
+		right: 100%;
+	}
 
-    .button::before {
-        content: '';
-        position: absolute;
-        background-image: url(/content/sprites/ui/buttonLeft.png);
-        background-size: 100% 100%;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        height: 100%;
-        width: 100%;
-        right: 100%;
-    }
+	.button::after {
+		content: '';
+		position: absolute;
+		background-image: url(/content/sprites/ui/buttonRight_48.png);
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		background-color: transparent;
+		height: 100%;
+		width: 100%;
+		left: 100%;
+	}
 
-    .button::after {
-        content: '';
-        position: absolute;
-        background-image: url(/content/sprites/ui/buttonRight.png);
-        background-size: 100% 100%;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        height: 100%;
-        width: 100%;
-        left: 100%;
-    }
+	.input {
+		background-image: url(/content/sprites/ui/inputMiddle.png);
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		background-color: transparent;
+		margin: 0px;
+		padding: 0px;
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: none;
+		font-size: 24px;
+		color: #ffcb00;
+	}
 
-    .input {
-        background-image: url(/content/sprites/ui/inputMiddle.png);
-        background-size: 100% 100%;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        margin: 0px;
-        padding: 0px;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: none;
-        font-size: 24px;
-        color: #f3c52f;
-    }
+	.input:hover {
+		filter: brightness(1.0);
+		cursor: pointer;
+	}
 
-    .input:hover {
-        filter: brightness(1.0);
-        cursor: pointer;
-    }
+	.input::before {
+		content: '';
+		position: absolute;
+		background-image: url(/content/sprites/ui/inputLeft.png);
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		background-color: transparent;
+		height: 100%;
+		width: 16px;
+		left: -16px;
+	}
 
-    .input::before {
-        content: '';
-        position: absolute;
-        background-image: url(/content/sprites/ui/inputLeft.png);
-        background-size: 100% 100%;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        height: 100%;
-        width: 16px;
-        left: -16px;
-    }
+	.input::after {
+		content: '';
+		position: absolute;
+		background-image: url(/content/sprites/ui/inputRight.png);
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		background-color: transparent;
+		height: 100%;
+		width: 16px;
+		left: 100%;
+	}
 
-    .input::after {
-        content: '';
-        position: absolute;
-        background-image: url(/content/sprites/ui/inputRight.png);
-        background-size: 100% 100%;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        height: 100%;
-        width: 16px;
-        left: 100%;
-    }
+	.input input[type='number'] {
+		background: transparent;
+		border: none;
+		min-height: 26px;
+		color: white;
+		text-align: right;
+		max-width: 100px;
+	}
 
-    .input input[type='number'] {
-        background: transparent;
-        border: none;
-        min-height: 26px;
-        color: white;
-        text-align: right;
-        max-width: 100px;
-    }
+	.input-value {
+		background-image: url(/content/sprites/ui/input_middle_32.png);
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		background-color: transparent;
+		margin: 0px;
+		padding: 0px;
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: none;
+		font-size: 24px;
+		color: #ffcb00;
+		margin-left: 24px;
+		margin-right: 24px;
+		width: max-content;
+		justify-self: center;
+	}
 
-    .input-value {
-        background-image: url(/content/sprites/ui/input_middle.png);
-        background-size: 100% 100%;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        margin: 0px;
-        padding: 0px;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: none;
-        font-size: 24px;
-        color: #f3c52f;
-        margin-left: 24px;
-        margin-right: 24px;
-        width: max-content;
-        justify-self: center;
-    }
+	.input-value:hover {
+		filter: brightness(1.0);
+		cursor: pointer;
+	}
 
-    .input-value:hover {
-        filter: brightness(1.0);
-        cursor: pointer;
-    }
+	.input-value::before {
+		content: '';
+		position: absolute;
+		background-image: url(/content/sprites/ui/input_left_32.png);
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-color: transparent;
+		height: 100%;
+		width: 24px;
+		right: 100%;
+	}
 
-    .input-value::before {
-        content: '';
-        position: absolute;
-        background-image: url(/content/sprites/ui/input_left.png);
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        height: 100%;
-        width: 32px;
-        right: 100%;
-    }
+	.input-value::after {
+		content: '';
+		position: absolute;
+		background-image: url(/content/sprites/ui/input_right_32.png);
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-color: transparent;
+		height: 100%;
+		width: 24px;
+		left: 100%;
+	}
 
-    .input-value::after {
-        content: '';
-        position: absolute;
-        background-image: url(/content/sprites/ui/input_right.png);
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-color: transparent;
-        height: 100%;
-        width: 32px;
-        left: 100%;
-    }
+	.container-ui {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+		flex-direction: column;
+		flex-wrap: nowrap;
+		width: max-content;
+		visibility: hidden;
+	}
 
-    .container-ui {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        flex-direction: column;
-        flex-wrap: nowrap;
-        width: max-content;
-        visibility: hidden;
-    }
+	.container-ui>.container-ui-horizontal {
+		visibility: inherit;
+	}
 
-    .container-ui>.container-ui-horizontal {
-        visibility: inherit;
-    }
+	.container-ui>.container-ui {
+		visibility: inherit;
+	}
 
-    .container-ui>.container-ui {
-        visibility: inherit;
-    }
+	.container-ui-horizontal {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+		flex-direction: row;
+		flex-wrap: nowrap;
+		width: max-content;
+		visibility: hidden;
+	}
 
-    .container-ui-horizontal {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        width: max-content;
-        visibility: hidden;
-    }
+	.blank-input {
+		border: none;
+		background-color: transparent;
+		outline: none;
+	}
 
-    .blank-input {
-        border: none;
-        background-color: transparent;
-    }
+	.game-panel {
+		position: relative;
+		display: flex;
+		flex-wrap: nowrap;
+		flex-direction: column;
+	}
 
-    .game-panel {
-        position: relative;
-        display: flex;
-        flex-wrap: nowrap;
-        flex-direction: column;
-    }
+	.inventory-input-value {
+		font-size: 14px;
+		color: #ffcb00;
+		text-align: right;
+		padding: 0px;
+	}
 
-    .inventory-input-value {
-        font-size: 14px;
-        color: #f3c52f;
-        text-align: right;
-        padding: 0px;
-    }
+	.label {
+		color: #ffcb00;
+		font-size: 18px;
+		width: 100%;
+		text-align: center;
+	}
 
-    .label {
-        color: #f3c52f;
-        font-size: 18px;
-        width: 100%;
-        text-align: center;
-    }
+	.paragraph {
+		color: #ffcb00;
+		font-size: 14px;
+		width: 100%;
+		margin-bottom: 2px;
+	}
 
-    .paragraph {
-        color: #f3c52f;
-        font-size: 14px;
-        width: 100%;
-        margin-bottom: 2px;
-    }
-
-    .center-absolute {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translateX(-50%) translateY(-50%);
-    }
+	.center-absolute {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translateX(-50%) translateY(-50%);
+	}
 </style>
 <template id="inventory-panel-item">
-    <div class="inventory-item">
-        <div class="inventory-item-sprite"></div>
-        <label class="inventory-item-text"></label>
-    </div>
+	<div class="inventory-item">
+		<label class="inventory-item-text"></label>
+	</div>
+</template>
+<template id="inventory-shop-item">
+	<div class="game-panel" style="width:100%;justify-content: center;align-items: center;">
+		<div class="game-panel" style="flex-direction: row;justify-content: center;width: 100%;">
+			<div class="game-panel" style="align-items: flex-end;">
+				<label class="label-text" style="margin-right:5px;">Name: </label>
+				<label class="label-text" style="margin-right:5px;">Amount: </label>
+				<label class="label-text" style="margin-right:5px;">Cost: </label>
+			</div>
+			<div class="game-panel" style="align-items: flex-start;">
+				<label class="label-text shop-item-name"></label>
+				<label class="label-text shop-item-amount"></label>
+				<label class="label-text shop-item-cost"></label>
+			</div>
+		</div>
+		<div class="inventory-item">
+		</div>
+	</div>
 </template>
 <template id="inventory-panel-item-32">
-    <div class="inventory-item-32">
-        <div class="inventory-item-sprite-32"></div>
-        <label class="inventory-item-text-32"></label>
-    </div>
+	<div class="inventory-item-32">
+		<div class="inventory-item-sprite-32"></div>
+		<label class="inventory-item-text-32"></label>
+	</div>
 </template>
 <template id="inventory-panel">
-    <div class="game-panel">
-        <div class="panel-container" style="height:330px;width:270px;">
-            <div class="panel panel-topmiddle"></div>
-            <div class="panel panel-middle"></div>
-            <div class="panel panel-bottommiddle"></div>
-        </div>
-        <div class="input-value" style="height:32px;align-self: center;">
-            <input class="blank-input inventory-input-value" type="tel" readonly>
-        </div>
-    </div>
+	<div class="game-panel">
+		<div class="panel-container" style="height:334px;width:270px;">
+			<div class="panel panel-topmiddle"></div>
+			<div class="panel panel-middle"></div>
+			<div class="panel panel-bottommiddle"></div>
+		</div>
+		<div class="input-value" style="height:32px;align-self: center;">
+			<input class="blank-input inventory-input-value" type="tel" readonly>
+		</div>
+	</div>
 </template>
 <template id="game-panel">
-    <div class="game-panel">
-        <div class="panel-container" style="height:330px;width:270px;">
-            <div class="panel panel-topmiddle"></div>
-            <div class="panel panel-middle"></div>
-            <div class="panel panel-bottommiddle"></div>
-        </div>
-    </div>
+	<div class="game-panel">
+		<div class="panel-container" style="height:330px;width:270px;">
+			<div class="panel panel-topmiddle"></div>
+			<div class="panel panel-middle"></div>
+			<div class="panel panel-bottommiddle"></div>
+		</div>
+	</div>
 </template>
 <template id="gameui-panel">
-    <div class="game-panel">
-        <div class="panel-container" style="width:270px;">
-            <div class="panel panel-topmiddle"></div>
-            <div class="panel panel-middle"></div>
-            <div class="panel panel-bottommiddle"></div>
-        </div>
-    </div>
+	<div class="game-panel">
+		<div class="panel-container" style="width:270px;">
+			<div class="panel panel-topmiddle"></div>
+			<div class="panel panel-middle"></div>
+			<div class="panel panel-bottommiddle"></div>
+		</div>
+	</div>
 </template>
 <template id="container-ui">
-    <div class="container-ui"></div>
+	<div class="container-ui"></div>
 </template>
 <template id="button-ui">
-    <button class="button"></button>
+	<button class="button"></button>
 </template>
 <template id="label-ui">
-    <label class="label"></label>
+	<label class="label"></label>
 </template>
 <template id="paragraph-ui">
-    <label class="paragraph"></label>
+	<label class="paragraph"></label>
 </template>
 <template id="input-ui">
-    <div class="input">
-        <input>
-    </div>
+	<div class="input">
+		<input>
+	</div>
 </template>

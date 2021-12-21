@@ -1,27 +1,35 @@
-import { CraftingCategory } from '../../internal.js';
+import { Recipe, ResourceItem } from '../../internal.js'
+
+/**
+ * @readonly
+ * @enum {number}
+ */
+const CraftingCategory = {
+	Tool: 0,
+	Weapon: 1,
+	RefinedResource: 2,
+}
 
 /**
  * @class
  * @constructor
+ * @extends Recipe
  */
-class CraftingRecipe {
+class CraftingRecipe extends Recipe {
 
-    /**
-     * 
-     * @param {string} name 
-     * @param {Number} time 
-     * @param {Number} amount 
-     * @param {CraftingCategory} craftingCategory 
-     * @param {Array<{amount: Number, resource:string, name:string}>} resourceList 
-     */
-    constructor(name, time, amount, craftingCategory, resourceList) {
-        this.name = name[0].toLowerCase() + name.substring(1, name.length).replace(/\s/i, '');
-        this.displayName = name;
-        this.time = time;
-        this.amount = amount
-        this.category = craftingCategory;
-        this.resourceList = resourceList;
-    }
+	/**
+	 * 
+	 * @param {string} name 
+	 * @param {number} time 
+	 * @param {number} amount 
+	 * @param {CraftingCategory} craftingCategory 
+	 * @param {Array<{amount: number, item: ResourceItem}>} resourceList 
+	 */
+	constructor(name, time, amount, craftingCategory, resourceList) {
+		super(name, time, amount, resourceList);
+
+		/** @type {CraftingCategory} */ this.category = craftingCategory;
+	}
 }
 
-export { CraftingRecipe };
+export { CraftingRecipe, CraftingCategory };

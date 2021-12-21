@@ -24,7 +24,7 @@ AtlasLUT.inputMiddle = { url: '/content/sprites/ui/inputMiddle.png', size: new V
 let AtlasKeys = Object.keys(AtlasLUT);
 
 for (let i = 0, l = AtlasKeys.length; i < l; ++i) {
-    ReverseAtlasLUT[AtlasLUT[AtlasKeys[i]].url] = AtlasLUT[AtlasKeys[i]].name;
+	ReverseAtlasLUT[AtlasLUT[AtlasKeys[i]].url] = AtlasLUT[AtlasKeys[i]].name;
 }
 
 export { AtlasLUT, ReverseAtlasLUT };

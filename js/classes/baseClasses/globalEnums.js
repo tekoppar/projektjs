@@ -4,10 +4,10 @@
  * @enum {Number}
  */
 const ObjectType = {
-    Pawn: 0,
-    Character: 1,
-    Shadow: 2,
-    Prop: 3,
+	Pawn: 0,
+	Character: 1,
+	Shadow: 2,
+	Prop: 3,
 }
 
 /**
@@ -15,9 +15,19 @@ const ObjectType = {
  * @enum {Number}
  */
 const BWDrawingType = {
-    None: 0,
-    Behind: 1,
-    Front: 2
+	None: 0,
+	Behind: 1,
+	Front: 2
 }
 
-export { ObjectType, BWDrawingType };
+/**
+ * Enum for editor state
+ * @readonly
+ * @enum {Number}
+ */
+ let EditorState = {
+	Closed: 0,
+	Open: 1,
+}
+
+export { ObjectType, BWDrawingType, EditorState };

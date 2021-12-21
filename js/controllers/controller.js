@@ -1,21 +1,21 @@
 import { Cobject } from '../internal.js';
 
 class Controller extends Cobject {
-    constructor() {
-        super();
-    }
+	constructor() {
+		super();
+	}
 
-    FixedUpdate() {
-        super.FixedUpdate();
-    }
-    
-    Delete() {
-        super.Delete();
-    }
+	FixedUpdate() {
+		super.FixedUpdate();
+	}
 
-    GameBegin() {
-        super.GameBegin();
-    }
+	Delete() {
+		super.Delete();
+	}
+
+	GameBegin() {
+		super.GameBegin();
+	}
 }
 
 export { Controller };

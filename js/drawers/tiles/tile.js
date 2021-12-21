@@ -1,733 +1,821 @@
 import { Matrix, Vector2D, CanvasDrawer, TileLUT, AtlasController, GetAtlasTileMatrix, CollisionEditor, PropEditor } from '../../internal.js';
 
 /**
- * @enum {Number}
+ * @enum {number}
  * @readonly
  */
 const TileType = {
-    Water: 0,
-    Ground: 1,
-    Air: 2,
-    Cliff: 3,
-    Prop: 4,
+	Water: 0,
+	Ground: 1,
+	Air: 2,
+	Cliff: 3,
+	Prop: 4,
 }
 
 /**
- * @enum {Number}
+ * @enum {number}
  * @readonly
  */
 const TileTerrain = {
-    Grass: 0,
-    Rock: 1,
-    Water: 2,
-    Wood: 3,
-    Soil: 4,
-    Plant: 5,
-    Tree: 6,
-    Fence: 7,
-    Leaves: 8,
-    Ground: 9,
+	Grass: 0,
+	Rock: 1,
+	Water: 2,
+	Wood: 3,
+	Soil: 4,
+	Plant: 5,
+	Tree: 6,
+	Fence: 7,
+	Leaves: 8,
+	Ground: 9,
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class TileULDR {
-    //UL UR DL DR U L D R
-    static TileULDR = {
-        0x00001100: 'UpLeft',
-        0x00001000: 'Up',
-        0x00001001: 'UpRight',
-        0x00000100: 'Left',
-        0x00001111: 'Middle',
-        0x00000001: 'Right',
-        0x00000110: 'DownLeft',
-        0x00000010: 'Down',
-        0x00000011: 'DownRight',
-        0x00010000: 'CornerUpLeft',
-        0x00100000: 'CornerUpRight',
-        0x01000000: 'CornerDownLeft',
-        0x10000000: 'CornerDownRight',
-        0x01100000: 'CornerDoubleDLUR',
-        0x10010000: 'CornerDoubleULDR'
-    };
+	//UL UR DL DR U L D R
+	/** @type {Object.<number, string>} */ static TileULDR = {
+		0x00001100: 'UpLeft',
+		0x00001000: 'Up',
+		0x00001001: 'UpRight',
+		0x00000100: 'Left',
+		0x00001111: 'Middle',
+		0x00000001: 'Right',
+		0x00000110: 'DownLeft',
+		0x00000010: 'Down',
+		0x00000011: 'DownRight',
+		0x00010000: 'CornerUpLeft',
+		0x00100000: 'CornerUpRight',
+		0x01000000: 'CornerDownLeft',
+		0x10000000: 'CornerDownRight',
+		0x01100000: 'CornerDoubleDLUR',
+		0x10010000: 'CornerDoubleULDR'
+	};
 
-    static TileULDRLUT = {
-        UpLeft: 0x00001100,
-        Up: 0x00001000,
-        UpRight: 0x00001001,
-        Left: 0x00000100,
-        Middle: 0x00001111,
-        Right: 0x00000001,
-        DownLeft: 0x00000110,
-        Down: 0x00000010,
-        DownRight: 0x00000011,
-        CornerUpLeft: 0x01000000,
-        CornerUpRight: 0x10000000,
-        CornerDownLeft: 0x00010000,
-        CornerDownRight: 0x00100000,
-        CornerDoubleDLUR: 0x01100000,
-        CornerDoubleULDR: 0x10010000,
-    };
+	/** @type {Object.<string, number>} */ static TileULDRLUT = {
+		UpLeft: 0x00001100,
+		Up: 0x00001000,
+		UpRight: 0x00001001,
+		Left: 0x00000100,
+		Middle: 0x00001111,
+		Right: 0x00000001,
+		DownLeft: 0x00000110,
+		Down: 0x00000010,
+		DownRight: 0x00000011,
+		CornerUpLeft: 0x01000000,
+		CornerUpRight: 0x10000000,
+		CornerDownLeft: 0x00010000,
+		CornerDownRight: 0x00100000,
+		CornerDoubleDLUR: 0x01100000,
+		CornerDoubleULDR: 0x10010000,
+	};
 
-    static Get(value) {
-        return TileULDR.TileULDRLUT[value] !== undefined ? value : TileULDR.TileULDR[value];
-    }
+	/**
+	 * 
+	 * @param {*} value 
+	 * @returns {string}
+	 */
+	static Get(value) {
+		return TileULDR.TileULDRLUT[value] !== undefined ? value : TileULDR.TileULDR[value];
+	}
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class TileLUTData {
-    constructor(atlas = 'terrain', tileType = TileType.Ground, tileTerrain = TileTerrain.Grass, transparent = false, tileULDR = TileULDR.TileULDRLUT.Middle, tileSet = 'default') {
-        this.atlas = atlas;
-        this.tileType = tileType;
-        this.tileTerrain = tileTerrain;
-        this.transparent = transparent;
-        this.tileULDR = tileULDR;
-        this.tileSet = tileSet;
-        this.tilePosition = new Vector2D(0, 0);
-    }
+
+	/**
+	 * 
+	 * @param {string} atlas 
+	 * @param {TileType} tileType 
+	 * @param {TileTerrain} tileTerrain 
+	 * @param {boolean} transparent 
+	 * @param {TileULDR} tileULDR 
+	 * @param {string} tileSet 
+	 */
+	constructor(atlas = 'terrain', tileType = TileType.Ground, tileTerrain = TileTerrain.Grass, transparent = false, tileULDR = TileULDR.TileULDRLUT.Middle, tileSet = 'default') {
+		/** @type {string} */ this.atlas = atlas;
+		/** @type {TileType} */ this.tileType = tileType;
+		/** @type {TileTerrain} */ this.tileTerrain = tileTerrain;
+		/** @type {boolean} */ this.transparent = transparent;
+		/** @type {TileULDR} */ this.tileULDR = tileULDR;
+		/** @type {string} */ this.tileSet = tileSet;
+		/** @type {Vector2D} */ this.tilePosition = new Vector2D(0, 0);
+	}
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class TileData {
-    static TileLUT = TileLUT;
-    static TileLUTSets = {};
-    static TilesSets = {};
-    static tileData = new TileData();
-    static tileGUI = {};
-    static Selection;
+	static TileLUT = TileLUT;
+	static TileLUTSets = {};
+	static TilesSets = {};
+	static tileData = new TileData();
+	static tileGUI = {};
+	/** @type {(Tile|Tile[])} */ static Selection;
 
-    constructor() {
+	constructor() {
 
-    }
+	}
 
-    static AddTileLUT(tile) {
-        if (TileData.TileLUT[tile.atlas] === undefined)
-            TileData.TileLUT[tile.atlas] = {};
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 */
+	static AddTileLUT(tile) {
+		if (TileData.TileLUT[tile.atlas] === undefined)
+			TileData.TileLUT[tile.atlas] = {};
 
-        if (TileData.TileLUT[tile.atlas][tile.tilePosition.y] === undefined)
-            TileData.TileLUT[tile.atlas][tile.tilePosition.y] = {};
+		if (TileData.TileLUT[tile.atlas][tile.tilePosition.y] === undefined)
+			TileData.TileLUT[tile.atlas][tile.tilePosition.y] = {};
 
-        if (TileData.TileLUT[tile.atlas][tile.tilePosition.y][tile.tilePosition.x] === undefined)
-            TileData.TileLUT[tile.atlas][tile.tilePosition.y][tile.tilePosition.x] = {};
+		if (TileData.TileLUT[tile.atlas][tile.tilePosition.y][tile.tilePosition.x] === undefined)
+			TileData.TileLUT[tile.atlas][tile.tilePosition.y][tile.tilePosition.x] = {};
 
-        TileData.TileLUT[tile.atlas][tile.tilePosition.y][tile.tilePosition.x] = new TileLUTData(
-            tile.atlas,
-            TileType[TileData.tileGUI.tiletype.value],
-            TileTerrain[TileData.tileGUI.tileterrain.value],
-            tile.IsTransparent(),
-            TileULDR.Get(TileData.tileGUI.tileuldr.value),
-            TileData.tileGUI.tileset.value
-        );
-    }
+		TileData.TileLUT[tile.atlas][tile.tilePosition.y][tile.tilePosition.x] = new TileLUTData(
+			tile.atlas,
+			TileType[TileData.tileGUI.tiletype.value],
+			TileTerrain[TileData.tileGUI.tileterrain.value],
+			tile.IsTransparent(),
+			TileULDR.Get(TileData.tileGUI.tileuldr.value),
+			TileData.tileGUI.tileset.value
+		);
+	}
 
-    static CanvasPortionToImage(tile) {
-        if (AtlasController.GetAtlas(tile.atlas) !== undefined) {
-            let canvas = AtlasController.GetAtlas(tile.atlas).GetCanvas();
-            //let ctx = canvas.getContext('2d');
-            let tempCanvas = document.createElement('canvas');
-            tempCanvas.setAttribute('height', tile.size.y);
-            tempCanvas.setAttribute('width', tile.size.x);
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 * @returns {HTMLImageElement}
+	 */
+	static CanvasPortionToImage(tile) {
+		if (AtlasController.GetAtlas(tile.atlas) !== undefined) {
+			let canvas = AtlasController.GetAtlas(tile.atlas).GetCanvas();
+			//let ctx = canvas.getContext('2d');
+			let tempCanvas = document.createElement('canvas');
+			tempCanvas.setAttribute('height', tile.size.y.toString());
+			tempCanvas.setAttribute('width', tile.size.x.toString());
 
-            tempCanvas.getContext('2d').drawImage(canvas, tile.GetPosX(), tile.GetPosY(), tile.size.x, tile.size.y, 0, 0, 32, 32);
+			tempCanvas.getContext('2d').drawImage(canvas, tile.GetPosX(), tile.GetPosY(), tile.size.x, tile.size.y, 0, 0, 32, 32);
 
-            let newImage = new Image(tile.size.x, tile.size.y);
-            newImage.src = tempCanvas.toDataURL('image/png');
-            newImage.dataset.tileType = tile.tileType;
-            newImage.dataset.tileTerrain = tile.tileTerrain;
-            newImage.addEventListener('click', tile);
+			let newImage = new Image(tile.size.x, tile.size.y);
+			newImage.src = tempCanvas.toDataURL('image/png');
+			newImage.dataset.tileType = tile.tileType.toString();
+			newImage.dataset.tileTerrain = tile.tileTerrain.toString();
+			newImage.addEventListener('click', tile);
 
-            return newImage;
-        }
-        return null;
-    }
+			return newImage;
+		}
+		return null;
+	}
 
-    CreateTileLUTList() {
-        let typeKeys = Object.keys(TileData.TileLUT);
-        for (let iT = 0; iT < typeKeys.length; iT++) {
-            let yKeys = Object.keys(TileData.TileLUT[typeKeys[iT]]);
-            for (let y = 0; y < yKeys.length; y++) {
-                let xKeys = Object.keys(TileData.TileLUT[typeKeys[iT]][yKeys[y]]);
-                for (let x = 0; x < xKeys.length; x++) {
-                    let tileLUT = TileData.TileLUT[typeKeys[iT]][yKeys[y]][xKeys[x]];
+	CreateTileLUTList() {
+		let typeKeys = Object.keys(TileData.TileLUT);
+		for (let iT = 0; iT < typeKeys.length; iT++) {
+			let yKeys = Object.keys(TileData.TileLUT[typeKeys[iT]]);
+			for (let y = 0; y < yKeys.length; y++) {
+				let xKeys = Object.keys(TileData.TileLUT[typeKeys[iT]][yKeys[y]]);
+				for (let x = 0; x < xKeys.length; x++) {
+					let tileLUT = TileData.TileLUT[typeKeys[iT]][yKeys[y]][xKeys[x]];
 
-                    if (tileLUT.tileSet === undefined)
-                        tileLUT.tileSet = 'default';
+					if (tileLUT.tileSet === undefined)
+						tileLUT.tileSet = 'default';
 
-                    let newTile = new Tile(
-                        new Vector2D(0, 0),
-                        new Vector2D(parseInt(xKeys[x]), parseInt(yKeys[y])),
-                        new Vector2D(32, 32),
-                        tileLUT.transparent,
-                        typeKeys[iT],
-                        0,
-                        tileLUT.tileType,
-                        tileLUT.tileTerrain
-                    );
-                    let newImage = TileData.CanvasPortionToImage(newTile);
+					let newTile = new Tile(
+						new Vector2D(0, 0),
+						new Vector2D(parseInt(xKeys[x]), parseInt(yKeys[y])),
+						new Vector2D(32, 32),
+						tileLUT.transparent,
+						typeKeys[iT],
+						0,
+						tileLUT.tileType,
+						tileLUT.tileTerrain
+					);
+					let newImage = TileData.CanvasPortionToImage(newTile);
 
-                    if (newImage !== null) {
-                        if (tileLUT.tileSet !== 'default') {
-                            if (document.getElementById('tile-lut-editor-tiles').querySelector('div[data-tileset="' + tileLUT.tileSet + '"]') === null) {
-                                let setContainer = document.createElement('div');
-                                setContainer.dataset.tileset = tileLUT.tileSet;
-                                setContainer.className = 'tile-lut-editor-tiles-setcontainer';
+					if (newImage !== null) {
+						if (tileLUT.tileSet !== 'default') {
+							if (document.getElementById('tile-lut-editor-tiles').querySelector('div[data-tileset="' + tileLUT.tileSet + '"]') === null) {
+								let setContainer = document.createElement('div');
+								setContainer.dataset.tileset = tileLUT.tileSet;
+								setContainer.className = 'tile-lut-editor-tiles-setcontainer';
 
-                                if (TileData.TileLUTSets[tileLUT.tileSet] === undefined) {
-                                    TileData.TileLUTSets[tileLUT.tileSet] = {};
-                                    TileData.TilesSets[tileLUT.tileSet] = {};
-                                }
+								if (TileData.TileLUTSets[tileLUT.tileSet] === undefined) {
+									TileData.TileLUTSets[tileLUT.tileSet] = {};
+									TileData.TilesSets[tileLUT.tileSet] = {};
+								}
 
-                                tileLUT.tilePosition = new Vector2D(parseInt(xKeys[x]), parseInt(yKeys[y]));
-                                tileLUT.size = new Vector2D(32, 32);
-                                TileData.TileLUTSets[tileLUT.tileSet][tileLUT.tileULDR] = tileLUT;
-                                TileData.TilesSets[tileLUT.tileSet][tileLUT.tileULDR] = newTile;
+								tileLUT.tilePosition = new Vector2D(parseInt(xKeys[x]), parseInt(yKeys[y]));
+								tileLUT.size = new Vector2D(32, 32);
+								TileData.TileLUTSets[tileLUT.tileSet][tileLUT.tileULDR] = tileLUT;
+								TileData.TilesSets[tileLUT.tileSet][tileLUT.tileULDR] = newTile;
 
-                                setContainer.appendChild(newImage);
-                                document.getElementById('tile-lut-editor-tiles').appendChild(setContainer);
-                            } else {
-                                tileLUT.tilePosition = new Vector2D(parseInt(xKeys[x]), parseInt(yKeys[y]));
-                                tileLUT.size = new Vector2D(32, 32);
-                                TileData.TileLUTSets[tileLUT.tileSet][tileLUT.tileULDR] = tileLUT;
-                                TileData.TilesSets[tileLUT.tileSet][tileLUT.tileULDR] = newTile;
-                                document.getElementById('tile-lut-editor-tiles').querySelector('div[data-tileset="' + tileLUT.tileSet + '"]').appendChild(newImage);
-                            }
-                        } else {
-                            tileLUT.tilePosition = new Vector2D(parseInt(xKeys[x]), parseInt(yKeys[y]));
-                            tileLUT.size = new Vector2D(32, 32);
-                            document.getElementById('tile-lut-editor-tiles').appendChild(newImage);
-                        }
-                    }
-                }
-            }
-        }
-    }
+								setContainer.appendChild(newImage);
+								document.getElementById('tile-lut-editor-tiles').appendChild(setContainer);
+							} else {
+								tileLUT.tilePosition = new Vector2D(parseInt(xKeys[x]), parseInt(yKeys[y]));
+								tileLUT.size = new Vector2D(32, 32);
+								TileData.TileLUTSets[tileLUT.tileSet][tileLUT.tileULDR] = tileLUT;
+								TileData.TilesSets[tileLUT.tileSet][tileLUT.tileULDR] = newTile;
+								document.getElementById('tile-lut-editor-tiles').querySelector('div[data-tileset="' + tileLUT.tileSet + '"]').appendChild(newImage);
+							}
+						} else {
+							tileLUT.tilePosition = new Vector2D(parseInt(xKeys[x]), parseInt(yKeys[y]));
+							tileLUT.size = new Vector2D(32, 32);
+							document.getElementById('tile-lut-editor-tiles').appendChild(newImage);
+						}
+					}
+				}
+			}
+		}
+	}
 
-    CreateTileLUTEditor() {
-        if (document.getElementById('template-tile-lut-editor') == null) {
-            window.requestAnimationFrame(() => this.CreateTileLUTEditor());
-            return;
-        }
+	CreateTileLUTEditor() {
+		if (document.getElementById('template-tile-lut-editor') == null) {
+			window.requestAnimationFrame(() => this.CreateTileLUTEditor());
+			return;
+		}
 
-        let template = document.getElementById('template-tile-lut-editor');
+		let template = document.getElementById('template-tile-lut-editor');
 
-        if (template == null) {
-            window.requestAnimationFrame(() => this.CreateTileLUTEditor());
-            return;
-        }
+		if (template == null) {
+			window.requestAnimationFrame(() => this.CreateTileLUTEditor());
+			return;
+		}
 
-        // @ts-ignore
-        let clone = template.content.cloneNode(true);
-        clone.firstElementChild.id = 'tile-lut-editor';
-        TileData.tileGUI.name = clone.getElementById('tile-lut-editor-name');
-        TileData.tileGUI.selection = clone.getElementById('tile-lut-editor-selection');
-        TileData.tileGUI.atlas = clone.getElementById('tile-lut-editor-atlas');
+		// @ts-ignore
+		let clone = template.content.cloneNode(true);
+		clone.firstElementChild.id = 'tile-lut-editor';
+		TileData.tileGUI.name = clone.getElementById('tile-lut-editor-name');
+		TileData.tileGUI.selection = clone.getElementById('tile-lut-editor-selection');
+		TileData.tileGUI.atlas = clone.getElementById('tile-lut-editor-atlas');
 
-        TileData.tileGUI.tileuldr = clone.getElementById('tile-lut-editor-tileuldr');
-        TileData.tileGUI.tileterrain = clone.getElementById('tile-lut-editor-tileterrain');
-        TileData.tileGUI.tiletype = clone.getElementById('tile-lut-editor-tiletype');
-        TileData.tileGUI.tileset = clone.getElementById('tile-lut-editor-tileset');
+		TileData.tileGUI.tileuldr = clone.getElementById('tile-lut-editor-tileuldr');
+		TileData.tileGUI.tileterrain = clone.getElementById('tile-lut-editor-tileterrain');
+		TileData.tileGUI.tiletype = clone.getElementById('tile-lut-editor-tiletype');
+		TileData.tileGUI.tileset = clone.getElementById('tile-lut-editor-tileset');
 
-        TileData.tileGUI.transparent = clone.getElementById('tile-lut-editor-transparent');
-        TileData.tileGUI.button = clone.getElementById('tile-lut-editor-add');
-        TileData.tileGUI.export = clone.getElementById('tile-lut-editor-export');
+		TileData.tileGUI.transparent = clone.getElementById('tile-lut-editor-transparent');
+		TileData.tileGUI.button = clone.getElementById('tile-lut-editor-add');
+		TileData.tileGUI.export = clone.getElementById('tile-lut-editor-export');
 
-        TileData.tileGUI.tileeditortiles = clone.getElementById('tile-lut-editor-tiles');
+		TileData.tileGUI.tileeditortiles = clone.getElementById('tile-lut-editor-tiles');
 
-        TileData.tileGUI.filtertileterrain = clone.getElementById('tile-lut-editor-filter-bool-tileterrain');
-        TileData.tileGUI.filtertiletype = clone.getElementById('tile-lut-editor-filter-bool-tiletype');
+		TileData.tileGUI.filtertileterrain = clone.getElementById('tile-lut-editor-filter-bool-tileterrain');
+		TileData.tileGUI.filtertiletype = clone.getElementById('tile-lut-editor-filter-bool-tiletype');
 
-        TileData.tileGUI.collisionEditor = clone.getElementById('tile-lut-editor-collision-editor');
+		TileData.tileGUI.collisionEditor = clone.getElementById('tile-lut-editor-collision-editor');
 
-        TileData.tileGUI.propEditor = clone.getElementById('tile-lut-editor-prop-editor');
+		TileData.tileGUI.propEditor = clone.getElementById('tile-lut-editor-prop-editor');
 
-        document.getElementById('container-controls-fixed').children[1].appendChild(clone);
+		document.getElementById('container-controls-fixed').children[1].appendChild(clone);
 
-        TileData.tileGUI.tileterrain.addEventListener('change', this);
-        TileData.tileGUI.tiletype.addEventListener('change', this);
-        TileData.tileGUI.button.addEventListener('click', this);
-        TileData.tileGUI.export.addEventListener('click', this);
-        TileData.tileGUI.collisionEditor.addEventListener('click', this);
+		TileData.tileGUI.tileterrain.addEventListener('change', this);
+		TileData.tileGUI.tiletype.addEventListener('change', this);
+		TileData.tileGUI.button.addEventListener('click', this);
+		TileData.tileGUI.export.addEventListener('click', this);
+		TileData.tileGUI.collisionEditor.addEventListener('click', this);
 
-        TileData.tileGUI.filtertileterrain.addEventListener('input', this);
-        TileData.tileGUI.filtertileterrain.children[0].addEventListener('click', this);
-        TileData.tileGUI.filtertiletype.addEventListener('input', this);
-        TileData.tileGUI.filtertiletype.children[0].addEventListener('click', this);
+		TileData.tileGUI.filtertileterrain.addEventListener('input', this);
+		TileData.tileGUI.filtertileterrain.children[0].addEventListener('click', this);
+		TileData.tileGUI.filtertiletype.addEventListener('input', this);
+		TileData.tileGUI.filtertiletype.children[0].addEventListener('click', this);
 
-        let uldrKeys = Object.keys(TileULDR.TileULDRLUT);
-        for (let i = 0, l = uldrKeys.length; i < l; ++i) {
-            let option = document.createElement('option');
-            option.innerText = option.value = uldrKeys[i];
+		let uldrKeys = Object.keys(TileULDR.TileULDRLUT);
+		for (let i = 0, l = uldrKeys.length; i < l; ++i) {
+			let option = document.createElement('option');
+			option.innerText = option.value = uldrKeys[i];
 
-            TileData.tileGUI.tileuldr.appendChild(option.cloneNode(true));
-        }
+			TileData.tileGUI.tileuldr.appendChild(option.cloneNode(true));
+		}
 
-        let terrainKeys = Object.keys(TileTerrain);
-        for (let i = 0, l = terrainKeys.length; i < l; ++i) {
-            let option = document.createElement('option');
-            option.innerText = option.value = terrainKeys[i];
+		let terrainKeys = Object.keys(TileTerrain);
+		for (let i = 0, l = terrainKeys.length; i < l; ++i) {
+			let option = document.createElement('option');
+			option.innerText = option.value = terrainKeys[i];
 
-            let label = document.createElement('label'),
-                checkbox = document.createElement('input');
+			let label = document.createElement('label'),
+				checkbox = document.createElement('input');
 
-            checkbox.type = 'checkbox';
-            checkbox.checked = true;
-            checkbox.dataset.value = terrainKeys[i];
-            label.innerText = terrainKeys[i];
-            label.appendChild(checkbox);
+			checkbox.type = 'checkbox';
+			checkbox.checked = true;
+			checkbox.dataset.value = terrainKeys[i];
+			label.innerText = terrainKeys[i];
+			label.appendChild(checkbox);
 
-            TileData.tileGUI.tileterrain.appendChild(option.cloneNode(true));
-            TileData.tileGUI.filtertileterrain.appendChild(label);
-        }
+			TileData.tileGUI.tileterrain.appendChild(option.cloneNode(true));
+			TileData.tileGUI.filtertileterrain.appendChild(label);
+		}
 
-        let tileTypeKeys = Object.keys(TileType);
-        for (let i = 0, l = tileTypeKeys.length; i < l; ++i) {
-            let option = document.createElement('option');
-            option.innerText = option.value = tileTypeKeys[i];
+		let tileTypeKeys = Object.keys(TileType);
+		for (let i = 0, l = tileTypeKeys.length; i < l; ++i) {
+			let option = document.createElement('option');
+			option.innerText = option.value = tileTypeKeys[i];
 
-            let label = document.createElement('label'),
-                checkbox = document.createElement('input');
+			let label = document.createElement('label'),
+				checkbox = document.createElement('input');
 
-            checkbox.type = 'checkbox';
-            checkbox.checked = true;
-            checkbox.dataset.value = tileTypeKeys[i];
-            label.innerText = tileTypeKeys[i];
-            label.appendChild(checkbox);
+			checkbox.type = 'checkbox';
+			checkbox.checked = true;
+			checkbox.dataset.value = tileTypeKeys[i];
+			label.innerText = tileTypeKeys[i];
+			label.appendChild(checkbox);
 
-            TileData.tileGUI.tiletype.appendChild(option.cloneNode(true));
-            TileData.tileGUI.filtertiletype.appendChild(label);
-        }
+			TileData.tileGUI.tiletype.appendChild(option.cloneNode(true));
+			TileData.tileGUI.filtertiletype.appendChild(label);
+		}
 
-        this.CreateTileLUTList();
+		this.CreateTileLUTList();
 
-        TileData.tileData.SelectionLoop();
-    }
+		TileData.tileData.SelectionLoop();
+	}
 
-    SelectionLoop() {
-        let tile;
-        if (CanvasDrawer.GCD.selectedSprite !== undefined &&
-            ((Array.isArray(CanvasDrawer.GCD.selectedSprite) === true && TileData.Selection !== CanvasDrawer.GCD.selectedSprite[0]) ||
-                (Array.isArray(CanvasDrawer.GCD.selectedSprite) === false && TileData.Selection !== CanvasDrawer.GCD.selectedSprite))) {
+	SelectionLoop() {
+		let tile;
+		if (CanvasDrawer.GCD.selectedSprite !== undefined &&
+			((Array.isArray(CanvasDrawer.GCD.selectedSprite) === true && TileData.Selection !== CanvasDrawer.GCD.selectedSprite[0]) ||
+				(Array.isArray(CanvasDrawer.GCD.selectedSprite) === false && TileData.Selection !== CanvasDrawer.GCD.selectedSprite))) {
 
-            if (Array.isArray(CanvasDrawer.GCD.selectedSprite) === true)
-                tile = CanvasDrawer.GCD.selectedSprite[0];
-            else
-                tile = CanvasDrawer.GCD.selectedSprite;
+			if (Array.isArray(CanvasDrawer.GCD.selectedSprite) === true)
+				tile = CanvasDrawer.GCD.selectedSprite[0];
+			else
+				tile = CanvasDrawer.GCD.selectedSprite;
 
-            TileData.tileGUI.selection.innerText = 'x: ' + tile.position.x + ' y: ' + tile.position.y +
-                ' tX: ' + tile.tilePosition.x + ' tY: ' + tile.tilePosition.y +
-                ' w: ' + tile.size.x + ' h: ' + tile.size.y;
-            TileData.tileGUI.atlas.innerText = tile.atlas;
+			TileData.tileGUI.selection.innerText = 'x: ' + tile.position.x + ' y: ' + tile.position.y +
+				' tX: ' + tile.tilePosition.x + ' tY: ' + tile.tilePosition.y +
+				' w: ' + tile.size.x + ' h: ' + tile.size.y;
+			TileData.tileGUI.atlas.innerText = tile.atlas;
 
-            tile.transparent = undefined;
-            TileData.tileGUI.transparent.innerText = tile.IsTransparent();
+			tile.transparent = undefined;
+			TileData.tileGUI.transparent.innerText = tile.IsTransparent();
 
-            TileData.tileGUI.tileterrain.value = TileData.tileGUI.tileterrain.options[tile.tileTerrain].value;
-            TileData.tileGUI.tiletype.value = TileData.tileGUI.tiletype.options[tile.tileType].value;
-            TileData.tileGUI.tileuldr.value = TileULDR.Get(tile.tileULDR);
-            TileData.tileGUI.tileset.value = tile.tileSet;
+			TileData.tileGUI.tileterrain.value = TileData.tileGUI.tileterrain.options[tile.tileTerrain].value;
+			TileData.tileGUI.tiletype.value = TileData.tileGUI.tiletype.options[tile.tileType].value;
+			TileData.tileGUI.tileuldr.value = TileULDR.Get(tile.tileULDR);
+			TileData.tileGUI.tileset.value = tile.tileSet;
 
-            TileData.Selection = tile;
-        }
-    }
+			TileData.Selection = tile;
+		}
+	}
 
-    FilterTiles() {
-        let matchingTiles = TileData.tileGUI.tileeditortiles.querySelectorAll('img');
+	FilterTiles() {
+		let matchingTiles = TileData.tileGUI.tileeditortiles.querySelectorAll('img');
 
-        for (let i = 0, l = matchingTiles.length; i < l; ++i) {
-            if (TileData.tileGUI.filtertiletype.children[Number(matchingTiles[i].dataset.tileType) + 1].children[0].checked === true &&
-                TileData.tileGUI.filtertileterrain.children[Number(matchingTiles[i].dataset.tileTerrain) + 1].children[0].checked === true)
-                matchingTiles[i].style.display = 'block';
-            else
-                matchingTiles[i].style.display = 'none';
-        }
-    }
+		for (let i = 0, l = matchingTiles.length; i < l; ++i) {
+			if (TileData.tileGUI.filtertiletype.children[Number(matchingTiles[i].dataset.tileType) + 1].children[0].checked === true &&
+				TileData.tileGUI.filtertileterrain.children[Number(matchingTiles[i].dataset.tileTerrain) + 1].children[0].checked === true)
+				matchingTiles[i].style.display = 'block';
+			else
+				matchingTiles[i].style.display = 'none';
+		}
+	}
 
-    handleEvent(e) {
-        switch (e.type) {
-            case 'click':
-                switch (e.target.id) {
-                    case 'tile-lut-editor-add':
-                        if (CanvasDrawer.GCD.selectedSprite instanceof Tile)
-                            TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite);
-                        else {
-                            for (let i = 0, l = CanvasDrawer.GCD.selectedSprite.length; i < l; ++i) {
-                                TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite[i]);
-                            }
-                        }
-                        break;
+	handleEvent(e) {
+		switch (e.type) {
+			case 'click':
+				switch (e.target.id) {
+					case 'tile-lut-editor-add':
+						if (CanvasDrawer.GCD.selectedSprite instanceof Tile)
+							TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite);
+						else {
+							for (let i = 0, l = CanvasDrawer.GCD.selectedSprite.length; i < l; ++i) {
+								TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite[i]);
+							}
+						}
+						break;
 
-                    case 'tile-lut-editor-export':
-                        navigator.clipboard.writeText(JSON.stringify(TileData.TileLUT));
-                        break;
+					case 'tile-lut-editor-export':
+						navigator.clipboard.writeText(JSON.stringify(TileData.TileLUT));
+						break;
 
-                    case 'tile-lut-editor-filter-bool-tiletype-legend':
-                        for (let i = 1, l = TileData.tileGUI.filtertiletype.children.length; i < l; ++i) {
-                            TileData.tileGUI.filtertiletype.children[i].children[0].checked = true;
-                        }
-                        this.FilterTiles();
-                        break;
-                    case 'tile-lut-editor-filter-bool-tileterrain-legend':
-                        for (let i = 1, l = TileData.tileGUI.filtertileterrain.children.length; i < l; ++i) {
-                            TileData.tileGUI.filtertileterrain.children[i].children[0].checked = true;
-                        }
-                        this.FilterTiles();
-                        break;
+					case 'tile-lut-editor-filter-bool-tiletype-legend':
+						for (let i = 1, l = TileData.tileGUI.filtertiletype.children.length; i < l; ++i) {
+							TileData.tileGUI.filtertiletype.children[i].children[0].checked = true;
+						}
+						this.FilterTiles();
+						break;
+					case 'tile-lut-editor-filter-bool-tileterrain-legend':
+						for (let i = 1, l = TileData.tileGUI.filtertileterrain.children.length; i < l; ++i) {
+							TileData.tileGUI.filtertileterrain.children[i].children[0].checked = true;
+						}
+						this.FilterTiles();
+						break;
 
-                    case 'tile-lut-editor-collision-editor':
-                        if (CanvasDrawer.GCD.selectedSprite !== undefined && CanvasDrawer.GCD.selectedSprite instanceof Tile)
-                            CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite);
-                        break;
+					case 'tile-lut-editor-collision-editor':
+						if (CanvasDrawer.GCD.selectedSprite !== undefined && CanvasDrawer.GCD.selectedSprite instanceof Tile)
+							CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite);
+						break;
 
-                    case 'tile-lut-editor-prop-editor':
-                        PropEditor.GPEditor.ShowProps();
-                        break;
-                }
-                break;
+					case 'tile-lut-editor-prop-editor':
+						PropEditor.GPEditor.ShowProps();
+						break;
+				}
+				break;
 
-            case 'change':
-                switch (e.target.id) {
-                    case 'tile-lut-editor-tileterrain':
-                        if (CanvasDrawer.GCD.selectedSprite instanceof Tile) {
-                            CanvasDrawer.GCD.selectedSprite.tileTerrain = TileData.tileGUI.tileterrain.selectedIndex;
-                            TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite);
-                        } else {
-                            for (let i = 0, l = CanvasDrawer.GCD.selectedSprite.length; i < l; ++i) {
-                                CanvasDrawer.GCD.selectedSprite[i].tileTerrain = TileData.tileGUI.tileterrain.selectedIndex;
-                                TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite[i]);
-                            }
-                        }
-                        break;
+			case 'change':
+				switch (e.target.id) {
+					case 'tile-lut-editor-tileterrain':
+						if (CanvasDrawer.GCD.selectedSprite instanceof Tile) {
+							CanvasDrawer.GCD.selectedSprite.tileTerrain = TileData.tileGUI.tileterrain.selectedIndex;
+							TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite);
+						} else {
+							for (let i = 0, l = CanvasDrawer.GCD.selectedSprite.length; i < l; ++i) {
+								CanvasDrawer.GCD.selectedSprite[i].tileTerrain = TileData.tileGUI.tileterrain.selectedIndex;
+								TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite[i]);
+							}
+						}
+						break;
 
-                    case 'tile-lut-editor-tiletype':
-                        if (CanvasDrawer.GCD.selectedSprite instanceof Tile) {
-                            CanvasDrawer.GCD.selectedSprite.tileType = TileData.tileGUI.tiletype.selectedIndex;
-                            TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite);
-                        } else {
-                            for (let i = 0, l = CanvasDrawer.GCD.selectedSprite.length; i < l; ++i) {
-                                CanvasDrawer.GCD.selectedSprite[i].tileType = TileData.tileGUI.tiletype.selectedIndex;
-                                TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite[i]);
-                            }
-                        }
-                        break;
-                }
-                break;
+					case 'tile-lut-editor-tiletype':
+						if (CanvasDrawer.GCD.selectedSprite instanceof Tile) {
+							CanvasDrawer.GCD.selectedSprite.tileType = TileData.tileGUI.tiletype.selectedIndex;
+							TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite);
+						} else {
+							for (let i = 0, l = CanvasDrawer.GCD.selectedSprite.length; i < l; ++i) {
+								CanvasDrawer.GCD.selectedSprite[i].tileType = TileData.tileGUI.tiletype.selectedIndex;
+								TileData.AddTileLUT(CanvasDrawer.GCD.selectedSprite[i]);
+							}
+						}
+						break;
+				}
+				break;
 
-            case 'input':
-                switch (e.currentTarget.id) {
-                    case 'tile-lut-editor-filter-bool-tiletype':
-                    case 'tile-lut-editor-filter-bool-tileterrain':
-                        this.FilterTiles();
-                        break;
-                }
-                break;
-        }
-    }
+			case 'input':
+				switch (e.currentTarget.id) {
+					case 'tile-lut-editor-filter-bool-tiletype':
+					case 'tile-lut-editor-filter-bool-tileterrain':
+						this.FilterTiles();
+						break;
+				}
+				break;
+		}
+	}
 }
 
+/**
+ * @class
+ * @constructor
+ */
 class TileF {
-    static PaintTile(tile, position) {
-        let operations = CanvasDrawer.GCD.GetTileAtPosition(position, false);
 
-        for (let i = 0, l = operations.length; i < l; ++i) {
-            //let tilePaintULDRMatrix = TileF.ConstructPaintULDRMatrix(operations[i].tile);
-            //let centerTileOffset = TileF.GetTileOffsets(operations[i].tile);
-            let centerTile = TileF.GetCenterTile(tile);
-            tile.tilePosition.Add(centerTile);
-            //let paintTiles = TileF.ConstructTilePaintMatrix(tile, tilePaintULDRMatrix.ToArray());
-            //let allTiles = TileF.GetSurroundingTiles(operations[i].tile.position, TileF.GetULDRMatrix(operations[i].tile));
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 * @param {Vector2D} position 
+	 */
+	static PaintTile(tile, position) {
+		let operations = CanvasDrawer.GCD.GetTileAtPosition(position, false);
 
-            operations[i].tile.ChangeSprite(tile);
-            //for (let i2 = 0; i2 < allTiles.length; i2++)
-            //allTiles[i2].tile.ChangeSprite(paintTiles[i2]);
-        }
+		for (let i = 0, l = operations.length; i < l; ++i) {
+			//let tilePaintULDRMatrix = TileF.ConstructPaintULDRMatrix(operations[i].tile);
+			//let centerTileOffset = TileF.GetTileOffsets(operations[i].tile);
+			let centerTile = TileF.GetCenterTile(tile);
+			tile.tilePosition.Add(centerTile);
+			//let paintTiles = TileF.ConstructTilePaintMatrix(tile, tilePaintULDRMatrix.ToArray());
+			//let allTiles = TileF.GetSurroundingTiles(operations[i].tile.position, TileF.GetULDRMatrix(operations[i].tile));
 
-        let newTiles = [];
-        for (let i = 0, l = operations.length; i < l; ++i) {
-            let trueMatrix = TileF.ConstructAtlasTileMatrix(operations[i].tile);
-            trueMatrix.y2 = 0;
-            //let uldr = trueMatrix.ToBinary();
-            //console.log(trueMatrix.To3DArray(), GetAtlasTileMatrix(uldr.replace('0x', '')));
-            //uldr = GetAtlasTileMatrix(uldr.replace('0x', ''));
-            //let aroundTiles = TileF.GetSurroundingTiles(operations[i].tile.position, trueMatrix);
-            //console.log(aroundTiles);
+			operations[i].tile.ChangeSprite(tile);
+			//for (let i2 = 0; i2 < allTiles.length; i2++)
+			//allTiles[i2].tile.ChangeSprite(paintTiles[i2]);
+		}
 
-            let offsetTileMatrix = new Matrix(
-                new Vector2D(-1, -1), new Vector2D(0, -1), new Vector2D(1, -1),
-                new Vector2D(-1, 0), new Vector2D(0, 0), new Vector2D(1, 0),
-                new Vector2D(-1, 1), new Vector2D(0, 1), new Vector2D(1, 1)
-            );
-            let offsetTileMatrixArr = offsetTileMatrix.ToArray();
+		let newTiles = [];
+		for (let i = 0, l = operations.length; i < l; ++i) {
+			let trueMatrix = TileF.ConstructAtlasTileMatrix(operations[i].tile);
+			trueMatrix.y2 = 0;
+			//let uldr = trueMatrix.ToBinary();
+			//console.log(trueMatrix.To3DArray(), GetAtlasTileMatrix(uldr.replace('0x', '')));
+			//uldr = GetAtlasTileMatrix(uldr.replace('0x', ''));
+			//let aroundTiles = TileF.GetSurroundingTiles(operations[i].tile.position, trueMatrix);
+			//console.log(aroundTiles);
 
-            let allTiles = TileF.GetSurroundingTiles(operations[i].tile.position, TileF.GetULDRMatrix(operations[i].tile));
-            for (let i2 = 0, l2 = allTiles.length; i2 < l2; ++i2) {
-                let newTilePaintMatrix = TileF.ConstructAtlasTileMatrix(allTiles[i2].tile);
-                let temp = trueMatrix.Clone();
-                let tempOff = temp.OffsetMatrix(offsetTileMatrixArr[i2]);
+			let offsetTileMatrix = new Matrix(
+				new Vector2D(-1, -1), new Vector2D(0, -1), new Vector2D(1, -1),
+				new Vector2D(-1, 0), new Vector2D(0, 0), new Vector2D(1, 0),
+				new Vector2D(-1, 1), new Vector2D(0, 1), new Vector2D(1, 1)
+			);
+			let offsetTileMatrixArr = offsetTileMatrix.ToArray();
 
-                if (tempOff.length < 1)
-                    break;
+			let allTiles = TileF.GetSurroundingTiles(operations[i].tile.position, TileF.GetULDRMatrix(operations[i].tile));
+			for (let i2 = 0, l2 = allTiles.length; i2 < l2; ++i2) {
+				let newTilePaintMatrix = TileF.ConstructAtlasTileMatrix(allTiles[i2].tile);
+				let temp = trueMatrix.Clone();
+				let tempOff = temp.OffsetMatrix(offsetTileMatrixArr[i2]);
 
-                newTilePaintMatrix.IsOne(tempOff);
-                //console.log(newTilePaintMatrix.To3DArray(), newTilePaintMatrix.ToBinary());
-                let uldr = newTilePaintMatrix.ToBinary();
-                //console.log(GetAtlasTileMatrix(uldr.replace('0x', '')), newTilePaintMatrix.y2);
-                uldr = TileULDR.Get(Number(GetAtlasTileMatrix(uldr.replace('0x', ''), newTilePaintMatrix.y2)));
-                //console.log(uldr);
+				if (tempOff.length < 1)
+					break;
 
-                let newTileData;
-                if (uldr !== undefined) {
-                    if (uldr.includes('CornerDouble')) {
-                        if (TileData.TileLUTSets['soilTiledDoubleCorner'][uldr] !== undefined)
-                            newTileData = TileData.TileLUTSets['soilTiledDoubleCorner'][uldr];
-                    } else if (uldr.includes('Corner')) {
-                        if (TileData.TileLUTSets['soilTiledCorner'][uldr] !== undefined)
-                            newTileData = TileData.TileLUTSets['soilTiledCorner'][uldr];
-                    } else {
-                        if (TileData.TileLUTSets['soilTiled'][uldr] !== undefined)
-                            newTileData = TileData.TileLUTSets['soilTiled'][uldr];
-                    }
-                }
+				newTilePaintMatrix.IsOne(tempOff);
+				//console.log(newTilePaintMatrix.To3DArray(), newTilePaintMatrix.ToBinary());
+				let uldr = newTilePaintMatrix.ToBinary();
+				//console.log(GetAtlasTileMatrix(uldr.replace('0x', '')), newTilePaintMatrix.y2);
+				uldr = TileULDR.Get(Number(GetAtlasTileMatrix(uldr.replace('0x', ''), newTilePaintMatrix.y2)));
+				//console.log(uldr);
 
-                if (newTileData !== undefined)
-                    newTiles.push(newTileData);
-                //console.log(TileF.ConstructTilePaintMatrix(allTiles[i2].tile, TileF.ConstructPaintULDRMatrix(allTiles[i2].tile).ToArray()), TileF.ConstructPaintULDRMatrix(allTiles[i2].tile));
-            }
+				let newTileData;
+				if (uldr !== undefined) {
+					if (uldr.includes('CornerDouble')) {
+						if (TileData.TileLUTSets['soilTiledDoubleCorner'][uldr] !== undefined)
+							newTileData = TileData.TileLUTSets['soilTiledDoubleCorner'][uldr];
+					} else if (uldr.includes('Corner')) {
+						if (TileData.TileLUTSets['soilTiledCorner'][uldr] !== undefined)
+							newTileData = TileData.TileLUTSets['soilTiledCorner'][uldr];
+					} else {
+						if (TileData.TileLUTSets['soilTiled'][uldr] !== undefined)
+							newTileData = TileData.TileLUTSets['soilTiled'][uldr];
+					}
+				}
 
-            for (let i2 = 0, lI2 = allTiles.length; i2 < lI2; ++i2) {
-                if (newTiles[i2] !== undefined && newTiles[i2] !== null) {
-                    allTiles[i2].tile.ChangeSprite(newTiles[i2]);
-                    CanvasDrawer.UpdateTerrainOperation(allTiles[i2]);
-                }
-            }
-        }
-    }
+				if (newTileData !== undefined)
+					newTiles.push(newTileData);
+				//console.log(TileF.ConstructTilePaintMatrix(allTiles[i2].tile, TileF.ConstructPaintULDRMatrix(allTiles[i2].tile).ToArray()), TileF.ConstructPaintULDRMatrix(allTiles[i2].tile));
+			}
 
-    static ConstructAtlasTileMatrix(tile) {
-        let surroundingTiles = Matrix.FromArray(TileF.GetSurroundingTiles(tile.position));
+			for (let i2 = 0, lI2 = allTiles.length; i2 < lI2; ++i2) {
+				if (newTiles[i2] !== undefined && newTiles[i2] !== null) {
+					allTiles[i2].tile.ChangeSprite(newTiles[i2]);
+					CanvasDrawer.UpdateTerrainOperation(allTiles[i2]);
+				}
+			}
+		}
+	}
 
-        let a = surroundingTiles.Filter(['tile', 'tileULDR'], 'Middle');
-        a.ConvertToBinary();
-        a.InvertMatrix();
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 * @returns {Matrix}
+	 */
+	static ConstructAtlasTileMatrix(tile) {
+		let surroundingTiles = Matrix.FromArray(TileF.GetSurroundingTiles(tile.position));
 
-        surroundingTiles = surroundingTiles.Filter(['tile', 'tileSet'], 'soilTiled');
-        surroundingTiles.ConvertToBinary();
-        surroundingTiles.InvertMatrix();
-        surroundingTiles.IsOne(a);
-        return surroundingTiles;
-    }
+		let a = surroundingTiles.Filter(['tile', 'tileULDR'], 'Middle');
+		a.ConvertToBinary();
+		a.InvertMatrix();
 
-    static ConstructPaintULDRMatrixTiles(tile) {
-        let surroundingTiles = Matrix.FromArray(TileF.GetSurroundingTiles(tile.position));
+		surroundingTiles = surroundingTiles.Filter(['tile', 'tileSet'], 'soilTiled');
+		surroundingTiles.ConvertToBinary();
+		surroundingTiles.InvertMatrix();
+		surroundingTiles.IsOne(a);
+		return surroundingTiles;
+	}
 
-        surroundingTiles = surroundingTiles.Filter(['tile', 'tileSet'], 'soilTiled');
-        surroundingTiles.ConvertToBinary();
-        //let tempM = surroundingTiles.Clone();
-        //let tempMBinary = tempM.ToBinary();
-        //let testM = GetAtlasTileMatrix(tempMBinary.replace('0x', ''));
-        //console.log(surroundingTiles.To3DArray(), tempM, testM);
-        //surroundingTiles.InvertMatrix();
-        let uldr = surroundingTiles.ToBinary();
-        //console.log(uldr, TileULDR.Get(Number(uldr)), TileULDR.Get(GetAtlasTileMatrix(uldr.replace('0x', ''))));
-        let uldrText = TileULDR.Get(GetAtlasTileMatrix(uldr.replace('0x', '')));// TileULDR.Get(Number(uldr));
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 * @returns 
+	 */
+	static ConstructPaintULDRMatrixTiles(tile) {
+		let surroundingTiles = Matrix.FromArray(TileF.GetSurroundingTiles(tile.position));
 
-        if (uldrText !== undefined) {
-            if (uldrText.includes('CornerDouble')) {
-                if (TileData.TileLUTSets['soilTiledDoubleCorner'][uldrText] !== undefined)
-                    return TileData.TileLUTSets['soilTiledDoubleCorner'][uldrText];
-            }
-            else if (uldrText.includes('Corner')) {
-                if (TileData.TileLUTSets['soilTiledCorner'][uldrText] !== undefined)
-                    return TileData.TileLUTSets['soilTiledCorner'][uldrText];
-            } else {
-                if (TileData.TileLUTSets['soilTiled'][uldrText] !== undefined)
-                    return TileData.TileLUTSets['soilTiled'][uldrText];
-            }
-        }
+		surroundingTiles = surroundingTiles.Filter(['tile', 'tileSet'], 'soilTiled');
+		surroundingTiles.ConvertToBinary();
+		//let tempM = surroundingTiles.Clone();
+		//let tempMBinary = tempM.ToBinary();
+		//let testM = GetAtlasTileMatrix(tempMBinary.replace('0x', ''));
+		//console.log(surroundingTiles.To3DArray(), tempM, testM);
+		//surroundingTiles.InvertMatrix();
+		let uldr = surroundingTiles.ToBinary();
+		//console.log(uldr, TileULDR.Get(Number(uldr)), TileULDR.Get(GetAtlasTileMatrix(uldr.replace('0x', ''))));
+		let uldrText = TileULDR.Get(GetAtlasTileMatrix(uldr.replace('0x', '')));// TileULDR.Get(Number(uldr));
 
-        return null;
-    }
+		if (uldrText !== undefined) {
+			if (uldrText.includes('CornerDouble')) {
+				if (TileData.TileLUTSets['soilTiledDoubleCorner'][uldrText] !== undefined)
+					return TileData.TileLUTSets['soilTiledDoubleCorner'][uldrText];
+			}
+			else if (uldrText.includes('Corner')) {
+				if (TileData.TileLUTSets['soilTiledCorner'][uldrText] !== undefined)
+					return TileData.TileLUTSets['soilTiledCorner'][uldrText];
+			} else {
+				if (TileData.TileLUTSets['soilTiled'][uldrText] !== undefined)
+					return TileData.TileLUTSets['soilTiled'][uldrText];
+			}
+		}
 
-    static GetSurroundingTiles(position, tilePaintULDRMatrix = null) {
-        let pos = position.Clone();
-        pos.Div(new Vector2D(32, 32));
-        pos.Ceil();
+		return null;
+	}
 
-        let offsetTileMatrix = new Matrix(
-            new Vector2D(-1, -1), new Vector2D(0, -1), new Vector2D(1, -1),
-            new Vector2D(-1, 0), new Vector2D(0, 0), new Vector2D(1, 0),
-            new Vector2D(-1, 1), new Vector2D(0, 1), new Vector2D(1, 1)
-        );
+	/**
+	 * 
+	 * @param {Vector2D} position 
+	 * @param {Matrix} tilePaintULDRMatrix 
+	 * @returns 
+	 */
+	static GetSurroundingTiles(position, tilePaintULDRMatrix = null) {
+		let pos = position.Clone();
+		pos.Div(new Vector2D(32, 32));
+		pos.Ceil();
 
-        if (tilePaintULDRMatrix !== null)
-            offsetTileMatrix.Null(tilePaintULDRMatrix);
+		let offsetTileMatrix = new Matrix(
+			new Vector2D(-1, -1), new Vector2D(0, -1), new Vector2D(1, -1),
+			new Vector2D(-1, 0), new Vector2D(0, 0), new Vector2D(1, 0),
+			new Vector2D(-1, 1), new Vector2D(0, 1), new Vector2D(1, 1)
+		);
 
-        let offsetTileMatrixArr = offsetTileMatrix.ToArray();
-        pos = new Matrix(pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone());
+		if (tilePaintULDRMatrix !== null)
+			offsetTileMatrix.Null(tilePaintULDRMatrix);
 
-        if (tilePaintULDRMatrix !== null)
-            pos.Null(tilePaintULDRMatrix);
+		let offsetTileMatrixArr = offsetTileMatrix.ToArray();
+		let posMatrix = new Matrix(pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone(), pos.Clone());
 
-        pos = pos.ToArray();
+		if (tilePaintULDRMatrix !== null)
+			posMatrix.Null(tilePaintULDRMatrix);
 
-        let operations = [];
-        for (let i = 0, l = pos.length; i < l; ++i) {
-            if (pos[i] !== null && offsetTileMatrixArr[i] !== null) {
-                pos[i].Add(offsetTileMatrixArr[i]);
-                operations = operations.concat(CanvasDrawer.GCD.GetTileAtPosition(pos[i], false));
-            }
-        }
+		let posArray = posMatrix.ToArray();
 
-        return operations;
-    }
+		let operations = [];
+		for (let i = 0, l = posArray.length; i < l; ++i) {
+			if (posArray[i] !== null && offsetTileMatrixArr[i] !== null) {
+				posArray[i].Add(offsetTileMatrixArr[i]);
+				operations = operations.concat(CanvasDrawer.GCD.GetTileAtPosition(posArray[i], false));
+			}
+		}
 
-    static ConstructTilePaintMatrix(tile, tilePaintULDRMatrix) {
-        let offsetTileMatrix = new Matrix(
-            new Vector2D(-1, -1), new Vector2D(0, -1), new Vector2D(1, -1),
-            new Vector2D(-1, 0), new Vector2D(0, 0), new Vector2D(1, 0),
-            new Vector2D(-1, 1), new Vector2D(0, 1), new Vector2D(1, 1)
-        );
-        let offsetTileMatrixArr = offsetTileMatrix.ToArray();
+		return operations;
+	}
 
-        let paintTiles = [];
-        for (let i = 0, l = offsetTileMatrixArr.length; i < l; ++i) {
-            if (tilePaintULDRMatrix[i] !== null) {
-                let clone = tile.Clone();
-                clone.tilePosition.Add(offsetTileMatrixArr[i]);
-                paintTiles.push(clone);
-            }
-        }
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 * @param {Matrix} tilePaintULDRMatrix 
+	 * @returns 
+	 */
+	static ConstructTilePaintMatrix(tile, tilePaintULDRMatrix) {
+		let offsetTileMatrix = new Matrix(
+			new Vector2D(-1, -1), new Vector2D(0, -1), new Vector2D(1, -1),
+			new Vector2D(-1, 0), new Vector2D(0, 0), new Vector2D(1, 0),
+			new Vector2D(-1, 1), new Vector2D(0, 1), new Vector2D(1, 1)
+		);
+		let offsetTileMatrixArr = offsetTileMatrix.ToArray();
 
-        return paintTiles;
-    }
+		let paintTiles = [];
+		for (let i = 0, l = offsetTileMatrixArr.length; i < l; ++i) {
+			if (tilePaintULDRMatrix[i] !== null) {
+				let clone = tile.Clone();
+				clone.tilePosition.Add(offsetTileMatrixArr[i]);
+				paintTiles.push(clone);
+			}
+		}
 
-    static GetCenterTile(tile) {
-        switch (TileULDR.TileULDRLUT[tile.tileULDR]) {
-            case TileULDR.TileULDRLUT.UpLeft: return new Vector2D(-1, -1);
-            case TileULDR.TileULDRLUT.Up: return new Vector2D(0, -1);
-            case TileULDR.TileULDRLUT.UpRight: return new Vector2D(1, -1);
-            case TileULDR.TileULDRLUT.Left: return new Vector2D(-1, 0);
-            case TileULDR.TileULDRLUT.Middle: return new Vector2D(0, 0);
-            case TileULDR.TileULDRLUT.Right: return new Vector2D(1, 0);
-            case TileULDR.TileULDRLUT.DownLeft: return new Vector2D(-1, 1);
-            case TileULDR.TileULDRLUT.Down: return new Vector2D(0, 1);
-            case TileULDR.TileULDRLUT.DownRight: return new Vector2D(1, 1);
-            default: return new Vector2D(0, 0);
-        }
-    }
+		return paintTiles;
+	}
 
-    static GetTileOffsets(tile) {
-        let tilesToPaintMatrix;
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 * @returns {Vector2D}
+	 */
+	static GetCenterTile(tile) {
+		switch (TileULDR.TileULDRLUT[tile.tileULDR]) {
+			case TileULDR.TileULDRLUT.UpLeft: return new Vector2D(-1, -1);
+			case TileULDR.TileULDRLUT.Up: return new Vector2D(0, -1);
+			case TileULDR.TileULDRLUT.UpRight: return new Vector2D(1, -1);
+			case TileULDR.TileULDRLUT.Left: return new Vector2D(-1, 0);
+			case TileULDR.TileULDRLUT.Middle: return new Vector2D(0, 0);
+			case TileULDR.TileULDRLUT.Right: return new Vector2D(1, 0);
+			case TileULDR.TileULDRLUT.DownLeft: return new Vector2D(-1, 1);
+			case TileULDR.TileULDRLUT.Down: return new Vector2D(0, 1);
+			case TileULDR.TileULDRLUT.DownRight: return new Vector2D(1, 1);
+			default: return new Vector2D(0, 0);
+		}
+	}
 
-        tilesToPaintMatrix = TileF.GetULDRMatrix(tile);
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 * @returns {Matrix}
+	 */
+	static GetTileOffsets(tile) {
+		let tilesToPaintMatrix;
 
-        let offsetTileMatrix = new Matrix(
-            new Vector2D(-1, -1), new Vector2D(0, -1), new Vector2D(1, -1),
-            new Vector2D(-1, 0), new Vector2D(0, 0), new Vector2D(1, 0),
-            new Vector2D(-1, 1), new Vector2D(0, 1), new Vector2D(1, 1)
-        );
-        offsetTileMatrix.Null(tilesToPaintMatrix);
-        return offsetTileMatrix;
-    }
+		tilesToPaintMatrix = TileF.GetULDRMatrix(tile);
 
-    static GetULDRMatrix(tile) {
-        let tilesToPaintMatrix;
+		let offsetTileMatrix = new Matrix(
+			new Vector2D(-1, -1), new Vector2D(0, -1), new Vector2D(1, -1),
+			new Vector2D(-1, 0), new Vector2D(0, 0), new Vector2D(1, 0),
+			new Vector2D(-1, 1), new Vector2D(0, 1), new Vector2D(1, 1)
+		);
+		offsetTileMatrix.Null(tilesToPaintMatrix);
+		return offsetTileMatrix;
+	}
 
-        switch (TileULDR.TileULDRLUT[tile.tileULDR]) {
-            case TileULDR.TileULDRLUT.UpLeft: tilesToPaintMatrix = new Matrix(
-                1, 1, 1,
-                1, 1, 0,
-                1, 0, 0
-            ); break;
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 * @returns {Matrix}
+	 */
+	static GetULDRMatrix(tile) {
+		let tilesToPaintMatrix;
 
-            case TileULDR.TileULDRLUT.Up: tilesToPaintMatrix = new Matrix(
-                1, 1, 1,
-                1, 1, 1,
-                0, 0, 0
-            ); break;
+		switch (TileULDR.TileULDRLUT[tile.tileULDR]) {
+			case TileULDR.TileULDRLUT.UpLeft: tilesToPaintMatrix = new Matrix(
+				1, 1, 1,
+				1, 1, 0,
+				1, 0, 0
+			); break;
 
-            case TileULDR.TileULDRLUT.UpRight: tilesToPaintMatrix = new Matrix(
-                1, 1, 1,
-                0, 1, 1,
-                0, 0, 1
-            ); break;
+			case TileULDR.TileULDRLUT.Up: tilesToPaintMatrix = new Matrix(
+				1, 1, 1,
+				1, 1, 1,
+				0, 0, 0
+			); break;
 
-            case TileULDR.TileULDRLUT.Left: tilesToPaintMatrix = new Matrix(
-                1, 1, 0,
-                1, 1, 0,
-                1, 1, 0
-            ); break;
+			case TileULDR.TileULDRLUT.UpRight: tilesToPaintMatrix = new Matrix(
+				1, 1, 1,
+				0, 1, 1,
+				0, 0, 1
+			); break;
 
-            case TileULDR.TileULDRLUT.Middle: tilesToPaintMatrix = new Matrix(
-                1, 1, 1,
-                1, 1, 1,
-                1, 1, 1
-            ); break;
+			case TileULDR.TileULDRLUT.Left: tilesToPaintMatrix = new Matrix(
+				1, 1, 0,
+				1, 1, 0,
+				1, 1, 0
+			); break;
 
-            case TileULDR.TileULDRLUT.Right: tilesToPaintMatrix = new Matrix(
-                0, 1, 1,
-                0, 1, 1,
-                0, 1, 1
-            ); break;
+			case TileULDR.TileULDRLUT.Middle: tilesToPaintMatrix = new Matrix(
+				1, 1, 1,
+				1, 1, 1,
+				1, 1, 1
+			); break;
 
-            case TileULDR.TileULDRLUT.DownLeft: tilesToPaintMatrix = new Matrix(
-                1, 0, 0,
-                1, 1, 0,
-                1, 1, 1
-            ); break;
+			case TileULDR.TileULDRLUT.Right: tilesToPaintMatrix = new Matrix(
+				0, 1, 1,
+				0, 1, 1,
+				0, 1, 1
+			); break;
 
-            case TileULDR.TileULDRLUT.Down: tilesToPaintMatrix = new Matrix(
-                0, 0, 0,
-                1, 1, 1,
-                1, 1, 1
-            ); break;
+			case TileULDR.TileULDRLUT.DownLeft: tilesToPaintMatrix = new Matrix(
+				1, 0, 0,
+				1, 1, 0,
+				1, 1, 1
+			); break;
 
-            case TileULDR.TileULDRLUT.DownRight: tilesToPaintMatrix = new Matrix(
-                0, 0, 1,
-                0, 1, 1,
-                1, 1, 1
-            ); break;
+			case TileULDR.TileULDRLUT.Down: tilesToPaintMatrix = new Matrix(
+				0, 0, 0,
+				1, 1, 1,
+				1, 1, 1
+			); break;
 
-            case TileULDR.TileULDRLUT.CornerUpLeft: tilesToPaintMatrix = new Matrix(
-                0, 0, 1,
-                0, 1, 1,
-                1, 1, 1
-            ); break;
+			case TileULDR.TileULDRLUT.DownRight: tilesToPaintMatrix = new Matrix(
+				0, 0, 1,
+				0, 1, 1,
+				1, 1, 1
+			); break;
 
-            case TileULDR.TileULDRLUT.CornerUpRight: tilesToPaintMatrix = new Matrix(
-                1, 0, 0,
-                1, 1, 0,
-                1, 1, 1
-            ); break;
+			case TileULDR.TileULDRLUT.CornerUpLeft: tilesToPaintMatrix = new Matrix(
+				0, 0, 1,
+				0, 1, 1,
+				1, 1, 1
+			); break;
 
-            case TileULDR.TileULDRLUT.CornerDownLeft: tilesToPaintMatrix = new Matrix(
-                1, 1, 1,
-                0, 1, 1,
-                0, 0, 1
-            ); break;
+			case TileULDR.TileULDRLUT.CornerUpRight: tilesToPaintMatrix = new Matrix(
+				1, 0, 0,
+				1, 1, 0,
+				1, 1, 1
+			); break;
 
-            case TileULDR.TileULDRLUT.CornerDownRight: tilesToPaintMatrix = new Matrix(
-                1, 1, 1,
-                1, 1, 0,
-                1, 0, 0
-            ); break;
-        }
+			case TileULDR.TileULDRLUT.CornerDownLeft: tilesToPaintMatrix = new Matrix(
+				1, 1, 1,
+				0, 1, 1,
+				0, 0, 1
+			); break;
 
-        return tilesToPaintMatrix;
-    }
+			case TileULDR.TileULDRLUT.CornerDownRight: tilesToPaintMatrix = new Matrix(
+				1, 1, 1,
+				1, 1, 0,
+				1, 0, 0
+			); break;
+		}
 
-    static ConstructPaintULDRMatrix(tile) {
-        let tilesToPaintMatrix;
+		return tilesToPaintMatrix;
+	}
 
-        let tilesPaintMatrix = new Matrix(
-            TileULDR.TileULDR[TileULDR.TileULDRLUT.UpLeft], TileULDR.TileULDR[TileULDR.TileULDRLUT.Up], TileULDR.TileULDR[TileULDR.TileULDRLUT.UpRight],
-            TileULDR.TileULDR[TileULDR.TileULDRLUT.Left], TileULDR.TileULDR[TileULDR.TileULDRLUT.Middle], TileULDR.TileULDR[TileULDR.TileULDRLUT.Right],
-            TileULDR.TileULDR[TileULDR.TileULDRLUT.DownLeft], TileULDR.TileULDR[TileULDR.TileULDRLUT.Down], TileULDR.TileULDR[TileULDR.TileULDRLUT.DownRight]
-        )
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 * @returns {Matrix}
+	 */
+	static ConstructPaintULDRMatrix(tile) {
+		let tilesToPaintMatrix;
 
-        tilesToPaintMatrix = TileF.GetULDRMatrix(tile);
+		let tilesPaintMatrix = new Matrix(
+			TileULDR.TileULDR[TileULDR.TileULDRLUT.UpLeft], TileULDR.TileULDR[TileULDR.TileULDRLUT.Up], TileULDR.TileULDR[TileULDR.TileULDRLUT.UpRight],
+			TileULDR.TileULDR[TileULDR.TileULDRLUT.Left], TileULDR.TileULDR[TileULDR.TileULDRLUT.Middle], TileULDR.TileULDR[TileULDR.TileULDRLUT.Right],
+			TileULDR.TileULDR[TileULDR.TileULDRLUT.DownLeft], TileULDR.TileULDR[TileULDR.TileULDRLUT.Down], TileULDR.TileULDR[TileULDR.TileULDRLUT.DownRight]
+		)
 
-        if (tilesToPaintMatrix !== undefined) {
-            tilesPaintMatrix.Null(tilesToPaintMatrix);
-            return tilesPaintMatrix;
-        } else
-            return null;
-    }
+		tilesToPaintMatrix = TileF.GetULDRMatrix(tile);
+
+		if (tilesToPaintMatrix !== undefined) {
+			tilesPaintMatrix.Null(tilesToPaintMatrix);
+			return tilesPaintMatrix;
+		} else
+			return null;
+	}
 }
 
 /**
@@ -736,128 +824,176 @@ class TileF {
  */
 class Tile {
 
-    /**
-     * Creates a new Tile
-     * @param {Vector2D} pos 
-     * @param {Vector2D} tilePos 
-     * @param {Vector2D} size 
-     * @param {boolean} transparent 
-     * @param {string} atlas 
-     * @param {Number} drawIndex 
-     * @param {TileType} tileType 
-     * @param {TileTerrain} tileTerrain 
-     */
-    constructor(pos = new Vector2D(0, 0), tilePos = new Vector2D(0, 0), size = new Vector2D(32, 32),
-        transparent = undefined, atlas = 'terrain', drawIndex = 0, tileType = TileType.Ground, tileTerrain = TileTerrain.Grass) {
-        this.position = pos;
-        this.tilePosition = tilePos;
-        this.size = size;
-        this.tileType = tileType;
-        this.tileTerrain = tileTerrain;
-        this.atlas = atlas;
-        this.transparent = transparent;
-        this.needsToBeRedrawn = true;
-        this.drawIndex = drawIndex;
-        this.tileULDR = TileULDR.TileULDRLUT.Middle;
-        this.tileSet = 'default';
+	/**
+	 * Creates a new Tile
+	 * @param {Vector2D} pos 
+	 * @param {Vector2D} tilePos 
+	 * @param {Vector2D} size 
+	 * @param {boolean} transparent 
+	 * @param {string} atlas 
+	 * @param {number} drawIndex 
+	 * @param {TileType} tileType 
+	 * @param {TileTerrain} tileTerrain 
+	 */
+	constructor(pos = new Vector2D(0, 0), tilePos = new Vector2D(0, 0), size = new Vector2D(32, 32),
+		transparent = undefined, atlas = 'terrain', drawIndex = 0, tileType = TileType.Ground, tileTerrain = TileTerrain.Grass) {
+		/** @type {Vector2D} */ this.position = pos;
+		/** @type {Vector2D} */ this.tilePosition = tilePos;
+		/** @type {Vector2D} */ this.size = size;
+		/** @type {TileType} */ this.tileType = tileType;
+		/** @type {TileTerrain} */ this.tileTerrain = tileTerrain;
+		/** @type {string} */ this.atlas = atlas;
+		/** @type {boolean} */ this.transparent = transparent;
+		/** @type {boolean} */ this.needsToBeRedrawn = true;
+		/** @type {number} */ this.drawIndex = drawIndex;
+		/** @type {number} */ this.tileULDR = TileULDR.TileULDRLUT.Middle;
+		/** @type {string} */ this.tileSet = 'default';
 
-        this.UpdateTileData();
-    }
+		this.UpdateTileData();
+	}
 
-    UpdateTileData() {
-        if (TileLUT[this.atlas] !== undefined) {
-            if (TileLUT[this.atlas][this.tilePosition.y] !== undefined) {
-                if (TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x] !== undefined) {
-                    this.tileType = TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x].tileType;
-                    this.tileTerrain = TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x].tileTerrain;
-                    this.transparent = TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x].transparent;
-                    this.tileULDR = TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x].tileULDR;
+	UpdateTileData() {
+		if (TileLUT[this.atlas] !== undefined) {
+			if (TileLUT[this.atlas][this.tilePosition.y] !== undefined) {
+				if (TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x] !== undefined) {
+					this.tileType = TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x].tileType;
+					this.tileTerrain = TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x].tileTerrain;
+					this.transparent = TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x].transparent;
+					this.tileULDR = TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x].tileULDR;
 
-                    if (this.tileULDR === undefined)
-                        this.tileULDR = TileULDR.TileULDRLUT.Middle;
+					if (this.tileULDR === undefined)
+						this.tileULDR = TileULDR.TileULDRLUT.Middle;
 
-                    this.tileSet = TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x].tileSet;
-                    if (this.tileSet === undefined)
-                        this.tileSet = 'default';
-                }
-            }
-        }
-    }
+					this.tileSet = TileLUT[this.atlas][this.tilePosition.y][this.tilePosition.x].tileSet;
+					if (this.tileSet === undefined)
+						this.tileSet = 'default';
+				}
+			}
+		}
+	}
 
-    ChangeSprite(tile) {
-        this.tilePosition = tile.tilePosition;
-        this.size = tile.size;
-        this.atlas = tile.atlas;
-        this.transparent = tile.transparent;
-        this.needsToBeRedrawn = true;
-        this.UpdateTileData();
-    }
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 */
+	ChangeSprite(tile) {
+		this.tilePosition = tile.tilePosition;
+		this.size = tile.size;
+		this.atlas = tile.atlas;
+		this.transparent = tile.transparent;
+		this.needsToBeRedrawn = true;
+		this.UpdateTileData();
+	}
 
-    GetDrawIndex() {
-        return this.drawIndex;
-    }
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	GetDrawIndex() {
+		return this.drawIndex;
+	}
 
-    GetPosX() {
-        return this.tilePosition.x * this.size.x;
-    }
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	GetPosX() {
+		return this.tilePosition.x * this.size.x;
+	}
 
-    GetPosY() {
-        return this.tilePosition.y * this.size.y;
-    }
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	GetPosY() {
+		return this.tilePosition.y * this.size.y;
+	}
 
-    GetDrawPosX() {
-        return Math.ceil(this.position.x / 32);
-    }
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	GetDrawPosX() {
+		return Math.ceil(this.position.x / 32);
+	}
 
-    GetDrawPosY() {
-        return Math.ceil(this.position.y / 32);
-    }
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	GetDrawPosY() {
+		return Math.ceil(this.position.y / 32);
+	}
 
-    IsTransparent() {
-        if (this.transparent == undefined) {
-            // @ts-ignore
-            let pixels = document.getElementById(this.atlas).getContext('2d').getImageData(this.GetPosX(), this.GetPosY(), this.size.x, this.size.y).data;
+	/**
+	 * 
+	 * @returns {boolean}
+	 */
+	IsTransparent() {
+		if (this.transparent == undefined) {
+			// @ts-ignore
+			let pixels = document.getElementById(this.atlas).getContext('2d').getImageData(this.GetPosX(), this.GetPosY(), this.size.x, this.size.y).data;
 
-            for (let i = 0, l = pixels.length; i < l; i += 4) {
-                if (pixels[i + 3] < 255) {
-                    this.transparent = true;
-                    return this.transparent;
-                }
-            }
-        } else {
-            return this.transparent;
-        }
+			for (let i = 0, l = pixels.length; i < l; i += 4) {
+				if (pixels[i + 3] < 255) {
+					this.transparent = true;
+					return this.transparent;
+				}
+			}
+		} else {
+			return this.transparent;
+		}
 
-        this.transparent = false;
-        return this.transparent;
-    }
+		this.transparent = false;
+		return this.transparent;
+	}
 
-    Clone() {
-        return new Tile(new Vector2D(this.position.x, this.position.y), new Vector2D(this.tilePosition.x, this.tilePosition.y), new Vector2D(this.size.x, this.size.y), this.transparent, this.atlas, this.tileType, this.tileTerrain);
-    }
+	/**
+	 * 
+	 * @returns {Tile}
+	 */
+	Clone() {
+		return new Tile(new Vector2D(this.position.x, this.position.y), new Vector2D(this.tilePosition.x, this.tilePosition.y), new Vector2D(this.size.x, this.size.y), this.transparent, this.atlas, this.tileType, this.tileTerrain);
+	}
 
-    toJSON() {
-        return {
-            p: this.position,
-            lut: [this.atlas, this.tilePosition.y, this.tilePosition.x],
-        }
-    }
+	/**
+	 * 
+	 * @returns {{p:Vector2D, lut: [string, number, number]}}
+	 */
+	toJSON() {
+		return {
+			p: this.position,
+			lut: [this.atlas, this.tilePosition.y, this.tilePosition.x],
+		}
+	}
 
-    SaveToFile() {
-        return 'new Tile(' + this.position.SaveToFile() + ', ' + this.tilePosition.SaveToFile() + ', ' + this.size.SaveToFile() + ', ' + this.transparent.toString() + ", '" + this.atlas + "', " + this.drawIndex.toString() + ', TileType.Prop, TileTerrain.Wood)';
-    }
+	/**
+	 * 
+	 * @returns {string}
+	 */
+	SaveToFile() {
+		return 'new Tile(' + this.position.SaveToFile() + ', ' + this.tilePosition.SaveToFile() + ', ' + this.size.SaveToFile() + ', ' + this.transparent.toString() + ", '" + this.atlas + "', " + this.drawIndex.toString() + ', TileType.Prop, TileTerrain.Wood)';
+	}
 
-    handleEvent(e) {
-        switch (e.type) {
-            case 'click':
-                if (document.body.querySelector('img.tile-lut-editor-tiles-selected') !== null)
-                    document.body.querySelector('img.tile-lut-editor-tiles-selected').classList.remove('tile-lut-editor-tiles-selected');
+	/**
+	 * 
+	 * @returns {string}
+	 */
+	SaveObject() {
+		return "{ class: 'Tile', name: '', canvasName: '" + this.atlas + "', position: " + this.position.SaveToFile() + ' }';
+	}
 
-                e.target.classList.add('tile-lut-editor-tiles-selected');
-                CanvasDrawer.GCD.SetSelection(this);
-                break;
-        }
-    }
+	handleEvent(e) {
+		switch (e.type) {
+			case 'click':
+				if (document.body.querySelector('img.tile-lut-editor-tiles-selected') !== null)
+					document.body.querySelector('img.tile-lut-editor-tiles-selected').classList.remove('tile-lut-editor-tiles-selected');
+
+				e.target.classList.add('tile-lut-editor-tiles-selected');
+				CanvasDrawer.GCD.SetSelection(this);
+				break;
+		}
+	}
 }
 
 export { Tile, TileData, TileType, TileTerrain, TileF };

@@ -1,6 +1,6 @@
 import {
-    ExtendedProp, Vector2D, Vector4D, CustomEventHandler, OperationType,
-    AtlasController, Inventory, AllCollisions, BWDrawingType, CAnimation
+	ExtendedProp, Vector2D, Vector4D, CustomEventHandler, OperationType,
+	AtlasController, Inventory, AllCollisions, BWDrawingType, ArrayUtility
 } from "../../internal.js";
 
 /**
@@ -10,88 +10,98 @@ import {
  */
 class Storage extends ExtendedProp {
 
-    /**
-     * @param {string} name 
-     * @param {Vector2D} position 
-     * @param {*} animations 
-     * @param {string} canvasName 
-     * @param {Number} drawIndex 
-     * @param {Vector4D} blockingCollisionSize 
-     */
-    constructor(name, position, animations, canvasName, drawIndex = 0, blockingCollisionSize = new Vector4D(16, 16, 0, 0)) {
-        super(name, position, animations, canvasName, drawIndex, blockingCollisionSize);
+	/**
+	 * @param {string} name 
+	 * @param {Vector2D} position 
+	 * @param {*} animations 
+	 * @param {string} canvasName 
+	 * @param {Vector4D} blockingCollisionSize 
+	 */
+	constructor(name, position, animations, canvasName, blockingCollisionSize = new Vector4D(16, 16, 0, 0)) {
+		super(name, position, animations, canvasName, blockingCollisionSize);
 
-        /** @type {boolean} */
-        this.isVisible = true;
+		/** @type {boolean} */ this.isVisible = true;
+		/** @type {Number} */ this.life = 100;
+		/** @type {Inventory} */ this.inventory = new Inventory(this);
+	}
 
-        /** @type {CAnimation} */
-        this.currentAnimation = undefined;
+	//@ts-ignore
+	CEvent(eventType, key, data) {
+		switch (eventType) {
+			case 'use':
+				if (this.BoxCollision.GetRealCenterPosition().CheckInRange(key.BoxCollision.GetRealCenterPosition().Clone(), 75.0) === true) {
+					this.inventory.ShowInventory();
+					key.inventory.ShowInventory();
+					this.gameObjectUsing = this.isVisible === false ? key : undefined;
+				}
+				break;
+		}
+	}
 
-        this.shadow = undefined;
+	/**
+	 * 
+	 * @param {Vector2D[]} polygonCollision 
+	 * @param {Vector2D} position 
+	 * @param {Vector2D} size 
+	 * @param {Vector2D} tilePosition 
+	 * @param {boolean} createShadow 
+	 */
+	GameBegin(polygonCollision = undefined, position = new Vector2D(0, 0), size = new Vector2D(0, 0), tilePosition = new Vector2D(0, 0), createShadow = false) {
+		CustomEventHandler.AddListener(this);
+		this.inventory.SetupInventory();
 
-        /** @type {Number} */
-        this.life = 100;
+		if (AllCollisions[this.canvasName] !== undefined) {
+			polygonCollision = AllCollisions[this.canvasName];
+			size.x = AtlasController.GetAtlas(this.canvasName).width;
+			size.y = AtlasController.GetAtlas(this.canvasName).height;
+			super.GameBegin(
+				ArrayUtility.CloneObjects(polygonCollision),
+				position,
+				size,
+				tilePosition,
+				createShadow
+			);
+		}
+	}
 
-        /** @type {Inventory} */
-        this.inventory = new Inventory(this);
-    }
+	Delete() {
+		super.Delete();
+		this.currentAnimation = undefined;
+	}
 
-    //@ts-ignore
-    CEvent(eventType, key, data) {
-        switch (eventType) {
-            case 'use':
-                if (this.BoxCollision.GetRealCenterPosition().CheckInRange(key.BoxCollision.GetRealCenterPosition().Clone(), 75.0) === true) {
-                    this.inventory.ShowInventory();
-                    key.inventory.ShowInventory();
-                    this.gameObjectUsing = this.isVisible === false ? key : undefined;
-                }
-                break;
-        }
-    }
+	OnHit(damage, source) {
+		this.life -= damage;
+		super.OnHit(source);
 
-    GameBegin(createShadow = false) {
-        CustomEventHandler.AddListener(this);
-        this.inventory.SetupInventory();
+		if (this.life <= 0) {
+			this.Delete();
+		}
+	}
 
-        if (AllCollisions[this.canvasName] !== undefined) {
-            let tempArr = AllCollisions[this.canvasName];
-            super.GameBegin(
-                tempArr.CloneObjects(),
-                new Vector2D(0, 0),
-                new Vector2D(AtlasController.GetAtlas(this.canvasName).width, AtlasController.GetAtlas(this.canvasName).height),
-                new Vector2D(0, 0),
-                createShadow
-            );
-        }
-    }
+	/**
+	 * Creates a new DrawingOperation
+	 * @param {*} frame 
+	 * @param {Vector2D} position 
+	 * @param {boolean} clear 
+	 * @param {HTMLCanvasElement} canvas
+	 * @param {OperationType} operationType 
+	 */
+	CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects) {
+		super.CreateDrawOperation(frame, position, clear, canvas, operationType);
 
-    Delete() {
-        super.Delete();
-        this.currentAnimation = undefined;
-    }
+		if (this.drawingOperation.shadowOperation !== undefined) {
+			this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
+			this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
+		}
+	}
 
-    OnHit(damage, source) {
-        this.life -= damage;
-        super.OnHit(source);
+	SaveToFile() {
+		return "new Storage('" + this.name + "', " + this.position.SaveToFile() + ', ' + (this.animationsName !== undefined ? "'" + this.animationsName + "'" : undefined) + ', ' + this.canvasName + "', " + this.blockingCollisionSize.SaveToFile() + ")";
+	}
 
-        if (this.life <= 0) {
-            this.Delete();
-        }
-    }
-
-    //@ts-ignore
-    CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects, canvasObject = undefined) {
-        super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
-
-        if (this.drawingOperation.shadowOperation !== undefined) {
-            this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
-            this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile);
-        }
-    }
-
-    SaveToFile() {
-        return "new Storage('" + this.name + "', " + this.position.SaveToFile() + '), ' + this.animations + ", '" + this.canvasName + "', " + this.drawIndex + ', ' + this.blockingCollisionSize.SaveToFile() + "))";
-    }
+	SaveObject() {
+		return "{ class: 'Storage', name: '" + this.name + "', canvasName: '" + this.canvasName + "', position: " + this.position.SaveToFile() + ' }';
+	}
 }
 
 export { Storage };

@@ -3,12 +3,12 @@ import { Vector2D } from '../internal.js';
 /**
  * Enum for editor state
  * @readonly
- * @enum {Number}
+ * @enum {number}
  */
-var AnimationType = {
-    Idle: 0, /* Loops forever */
-    Cycle: 1, /* Only loops on input */
-    Single: 2, /* Only goes once */
+const AnimationType = {
+	Idle: 0, /* Loops forever */
+	Cycle: 1, /* Only loops on input */
+	Single: 2, /* Only goes once */
 }
 
 /**
@@ -17,23 +17,23 @@ var AnimationType = {
  */
 class CFrame {
 
-    /**
-     * Creates a new CFrame
-     * @param {Number} x 
-     * @param {Number} y 
-     * @param {Number} w 
-     * @param {Number} h 
-     */
-    constructor(x, y, w, h) {
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-    }
+	/**
+	 * Creates a new CFrame
+	 * @param {number} x 
+	 * @param {number} y 
+	 * @param {number} w 
+	 * @param {number} h 
+	 */
+	constructor(x, y, w, h) {
+		/** @type {number} */ this.x = x;
+		/** @type {number} */ this.y = y;
+		/** @type {number} */ this.w = w;
+		/** @type {number} */ this.h = h;
+	}
 
-    Clone() {
-        return new CFrame(this.x, this.y, this.w, this.h);
-    }
+	Clone() {
+		return new CFrame(this.x, this.y, this.w, this.h);
+	}
 }
 
 /**
@@ -42,21 +42,22 @@ class CFrame {
  */
 class TileOffset {
 
-    /**
-     * Creates a new TileOffset
-     * @param {Vector2D} tileOffset 
-     */
-    constructor(tileOffset) {
-        this.tileOffset = tileOffset;
-        this.tileOffset.Mult(new Vector2D(32, 32));
-        this.position = new Vector2D(0, 0);
-    }
+	/**
+	 * Creates a new TileOffset
+	 * @param {Vector2D} tileOffset 
+	 */
+	constructor(tileOffset) {
+		/** @type {Vector2D} */ this.tileOffset = tileOffset;
+		/** @type {Vector2D} */ this.position = new Vector2D(0, 0);
 
-    GetPosition(position) {
-        this.position.x = position.x + this.tileOffset.x;
-        this.position.y = position.y + this.tileOffset.y;
-        return this.position;
-    }
+		this.tileOffset.Mult(new Vector2D(32, 32));
+	}
+
+	GetPosition(position) {
+		this.position.x = position.x + this.tileOffset.x;
+		this.position.y = position.y + this.tileOffset.y;
+		return this.position;
+	}
 }
 
 /**
@@ -65,213 +66,249 @@ class TileOffset {
  */
 class CAnimation {
 
-    /**
-     * Creates a new CAnimation
-     * @param {string} name 
-     * @param {Vector2D} start 
-     * @param {Vector2D} end 
-     * @param {Number} w 
-     * @param {Number} h 
-     * @param {AnimationType} animationType 
-     * @param {(Number|Array<Number>)} animationSpeed 
-     */
-    constructor(name = '', start = new Vector2D(0, 0), end = new Vector2D(0, 0), w = 32, h = 32, animationType = AnimationType.Cycle, animationSpeed = 3) {
-        this.name = name;
-        this.frames = [];
-        this.start = start;
-        this.end = end;
-        this.w = w;
-        this.h = h;
-        this.currentFrame = 0;
-        this.frameUpdate = false;
-        this.animationType = animationType;
+	/**
+	 * Creates a new CAnimation
+	 * @param {string} name 
+	 * @param {Vector2D} start 
+	 * @param {Vector2D} end 
+	 * @param {number} w 
+	 * @param {number} h 
+	 * @param {AnimationType} animationType 
+	 * @param {(number|number[])} animationSpeed 
+	 */
+	constructor(name = '', start = new Vector2D(0, 0), end = new Vector2D(0, 0), w = 32, h = 32, animationType = AnimationType.Cycle, animationSpeed = 3) {
+		/** @type {string} */ this.name = name;
+		/** @type {CFrame[]} */ this.frames = [];
+		/** @type {Vector2D} */ this.start = start;
+		/** @type {Vector2D} */ this.end = end;
+		/** @type {number} */ this.w = w;
+		/** @type {number} */ this.h = h;
+		/** @type {number} */ this.currentFrame = 0;
+		/** @type {boolean} */ this.frameUpdate = false;
+		/** @type {AnimationType} */ this.animationType = animationType;
+		/** @type {(number|number[])} */ this.animationSpeed = animationSpeed;
+		/** @type {number} */ this.cooldown = 0;
+		/** @type {boolean} */ this.animationStarted = false;
+		/** @type {boolean} */ this.animationFinished = false;
+		/** @type {boolean} */ this.enableDebug = false;
 
-        /**@type {(Number|Array[Number])} */
-        this.animationSpeed = animationSpeed;
-        this.cooldown = 0;
-        this.animationStarted = false;
-        this.animationFinished = false;
-        this.enableDebug = false;
+		this.ConstructAnimation(this.start, this.end, this.w, this.h);
+		this.cooldown = this.GetSpeed();
+	}
 
-        this.ConstructAnimation(this.start, this.end, this.w, this.h);
+	Clone() {
+		let clone = new CAnimation(
+			this.name,
+			this.start,
+			this.end,
+			this.w,
+			this.h,
+			this.animationType,
+			this.animationSpeed
+		);
 
-        this.cooldown = this.GetSpeed();
-    }
+		clone.currentFrame = this.currentFrame;
+		clone.cooldown = this.cooldown;
+		clone.animationStarted = this.animationStarted;
+		clone.animationFinished = this.animationFinished;
 
-    Clone() {
-        let clone = new CAnimation(
-            this.name,
-            this.start,
-            this.end,
-            this.w,
-            this.h,
-            this.animationType,
-            this.animationSpeed
-        );
+		return clone;
+	}
 
-        clone.currentFrame = this.currentFrame;
-        clone.cooldown = this.cooldown;
-        clone.animationStarted = this.animationStarted;
-        clone.animationFinished = this.animationFinished;
+	/**
+	 * 
+	 * @param {CAnimation} animation 
+	 */
+	SetFromAnimation(animation) {
+		this.currentFrame = animation.currentFrame;
+		this.cooldown = animation.cooldown;
+		this.animationStarted = animation.animationStarted;
+		this.animationFinished = animation.animationFinished;
+	}
 
-        return clone;
-    }
+	/**
+	 * 
+	 * @param {number} speed 
+	 */
+	SetSpeed(speed) {
+		if (this.animationSpeed instanceof Array) {
+			this.cooldown = this.animationSpeed[Math.min(this.currentFrame, this.animationSpeed.length)] = speed;
+		} else
+			this.cooldown = this.animationSpeed = speed;
+	}
 
-    SetFromAnimation(animation) {
-        this.currentFrame = animation.currentFrame;
-        this.cooldown = animation.cooldown;
-        this.animationStarted = animation.animationStarted;
-        this.animationFinished = animation.animationFinished;
-    }
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	GetSpeed() {
+		if (this.animationSpeed instanceof Array) {
+			return this.animationSpeed[Math.min(this.currentFrame, this.animationSpeed.length)];
+		} else
+			return this.animationSpeed;
+	}
 
-    SetSpeed(speed) {
-        if (Array.isArray(this.animationSpeed) === true) {
-            this.cooldown = this.animationSpeed[Math.min(this.currentFrame, this.animationSpeed.length)] = speed;
-        } else
-            this.cooldown = this.animationSpeed = speed;
-    }
+	/**
+	 * 
+	 * @returns {boolean}
+	 */
+	AnimationLocked() {
+		return this.animationType === AnimationType.Single && this.animationFinished === false;
+	}
 
-    GetSpeed() {
-        if (Array.isArray(this.animationSpeed) === true) {
-            return this.animationSpeed[Math.min(this.currentFrame, this.animationSpeed.length)];
-        } else
-            return this.animationSpeed;
-    }
+	/**
+	 * 
+	 * @returns {CFrame}
+	 */
+	GetFrame() {
+		let frameIndex = this.currentFrame,
+			returnFrame = null;
 
-    AnimationLocked() {
-        return this.animationType === AnimationType.Single && this.animationFinished === false;
-    }
+		this.frameUpdate = false;
 
-    GetFrame() {
-        let frameIndex = this.currentFrame,
-            returnFrame = null;
+		if (this.FrameFinished() === true) {
+			this.ResetCooldown();
+			this.IncrementFrame();
 
-        this.frameUpdate = false;
+			if (this.AnimationFinished() === true) {
+				this.SetAnimationFinishedState(true);
+				this.ResetFrame();
+			}
 
-        if (this.FrameFinished() === true) {
-            this.ResetCooldown();
-            this.IncrementFrame();
+			if (this.frames[frameIndex] !== undefined)
+				returnFrame = this.frames[frameIndex];
+			else
+				returnFrame = null;
+		} else if (this.animationStarted === false) {
+			returnFrame = this.frames[0];
+			this.animationStarted = true;
+			this.IncrementFrame();
+			this.ResetCooldown();
+		}
 
-            if (this.AnimationFinished() === true) {
-                this.SetAnimationFinishedState(true);
-                this.ResetFrame();
-            }
+		this.UpdateCooldown();
 
-            if (this.frames[frameIndex] !== undefined)
-                returnFrame = this.frames[frameIndex];
-            else
-                returnFrame = null;
-        } else if (this.animationStarted === false) {
-            returnFrame = this.frames[0];
-            this.animationStarted = true;
-            this.IncrementFrame();
-            this.ResetCooldown();
-        }
+		return returnFrame;
+	}
 
-        this.UpdateCooldown();
+	UpdateCooldown() {
+		this.cooldown--;
+	}
 
-        return returnFrame;
-    }
+	ResetCooldown() {
+		this.cooldown = this.GetSpeed();
+	}
 
-    UpdateCooldown() {
-        this.cooldown--;
-    }
+	/**
+	 * 
+	 * @returns {boolean}
+	 */
+	FrameFinished() {
+		return this.cooldown <= 0;
+	}
 
-    ResetCooldown() {
-        this.cooldown = this.GetSpeed();
-    }
+	IncrementFrame() {
+		switch (this.animationType) {
+			case AnimationType.Cycle:
+				this.frameUpdate = true;
+				this.currentFrame++;
+				break;
 
-    FrameFinished() {
-        return this.cooldown <= 0;
-    }
+			case AnimationType.Idle:
+			case AnimationType.Single:
+				if (this.animationFinished === false) {
+					this.frameUpdate = true;
+					this.currentFrame++;
+				}
+		}
+		//if (this.animationStarted === true && this.animationFinished === false)
+	}
 
-    IncrementFrame() {
-        switch (this.animationType) {
-            case AnimationType.Cycle:
-                this.frameUpdate = true;
-                this.currentFrame++;
-                break;
+	ResetFrame() {
+		switch (this.animationType) {
+			case AnimationType.Cycle: this.currentFrame = 0; this.animationStarted = false; break;
 
-            case AnimationType.Idle:
-            case AnimationType.Single:
-                if (this.animationFinished === false) {
-                    this.frameUpdate = true;
-                    this.currentFrame++;
-                }
-        }
-        //if (this.animationStarted === true && this.animationFinished === false)
-    }
+			case AnimationType.Idle:
+				this.animationFinished = true;
+				this.animationStarted = true;
+				this.currentFrame = this.frames.length + 1;
+				break;
+			case AnimationType.Single:
+				if (this.frames.length > 1) {
+					this.currentFrame = -1;
+					this.animationFinished = true;
+				}
+				break;
+		}
+	}
 
-    ResetFrame() {
-        switch (this.animationType) {
-            case AnimationType.Cycle: this.currentFrame = 0; this.animationStarted = false; break;
+	AnimationFinished() {
+		switch (this.animationType) {
+			case AnimationType.Cycle: return this.currentFrame >= this.frames.length + 1;
 
-            case AnimationType.Idle:
-                this.animationFinished = true;
-                this.animationStarted = true;
-                this.currentFrame = this.frames.length + 1;
-                break;
-            case AnimationType.Single:
-                if (this.frames.length > 1) {
-                    this.currentFrame = -1;
-                    this.animationFinished = true;
-                }
-                break;
-        }
-    }
+			case AnimationType.Idle:
+			case AnimationType.Single:
+			default:
+				return this.currentFrame >= this.frames.length + 1;
+		}
+	}
 
-    AnimationFinished() {
-        switch (this.animationType) {
-            case AnimationType.Cycle: return this.currentFrame >= this.frames.length + 1;
+	/**
+	 * 
+	 * @param {boolean} boolean 
+	 */
+	SetAnimationFinishedState(boolean) {
+		this.animationFinished = boolean;
+	}
 
-            case AnimationType.Idle:
-            case AnimationType.Single:
-            default:
-                return this.currentFrame >= this.frames.length + 1;
-        }
-    }
+	/**
+	 * 
+	 * @param {Vector2D} start 
+	 * @param {Vector2D} end 
+	 * @param {number} w 
+	 * @param {number} h 
+	 */
+	ConstructAnimation(start, end, w, h) {
+		let index = 0;
 
-    SetAnimationFinishedState(boolean) {
-        this.animationFinished = boolean;
-    }
+		if (start.x !== end.x) {
+			if (start.x > end.x) {
+				for (let x = start.x; x > end.x - 1; x--) {
+					this.frames.push(new CFrame(start.x - index, start.y, w, h));
+					index++;
+				}
+			} else {
+				for (let x = start.x; x < end.x + 1; x++) {
+					this.frames.push(new CFrame(start.x + index, start.y, w, h));
+					index++;
+				}
+			}
+		} else {
+			if (start.y > end.y) {
+				for (let x = start.y; x > end.y - 1; x--) {
+					this.frames.push(new CFrame(start.x, start.y - index, w, h));
+					index++;
+				}
+			} else {
+				for (let x = start.y; x < end.y + 1; x++) {
+					this.frames.push(new CFrame(start.x, start.y + index, w, h));
+					index++;
+				}
+			}
+		}
+	}
 
-    ConstructAnimation(start, end, w, h) {
-        let index = 0;
+	/**
+	 * 
+	 * @returns {Vector2D}
+	 */
+	GetSize() {
+		return new Vector2D(this.w, this.h);
+	}
 
-        if (start.x !== end.x) {
-            if (start.x > end.x) {
-                for (let x = start.x; x > end.x - 1; x--) {
-                    this.frames.push(new CFrame(start.x - index, start.y, w, h));
-                    index++;
-                }
-            } else {
-                for (let x = start.x; x < end.x + 1; x++) {
-                    this.frames.push(new CFrame(start.x + index, start.y, w, h));
-                    index++;
-                }
-            }
-        } else {
-            if (start.y > end.y) {
-                for (let x = start.y; x > end.y - 1; x--) {
-                    this.frames.push(new CFrame(start.x, start.y - index, w, h));
-                    index++;
-                }
-            } else {
-                for (let x = start.y; x < end.y + 1; x++) {
-                    this.frames.push(new CFrame(start.x, start.y + index, w, h));
-                    index++;
-                }
-            }
-        }
-    }
-
-    GetSize() {
-        return new Vector2D(this.w, this.h);
-    }
-
-    SaveToFile() {
-        return "new CAnimation('" + this.name + "', " + 'new Vector2D(' + this.start.x + ', ' + this.start.y + '), new Vector2D(' + this.end.x + ', ' + this.end.y + '), ' + this.w + ', ' + this.h + ', ' + this.animationType + ', ' + this.animationSpeed + ')';
-    }
+	SaveToFile() {
+		return "new CAnimation('" + this.name + "', " + this.start.SaveToFile() + ', ' + this.end.SaveToFile() + ', ' + this.w + ', ' + this.h + ', ' + this.animationType + ', ' + this.animationSpeed + ')';
+	}
 }
 
 export { CFrame, TileOffset, CAnimation, AnimationType };

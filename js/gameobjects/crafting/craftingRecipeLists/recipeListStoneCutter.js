@@ -1,10 +1,10 @@
-import { CraftingRecipe, CraftingCategory } from '../../../internal.js';
+import { CraftingRecipe, CraftingCategory, ResourceItemList } from '../../../internal.js';
 
 /** @type {Object.<string, CraftingRecipe>} */
 let CraftingRecipeListStoneCutter = {};
 
-CraftingRecipeListStoneCutter.stoneBlock = new CraftingRecipe('Stone Block', 3, 1, CraftingCategory.RefinedResource, [
-    {amount: 4, resource:'stonePiece', name: 'Stone Piece'},
+CraftingRecipeListStoneCutter.stoneBlock = new CraftingRecipe(ResourceItemList.StoneBlock.name, 3, 1, CraftingCategory.RefinedResource, [
+	{ amount: 4, item: ResourceItemList.StonePiece },
 ]);
 
 export { CraftingRecipeListStoneCutter };

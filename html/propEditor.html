@@ -1,115 +1,115 @@
 <style>
-    .prop-editor {
-        display: none;
-        flex-direction: column;
-        background-color: black;
-        border-radius: 3px;
-        padding: 5px;
-        box-sizing: content-box;
-        overflow: hidden;
-        visibility: collapse;
-    }
+	.prop-editor {
+		display: none;
+		flex-direction: column;
+		background-color: black;
+		border-radius: 3px;
+		padding: 5px;
+		box-sizing: content-box;
+		overflow: hidden;
+		visibility: collapse;
+	}
 
-    .prop-editor-container {
-        display: flex;
-        flex-direction: column;
-        width: max-content;
-        background-color: black;
-        border-radius: 3px;
-        padding: 5px;
-        position: relative;
-        box-sizing: content-box;
-        overflow: hidden;
-    }
+	.prop-editor-container {
+		display: flex;
+		flex-direction: column;
+		width: max-content;
+		background-color: black;
+		border-radius: 3px;
+		padding: 5px;
+		position: relative;
+		box-sizing: content-box;
+		overflow: hidden;
+	}
 
-    .prop-editor-canvas {
-        width: 100%;
-        height: 100%;
-    }
+	.prop-editor-canvas {
+		width: 100%;
+		height: 100%;
+	}
 
-    .prop-editor-grid {
-        display: block;
-        background-size: 32px 32px;
-        position: relative;
-        width: 100%;
-        height: 80%;
-        overflow-y:auto;
-        background-color: rgb(26, 26, 26);
-        max-width: 960px;
-    }
+	.prop-editor-grid {
+		display: block;
+		background-size: 32px 32px;
+		position: relative;
+		width: 100%;
+		height: 80%;
+		overflow-y:auto;
+		background-color: rgb(26, 26, 26);
+		max-width: 960px;
+	}
 
-    .prop-editor-controls {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-    }
+	.prop-editor-controls {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: nowrap;
+	}
 
-    .prop-editor-grid img:hover {
-        outline: 2px solid #f3c52f;
-        cursor: pointer;
-    }
+	.prop-editor-grid img:hover {
+		outline: 2px solid #ffcb00;
+		cursor: pointer;
+	}
 
-    .prop-editor-grid-selected {
-        outline: 2px solid #222e63;
-    }
+	.prop-editor-grid-selected {
+		outline: 2px solid #222e63;
+	}
 
-    .prop-editor-selected-prop {
-        display:flex;
-        flex-direction: column;
-    }
+	.prop-editor-selected-prop {
+		display:flex;
+		flex-direction: column;
+	}
 
-    /* Remove default bullets */
-    ul,
-    #myUL {
-        list-style-type: none;
-    }
+	/* Remove default bullets */
+	ul,
+	#myUL {
+		list-style-type: none;
+	}
 
-    /* Remove margins and padding from the parent ul */
-    #myUL {
-        margin: 0;
-        padding: 0;
-    }
+	/* Remove margins and padding from the parent ul */
+	#myUL {
+		margin: 0;
+		padding: 0;
+	}
 
-    /* Style the caret/arrow */
-    .caret {
-        cursor: pointer;
-        user-select: none;
-        /* Prevent text selection */
-    }
+	/* Style the caret/arrow */
+	.caret {
+		cursor: pointer;
+		user-select: none;
+		/* Prevent text selection */
+	}
 
-    /* Create the caret/arrow with a unicode, and style it */
-    .caret::before {
-        content: "\25B6";
-        color: black;
-        display: inline-block;
-        margin-right: 6px;
-    }
+	/* Create the caret/arrow with a unicode, and style it */
+	.caret::before {
+		content: "\25B6";
+		color: black;
+		display: inline-block;
+		margin-right: 6px;
+	}
 
-    /* Rotate the caret/arrow icon when clicked on (using JavaScript) */
-    .caret-down::before {
-        transform: rotate(90deg);
-    }
+	/* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+	.caret-down::before {
+		transform: rotate(90deg);
+	}
 
-    /* Hide the nested list */
-    .tree-nested {
-        display: none;
-    }
+	/* Hide the nested list */
+	.tree-nested {
+		display: none;
+	}
 
-    /* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
-    .tree-active {
-        display: block;
-    }
+	/* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+	.tree-active {
+		display: block;
+	}
 </style>
 
 <div class="prop-editor" id="prop-editor">
-    <div id="prop-editor-selected-prop" class="prop-editor-selected-prop">
-        <input type="text" id="prop-editor-selected-prop-name">
-        <input type="number" id="prop-editor-selected-prop-positionx">
-        <input type="number" id="prop-editor-selected-prop-positiony">
-    </div>
-    <div id="prop-editor-grid" class="prop-editor-grid"></div>
-    <div class="prop-editor-controls">
-        <button id="prop-editor-collision">Edit Prop Collision</button>
-        <button id="prop-editor-tilemaker-editor">Edit Tile</button>
-    </div>
+	<div id="prop-editor-selected-prop" class="prop-editor-selected-prop">
+		<input type="text" id="prop-editor-selected-prop-name">
+		<input type="number" id="prop-editor-selected-prop-positionx">
+		<input type="number" id="prop-editor-selected-prop-positiony">
+	</div>
+	<div id="prop-editor-grid" class="prop-editor-grid"></div>
+	<div class="prop-editor-controls">
+		<button id="prop-editor-collision">Edit Prop Collision</button>
+		<button id="prop-editor-tilemaker-editor">Edit Tile</button>
+	</div>
 </div>

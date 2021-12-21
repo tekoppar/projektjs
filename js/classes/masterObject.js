@@ -1,67 +1,13 @@
 import {
-    ObjectsHasBeenInitialized, LightSystem, Rectangle, DrawingOperation, CAnimation,
-    AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler,
-    Plant, AllPlantData, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite, RectMerge,
-    Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController, TileMakerEditor, CustomLogger
+	ObjectsHasBeenInitialized, LightSystem, Rectangle, DrawingOperation, CAnimation, Mastertime,
+	AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler,
+	Plant, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite, PawnSetupController,
+	Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController, TileMakerEditor
 } from '../internal.js';
 import { GenerateCustomSheets } from '../drawers/tiles/TileMakerCustomSheets/tileMakerCustomSheetsImports.js';
 
-var GlobalFrameCounter = 0;
-
 function GlobalLoop() {
-    MasterObject.MO.GameLoop();
-}
-
-/**
- * @class
- * @constructor
- */
-class Mastertime {
-
-    /**
-     * @readonly
-     * @type {Number}
-     */
-    static HalfADay = (24 * 60 * 60) * 0.5;
-    /**
-     * @readonly
-     * @type {Number}
-     */
-    static ADay = (24 * 60 * 60);
-
-    constructor() {
-        this.DeltaTime = Date.now();
-        this.PreviousTime = 0;
-        this.GlobalFrameCounter = 0;
-        this.TimeOfDay = new Date('1995-12-17T24:00:00');
-    }
-
-    Next() {
-        this.DeltaTime = Date.now() - this.PreviousTime;
-        this.PreviousTime = Date.now();
-        this.GlobalFrameCounter++;
-        this.UpdateTime();
-    }
-
-    UpdateTime() {
-        if (this.DeltaTime < 10000)
-            this.TimeOfDay = new Date(this.TimeOfDay.valueOf() + (this.DeltaTime * 1));
-    }
-
-    GetSeconds() {
-        let seconds = this.TimeOfDay.getHours() * 60;
-        seconds = (this.TimeOfDay.getMinutes() + seconds) * 60;
-        seconds = this.TimeOfDay.getSeconds() + seconds;
-        return seconds;
-    }
-
-    Delta() {
-        return this.DeltaTime / 1000;
-    }
-
-    FC() {
-        return this.GlobalFrameCounter;
-    }
+	MasterObject.MO.GameLoop();
 }
 
 /**
@@ -69,235 +15,228 @@ class Mastertime {
  * @constructor
  */
 class MasterObject {
-    static MO = new MasterObject();
+	static MO = new MasterObject();
 
-    constructor() {
-        this.gameHasBegun = false;
-        this.Mastertime = new Mastertime();
-        this.Mastertime.Next();
-        this.classInitialization = {
-            CanvasDrawer: false,
-            Vector2D: false,
-            CanvasSprite: false,
-            DrawingOperation: false,
-            CAnimation: false,
-            InputHandler: false,
-            CustomEventHandler: false,
-        }
-        this.classesHasBeenInitialized = false;
-        this.frameStepping = false;
-        this.playerController;
+	constructor() {
+		this.gameHasBegun = false;
+		Mastertime.Next();
+		this.classInitialization = {
+			CanvasDrawer: false,
+			Vector2D: false,
+			CanvasSprite: false,
+			DrawingOperation: false,
+			CAnimation: false,
+			InputHandler: false,
+			CustomEventHandler: false,
+		}
+		this.classesHasBeenInitialized = false;
+		this.frameStepping = false;
+		this.playerController;
 
-        MasterObject.LogicTests();
+		MasterObject.LogicTests();
 
-        const framestemEnable = document.getElementById('framestep-enable');
-        if (framestemEnable !== null)
-            framestemEnable.addEventListener('mouseup', this);
+		const framestemEnable = document.getElementById('framestep-enable');
+		if (framestemEnable !== null)
+			framestemEnable.addEventListener('mouseup', this);
 
-        const framestemNext = document.getElementById('framestep-next');
-        if (framestemNext !== null)
-            framestemNext.addEventListener('mouseup', this);
+		const framestemNext = document.getElementById('framestep-next');
+		if (framestemNext !== null)
+			framestemNext.addEventListener('mouseup', this);
 
-        window.addEventListener('resize', this);
-    }
+		window.addEventListener('resize', this);
+	}
 
-    CheckIfClassesInitialized() {
-        let keys = Object.keys(this.classInitialization);
+	CheckIfClassesInitialized() {
+		let keys = Object.keys(this.classInitialization);
 
-        if (keys.length === 0) {
-            this.classesHasBeenInitialized = true;
-            return;
-        }
+		if (keys.length === 0) {
+			this.classesHasBeenInitialized = true;
+			return;
+		}
 
-        if (typeof CanvasDrawer !== undefined)
-            delete this.classInitialization.CanvasDrawer;
+		if (typeof CanvasDrawer !== undefined)
+			delete this.classInitialization.CanvasDrawer;
 
-        if (typeof Vector2D !== undefined)
-            delete this.classInitialization.Vector2D;
+		if (typeof Vector2D !== undefined)
+			delete this.classInitialization.Vector2D;
 
-        if (typeof CanvasSprite !== undefined)
-            delete this.classInitialization.CanvasSprite;
+		if (typeof CanvasSprite !== undefined)
+			delete this.classInitialization.CanvasSprite;
 
-        if (typeof DrawingOperation !== undefined)
-            delete this.classInitialization.DrawingOperation;
+		if (typeof DrawingOperation !== undefined)
+			delete this.classInitialization.DrawingOperation;
 
-        if (typeof CAnimation !== undefined)
-            delete this.classInitialization.CAnimation;
+		if (typeof CAnimation !== undefined)
+			delete this.classInitialization.CAnimation;
 
-        if (typeof InputHandler !== undefined)
-            delete this.classInitialization.InputHandler;
+		if (typeof InputHandler !== undefined)
+			delete this.classInitialization.InputHandler;
 
-        if (typeof CustomEventHandler !== undefined)
-            delete this.classInitialization.CustomEventHandler;
-    }
+		if (typeof CustomEventHandler !== undefined)
+			delete this.classInitialization.CustomEventHandler;
+	}
 
-    GameStart() {
-        this.CheckIfClassesInitialized();
+	GameStart() {
+		this.CheckIfClassesInitialized();
 
-        if (this.classesHasBeenInitialized === true && ObjectsHasBeenInitialized === false) {
-            TileData.tileData.CreateTileLUTEditor();
-            CollisionEditor.GCEditor = new CollisionEditor();
-            TileMaker.GenerateCustomTiles();
+		if (this.classesHasBeenInitialized === true && ObjectsHasBeenInitialized === false) {
+			TileData.tileData.CreateTileLUTEditor();
+			CollisionEditor.GCEditor = new CollisionEditor();
+			TileMaker.GenerateCustomTiles();
 
-            GenerateCustomSheets();
+			GenerateCustomSheets();
 
-            ToggleObjectsHasBeenInitialized(true);
-        }
+			ToggleObjectsHasBeenInitialized(true);
+		}
 
-        if (ObjectsHasBeenInitialized === true && (AtlasController._Instance.isLoadingFinished == null || AtlasController._Instance.isLoadingFinished === true)) {
-            this.playerController = new PlayerController(new MainCharacter('femaleLight', 'mainP', 0, new Vector2D(534, 570), AllAnimationsList.femaleAnimations));
-            this.playerController.playerCharacter.AddAttachment('redHair');
-            this.playerController.playerCharacter.AddAttachment('underDress');
-            InputHandler.GIH.AddListener(this.playerController);
+		if (ObjectsHasBeenInitialized === true && (AtlasController._Instance.isLoadingFinished == null || AtlasController._Instance.isLoadingFinished === true)) {
+			this.playerController = new PlayerController(new MainCharacter('femaleLight', 'mainP', new Vector2D(534, 570), AllAnimationsList.femaleAnimations));
+			this.playerController.playerCharacter.AddAttachment('redHair');
+			this.playerController.playerCharacter.AddAttachment('underDress');
+			InputHandler.GIH.AddListener(this.playerController);
 
-            window.requestAnimationFrame(() => this.GameBegin());
-        } else {
-            GlobalFrameCounter++;
-            window.requestAnimationFrame(() => this.GameStart());
-        }
+			window.requestAnimationFrame(() => this.GameBegin());
+		} else {
+			Mastertime.Next();
+			window.requestAnimationFrame(() => this.GameStart());
+		}
 
-        CanvasDrawer.GCD.CheckIfFinishedLoading();
-    }
+		CanvasDrawer.GCD.CheckIfFinishedLoading();
+	}
 
-    static LogicTests() {
-        Rectangle.InsideRectTest();
-    }
+	static LogicTests() {
+		Rectangle.InsideRectTest();
+	}
 
-    GameBegin() {
-        if (this.gameHasBegun === false) {
-            CanvasDrawer.GCD.GameBegin();
-            InputHandler.GIH.AddListener(CanvasDrawer.GCD);
-            LightSystem.SkyLight.Update();
-            new TileMakerEditor();
+	GameBegin() {
+		if (this.gameHasBegun === false) {
+			CanvasDrawer.GCD.GameBegin();
+			InputHandler.GIH.AddListener(CanvasDrawer.GCD);
+			LightSystem.SkyLight.Update();
+			new TileMakerEditor();
 
-            for (let i = 0; i < AllPlants.length; ++i) {
-                CustomEventHandler.AddListener(AllPlants[i]);
-            }
+			for (let i = 0; i < AllPlants.length; ++i) {
+				CustomEventHandler.AddListener(AllPlants[i]);
+			}
 
-            this.gameHasBegun = true;
+			this.gameHasBegun = true;
 
-            for (const key in Cobject.AllCobjects) {
-                Cobject.AllCobjects[key].GameBegin();
-            }
-        }
+			for (const key in Cobject.AllCobjects) {
+				Cobject.AllCobjects[key].GameBegin();
+			}
 
-        this.CheckFullscreen();
+			PawnSetupController.LoadSavedObjects();
+		}
 
-        RectMerge([
-            new Rectangle(0, 0, 50, 250),
-            new Rectangle(40, 200, 50, 40),
-            new Rectangle(60, 80, 50, 150)
-        ]);
+		this.CheckFullscreen();
+		window.requestAnimationFrame(GlobalLoop);
+	}
 
-        window.requestAnimationFrame(GlobalLoop);
-    }
+	ToggleFrameStepping() {
+		this.frameStepping = !this.frameStepping;
 
-    ToggleFrameStepping() {
-        this.frameStepping = !this.frameStepping;
+		if (this.frameStepping === false)
+			window.requestAnimationFrame(GlobalLoop);
+	}
 
-        if (this.frameStepping === false)
-            window.requestAnimationFrame(GlobalLoop);
-    }
+	NextFrame() {
+		if (this.frameStepping)
+			window.requestAnimationFrame(GlobalLoop);
+	}
 
-    NextFrame() {
-        if (this.frameStepping)
-            window.requestAnimationFrame(GlobalLoop);
-    }
+	GameLoopActions() {
+		InputHandler.GIH.FixedUpdate();
+		CustomEventHandler.GCEH.FixedUpdate();
 
-    GameLoopActions(delta) {
-        InputHandler.GIH.FixedUpdate(delta);
-        CustomEventHandler.GCEH.FixedUpdate(delta);
+		LightSystem.SkyLight.Update();
 
-        LightSystem.SkyLight.Update();
+		for (let i = 0, l = Cobject.KeysAllCobjects.length; i < l; ++i) {
+			if (Cobject.KeysAllCobjects[i] !== undefined && Cobject.AllCobjects[Cobject.KeysAllCobjects[i]] !== undefined)
+				Cobject.AllCobjects[Cobject.KeysAllCobjects[i]].FixedUpdate();
+		}
 
-        for (let i = 0, l = Cobject.KeysAllCobjects.length; i < l; ++i) {
-            if (Cobject.KeysAllCobjects[i] !== undefined && Cobject.AllCobjects[Cobject.KeysAllCobjects[i]] !== undefined)
-                Cobject.AllCobjects[Cobject.KeysAllCobjects[i]].FixedUpdate(delta);
-        }
+		CanvasDrawer.GCD.DrawLoop();
 
-        CanvasDrawer.GCD.DrawLoop(delta);
+		for (let i = 0, l = Cobject.KeysAllCobjects.length; i < l; ++i) {
+			if (Cobject.KeysAllCobjects[i] !== undefined && Cobject.AllCobjects[Cobject.KeysAllCobjects[i]] !== undefined)
+				Cobject.AllCobjects[Cobject.KeysAllCobjects[i]].EndOfFrameUpdate();
+		}
+	}
 
-        for (let i = 0, l = Cobject.KeysAllCobjects.length; i < l; ++i) {
-            if (Cobject.KeysAllCobjects[i] !== undefined && Cobject.AllCobjects[Cobject.KeysAllCobjects[i]] !== undefined)
-                Cobject.AllCobjects[Cobject.KeysAllCobjects[i]].EndOfFrameUpdate();
-        }
-    }
+	GameLoop() {
+		Mastertime.Next();
+		this.GameLoopActions();
+		CollisionHandler.GCH.FixedUpdate();
+		CanvasDrawer.DrawToMain(this.playerController.playerCamera.GetRect());
 
-    GameLoop() {
-        this.Mastertime.Next();
-        this.GameLoopActions(this.frameStepping === false ? this.Mastertime.Delta() : 16);
-        CollisionHandler.GCH.FixedUpdate();
-        CanvasDrawer.DrawToMain(this.playerController.playerCamera.GetRect());
+		if (this.frameStepping === false) {
+			window.requestAnimationFrame(GlobalLoop);
+		}
+	}
 
-        ++GlobalFrameCounter;
-        if (this.frameStepping === false) {
-            window.requestAnimationFrame(GlobalLoop);
-        }
-    }
+	CheckFullscreen() {
+		if (window.innerHeight == screen.height) {
+			const containerGame = document.getElementById('container-game');
+			const lutEditor = document.getElementById('tile-lut-editor');
+			if (containerGame !== null && lutEditor !== null) {
+				containerGame.style.width = '2560px';
+				containerGame.style.height = '1440px';
+				containerGame.style.gridColumn = 'unset';
+				containerGame.style.gridRow = 'unset';
+				//@ts-ignore
+				document.body.querySelector('div.controls').style.display = 'none';
+				lutEditor.style.display = 'none';
+				//@ts-ignore
+				document.firstElementChild.style.overflow = 'clip';
+			}
+		} else {
+			const containerGame = document.getElementById('container-game');
+			const lutEditor = document.getElementById('tile-lut-editor');
+			if (containerGame !== null && lutEditor !== null) {
+				containerGame.style.width = '1920px';
+				containerGame.style.height = '1080px';
+				containerGame.style.gridColumn = 'center';
+				containerGame.style.gridRow = 'content';
+				//@ts-ignore
+				document.body.querySelector('div.controls').style.display = 'block';
+				lutEditor.style.display = 'flex';
+				//@ts-ignore
+				document.firstElementChild.style.overflow = 'auto';
+			}
+		}
+	}
 
-    CheckFullscreen() {
-        if (window.innerHeight == screen.height) {
-            const containerGame = document.getElementById('container-game');
-            const lutEditor = document.getElementById('tile-lut-editor');
-            if (containerGame !== null && lutEditor !== null) {
-                containerGame.style.width = '2560px';
-                containerGame.style.height = '1440px';
-                containerGame.style.gridColumn = 'unset';
-                containerGame.style.gridRow = 'unset';
-                //@ts-ignore
-                document.body.querySelector('div.controls').style.display = 'none';
-                lutEditor.style.display = 'none';
-                //@ts-ignore
-                document.firstElementChild.style.overflow = 'clip';
-            }
-        } else {
-            const containerGame = document.getElementById('container-game');
-            const lutEditor = document.getElementById('tile-lut-editor');
-            if (containerGame !== null && lutEditor !== null) {
-                containerGame.style.width = '1920px';
-                containerGame.style.height = '1080px';
-                containerGame.style.gridColumn = 'center';
-                containerGame.style.gridRow = 'content';
-                //@ts-ignore
-                document.body.querySelector('div.controls').style.display = 'block';
-                lutEditor.style.display = 'flex';
-                //@ts-ignore
-                document.firstElementChild.style.overflow = 'auto';
-            }
-        }
-    }
+	handleEvent(e) {
+		switch (e.type) {
+			case 'mouseup':
+				if (e.target.id === 'framestep-next' && this.frameStepping === true) {
+					window.requestAnimationFrame(GlobalLoop);
+				} else if (e.target.id === 'framestep-enable') {
+					this.ToggleFrameStepping();
+				}
+				break;
 
-    handleEvent(e) {
-        switch (e.type) {
-            case 'mouseup':
-                if (e.target.id === 'framestep-next' && this.frameStepping === true) {
-                    window.requestAnimationFrame(GlobalLoop);
-                } else if (e.target.id === 'framestep-enable') {
-                    this.ToggleFrameStepping();
-                }
-                break;
-
-            case 'resize':
-                this.CheckFullscreen();
-                break;
-        }
-    }
+			case 'resize':
+				this.CheckFullscreen();
+				break;
+		}
+	}
 }
 
 var shopTest = new Shop('seedShop', new Vector2D(368, 256), undefined, 'pepoSeedShop');
 shopTest.AddItem(new Seed('cornSeed', 420));
 shopTest.AddItems([
-    new Seed('potatoSeed', 999), new Seed('watermelonSeed', 999),
-    new Seed('pumpkinSeed', 999), new Seed('bellpepperGreenSeed', 999),
-    new Seed('bellpepperRedSeed', 999), new Seed('bellpepperOrangeSeed', 999),
-    new Seed('bellpepperYellowSeed', 999), new Seed('carrotSeed', 999),
-    new Seed('parsnipSeed', 999), new Seed('radishSeed', 999),
-    new Seed('beetrootSeed', 999), new Seed('garlicSeed', 999),
-    new Seed('onionYellowSeed', 999), new Seed('onionRedSeed', 999),
-    new Seed('onionWhiteSeed', 999), new Seed('onionGreenSeed', 999),
-    new Seed('hotPepperSeed', 999), new Seed('chiliPepperSeed', 999),
-    new Seed('lettuceIcebergSeed', 999), new Seed('cauliflowerSeed', 999),
-    new Seed('broccoliSeed', 999)
+	new Seed('potatoSeed', 999), new Seed('watermelonSeed', 999),
+	new Seed('pumpkinSeed', 999), new Seed('bellpepperGreenSeed', 999),
+	new Seed('bellpepperRedSeed', 999), new Seed('bellpepperOrangeSeed', 999),
+	new Seed('bellpepperYellowSeed', 999), new Seed('carrotSeed', 999),
+	new Seed('parsnipSeed', 999), new Seed('radishSeed', 999),
+	new Seed('beetrootSeed', 999), new Seed('garlicSeed', 999),
+	new Seed('onionYellowSeed', 999), new Seed('onionRedSeed', 999),
+	new Seed('onionWhiteSeed', 999), new Seed('onionGreenSeed', 999),
+	new Seed('hotPepperSeed', 999), new Seed('chiliPepperSeed', 999),
+	new Seed('lettuceIcebergSeed', 999), new Seed('cauliflowerSeed', 999),
+	new Seed('broccoliSeed', 999)
 ]);
 CustomEventHandler.AddListener(shopTest);
 
@@ -311,32 +250,32 @@ var duck3 = new Character('duckWalk', 0, new Vector2D(250, 30 * 32), AllAnimatio
 duck3.name = 'duck3';*/
 
 var AllPlants = [
-    new Plant('crops', 'corn', new Vector2D(592, 128), AllAnimationsList.plantAnimations.corn, AllPlantData.corn),
-    new Plant('crops', 'potato', new Vector2D(592 + (32 * 1), 128), AllAnimationsList.plantAnimations.potato, AllPlantData.potato),
-    new Plant('crops', 'watermelon', new Vector2D(592 + (32 * 2), 128), AllAnimationsList.plantAnimations.watermelon, AllPlantData.watermelon),
-    new Plant('crops', 'pumpkin', new Vector2D(592 + (32 * 3), 128), AllAnimationsList.plantAnimations.pumpkin, AllPlantData.pumpkin),
-    new Plant('crops', 'bellpepperGreen', new Vector2D(592 + (32 * 4), 128), AllAnimationsList.plantAnimations.bellpepperGreen, AllPlantData.bellpepperGreen),
-    new Plant('crops', 'bellpepperRed', new Vector2D(592 + (32 * 5), 128), AllAnimationsList.plantAnimations.bellpepperRed, AllPlantData.bellpepperRed),
-    new Plant('crops', 'bellpepperOrange', new Vector2D(592 + (32 * 6), 128), AllAnimationsList.plantAnimations.bellpepperOrange, AllPlantData.bellpepperOrange),
-    new Plant('crops', 'bellpepperYellow', new Vector2D(592 + (32 * 7), 128), AllAnimationsList.plantAnimations.bellpepperYellow, AllPlantData.bellpepperYellow),
-    new Plant('crops', 'carrot', new Vector2D(592 + (32 * 8), 128), AllAnimationsList.plantAnimations.carrot, AllPlantData.carrot),
-    new Plant('crops', 'parsnip', new Vector2D(592 + (32 * 9), 128), AllAnimationsList.plantAnimations.parsnip, AllPlantData.parsnip),
-    new Plant('crops', 'radish', new Vector2D(592 + (32 * 10), 128), AllAnimationsList.plantAnimations.radish, AllPlantData.radish),
-    new Plant('crops', 'beetroot', new Vector2D(592 + (32 * 11), 128), AllAnimationsList.plantAnimations.beetroot, AllPlantData.beetroot),
-    new Plant('crops', 'garlic', new Vector2D(592 + (32 * 12), 128), AllAnimationsList.plantAnimations.garlic, AllPlantData.garlic),
-    new Plant('crops', 'onionYellow', new Vector2D(592 + (32 * 13), 128), AllAnimationsList.plantAnimations.onionYellow, AllPlantData.onionYellow),
-    new Plant('crops', 'onionRed', new Vector2D(592 + (32 * 14), 128), AllAnimationsList.plantAnimations.onionRed, AllPlantData.onionRed),
-    new Plant('crops', 'onionWhite', new Vector2D(592 + (32 * 15), 128), AllAnimationsList.plantAnimations.onionWhite, AllPlantData.onionWhite),
-    new Plant('crops', 'onionGreen', new Vector2D(592 + (32 * 16), 128), AllAnimationsList.plantAnimations.onionGreen, AllPlantData.onionGreen),
-    new Plant('crops', 'hotPepper', new Vector2D(592 + (32 * 17), 128), AllAnimationsList.plantAnimations.hotPepper, AllPlantData.hotPepper),
-    new Plant('crops', 'chiliPepper', new Vector2D(592 + (32 * 18), 128), AllAnimationsList.plantAnimations.chiliPepper, AllPlantData.chiliPepper),
-    new Plant('crops', 'lettuceIceberg', new Vector2D(592 + (32 * 19), 128), AllAnimationsList.plantAnimations.lettuceIceberg, AllPlantData.lettuceIceberg),
-    new Plant('crops', 'cauliflower', new Vector2D(592 + (32 * 20), 128), AllAnimationsList.plantAnimations.cauliflower, AllPlantData.cauliflower),
-    new Plant('crops', 'broccoli', new Vector2D(592 + (32 * 21), 128), AllAnimationsList.plantAnimations.broccoli, AllPlantData.broccoli),
+	new Plant('crops', 'corn', new Vector2D(592, 128)),
+	new Plant('crops', 'potato', new Vector2D(592 + (32 * 1), 128)),
+	new Plant('crops', 'watermelon', new Vector2D(592 + (32 * 2), 128)),
+	new Plant('crops', 'pumpkin', new Vector2D(592 + (32 * 3), 128)),
+	new Plant('crops', 'bellpepperGreen', new Vector2D(592 + (32 * 4), 128)),
+	new Plant('crops', 'bellpepperRed', new Vector2D(592 + (32 * 5), 128)),
+	new Plant('crops', 'bellpepperOrange', new Vector2D(592 + (32 * 6), 128)),
+	new Plant('crops', 'bellpepperYellow', new Vector2D(592 + (32 * 7), 128)),
+	new Plant('crops', 'carrot', new Vector2D(592 + (32 * 8), 128)),
+	new Plant('crops', 'parsnip', new Vector2D(592 + (32 * 9), 128)),
+	new Plant('crops', 'radish', new Vector2D(592 + (32 * 10), 128)),
+	new Plant('crops', 'beetroot', new Vector2D(592 + (32 * 11), 128)),
+	new Plant('crops', 'garlic', new Vector2D(592 + (32 * 12), 128)),
+	new Plant('crops', 'onionYellow', new Vector2D(592 + (32 * 13), 128)),
+	new Plant('crops', 'onionRed', new Vector2D(592 + (32 * 14), 128)),
+	new Plant('crops', 'onionWhite', new Vector2D(592 + (32 * 15), 128)),
+	new Plant('crops', 'onionGreen', new Vector2D(592 + (32 * 16), 128)),
+	new Plant('crops', 'hotPepper', new Vector2D(592 + (32 * 17), 128)),
+	new Plant('crops', 'chiliPepper', new Vector2D(592 + (32 * 18), 128)),
+	new Plant('crops', 'lettuceIceberg', new Vector2D(592 + (32 * 19), 128)),
+	new Plant('crops', 'cauliflower', new Vector2D(592 + (32 * 20), 128)),
+	new Plant('crops', 'broccoli', new Vector2D(592 + (32 * 21), 128)),
 ];
 
 for (let i = 0, l = AllPlants.length; i < l; ++i) {
-    CustomEventHandler.AddListener(AllPlants[i]);
+	CustomEventHandler.AddListener(AllPlants[i]);
 }
 
-export { MasterObject, AllPlants, GlobalFrameCounter, Mastertime };
+export { MasterObject, AllPlants };

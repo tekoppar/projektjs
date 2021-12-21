@@ -7,134 +7,232 @@ import { Vector2D } from '../../internal.js';
  * @public
  */
 class Cobject {
-    /** @type {Object<string, Cobject>} */
-    static AllCobjects = { };
+	/** @type {Object<string, Cobject>} */ static AllCobjects = {};
+	/** @type {string[]} */ static KeysAllCobjects = [];
 
-    /** @type {Array<string>} */
-    static KeysAllCobjects = [];
+	/**
+	 * Create an Object
+	 * @param {Vector2D} position - position vector of the object
+	 */
+	constructor(position = new Vector2D(0, 0)) {
+		/** @type {Vector2D} */ this.position = position;
+		/** @type {Vector2D} */ this.fakePosition = new Vector2D(0, 0);
+		/** @type {Vector2D} */ this.size = new Vector2D(1, 1);
+		/** @type {string} */ this.name = '';
+		/** @type {Object} @public */ this.UID;
+		/** @type {Cobject} @private */ this.Parent = undefined;
+		/** @type {Cobject[]} @private */ this.Children = [];
 
-    /**
-     * Create an Object
-     * @param {Vector2D} position - position vector of the object
-     */
-    constructor(position = new Vector2D(0, 0)) {
-        /** @type {Vector2D} */
-        this.position = position;
+		Cobject.AddObject(this);
+	}
 
-        /** @type {Vector2D} */
-        this.fakePosition = new Vector2D(0,0);
+	/**
+	 * 
+	 * @returns {Vector2D}
+	 */
+	GetPosition() {
+		this.fakePosition.x = this.position.x - this.size.x / 2;
+		this.fakePosition.y = this.position.y - this.size.y;
+		return this.fakePosition;//new Vector2D(this.position.x - this.size.x / 2, this.position.y - this.size.y);
+	}
 
-        /** @type {Vector2D} */
-        this.size = new Vector2D(1, 1);
+	/**
+	 * 
+	 * @param {Vector2D} position 
+	 */
+	SetPosition(position) {
+		this.position.Set(position);
 
-        /** @type {string} */
-        this.name = '';
+		if (this.Children.length > 0) {
+			for (let i = 0, l = this.Children.length; i < l; ++i) {
+				this.Children[i].SetPosition(position);
+			}
+		}
 
-        /** @type {Object} @public */
-        this.UID;
+		//this.position.x += this.size.x / 2;
+		//this.position.y += this.size.y;
+	}
 
-        Cobject.AddObject(this);
-    }
+	/**
+	 * 
+	 * @returns {Cobject}
+	 */
+	GetParent() {
+		return this.Parent;
+	}
 
-    /**
-     * 
-     * @returns {Vector2D}
-     */
-    GetPosition() {
-        this.fakePosition.x = this.position.x - this.size.x / 2;
-        this.fakePosition.y = this.position.y - this.size.y;
-        return this.fakePosition;//new Vector2D(this.position.x - this.size.x / 2, this.position.y - this.size.y);
-    }
+	/**
+	 * 
+	 * @param {Cobject} parent 
+	 */
+	SetParent(parent) {
+		this.Parent = parent;
+	}
 
-    /**
-     * 
-     * @param {Vector2D} position 
-     */
-    SetPosition(position) {
-        this.position.Set(position);
-        //this.position.x += this.size.x / 2;
-        //this.position.y += this.size.y;
-    }
+	/**
+	 * 
+	 * @param {Cobject} child 
+	 */
+	AddChild(child) {
+		child.SetParent(this);
+		this.Children.push(child);
+	}
 
-    /**
-     * @static
-     * @param {string} uid 
-     * @returns {Object} 
-     */
-    static GetObjectFromUID(uid) {
-        return Cobject.AllCobjects[uid];
-    }
+	/**
+	 * 
+	 * @param {(Cobject|string)} value 
+	 */
+	RemoveChild(value) {
+		let index = -1;
+		if (value instanceof Cobject)
+			index = this.GetChildIndex(value.name);
+		else
+			index = this.GetChildIndex(value);
 
-    /**
-     * @static
-     * @param {Object} object 
-     * @returns {void}
-     */
-    static DeleteObject(object) {
-        if (Cobject.AllCobjects[object.UID] === undefined)
-            return;
+		if (index !== -1) {
+			this.Children[index].Parent = undefined;
+			this.Children.splice(index, 1);
+		}
+	}
 
-        Cobject.KeysAllCobjects.splice(Cobject.KeysAllCobjects.indexOf(object.UID), 1);
-        delete Cobject.AllCobjects[object.UID];
-    }
+	/**
+	 * 
+	 * @private
+	 * @param {string} name 
+	 * @returns {Cobject}
+	 */
+	FindChild(name) {
+		for (let i = 0, l = this.Children.length; i < l; ++i) {
+			if (this.Children[i].name === name)
+				return this.Children[i];
+		}
 
-    /**
-     * @static
-     * @returns {string}
-     */
-    static GenerateUID() {
-        let array = new Uint32Array(3);
-        window.crypto.getRandomValues(array);
-        let uid = '';
+		return undefined;
+	}
 
-        for (let i = 0, l = array.length; i < l; ++i) {
-            uid += array[i];
-        }
+	/**
+	 * 
+	 * @private
+	 * @param {string} name 
+	 * @returns {number}
+	 */
+	GetChildIndex(name) {
+		for (let i = 0, l = this.Children.length; i < l; ++i) {
+			if (this.Children[i].name === name)
+				return i;
+		}
 
-        if (Cobject.AllCobjects[uid] !== undefined) {
-            uid = Cobject.GenerateUID();
-        }
-        return uid;
-    }
+		return -1;
+	}
 
-    /**
-     * @static
-     * @param {Object} object 
-     */
-    static AddObject(object) {
-        object.UID = Cobject.GenerateUID();
-        Cobject.AllCobjects[object.UID] = object;
-        Cobject.KeysAllCobjects.push(object.UID);
-    }
+	/**
+	 * 
+	 * @param {string} name 
+	 * @returns {Cobject}
+	 */
+	GetChild(name) {
+		return this.FindChild(name);
+	}
 
-    //@ts-ignore
-    FixedUpdate(delta) {
-    }
+	/**
+	 * 
+	 * @param {(Cobject|string)} value 
+	 * @returns {boolean}
+	 */
+	HasChild(value) {
+		if (value instanceof Cobject)
+			return (this.FindChild(value.name) !== undefined ? true : false);
+		else
+			return (this.FindChild(value) !== undefined ? true : false);
+	}
 
-    EndOfFrameUpdate() {
+	/**
+	 * 
+	 * @param {string} uid 
+	 * @returns {Object} 
+	 */
+	static GetObjectFromUID(uid) {
+		return Cobject.AllCobjects[uid];
+	}
 
-    }
+	/**
+	 * 
+	 * @param {Object} object 
+	 * @returns {void}
+	 */
+	static DeleteObject(object) {
+		if (Cobject.AllCobjects[object.UID] === undefined)
+			return;
 
-    Delete() {
-        Cobject.DeleteObject(this);
-    }
+		Cobject.KeysAllCobjects.splice(Cobject.KeysAllCobjects.indexOf(object.UID), 1);
+		delete Cobject.AllCobjects[object.UID];
+	}
 
-    //@ts-ignore
-    CEvent(eventType, data) {
+	/**
+	 * 
+	 * @returns {string}
+	 */
+	static GenerateUID() {
+		let array = new Uint32Array(3);
+		window.crypto.getRandomValues(array);
+		let uid = '';
 
-    }
+		for (let i = 0, l = array.length; i < l; ++i) {
+			uid += array[i];
+		}
 
-    /**
-     * 
-     * @param {Vector2D} checkPos 
-     * @param {Number} range 
-     * @returns {boolean}
-     */
-    CheckInRange(checkPos, range = 100.0) {
-        return this.position.Distance(checkPos) < range;
-    }
+		if (Cobject.AllCobjects[uid] !== undefined) {
+			uid = Cobject.GenerateUID();
+		}
+		return uid;
+	}
 
-    GameBegin() { }
+	/**
+	 * 
+	 * @param {Object} object 
+	 */
+	static AddObject(object) {
+		object.UID = Cobject.GenerateUID();
+		Cobject.AllCobjects[object.UID] = object;
+		Cobject.KeysAllCobjects.push(object.UID);
+	}
+
+	FixedUpdate() {
+	}
+
+	EndOfFrameUpdate() {
+
+	}
+
+	Delete() {
+		Cobject.DeleteObject(this);
+
+		if (this.Children.length > 0) {
+			for (let i = 0, l = this.Children.length; i < l; ++i) {
+				this.Children[i].Delete();
+			}
+		}
+
+		this.Parent = undefined;
+		this.Children = undefined;
+	}
+
+	//@ts-ignore
+	CEvent(eventType, data) {
+
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} checkPos 
+	 * @param {number} range 
+	 * @returns {boolean}
+	 */
+	CheckInRange(checkPos, range = 100.0) {
+		return this.position.Distance(checkPos) < range;
+	}
+
+	GameBegin() { }
 }
 
 export { Cobject };

@@ -1,18 +1,18 @@
 import {
-    Vector2D, CanvasDrawer, CollisionEditor, PawnSetupParams, TileMaker, Tile,
-    TileType, TileTerrain, EditorState, Cobject, Tree, MasterObject, InputHandler,
-    CollisionHandler, BoxCollision, PolygonCollision, PathOperation, GameObject,
-    ObjectClassLUT, Props, CanvasUtility, AtlasController, AllCollisions, TileMakerEditor, OverlapOverlapsCheck, CollisionTypeCheck, Pawn, AllBlockingCollisions, CustomLogger, DebugDrawer, Rectangle
+	Vector2D, CanvasDrawer, CollisionEditor, PawnSetupParams, TileMaker, Tile,
+	TileType, TileTerrain, EditorState, Cobject, Tree, MasterObject, InputHandler,
+	CollisionHandler, BoxCollision, PolygonCollision, PathOperation, GameObject,
+	AtlasController, AllCollisions, TileMakerEditor, OverlapOverlapsCheck, CollisionTypeCheck, Pawn, AllBlockingCollisions, PawnSetupController
 } from '../internal.js';
 
 /**
  * @readonly
- * @enum {Number}
+ * @enum {number}
  */
 const PropEditorSelectionState = {
-    None: 0,
-    PropSelected: 1,
-    PropMoving: 2
+	None: 0,
+	PropSelected: 1,
+	PropMoving: 2
 }
 
 /**
@@ -21,385 +21,354 @@ const PropEditorSelectionState = {
  * @extends Cobject
  */
 class PropEditor extends Cobject {
-    static GPEditor = new PropEditor();
+	/** @type {PropEditor} */ static GPEditor = new PropEditor();
 
-    constructor() {
-        super();
-        this.editorState = EditorState.Closed;
-        this.container;
-        this.gridHTML;
-        this.SetupHTML();
-        this.gridSize = new Vector2D(32, 32);
-        this.isDrawing = false;
-        this.collisionPositions = [];
-        this.positionMap = {};
-        this.openCloseButton;
+	constructor() {
+		super();
 
-        /** @type {Pawn} */
-        this.selectedProp;
+		/** @type {EditorState} */ this.editorState = EditorState.Closed;
+		/** @type {HTMLDivElement} */ this.container;
+		/** @type {HTMLDivElement} */ this.gridHTML;
+		/** @type {Vector2D} */ this.gridSize = new Vector2D(32, 32);
+		/** @type {boolean} */ this.isDrawing = false;
+		/** @type {HTMLButtonElement} */ this.openCloseButton;
+		/** @type {Pawn} */ this.selectedProp;
+		/** @type {HTMLImageElement} */ this.selectedPropHTML;
+		/** @type {PathOperation} */ this.selectedPropDrawingOperation = undefined;
+		/** @type {BoxCollision} */ this.overlapCollision = undefined;
+		/** @type {boolean} */ this.gridAlign = false;
+		/** @type {PropEditorSelectionState} */ this.selectionState = PropEditorSelectionState.None;
+		/** @type {HTMLButtonElement} */ this.openButtonProp;
 
-        this.selectedPropHTML;
-        this.selectedPropDrawingOperation = undefined;
+		this.SetupHTML();
+	}
 
-        /** @type {BoxCollision} */
-        this.overlapCollision = undefined;
+	GameBegin() {
+		super.GameBegin();
+		this.SetupHTML();
 
-        /** @type {boolean} */
-        this.gridAlign = false;
+		InputHandler.GIH.AddListener(this);
+		this.overlapCollision = new BoxCollision(new Vector2D(0, 0), new Vector2D(4, 4), false, this, false);
+	}
 
-        this.selectionState = PropEditorSelectionState.None;
+	FixedUpdate() {
+		super.FixedUpdate();
 
-        this.openButtonProp;
-    }
+		if (this.selectedPropHTML !== undefined)
+			this.UpdateSpritePreview(this.selectedPropHTML.dataset.propName);
 
-    GameBegin() {
-        super.GameBegin();
-        this.SetupHTML();
+		if (this.selectedProp !== undefined && this.selectionState === PropEditorSelectionState.PropMoving) {
+			let tMousePos = MasterObject.MO.playerController.mousePosition.Clone();
+			tMousePos.Add(CanvasDrawer.GCD.canvasOffset);
 
-        InputHandler.GIH.AddListener(this);
-        this.overlapCollision = new BoxCollision(new Vector2D(0, 0), new Vector2D(4, 4), false, this, false);
-    }
+			if (this.gridAlign)
+				tMousePos.SnapToGridF(32);
 
-    FixedUpdate() {
-        super.FixedUpdate();
+			this.selectedProp.SetPosition(tMousePos);
+			this.selectedPropDrawingOperation.Update(this.selectedProp.GetPosition());
+		}
+	}
 
-        if (this.selectedPropHTML !== undefined)
-            this.UpdateSpritePreview(this.selectedPropHTML.dataset.propName);
+	SetupHTML() {
+		if (document.getElementById('prop-editor-grid') === undefined || document.getElementById('prop-editor-grid') === null) {
+			window.requestAnimationFrame(() => this.SetupHTML());
+			return;
+		}
 
-        if (this.selectedProp !== undefined && this.selectionState === PropEditorSelectionState.PropMoving) {
-            let tMousePos = MasterObject.MO.playerController.mousePosition.Clone();
-            tMousePos.Add(CanvasDrawer.GCD.canvasOffset);
+		this.container = /** @type {HTMLDivElement} */ (document.getElementById('prop-editor'));
+		document.getElementById('container-controls-fixed').children[1].appendChild(this.container);
+		this.gridHTML = /** @type {HTMLDivElement} */ (document.getElementById('prop-editor-grid'));
+		this.openCloseButton = /** @type {HTMLButtonElement} */ (document.getElementById('prop-editor-open'));
+		this.openCloseButton.addEventListener('click', this);
 
-            if (this.gridAlign)
-                tMousePos.SnapToGridF(32);
+		this.openButtonProp = /** @type {HTMLButtonElement} */ (document.getElementById('prop-editor-tilemaker-editor'));
+		this.openButtonProp.addEventListener('click', this);
+	}
 
-            this.selectedProp.SetPosition(tMousePos);
-            this.selectedPropDrawingOperation.Update(this.selectedProp.GetPosition());
-        }
-    }
+	ShowProps() {
+		this.editorState = EditorState.Open;
+		this.UpdateHTMLEvents();
 
-    SetupHTML() {
-        if (document.getElementById('prop-editor-grid') === undefined || document.getElementById('prop-editor-grid') === null) {
-            window.requestAnimationFrame(() => this.SetupHTML());
-            return;
-        }
+		let keys = Object.keys(PawnSetupParams);//TileMaker.CustomTiles);
+		this.gridHTML.innerHTML = '';
 
-        this.container = document.getElementById('prop-editor');
-        document.getElementById('container-controls-fixed').children[1].appendChild(this.container);
-        this.gridHTML = document.getElementById('prop-editor-grid');
-        this.openCloseButton = document.getElementById('prop-editor-open');
-        this.openCloseButton.addEventListener('click', this);
+		for (let i = 0, l = keys.length; i < l; ++i) {
+			let image = PawnSetupController.GetNewImage(keys[i]);
 
-        this.openButtonProp = /** @type {HTMLButtonElement} */ (document.getElementById('prop-editor-tilemaker-editor'));
-        this.openButtonProp.addEventListener('click', this);
-    }
+			if (image !== undefined)
+				this.gridHTML.appendChild(image);
+		}
+	}
 
-    LogPoints() {
-        let string = '[';
-        for (let position of this.collisionPositions) {
-            if (position !== null && position !== undefined) {
-                string += 'new Vector2D(' + position.x / this.gridSize.x + ', ' + position.y / this.gridSize.y + '), ';
-            }
-        }
-        string += ']';
+	HideProps() {
+		this.editorState = EditorState.Closed;
+		this.UpdateHTMLEvents();
 
-        navigator.clipboard.writeText(string);
-    }
+		if (this.selectedPropHTML !== undefined)
+			this.selectedPropHTML.classList.remove('prop-editor-grid-selected');
 
-    ShowProps() {
-        this.editorState = EditorState.Open;
-        this.UpdateHTMLEvents();
+		this.selectedPropHTML = undefined;
+		CanvasDrawer.GCD.SetSelection(undefined);
+	}
 
-        let keys = Object.keys(PawnSetupParams);//TileMaker.CustomTiles);
-        this.gridHTML.innerHTML = '';
+	UpdateHTMLEvents() {
+		switch (this.editorState) {
+			case EditorState.Closed:
+				this.gridHTML.removeEventListener('mousemove', this);
+				this.gridHTML.removeEventListener('mousedown', this);
+				this.gridHTML.removeEventListener('mouseup', this);
+				this.container.removeEventListener('click', this);
+				this.container.removeEventListener('input', this);
+				this.container.style.visibility = 'collapse';
+				break;
 
-        for (let i = 0, l = keys.length; i < l; ++i) {
-            let setupParams = PawnSetupParams[keys[i]];
-            if (AtlasController.GetAtlas(setupParams[3]) !== undefined) {
-                let atlas = AtlasController.GetAtlas(setupParams[3]);
-                let newImage;
+			case EditorState.Open:
+				this.gridHTML.addEventListener('mousemove', this);
+				this.gridHTML.addEventListener('mousedown', this);
+				this.gridHTML.addEventListener('mouseup', this);
+				this.container.addEventListener('click', this);
+				this.container.addEventListener('input', this);
+				this.container.style.visibility = 'visible';
+				break;
+		}
+	}
 
-                if (setupParams[2] === undefined || setupParams[2].start === undefined) {
-                    newImage = new Image(atlas.width, atlas.height);
-                    newImage.src = atlas.GetCanvas().toDataURL('image/png');
-                } else {
-                    newImage = CanvasUtility.CanvasPortionToImage(setupParams[2].start.x * setupParams[2].w, setupParams[2].start.y * setupParams[2].h, setupParams[2].w, setupParams[2].h, atlas);
-                }
+	/**
+	 * 
+	 * @param {string} propName 
+	 */
+	UpdateSpritePreview(propName) {
+		let params = PawnSetupParams[propName];
+		let pos = MasterObject.MO.playerController.mousePosition.Clone();
 
-                newImage.dataset.atlasName = atlas.GetCanvas().id;
-                newImage.dataset.propName = keys[i];
-                this.gridHTML.appendChild(newImage);
-            }
-        }
-    }
+		if (Array.isArray(params) === false) {
+			params = params[propName];
+		}
 
-    HideProps() {
-        this.editorState = EditorState.Closed;
-        this.UpdateHTMLEvents();
+		//pos.Sub(CanvasDrawer.GCD.canvasOffset);
+		pos.x += params[1][0];
 
-        if (this.selectedPropHTML !== undefined)
-            this.selectedPropHTML.classList.remove('prop-editor-grid-selected');
+		if (this.gridAlign)
+			pos.SnapToGridF(32);
 
-        this.selectedPropHTML = undefined;
-        CanvasDrawer.GCD.SetSelection(undefined);
-    }
+		if (AtlasController.GetAtlasObject(params[3]) !== undefined && AllCollisions[params[3]] !== undefined) {
+			let collisionBB = PolygonCollision.CalculateBoundingBox(AllCollisions[params[3]]);
+			let atlasOffset = collisionBB.GetCenterPoint();
+			pos.Sub(new Vector2D(atlasOffset.x, atlasOffset.y * 2));
 
-    UpdateHTMLEvents() {
-        switch (this.editorState) {
-            case EditorState.Closed:
-                this.gridHTML.removeEventListener('mousemove', this);
-                this.gridHTML.removeEventListener('mousedown', this);
-                this.gridHTML.removeEventListener('mouseup', this);
-                this.container.removeEventListener('click', this);
-                this.container.removeEventListener('input', this);
-                this.container.style.visibility = 'collapse';
-                break;
+			CanvasDrawer.GCD.UpdateSpritePreview(pos);
+		} else if (params[2] !== undefined) {
+			pos.x = pos.x - params[2].w / 2;
+			pos.y = pos.y - params[2].h;
+			CanvasDrawer.GCD.UpdateSpritePreview(pos);
+		}
+	}
 
-            case EditorState.Open:
-                this.gridHTML.addEventListener('mousemove', this);
-                this.gridHTML.addEventListener('mousedown', this);
-                this.gridHTML.addEventListener('mouseup', this);
-                this.container.addEventListener('click', this);
-                this.container.addEventListener('input', this);
-                this.container.style.visibility = 'visible';
-                break;
-        }
-    }
+	SetSelectionData() {
+		const inputName = /** @type {HTMLInputElement} */ (document.getElementById('prop-editor-selected-prop-name'));
+		if (inputName !== null) {
+			inputName.value = this.selectedProp.name;
+		}
 
-    UpdateSpritePreview(propName) {
-        let params = PawnSetupParams[propName];
-        let pos = MasterObject.MO.playerController.mousePosition.Clone();
-        //pos.Sub(CanvasDrawer.GCD.canvasOffset);
-        pos.x += params[1][0];
+		const inputX = /** @type {HTMLInputElement} */ (document.getElementById('prop-editor-selected-prop-positionx'));
+		if (inputX !== null) {
+			inputX.value = this.selectedProp.position.x.toString();
+		}
 
-        if (this.gridAlign)
-            pos.SnapToGridF(32);
+		const inputY = /** @type {HTMLInputElement} */ (document.getElementById('prop-editor-selected-prop-positiony'));
+		if (inputY !== null) {
+			inputY.value = this.selectedProp.position.y.toString();
+		}
+	}
 
-        if (AtlasController.GetAtlasObject(params[3]) !== undefined && AllCollisions[params[3]] !== undefined) {
-            let collisionBB = PolygonCollision.CalculateBoundingBox(AllCollisions[params[3]]);
-            let atlasOffset = collisionBB.GetCenterPoint();
-            pos.Sub(new Vector2D(atlasOffset.x, atlasOffset.y * 2));
+	/**
+	 * 
+	 * @param {string} propName 
+	 */
+	SetSelectedProp(propName) {
+		let setupParams = PawnSetupParams[propName];
 
-            CanvasDrawer.GCD.UpdateSpritePreview(pos);
-        } else if (params[2] !== undefined) {
-            pos.x = pos.x - params[2].w / 2;
-            pos.y = pos.y - params[2].h;
-            CanvasDrawer.GCD.UpdateSpritePreview(pos);
-        }
-    }
+		if (AtlasController.GetAtlasObject(setupParams[3]) !== undefined) {
+			AtlasController.GetAtlasObject(setupParams[3]).SetSelection(MasterObject.MO.playerController.playerCharacter.position.Clone());
+		} else if (AtlasController.GetAtlasObject(propName + PawnSetupController._AtlasObjectSuffix) !== undefined) {
+			AtlasController.GetAtlasObject(propName + PawnSetupController._AtlasObjectSuffix).SetSelection(MasterObject.MO.playerController.playerCharacter.position.Clone());
+		} else {
+			CanvasDrawer.GCD.SetSelection(
+				new Tile(
+					MasterObject.MO.playerController.playerCharacter.position.Clone(),
+					new Vector2D(setupParams[2].start.x, setupParams[2].start.y),
+					new Vector2D(setupParams[2].w, setupParams[2].h),
+					false,
+					AtlasController.GetAtlas(setupParams[3]).name,
+					0,
+					TileType.Prop,
+					TileTerrain.Ground
+				)
+			);
+		}
+	}
 
-    CreateNewObject() {
-        if (this.selectedPropHTML.dataset === undefined)
-            return;
+	CEvent(eventType, key, data) {
+		if (this.editorState === EditorState.Closed)
+			return;
 
-        if (ObjectClassLUT[this.selectedPropHTML.dataset.propName] !== undefined) {
-            let params = PawnSetupParams[this.selectedPropHTML.dataset.propName];
-            params = JSON.parse(JSON.stringify(params));
-            let pos = MasterObject.MO.playerController.mousePosition.Clone();
-            pos.Add(CanvasDrawer.GCD.canvasOffset);
-            pos.x += params[1][0];
+		switch (eventType) {
+			case 'input':
+				if (key === 'leftMouse') {
+					if (data.eventType === 0 && this.selectedProp !== undefined && this.selectionState === PropEditorSelectionState.PropSelected)
+						this.selectionState = PropEditorSelectionState.PropMoving;
 
-            if (this.gridAlign)
-                pos.SnapToGridF(32);
+					if (data.eventType === 0 && this.selectedPropHTML === undefined) {
+						this.overlapCollision.position.x = MasterObject.MO.playerController.mousePosition.x;
+						this.overlapCollision.position.y = MasterObject.MO.playerController.mousePosition.y;
+						this.overlapCollision.position.Add(CanvasDrawer.GCD.canvasOffset);
+						this.overlapCollision.CalculateBoundingBox();
 
-            params[1] = pos;
-            let newObject = new ObjectClassLUT[this.selectedPropHTML.dataset.propName].constructor(...params);
-            Props.push(newObject);
-            newObject.GameBegin();
-        }
-    }
+						let propClicked = undefined;
+						let overlaps = CollisionHandler.GCH.GetOverlapsByClass(this.overlapCollision, GameObject, OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
+						if (overlaps.length > 0 && overlaps[0].collisionOwner !== undefined) {
+							if (overlaps[0].collisionOwner.GetParent() === undefined)
+								propClicked = overlaps[0].collisionOwner;
+							else
+								propClicked = overlaps[0].collisionOwner.GetParent();
+						}
 
-    SetSelectionData() {
-        const inputName = /** @type {HTMLInputElement} */ (document.getElementById('prop-editor-selected-prop-name'));
-        if (inputName !== null) {
-            inputName.value = this.selectedProp.name;
-        }
+						if (propClicked !== undefined) {
+							if (this.selectedProp !== undefined && this.selectedProp === propClicked)
+								return;
 
-        const inputX = /** @type {HTMLInputElement} */ (document.getElementById('prop-editor-selected-prop-positionx'));
-        if (inputX !== null) {
-            inputX.value = this.selectedProp.position.x.toString();
-        }
+							this.selectedProp = propClicked;
+							if (this.selectedPropDrawingOperation !== undefined) {
+								this.selectedPropDrawingOperation.Delete();
+								this.selectedPropDrawingOperation = undefined;
+							}
 
-        const inputY = /** @type {HTMLInputElement} */ (document.getElementById('prop-editor-selected-prop-positiony'));
-        if (inputY !== null) {
-            inputY.value = this.selectedProp.position.y.toString();
-        }
-    }
+							switch (this.selectedProp.BoxCollision.constructor) {
+								case PolygonCollision:
+									this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.GetPoints(), CanvasDrawer.GCD.DebugDrawer.gameDebugCanvas, 'white', false, 0, 5, 0.3);
+									CanvasDrawer.GCD.AddPathObjectOperation(this.selectedPropDrawingOperation);
+									this.selectionState = PropEditorSelectionState.PropSelected;
+									break;
 
-    SetSelectedProp(propName) {
-        let setupParams = PawnSetupParams[propName];
+								case BoxCollision:
+									this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.boundingBox.GetCornersVector2D(), CanvasDrawer.GCD.DebugDrawer.gameDebugCanvas, 'white', false, 0, 5, 0.3);
+									CanvasDrawer.GCD.AddPathObjectOperation(this.selectedPropDrawingOperation);
+									this.selectionState = PropEditorSelectionState.PropSelected;
+									break;
+							}
+							this.SetSelectionData();
+						} else {
+							this.selectedProp = undefined;
+							this.selectionState = PropEditorSelectionState.None;
+							if (this.selectedPropDrawingOperation !== undefined) {
+								this.selectedPropDrawingOperation.Delete();
+								this.selectedPropDrawingOperation = undefined;
+							}
+						}
+					}
 
-        if (AtlasController.GetAtlasObject(setupParams[3]) !== undefined) {
-            AtlasController.GetAtlasObject(setupParams[3]).SetSelection(MasterObject.MO.playerController.playerCharacter.position.Clone());
-        } else {
-            CanvasDrawer.GCD.SetSelection(
-                new Tile(
-                    MasterObject.MO.playerController.playerCharacter.position.Clone(),
-                    new Vector2D(setupParams[2].start.x, setupParams[2].start.y),
-                    new Vector2D(setupParams[2].w, setupParams[2].h),
-                    false,
-                    AtlasController.GetAtlas(setupParams[3]).name,
-                    0,
-                    TileType.Prop,
-                    TileTerrain.Ground
-                )
-            );
-        }
-    }
+					if (data.eventType === 2 && this.selectedPropHTML !== undefined && this.selectedProp === undefined && this.selectedPropHTML.dataset.propName !== undefined)
+						PawnSetupController.CreateNewObject(this.selectedPropHTML.dataset.propName, this.gridAlign);
+					if (data.eventType === 2 && this.selectedProp !== undefined)
+						this.selectionState = PropEditorSelectionState.PropSelected;
+				}
 
-    CEvent(eventType, key, data) {
-        if (this.editorState === EditorState.Closed)
-            return;
+				if (key === 'leftShift' && data.eventType === 0) {
+					this.gridAlign = true;
+				}
+				if (key === 'leftShift' && data.eventType === 2) {
+					this.gridAlign = false;
+				}
 
-        switch (eventType) {
-            case 'input':
-                if (key === 'leftMouse') {
-                    if (data.eventType === 0 && this.selectedProp !== undefined && this.selectionState === PropEditorSelectionState.PropSelected)
-                        this.selectionState = PropEditorSelectionState.PropMoving;
+				if (key === 'rightMouse' && data.eventType === 2) {
+					if (this.selectedPropHTML !== undefined) {
+						if (this.selectedPropHTML.classList !== undefined && this.selectedPropHTML.classList.contains('prop-editor-grid-selected'))
+							this.selectedPropHTML.classList.remove('prop-editor-grid-selected');
+						this.selectedPropHTML = undefined;
+						CanvasDrawer.GCD.SetSelection(undefined);
+					}
 
-                    if (data.eventType === 0 && this.selectedPropHTML === undefined) {
-                        this.overlapCollision.position.x = MasterObject.MO.playerController.mousePosition.x;
-                        this.overlapCollision.position.y = MasterObject.MO.playerController.mousePosition.y;
-                        this.overlapCollision.position.Add(CanvasDrawer.GCD.canvasOffset);
-                        this.overlapCollision.CalculateBoundingBox();
+					if (this.selectedProp !== undefined) {
+						this.selectedProp = undefined;
+						this.selectionState = PropEditorSelectionState.None;
+						if (this.selectedPropDrawingOperation !== undefined) {
+							this.selectedPropDrawingOperation.Delete();
+							this.selectedPropDrawingOperation = undefined;
+						}
+					}
+				}
+				break;
+		}
+	}
 
-                        let propClicked = undefined;
-                        let overlaps = CollisionHandler.GCH.GetOverlapsByClass(this.overlapCollision, GameObject, OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
-                        if (overlaps.length > 0 && overlaps[0].collisionOwner !== undefined) {
-                            propClicked = overlaps[0].collisionOwner;
-                        }
+	handleEvent(e) {
+		switch (e.type) {
+			case 'click':
+				switch (e.target.id) {
+					case 'prop-editor-copy':
+						if (this.selectedPropHTML !== undefined && this.selectedPropHTML.dataset.atlasName !== undefined && AtlasController.GetAtlas(this.selectedPropHTML.dataset.atlasName) !== undefined) {
+							let newTree = new Tree(this.selectedPropHTML.dataset.propName, MasterObject.MO.playerController.playerCharacter.position.Clone(), undefined, this.selectedPropHTML.dataset.atlasName);
+							newTree.GameBegin();
+						}
+						break;
 
-                        if (propClicked !== undefined) {
-                            if (this.selectedProp !== undefined && this.selectedProp === propClicked)
-                                return;
+					case 'prop-editor-collision':
+						if (CanvasDrawer.GCD.selectedSprite !== undefined && CanvasDrawer.GCD.selectedSprite instanceof Tile && this.selectedPropHTML !== undefined) {
+							if (AllCollisions[this.selectedPropHTML.dataset.propName] !== undefined || AllBlockingCollisions[this.selectedPropHTML.dataset.propName]) {
+								CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite, this.selectedPropHTML.dataset.propName);
+							} else
+								CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite);
 
-                            this.selectedProp = propClicked;
-                            if (this.selectedPropDrawingOperation !== undefined) {
-                                this.selectedPropDrawingOperation.Delete();
-                                this.selectedPropDrawingOperation = undefined;
-                            }
+							this.selectedPropHTML.classList.remove('prop-editor-grid-selected');
+							this.selectedPropHTML = undefined;
+						}
+						break;
 
-                            switch (this.selectedProp.BoxCollision.constructor) {
-                                case PolygonCollision:
-                                    this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.GetPoints(), CanvasDrawer.GCD.DebugDrawer.gameDebugCanvas, 'white', false, 0, 5, 0.3);
-                                    CanvasDrawer.GCD.AddPathObjectOperation(this.selectedPropDrawingOperation);
-                                    this.selectionState = PropEditorSelectionState.PropSelected;
-                                    break;
+					case 'prop-editor-open':
+						this.ShowProps();
+						break;
 
-                                case BoxCollision:
-                                    this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.boundingBox.GetCornersVector2D(), CanvasDrawer.GCD.DebugDrawer.gameDebugCanvas, 'white', false, 0, 5, 0.3);
-                                    CanvasDrawer.GCD.AddPathObjectOperation(this.selectedPropDrawingOperation);
-                                    this.selectionState = PropEditorSelectionState.PropSelected;
-                                    break;
-                            }
-                            this.SetSelectionData();
-                        } else {
-                            this.selectedProp = undefined;
-                            this.selectionState = PropEditorSelectionState.None;
-                            if (this.selectedPropDrawingOperation !== undefined) {
-                                this.selectedPropDrawingOperation.Delete();
-                                this.selectedPropDrawingOperation = undefined;
-                            }
-                        }
-                    }
+					case 'prop-editor-tilemaker-editor':
+						if (this.selectedPropHTML !== undefined && TileMaker.CustomTiles[this.selectedPropHTML.dataset.atlasName] !== undefined) {
+							TileMakerEditor._Instance.Open();
+							TileMakerEditor._Instance.SetTiles(this.selectedPropHTML.dataset.atlasName, TileMaker.CustomTiles[this.selectedPropHTML.dataset.atlasName].tiles, TileMaker.CustomTiles[this.selectedPropHTML.dataset.atlasName].tileLayout);
+							this.selectedPropHTML = undefined;
+						}
+						break;
+				}
 
-                    if (data.eventType === 2 && this.selectedPropHTML !== undefined && this.selectedProp === undefined)
-                        this.CreateNewObject();
-                    if (data.eventType === 2 && this.selectedProp !== undefined)
-                        this.selectionState = PropEditorSelectionState.PropSelected;
-                }
+				if (e.target.dataset.atlasName !== undefined && AtlasController.GetAtlas(e.target.dataset.atlasName) !== undefined) {
+					if (this.selectedPropHTML !== undefined)
+						this.selectedPropHTML.classList.remove('prop-editor-grid-selected');
 
-                if (key === 'leftShift' && data.eventType === 0) {
-                    this.gridAlign = true;
-                }
-                if (key === 'leftShift' && data.eventType === 2) {
-                    this.gridAlign = false;
-                }
+					this.selectedPropHTML = e.target;
+					this.selectedPropHTML.classList.add('prop-editor-grid-selected');
 
-                if (key === 'rightMouse' && data.eventType === 2) {
-                    if (this.selectedPropHTML !== undefined) {
-                        if (this.selectedPropHTML.classList !== undefined && this.selectedPropHTML.classList.contains('prop-editor-grid-selected'))
-                            this.selectedPropHTML.classList.remove('prop-editor-grid-selected');
-                        this.selectedPropHTML = undefined;
-                        CanvasDrawer.GCD.SetSelection(undefined);
-                    }
+					this.SetSelectedProp(e.target.dataset.propName);
+				} else if (e.target.classList.contains('caret') === true) {
+					e.target.parentElement.querySelector(".tree-nested").classList.toggle("tree-active");
+					e.target.classList.toggle("caret-down");
+				}
+				break;
 
-                    if (this.selectedProp !== undefined) {
-                        this.selectedProp = undefined;
-                        this.selectionState = PropEditorSelectionState.None;
-                        if (this.selectedPropDrawingOperation !== undefined) {
-                            this.selectedPropDrawingOperation.Delete();
-                            this.selectedPropDrawingOperation = undefined;
-                        }
-                    }
-                }
-                break;
-        }
-    }
-
-    handleEvent(e) {
-        switch (e.type) {
-            case 'click':
-                switch (e.target.id) {
-                    case 'prop-editor-copy':
-                        if (this.selectedPropHTML !== undefined && this.selectedPropHTML.dataset.atlasName !== undefined && AtlasController.GetAtlas(this.selectedPropHTML.dataset.atlasName) !== undefined) {
-                            let newTree = new Tree(this.selectedPropHTML.dataset.propName, MasterObject.MO.playerController.playerCharacter.position.Clone(), undefined, this.selectedPropHTML.dataset.atlasName);
-                            newTree.GameBegin();
-                        }
-                        break;
-
-                    case 'prop-editor-collision':
-                        if (CanvasDrawer.GCD.selectedSprite !== undefined && CanvasDrawer.GCD.selectedSprite instanceof Tile && this.selectedPropHTML !== undefined) {
-                            if (AllCollisions[this.selectedPropHTML.dataset.propName] !== undefined || AllBlockingCollisions[this.selectedPropHTML.dataset.propName]) {
-                                CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite, this.selectedPropHTML.dataset.propName);
-                            } else
-                                CollisionEditor.GCEditor.Open(CanvasDrawer.GCD.selectedSprite);
-                        }
-                        break;
-
-                    case 'prop-editor-open': this.ShowProps(); break;
-
-                    case 'prop-editor-tilemaker-editor':
-                        if (this.selectedPropHTML !== undefined && TileMaker.CustomTiles[this.selectedPropHTML.dataset.atlasName] !== undefined) {
-                            TileMakerEditor._Instance.Open();
-                            TileMakerEditor._Instance.SetTiles(this.selectedPropHTML.dataset.atlasName, TileMaker.CustomTiles[this.selectedPropHTML.dataset.atlasName].tiles, TileMaker.CustomTiles[this.selectedPropHTML.dataset.atlasName].tileLayout);
-                            this.selectedPropHTML = undefined;
-                        }
-                        break;
-                }
-
-                if (e.target.dataset.atlasName !== undefined && AtlasController.GetAtlas(e.target.dataset.atlasName) !== undefined) {
-                    if (this.selectedPropHTML !== undefined)
-                        this.selectedPropHTML.classList.remove('prop-editor-grid-selected');
-
-                    this.selectedPropHTML = e.target;
-                    this.selectedPropHTML.classList.add('prop-editor-grid-selected');
-
-                    this.SetSelectedProp(e.target.dataset.propName);
-                } else if (e.target.classList.contains('caret') === true) {
-                    e.target.parentElement.querySelector(".tree-nested").classList.toggle("tree-active");
-                    e.target.classList.toggle("caret-down");
-                }
-                break;
-
-            case 'input':
-                switch (e.target.id) {
-                    case 'prop-editor-selected-prop-positionx':
-                        if (this.selectedProp !== undefined) {
-                            this.selectedProp.SetPosition(new Vector2D(e.target.value, this.selectedProp.position.y));
-                            this.selectedPropDrawingOperation.Update(this.selectedProp.GetPosition());
-                        }
-                        break;
-                    case 'prop-editor-selected-prop-positiony':
-                        if (this.selectedProp !== undefined) {
-                            this.selectedProp.SetPosition(new Vector2D(this.selectedProp.position.x, e.target.value));
-                            this.selectedPropDrawingOperation.Update(this.selectedProp.GetPosition());
-                        }
-                        break;
-                }
-                break;
-        }
-    }
+			case 'input':
+				switch (e.target.id) {
+					case 'prop-editor-selected-prop-positionx':
+						if (this.selectedProp !== undefined) {
+							this.selectedProp.SetPosition(new Vector2D(e.target.value, this.selectedProp.position.y));
+							this.selectedPropDrawingOperation.Update(this.selectedProp.GetPosition());
+						}
+						break;
+					case 'prop-editor-selected-prop-positiony':
+						if (this.selectedProp !== undefined) {
+							this.selectedProp.SetPosition(new Vector2D(this.selectedProp.position.x, e.target.value));
+							this.selectedPropDrawingOperation.Update(this.selectedProp.GetPosition());
+						}
+						break;
+				}
+				break;
+		}
+	}
 }
 
 export { PropEditor };

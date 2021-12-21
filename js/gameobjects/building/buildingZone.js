@@ -1,13 +1,17 @@
-import { GameObject, Vector2D, BuildingRecipe, ExtendedProp, AllBlockingCollisions, CanvasSprite, CanvasDrawer, inventoryItemIcons, Tile, OperationType, AtlasController, Props, CustomEventHandler, ObjectClassLUT, PawnSetupParams, PolygonCollision } from '../../internal.js';
+import {
+	GameObject, Vector2D, BuildingRecipe, ExtendedProp, AllBlockingCollisions, CanvasSprite,
+	CanvasDrawer, inventoryItemIcons, Tile, OperationType, AtlasController, CustomEventHandler,
+	ObjectClassLUT, PolygonCollision, ArrayUtility, PawnSetupController, Mastertime
+} from '../../internal.js';
 
 /**
  * @readonly
- * @enum {Number}
+ * @enum {number}
  */
 const BuildingZoneState = {
-    None: 0,
-    Progress: 1,
-    Finished: 2,
+	None: 0,
+	Progress: 1,
+	Finished: 2,
 }
 
 /**
@@ -16,145 +20,136 @@ const BuildingZoneState = {
  * @extends GameObject
  */
 class BuildingZone extends GameObject {
-    /** @type {Array<BuildingZone>} */
-    static _BuildingZones = [];
+	/** @type {Array<BuildingZone>} */ static _BuildingZones = [];
 
-    /**
-     * 
-     * @param {Vector2D} position  
-     * @param {ExtendedProp} building 
-     * @param {BuildingRecipe} recipe 
-     */
-    constructor(position, building, recipe) {
-        super(building.canvasName, position, false, 0);
+	/**
+	 * 
+	 * @param {string} canvasName
+	 * @param {Vector2D} position  
+	 * @param {ExtendedProp} building 
+	 * @param {BuildingRecipe} recipe 
+	 */
+	constructor(canvasName, position, building, recipe) {
+		super(canvasName, position, false);
 
-        /** @type {Tile} */
-        this.building = building.drawingOperation.tile.Clone();
-        this.buildingRecipe = recipe.Clone();
-        this.zoneState = BuildingZoneState.None;
-        this.size = this.building.size.Clone();
-        this.objectBuilding = undefined;
-        this.progress = 0;
-        this.progressFinished = this.buildingRecipe.GetTotalResourceCost();
-        this.secondsPerResource = this.buildingRecipe.time / this.progressFinished;
-        this.name = 'buildingZone' + this.UID;
+		/** @type {Tile} */ this.building = building.drawingOperation.tile.Clone();
+		/** @type {BuildingRecipe} */ this.buildingRecipe = recipe.Clone();
+		/** @type {BuildingZoneState} */ this.zoneState = BuildingZoneState.None;
+		/** @type {Vector2D} */ this.size = this.building.size.Clone();
+		this.objectBuilding = undefined;
+		/** @type {number} */ this.progress = 0;
+		/** @type {number} */ this.progressFinished = this.buildingRecipe.GetTotalResourceCost();
+		/** @type {number} */ this.secondsPerResource = this.buildingRecipe.time / this.progressFinished;
+		/** @type {string} */ this.name = 'buildingZone' + this.UID;
 
-        BuildingZone._BuildingZones.push(this);
-    }
+		BuildingZone._BuildingZones.push(this);
+	}
 
-    ProgressBuilding() {
-        if (this.progress >= this.secondsPerResource) {
-            this.progress = 0;
-            for (let i = 0, l = this.buildingRecipe.resourceList.length; i < l; ++i) {
-                if (this.buildingRecipe.resourceList[i].amount > 0) {
-                    if (this.objectBuilding.inventory.HasItemAmount(this.buildingRecipe.resourceList[i].resource, 1)) {
-                        let item = this.objectBuilding.inventory.GetItem(this.buildingRecipe.resourceList[i].resource);
-                        this.objectBuilding.inventory.RemoveAmount(this.buildingRecipe.resourceList[i].resource, 1);
-                        this.buildingRecipe.resourceList[i].amount--;
+	ProgressBuilding() {
+		if (this.progress >= this.secondsPerResource) {
+			this.progress = 0;
+			for (let i = 0, l = this.buildingRecipe.resourceList.length; i < l; ++i) {
+				if (this.buildingRecipe.resourceList[i].amount > 0) {
+					if (this.objectBuilding.inventory.HasItemAmount(this.buildingRecipe.resourceList[i].item.resource, 1)) {
+						let item = this.objectBuilding.inventory.GetItem(this.buildingRecipe.resourceList[i].item.resource);
+						this.objectBuilding.inventory.RemoveAmount(this.buildingRecipe.resourceList[i].item.resource, 1);
+						this.buildingRecipe.resourceList[i].amount--;
 
-                        let sprite = inventoryItemIcons[this.buildingRecipe.resourceList[i].resource].sprite;
-                        CanvasDrawer.GCD.UIDrawer.DrawUIElement(new CanvasSprite(sprite.x, sprite.y, sprite.z, sprite.a, AtlasController.GetAtlas(item.url).name, true), ' -1', this.GetPosition());
-                        break;
-                    }
-                }
-            }
+						let sprite = inventoryItemIcons[this.buildingRecipe.resourceList[i].item.resource].sprite;
+						CanvasDrawer.GCD.UIDrawer.DrawUIElement(new CanvasSprite(sprite.x, sprite.y, sprite.z, sprite.a, AtlasController.GetAtlas(item.url).name, true), ' -1', this.GetPosition());
+						break;
+					}
+				}
+			}
 
-            if (this.buildingRecipe.GetTotalResourceCost() === 0)
-                this.zoneState = BuildingZoneState.Finished;
-        }
-    }
+			if (this.buildingRecipe.GetTotalResourceCost() === 0)
+				this.zoneState = BuildingZoneState.Finished;
+		}
+	}
 
-    BuildingFinished() {
-        if (ObjectClassLUT[this.buildingRecipe.name] !== undefined) {
-            let params = PawnSetupParams[this.buildingRecipe.name];
-            params = JSON.parse(JSON.stringify(params));
-            let pos = this.position.Clone();
+	BuildingFinished() {
+		if (ObjectClassLUT[this.buildingRecipe.name] !== undefined) {
+			PawnSetupController.CreateNewObject(this.buildingRecipe.name, false, this.position.Clone());
+		}
+	}
 
-            params[1] = pos;
-            let newBuilding = new ObjectClassLUT[this.buildingRecipe.name].constructor(...params);
-            newBuilding.GameBegin();
-            newBuilding.SetPosition(newBuilding.position);
-            Props.push(newBuilding);
-        }
-    }
+	FixedUpdate() {
+		super.FixedUpdate();
 
-    FixedUpdate(delta) {
-        super.FixedUpdate(delta);
+		if (this.zoneState === BuildingZoneState.Progress) {
+			this.progress += Mastertime.Delta();
+			this.ProgressBuilding();
 
-        if (this.zoneState === BuildingZoneState.Progress) {
-            this.progress += delta;
-            this.ProgressBuilding();
+			if (this.zoneState === BuildingZoneState.Finished) {
+				this.BuildingFinished();
+				this.Delete();
+			}
+		}
+	}
 
-            if (this.zoneState === BuildingZoneState.Finished) {
-                this.BuildingFinished();
-                this.Delete();
-            }
-        }
-    }
+	EndOfFrameUpdate() {
+		super.EndOfFrameUpdate();
+	}
 
-    EndOfFrameUpdate() {
-        super.EndOfFrameUpdate();
-    }
+	Delete() {
+		super.Delete();
 
-    Delete() {
-        super.Delete();
+		if (BuildingZone._BuildingZones.indexOf(this) !== -1)
+			BuildingZone._BuildingZones.splice(BuildingZone._BuildingZones.indexOf(this));
+	}
 
-        if (BuildingZone._BuildingZones.indexOf(this) !== -1)
-            BuildingZone._BuildingZones.splice(BuildingZone._BuildingZones.indexOf(this));
-    }
+	CEvent(eventType, key) {
+		switch (eventType) {
+			case 'use':
+				if (key !== undefined && key.inventory !== undefined) {
+					this.zoneState = BuildingZoneState.Progress;
+					this.objectBuilding = key;
+				}
+				break;
 
-    CEvent(eventType, key) {
-        switch (eventType) {
-            case 'use':
-                if (key !== undefined && key.inventory !== undefined) {
-                    this.zoneState = BuildingZoneState.Progress;
-                    this.objectBuilding = key;
-                }
-                break;
+			case 'useStopped':
+				if (key !== undefined && key.inventory !== undefined) {
+					this.zoneState = BuildingZoneState.None;
+					this.objectBuilding = undefined;
+				}
+				break;
+		}
 
-            case 'useStopped':
-                if (key !== undefined && key.inventory !== undefined) {
-                    this.zoneState = BuildingZoneState.None;
-                    this.objectBuilding = undefined;
-                }
-                break;
-        }
+	}
 
-    }
+	GameBegin() {
+		super.GameBegin();
 
-    GameBegin() {
-        super.GameBegin();
+		this.CreateDrawOperation(
+			{ x: this.building.tilePosition.x, y: this.building.tilePosition.y, w: this.building.size.x, h: this.building.size.y },
+			this.position,
+			false,
+			AtlasController.GetAtlas(this.canvasName).GetCanvas(),
+			OperationType.gameObjects
+		);
 
-        this.CreateDrawOperation(
-            { x: this.building.tilePosition.x, y: this.building.tilePosition.y, w: this.building.size.x, h: this.building.size.y },
-            this.position,
-            false,
-            AtlasController.GetAtlas(this.canvasName).GetCanvas(),
-            OperationType.gameObjects
-        );
+		if (this.BoxCollision !== undefined) {
+			this.BoxCollision.size = this.size.Clone();
+			this.BoxCollision.CalculateBoundingBox();
+			this.BoxCollision.SetPosition(this.BoxCollision.position);
+		}
 
-        if (this.BoxCollision !== undefined) {
-            this.BoxCollision.size = this.size.Clone();
-            this.BoxCollision.CalculateBoundingBox();
-            this.BoxCollision.SetPosition(this.BoxCollision.position);
-        }
+		if (AllBlockingCollisions[this.building.atlas] !== undefined) {
+			let tempArr = AllBlockingCollisions[this.building.atlas];
+			let polygonCollision = ArrayUtility.CloneObjects(tempArr);
 
-        if (AllBlockingCollisions[this.building.atlas] !== undefined) {
-            let tempArr = AllBlockingCollisions[this.building.atlas];
-            let polygonCollision = tempArr.CloneObjects();
+			this.BlockingCollision = new PolygonCollision(
+				this.BoxCollision.position.Clone(),
+				this.size.Clone(),
+				polygonCollision,
+				true,
+				this,
+				true
+			);
+		}
 
-            this.BlockingCollision = new PolygonCollision(
-                this.BoxCollision.position.Clone(),
-                this.size.Clone(),
-                polygonCollision,
-                true,
-                this,
-                true
-            );
-        }
-
-        CustomEventHandler.AddListener(this);
-    }
+		CustomEventHandler.AddListener(this);
+	}
 }
 
 export { BuildingZone };

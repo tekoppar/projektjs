@@ -1,116 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <style>
-    .container-main {
-        position: relative;
-    }
+	.container-main {
+		position: relative;
+	}
 
-    .absolute-canvas {
-        position: absolute;
-        pointer-events: none;
-    }
+	.absolute-canvas {
+		position: absolute;
+		pointer-events: none;
+	}
 
-    .container-framebuffers {
-        grid-column: center;
-        grid-row: bottom;
-        display: flex;
-        flex-direction: row;
-        max-width: 1920px;
-        flex-wrap: wrap;
-    }
+	.container-framebuffers {
+		grid-column: center;
+		grid-row: bottom;
+		display: flex;
+		flex-direction: row;
+		max-width: 1920px;
+		flex-wrap: wrap;
+	}
 
-    .container-framebuffers>canvas {
-        flex-basis: 25%;
-        flex-shrink: 2;
-        flex-grow: 1;
-        width: 100%;
-        max-width: 50%;
-        height: auto;
-    }
+	.container-framebuffers>canvas {
+		flex-basis: 25%;
+		flex-shrink: 2;
+		flex-grow: 1;
+		width: 100%;
+		max-width: 50%;
+		height: auto;
+	}
 </style>
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
-    <link rel="stylesheet" href="/css/stylev2.css">
-    <link rel="stylesheet" href="/css/toolbar.css">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp" rel="stylesheet">
+	<link rel="stylesheet" href="/css/stylev2.css">
+	<link rel="stylesheet" href="/css/toolbar.css">
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <div id="gameobject-draw-debug" style="position: absolute; left:0px; top:400px;width:250px;height:600px;background-color: black;padding:5px;color:white;white-space: pre;"></div>
-    <div class="container-main">
-        <div class="controls">
-            <button id="save-canvas">Save</button>
-            <button id="enable-painting">Paint</button>
-            <button id="enable-debug">Debug Draw</button>
-            <input type="number" id="size-x" data-type="size" value="1">
-            <input type="number" id="size-y" data-type="size" value="1">
-            <select id="brush-draw-state">
-                <option value="Normal" selected>Normal</option>
-                <option value="DrawOntop">Draw Ontop</option>
-                <option value="DrawBeneath">Draw Beneath</option>
-            </select>
-            <button id="framestep-enable">Enable Framestep</button>
-            <button id="framestep-next">Framestep</button>
-            <label id="grid-mouse" style="width:150px;display:inline-block;color:whitesmoke"></label>
-            <label id="custom-logs" style="color:whitesmoke;width:400px;display:inline-block;"></label>
-        </div>
-        <div id="container-game" class="container-game">
-            <canvas style="position:absolute" id="game-canvas" width="1920" height="1080" oncontextmenu="return false;"></canvas>
-            <canvas class="absolute-canvas" id="sprite-objects-canvas" width="1920" height="1080"></canvas>
-            <canvas class="absolute-canvas" id="sprite-preview-canvas" width="1920" height="1080"></canvas>
-            <canvas class="absolute-canvas" id="game-gui-canvas" width="1920" height="1080"></canvas>
-            <div id="game-gui">
-                <div id="game-gui-toolbar" class="game-gui-toolbar">
-                    <div class="toolbar-item">
-                        <div class="toolbar-item-sprite"></div>
-                        <label class="toolbar-item-text">1</label>
-                    </div>
-                    <div class="toolbar-item">
-                        <div class="toolbar-item-sprite"></div>
-                        <label class="toolbar-item-text">2</label>
-                    </div>
-                    <div class="toolbar-item">
-                        <div class="toolbar-item-sprite"></div>
-                        <label class="toolbar-item-text">3</label>
-                    </div>
-                    <div class="toolbar-item">
-                        <div class="toolbar-item-sprite"></div>
-                        <label class="toolbar-item-text">4</label>
-                    </div>
-                    <div class="toolbar-item">
-                        <div class="toolbar-item-sprite"></div>
-                        <label class="toolbar-item-text">5</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="container-controls" class="container-controls">
-            <div id="container-controls-fixed" style="display: flex;flex-direction: column;position: fixed;">
-                <div class="tabs-manager">
-                    <button id="tile-lut-editor-tile-editor" data-tabId="0">Tile Editor</button>
-                    <button id="prop-editor-open" data-tabId="1">Prop Editor</button>
-                </div>
-                <div class="tabs-container" style="display:flex;height:100%;">
+	<div id="gameobject-draw-debug" style="position: absolute; left:0px; top:400px;width:250px;height:600px;background-color: black;padding:5px;color:white;white-space: pre;"></div>
+	<div class="container-main">
+		<div class="controls">
+			<button id="save-canvas">Save</button>
+			<button id="enable-painting">Paint</button>
+			<button id="enable-debug">Debug Draw</button>
+			<button id="enable-grid">Debug Grid</button>
+			<input type="number" id="size-x" data-type="size" value="1">
+			<input type="number" id="size-y" data-type="size" value="1">
+			<select id="brush-draw-state">
+				<option value="Normal" selected>Normal</option>
+				<option value="DrawOntop">Draw Ontop</option>
+				<option value="DrawBeneath">Draw Beneath</option>
+			</select>
+			<button id="framestep-enable">Enable Framestep</button>
+			<button id="framestep-next">Framestep</button>
+			<label id="grid-mouse" style="width:150px;display:inline-block;color:whitesmoke"></label>
+			<label id="custom-logs" style="color:whitesmoke;width:400px;display:inline-block;"></label>
+		</div>
+		<div id="container-game" class="container-game">
+			<canvas style="position:absolute" id="game-canvas" width="1920" height="1080" oncontextmenu="return false;"></canvas>
+			<canvas class="absolute-canvas" id="sprite-objects-canvas" width="1920" height="1080"></canvas>
+			<canvas class="absolute-canvas" id="sprite-preview-canvas" width="1920" height="1080"></canvas>
+			<canvas class="absolute-canvas" id="game-gui-canvas" width="1920" height="1080"></canvas>
+			<div id="game-gui">
+				<div id="game-gui-toolbar" class="game-gui-toolbar">
+					<div class="toolbar-item">
+						<label class="toolbar-item-text">1</label>
+					</div>
+					<div class="toolbar-item">
+						<label class="toolbar-item-text">2</label>
+					</div>
+					<div class="toolbar-item">
+						<label class="toolbar-item-text">3</label>
+					</div>
+					<div class="toolbar-item">
+						<label class="toolbar-item-text">4</label>
+					</div>
+					<div class="toolbar-item">
+						<label class="toolbar-item-text">5</label>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="container-controls" class="container-controls">
+			<div id="container-controls-fixed" style="display: flex;flex-direction: column;position: fixed;">
+				<div class="tabs-manager">
+					<button id="tile-lut-editor-tile-editor" data-tabId="0">Tile Editor</button>
+					<button id="prop-editor-open" data-tabId="1">Prop Editor</button>
+				</div>
+				<div class="tabs-container" style="display:flex;height:100%;">
 
-                </div>
-            </div>
-        </div>
-        <div id="container-framebuffers" class="container-framebuffers">
+				</div>
+			</div>
+		</div>
+		<div id="container-framebuffers" class="container-framebuffers">
 
-        </div>
-        <div id="container-allcanvases" style="grid-column: left / span 2;grid-row: canvas;max-width: 100%;display:flex;flex-wrap: wrap;flex-direction: row;justify-content: flex-start; align-items: flex-start;"></div>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js" integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ==" crossorigin="anonymous" defer>
-    </script>
-    <script src="js/js.js"></script>
-    <script src="js/gui/toolbar.js" type="module"></script>
-    <script src="js/farm.js" type="module"></script>
+		</div>
+		<div id="container-allcanvases" style="grid-column: left / span 2;grid-row: canvas;max-width: 100%;display:flex;flex-wrap: wrap;flex-direction: row;justify-content: flex-start; align-items: flex-start;"></div>
+	</div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js" integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ==" crossorigin="anonymous" defer>
+	</script>
+	<script src="js/js.js"></script>
+	<script src="js/gui/toolbar.js" type="module"></script>
+	<script src="js/farm.js" type="module"></script>
 </body>
 
 </html>
