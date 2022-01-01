@@ -1,3 +1,11 @@
+//UL UR DL DR U L D R
+/**
+ * 0 - 4 - 1  
+ * 5 - x - 7  
+ * 2 - 6 - 3 
+ * @readonly
+ * @enum {number}
+ */
 const ULDR = {
 	UpLeft: 0x00001100,
 	Up: 0x00001000,
@@ -19,23 +27,36 @@ const ULDR = {
 	LeftEnd: null,
 	RightEnd: null,
 	CenterEnd: null,
+	AngleUpLeft: 0x00010011,
+	AngleUpRight: 0x00100110,
+	AngleDownLeft: 0x01001001,
+	AngleDownRight: 0x10001100,
 	CornerDoubleULDR: 0x10010000,
 	CornerDoubleDLUR: 0x01100000
 }
 
-export function GetAtlasTileMatrix(binary, middle) {
+/**
+ * Takes a string formatted as /0x/0000/0000 which corresponds too UL UR DL DR U L D R  
+ * 0 - 4 - 1  
+ * 5 - x - 7  
+ * 2 - 6 - 3  
+ * @param {string} binary 
+ * @param {number} middle 
+ * @returns {ULDR}
+ */
+export function GetAtlasTileMatrix(binary, middle = 0) {
 	let first4 = binary.slice(0, 4);
 	let last4 = binary.slice(4);
 
 	switch (first4) {
 		case '0001':
 			switch (last4) {
-				case '0100':return middle === 0 ? ULDR.Middle : ULDR.Right;
+				case '0100': return middle === 0 ? ULDR.Middle : ULDR.Right;
 				case '1100': return ULDR.Middle;
 				case '0101': return middle === 0 ? ULDR.Middle : ULDR.Right;
 				case '0011': return ULDR.Middle;
 				case '1011': return ULDR.Middle;
-				case '0001':return middle === 0 ? ULDR.Middle : ULDR.Right;
+				case '0001': return middle === 0 ? ULDR.Middle : ULDR.Right;
 				case '1101': return ULDR.Middle;
 				case '1111': return ULDR.Middle; // used to be 0
 				case '0111': return ULDR.Middle;
@@ -48,6 +69,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '1001': return ULDR.Middle;
 			}
 			break;
+
 		case '0010':
 			switch (last4) {
 				case '0001': return ULDR.Middle;
@@ -68,6 +90,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '0000': return ULDR.Middle;
 			}
 			break;
+
 		case '0100':
 			switch (last4) {
 				case '1000':
@@ -76,7 +99,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '0001': return ULDR.Middle;
 				case '0010':
 				case '0100':
-				case '0011':return ULDR.Middle;
+				case '0011': return ULDR.Middle;
 				case '1100': return ULDR.Middle;
 				case '0101':
 				case '1010': return ULDR.Middle; // used to be 1
@@ -88,11 +111,12 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '0000': return ULDR.Middle;
 			}
 			break;
+
 		case '1000':
 			switch (last4) {
 				case '0001': return middle === 0 ? ULDR.Middle : ULDR.Up;
 				case '1001': return ULDR.Middle;
-				case '1000':return middle === 0 ? ULDR.Middle : ULDR.Up;
+				case '1000': return middle === 0 ? ULDR.Middle : ULDR.Up;
 				case '1101': return ULDR.Middle; // used to be 1
 				case '0010':
 				case '0101': return ULDR.Middle;
@@ -100,7 +124,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '1011': return ULDR.Middle;
 				case '0100': return ULDR.Middle; // used to be 0
 				case '0111': return ULDR.Middle; // used to be 0
-				case '0011':return ULDR.Middle;
+				case '0011': return ULDR.Middle;
 				case '1010': return ULDR.Middle;
 				case '0110': return ULDR.Middle;
 				case '1110': return ULDR.Middle; // used to be 1
@@ -108,6 +132,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '0000': return ULDR.Middle;
 			}
 			break;
+
 		case '0011':
 			switch (last4) {
 				case '0100':
@@ -127,6 +152,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '1001': return ULDR.Middle;
 			}
 			break;
+
 		case '0110':
 			switch (last4) {
 				case '0010':
@@ -145,9 +171,10 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '0000':
 				case '1000':
 				case '1001': return ULDR.Middle;
-				case '1101': return middle === 0 ? ULDR.Middle : ULDR.CornerDownRight;
+				case '1101': return ULDR.AngleDownLeft;//  return middle === 0 ? ULDR.Middle : ULDR.CornerDownRight;
 			}
 			break;
+
 		case '1100':
 			switch (last4) {
 				case '1111':
@@ -168,6 +195,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '1110': return ULDR.Middle;
 			}
 			break;
+
 		case '0101':
 			switch (last4) {
 				case '1001': return middle === 0 ? ULDR.Middle : ULDR.CornerDownLeft;
@@ -188,6 +216,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '0000': return ULDR.Middle;
 			}
 			break;
+
 		case '1010':
 			switch (last4) {
 				case '0010':
@@ -208,6 +237,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '0000': return ULDR.Middle;
 			}
 			break;
+
 		case '1001':
 			switch (last4) {
 				case '0001':
@@ -228,6 +258,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '0000': return ULDR.Middle;
 			}
 			break;
+
 		case '1110':
 			switch (last4) {
 				case '1000':
@@ -247,6 +278,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '1110': return middle === 0 ? ULDR.Middle : ULDR.CornerUpRight;
 			}
 			break;
+
 		case '0111':
 			switch (last4) {
 				case '1001': return middle === 0 ? ULDR.Middle : ULDR.Down;
@@ -266,6 +298,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '1010': return middle === 0 ? ULDR.Middle : ULDR.CornerDownLeft;
 			}
 			break;
+
 		case '1011':
 			switch (last4) {
 				case '0110': return middle === 0 ? ULDR.Middle : ULDR.Up;
@@ -285,9 +318,10 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '0100': return middle === 0 ? ULDR.Middle : ULDR.CornerUpRight;
 			}
 			break;
+
 		case '1101':
 			switch (last4) {
-				case '0100':return ULDR.Middle;
+				case '0100': return ULDR.Middle;
 				case '0001': return ULDR.Middle;
 				case '1000': return middle === 0 ? ULDR.Middle : ULDR.CornerDownLeft;
 				case '0011': return middle === 0 ? ULDR.Middle : ULDR.CornerUpLeft;
@@ -304,6 +338,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '0101': return ULDR.Middle;
 			}
 			break;
+
 		case '1111':
 			switch (last4) {
 				case '0011': return middle === 0 ? ULDR.Middle : ULDR.CornerDoubleDLUR;
@@ -323,6 +358,7 @@ export function GetAtlasTileMatrix(binary, middle) {
 				case '0010': return middle === 0 ? ULDR.Middle : ULDR.CornerUpLeft;
 			}
 			break;
+
 		case '0000':
 			switch (last4) {
 				case '0001': return ULDR.Middle;

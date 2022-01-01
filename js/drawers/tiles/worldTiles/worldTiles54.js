@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 let worldTiles54 = {
 	"0":
 		[
@@ -245,19 +247,19 @@ let worldTiles54 = {
 		],
 	"61":
 		[
-			{ t: { p: { x: 1952, y: 1728 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 1952, y: 1728 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"62":
 		[
-			{ t: { p: { x: 1984, y: 1728 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 1984, y: 1728 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"63":
 		[
-			{ t: { p: { x: 2016, y: 1728 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2016, y: 1728 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"64":
 		[
-			{ t: { p: { x: 2048, y: 1728 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2048, y: 1728 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"65":
 		[

@@ -1,7 +1,10 @@
-export { ObjectsHasBeenInitialized, ToggleObjectsHasBeenInitialized, IsLittleEndian, TestingEnum, CURRENT_TEST } from './internalVariables.js';
+export {
+	ObjectsHasBeenInitialized, ToggleObjectsHasBeenInitialized,
+	IsLittleEndian, TestingEnum, CURRENT_TEST
+} from './internalVariables.js';
 export { Mastertime } from './classes/mastertime.js';
 
-export { worldTiles } from './drawers/tiles/worldTilesList.js';
+export { worldTiles } from './drawers/tiles/worldTiles/worldTilesList.js';
 
 export { PerformanceTester } from './classes/utility/perf.js';
 
@@ -10,11 +13,15 @@ export { CanvasUtility } from './classes/utility/canvasUtility.js';
 export { ArrayUtility } from './classes/utility/arrayUtility.js';
 export { ObjectUtility } from './classes/utility/objectUtility.js';
 export { ImageUtility } from './classes/utility/imageUtility.js';
+export { earcut } from './classes/utility/earcut.js';
 
 export { ObjectType, BWDrawingType, EditorState } from './classes/baseClasses/globalEnums.js';
 
 export { Graph, GraphPoint } from './classes/containerClasses/graph.js';
-export { Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Line, Polygon, Color } from './classes/vectors.js';
+export {
+	Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Intersection,
+	Vertex, DLPolygon, Line, Polygon, Vertice, Triangle, Mesh, Color
+} from './classes/vectors.js';
 export { CMath } from './classes/math/customMath.js';
 export { Math3D } from './classes/math/3dMath.js';
 export { IntMath } from './classes/math/intMath.js';
@@ -30,7 +37,10 @@ export { PageFetcher } from './classes/utility/pageFetcher.js';
 
 export { AllCollisions, AllBlockingCollisions } from './gameobjects/collision/allCollisions.js';
 
-export { Collision, BoxCollision, CollisionHandler, PolygonCollision, OverlapCheckEnum, OverlapOICheck, OverlapOverlapsCheck, CollisionTypeCheck } from './gameobjects/collision/collision.js';
+export {
+	Collision, BoxCollision, CollisionHandler, PolygonCollision, OverlapCheckEnum,
+	OverlapOICheck, OverlapOverlapsCheck, CollisionTypeCheck
+} from './gameobjects/collision/collision.js';
 
 export { GUI } from './gui/gui.js';
 export { HTMLInfo } from './gui/htmlinfo.js';
@@ -42,11 +52,14 @@ export { Brush, BrushDrawState, BrushType } from './drawers/canvas/elements/brus
 export { CanvasSprite } from './drawers/canvas/elements/canvasSprite.js';
 export { CanvasAtlas, CanvasAtlasObject, CanvasObject, ShadowCanvasOperation } from './drawers/canvas/atlas/canvasAtlas.js';
 export { ShadowCanvasObject } from './drawers/canvas/atlas/shadowCanvasObject.js';
-export { Operation, DrawingOperation, OperationType, RectOperation, TextOperation, ClearOperation, PathOperation, LightingOperation } from './drawers/canvas/operation.js';
+export {
+	Operation, DrawingOperation, OperationType, RectOperation, TextOperation,
+	ClearOperation, PathOperation, LightingOperation, MeshOperation
+} from './drawers/canvas/operation.js';
 
 export { Cobject } from './classes/baseClasses/object.js';
 
-export { CustomLogger } from './classes/utility/customLogger.js';
+export { Logger } from './classes/utility/customLogger.js';
 
 export { LightSystem, LightDataType } from './gameobjects/lighting/lightSystem.js';
 export { AmbientLight, LightFalloffType } from './gameobjects/lighting/ambientLight.js';
@@ -78,7 +91,12 @@ export { Tile, TileData, TileType, TileF, TileTerrain } from './drawers/tiles/ti
 
 //export { worldTiles } from './drawers/tiles/worldTiles.js';
 
-export { ParticleSystem, ParticleGenerator, ParticleGeneratorSettings, Particle, ColorParticle, SpriteParticle, ParticleType } from './drawers/particle/particle.js';
+export { NavigationSystem } from './classes/navigationSystem.js';
+
+export {
+	ParticleSystem, ParticleGenerator, ParticleGeneratorSettings, Particle,
+	ColorParticle, SpriteParticle, ParticleType
+} from './drawers/particle/particle.js';
 export * as ParticleFilters from './drawers/particle/particleFilters.js';
 
 export { SelectedTileEditor } from './drawers/tiles/selectedTiles.js';

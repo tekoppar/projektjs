@@ -241,11 +241,11 @@ let worldTiles56 = {
 		],
 	"60":
 		[
-			{ t: { p: { x: 1920, y: 1792 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 1920, y: 1792 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"61":
 		[
-			{ t: { p: { x: 1952, y: 1792 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 1952, y: 1792 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"62":
 		[

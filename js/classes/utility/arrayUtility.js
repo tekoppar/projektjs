@@ -108,11 +108,32 @@ class ArrayUtility {
 	 * @returns {Array<T>}
 	 */
 	static CloneObjects(array) {
-		/** @type {Array<T>} */
-		let arr = [];
+		/** @type {Array<T>} */ let arr = [];
 		for (let i = 0, l = array.length; i < l; ++i) {
 			arr.push(Object.assign(Object.create(/** @type {Object} */(array[i])), array[i]));
 		}
+		return arr;
+	}
+
+	/**
+	 * 
+	 * @template T, V
+	 * @param {Array<T>} array 
+	 * @param {Object} prototype 
+	 */
+	static ConvertObjects(array, prototype) {
+		/** @template [V=typeof prototype.constructor] */
+		/** @type {Array<V>} */ let arr = [];
+
+		if (Array.isArray(array) === false)
+			return undefined;
+
+		for (let i = 0, l = array.length; i < l; ++i) {
+			prototype
+			/** @type {V} */ let newObject = new prototype.constructor(...Object.values(array[i]));
+			arr.push(newObject);
+		}
+
 		return arr;
 	}
 }

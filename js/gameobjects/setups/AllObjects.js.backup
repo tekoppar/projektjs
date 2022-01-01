@@ -85,7 +85,13 @@ import { Vector2D } from '../../internal.js';
 	{ class: 'CraftingStation', name: 'Workbench', canvasName: 'workbench', position: new Vector2D(640, 480) },
 	{ class: 'CraftingStation', name: 'Stone Cutter', canvasName: 'stoneCutter', position: new Vector2D(896, 672) },
 	{ class: 'ExtendedProp', name: 'Wooden Floor', canvasName: 'woodenFloor', position: new Vector2D(896, 672) },
-	{ class: 'CraftingStation', name: 'Planer Bench', canvasName: 'planerBench', position: new Vector2D(896, 544) }
+	{ class: 'CraftingStation', name: 'Planer Bench', canvasName: 'planerBench', position: new Vector2D(896, 544) },
+	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-320, 352) },
+	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-224, 448) },
+	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-192, 288) },
+	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-416, 256) },
+	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-448, 416) },
+	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-352, 480) }
 ];
 
 export { Objects };

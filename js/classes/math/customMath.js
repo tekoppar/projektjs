@@ -377,6 +377,10 @@ class CMath {
 	static SoftLightBlend(base, blend) {
 		return (blend < 0.5) ? (2.0 * base * blend + base * base * (1.0 - 2.0 * blend)) : (Math.sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend));
 	}
+
+	static Mod(v, n) {
+		return ((v % n) + n) % n;
+	}
 }
 
 export { CMath };

@@ -1111,7 +1111,7 @@ class PolygonCollision extends Collision {
 	}
 
 	CalculateBoundingBox() {
-		let sX = 9999999999, sY = 9999999999, lX = -1, lY = -1;
+		let sX = 9999999999, sY = 9999999999, lX = -9999999999, lY = -9999999999;
 
 		for (let pos of this.points) {
 			if (pos.x > lX)
@@ -1132,7 +1132,7 @@ class PolygonCollision extends Collision {
 	 * @returns 
 	 */
 	static CalculateBoundingBox(points) {
-		let sX = 9999999999, sY = 9999999999, lX = -1, lY = -1;
+		let sX = 9999999999, sY = 9999999999, lX = -9999999999, lY = -9999999999;
 
 		for (let pos of points) {
 			if (pos.x > lX)

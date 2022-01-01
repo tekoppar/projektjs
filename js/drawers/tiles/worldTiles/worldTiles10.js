@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 let worldTiles10 = {
 	"0":
 		[
@@ -245,195 +247,195 @@ let worldTiles10 = {
 		],
 	"60":
 		[
-			{ t: { p: { x: 1920, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 1920, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"61":
 		[
-			{ t: { p: { x: 1952, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 1952, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"62":
 		[
-			{ t: { p: { x: 1984, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 1984, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"63":
 		[
-			{ t: { p: { x: 2016, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2016, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"64":
 		[
-			{ t: { p: { x: 2048, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2048, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"65":
 		[
-			{ t: { p: { x: 2080, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2080, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"66":
 		[
-			{ t: { p: { x: 2112, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2112, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"67":
 		[
-			{ t: { p: { x: 2144, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2144, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"68":
 		[
-			{ t: { p: { x: 2176, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2176, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"69":
 		[
-			{ t: { p: { x: 2208, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2208, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"70":
 		[
-			{ t: { p: { x: 2240, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2240, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"71":
 		[
-			{ t: { p: { x: 2272, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2272, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"72":
 		[
-			{ t: { p: { x: 2304, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2304, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"73":
 		[
-			{ t: { p: { x: 2336, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2336, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"74":
 		[
-			{ t: { p: { x: 2368, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2368, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"75":
 		[
-			{ t: { p: { x: 2400, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2400, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"76":
 		[
-			{ t: { p: { x: 2432, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2432, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"77":
 		[
-			{ t: { p: { x: 2464, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2464, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"78":
 		[
-			{ t: { p: { x: 2496, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2496, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"79":
 		[
-			{ t: { p: { x: 2528, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2528, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"80":
 		[
-			{ t: { p: { x: 2560, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2560, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"81":
 		[
-			{ t: { p: { x: 2592, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2592, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"82":
 		[
-			{ t: { p: { x: 2624, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2624, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"83":
 		[
-			{ t: { p: { x: 2656, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2656, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"84":
 		[
-			{ t: { p: { x: 2688, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2688, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"85":
 		[
-			{ t: { p: { x: 2720, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2720, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"86":
 		[
-			{ t: { p: { x: 2752, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2752, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"87":
 		[
-			{ t: { p: { x: 2784, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2784, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"88":
 		[
-			{ t: { p: { x: 2816, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2816, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"89":
 		[
-			{ t: { p: { x: 2848, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2848, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"90":
 		[
-			{ t: { p: { x: 2880, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2880, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"91":
 		[
-			{ t: { p: { x: 2912, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2912, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"92":
 		[
-			{ t: { p: { x: 2944, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2944, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"93":
 		[
-			{ t: { p: { x: 2976, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2976, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"94":
 		[
-			{ t: { p: { x: 3008, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3008, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"95":
 		[
-			{ t: { p: { x: 3040, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3040, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"96":
 		[
-			{ t: { p: { x: 3072, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3072, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"97":
 		[
-			{ t: { p: { x: 3104, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3104, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"98":
 		[
-			{ t: { p: { x: 3136, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3136, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"99":
 		[
-			{ t: { p: { x: 3168, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3168, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"100":
 		[
-			{ t: { p: { x: 3200, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3200, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"101":
 		[
-			{ t: { p: { x: 3232, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3232, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"102":
 		[
-			{ t: { p: { x: 3264, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3264, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"103":
 		[
-			{ t: { p: { x: 3296, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3296, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"104":
 		[
-			{ t: { p: { x: 3328, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3328, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"105":
 		[
-			{ t: { p: { x: 3360, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3360, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"106":
 		[
-			{ t: { p: { x: 3392, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3392, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"107":
 		[
-			{ t: { p: { x: 3424, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 3424, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"108":
 		[
@@ -1227,113 +1229,245 @@ let worldTiles10 = {
 		[
 			{ t: { p: { x: 9760, y: 320 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
 		],
-	"-3":
+	"-60":
 		[
-			{ t: { p: { x: -96, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-2":
+	"-59":
 		[
-			{ t: { p: { x: -64, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-1":
+	"-58":
 		[
-			{ t: { p: { x: -32, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-4":
+	"-57":
 		[
-			{ t: { p: { x: -128, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-5":
+	"-56":
 		[
-			{ t: { p: { x: -160, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-6":
+	"-55":
 		[
-			{ t: { p: { x: -192, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-7":
+	"-54":
 		[
-			{ t: { p: { x: -224, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-8":
+	"-53":
 		[
-			{ t: { p: { x: -256, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-9":
+	"-52":
 		[
-			{ t: { p: { x: -288, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-10":
+	"-51":
 		[
-			{ t: { p: { x: -320, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-11":
+	"-50":
 		[
-			{ t: { p: { x: -352, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-12":
+	"-49":
 		[
-			{ t: { p: { x: -384, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-13":
+	"-48":
 		[
-			{ t: { p: { x: -416, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-14":
+	"-47":
 		[
-			{ t: { p: { x: -448, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-15":
+	"-46":
 		[
-			{ t: { p: { x: -480, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-16":
+	"-45":
 		[
-			{ t: { p: { x: -512, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-17":
+	"-44":
 		[
-			{ t: { p: { x: -544, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-18":
+	"-43":
 		[
-			{ t: { p: { x: -576, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-19":
+	"-42":
 		[
-			{ t: { p: { x: -608, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-20":
+	"-41":
 		[
-			{ t: { p: { x: -640, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-21":
+	"-40":
 		[
-			{ t: { p: { x: -672, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-22":
+	"-39":
 		[
-			{ t: { p: { x: -704, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-23":
+	"-38":
 		[
-			{ t: { p: { x: -736, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-24":
+	"-37":
 		[
-			{ t: { p: { x: -768, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
 		],
-	"-25":
+	"-36":
 		[
-			{ t: { p: { x: -800, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+
+		],
+	"-35":
+		[
+
+		],
+	"-34":
+		[
+
+		],
+	"-33":
+		[
+
+		],
+	"-32":
+		[
+
+		],
+	"-31":
+		[
+
+		],
+	"-30":
+		[
+
+		],
+	"-29":
+		[
+
+		],
+	"-28":
+		[
+
+		],
+	"-27":
+		[
+			{ t: { p: { x: -864, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"-26":
 		[
 			{ t: { p: { x: -832, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
 		],
-	"-27":
+	"-25":
 		[
-			{ t: { p: { x: -864, y: 320 }, lut: ["terrain", 1, 8] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: -800, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-24":
+		[
+			{ t: { p: { x: -768, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-23":
+		[
+			{ t: { p: { x: -736, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-22":
+		[
+			{ t: { p: { x: -704, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-21":
+		[
+			{ t: { p: { x: -672, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-20":
+		[
+			{ t: { p: { x: -640, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-19":
+		[
+			{ t: { p: { x: -608, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-18":
+		[
+			{ t: { p: { x: -576, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-17":
+		[
+			{ t: { p: { x: -544, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-16":
+		[
+			{ t: { p: { x: -512, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-15":
+		[
+			{ t: { p: { x: -480, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-14":
+		[
+			{ t: { p: { x: -448, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-13":
+		[
+			{ t: { p: { x: -416, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-12":
+		[
+			{ t: { p: { x: -384, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-11":
+		[
+			{ t: { p: { x: -352, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-10":
+		[
+			{ t: { p: { x: -320, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-9":
+		[
+			{ t: { p: { x: -288, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-8":
+		[
+			{ t: { p: { x: -256, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-7":
+		[
+			{ t: { p: { x: -224, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-6":
+		[
+			{ t: { p: { x: -192, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-5":
+		[
+			{ t: { p: { x: -160, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-4":
+		[
+			{ t: { p: { x: -128, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-3":
+		[
+			{ t: { p: { x: -96, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-2":
+		[
+			{ t: { p: { x: -64, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+		],
+	"-1":
+		[
+			{ t: { p: { x: -32, y: 320 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 
 };

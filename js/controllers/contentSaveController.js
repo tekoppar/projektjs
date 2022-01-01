@@ -1,4 +1,4 @@
-import { XHRUtility, Props, CanvasDrawer, AllCollisions, AllBlockingCollisions, worldTiles } from '../internal.js';
+import { XHRUtility, Props, CanvasDrawer, AllCollisions, AllBlockingCollisions } from '../internal.js';
 
 /**
  * @class
@@ -112,7 +112,7 @@ class SaveController {
 			allTerrainImportString = 'let worldTiles = {};\r\n\r\n';
 
 		for (let y = 0, yl = keys.length; y < yl; ++y) {
-			allTerrainString = 'let worldTiles' + y + ' = {\r\n';
+			allTerrainString = '//@ts-nocheck\r\n\r\nlet worldTiles' + y + ' = {\r\n';
 
 			let keysX = Object.keys(CanvasDrawer.GCD.drawingOperations[keys[y]]);
 			for (let x = 0, lx = keysX.length; x < lx; ++x) {
@@ -131,7 +131,7 @@ class SaveController {
 			allTerrainString += '\r\nexport { worldTiles' + y + ' };';
 
 			allTerrainImportString += 'import { worldTiles' + y + ' } from ' + "'./worldTiles/worldTiles" + y + ".js';\r\n";
-			allTerrainImportString += "worldTiles['" + y + "'] = " + 'worldTiles' + y + ';\r\n'; 
+			allTerrainImportString += "worldTiles['" + y + "'] = " + 'worldTiles' + y + ';\r\n';
 
 			XHRUtility.JSPost('/saveFile.php', {
 				path: '/js/drawers/tiles/worldTiles',
@@ -147,6 +147,45 @@ class SaveController {
 			path: '/js/drawers/tiles',
 			filename: 'worldTilesList.js',
 			data: allTerrainImportString
+		}, SaveController._Instance, SaveController.prototype.ContentSave);
+	}
+
+	static SaveTileLUT(tileLUT) {
+		let tileFile = '//(?:")(\d*)(?:") replace "" in numbers\r\n\r\n';
+		tileFile += 'export let TileLUT = {\r\n';
+
+		let lutName = Object.keys(tileLUT);
+		for (let lutIndex = 0, lutIndexL = lutName.length; lutIndex < lutIndexL; ++lutIndex) {
+			tileFile += '\t"' + lutName[lutIndex] + '": {\r\n';
+
+			let keysY = Object.keys(tileLUT[lutName[lutIndex]]);
+			for (let y = 0, yl = keysY.length; y < yl; ++y) {
+				tileFile += '\t\t"' + keysY[y] + '": {\r\n';
+
+				let keysX = Object.keys(tileLUT[lutName[lutIndex]][keysY[y]]);
+				for (let x = 0, xl = keysX.length; x < xl; ++x) {
+					tileFile += '\t\t\t"' + keysX[x] + '": ';
+					tileFile += JSON.stringify(tileLUT[lutName[lutIndex]][keysY[y]][keysX[x]]);
+
+					if (x !== xl - 1)
+						tileFile += ',\r\n';
+				}
+
+				tileFile += '\r\n\t\t}';
+				if (y !== yl - 1)
+					tileFile += ',\r\n';
+			}
+
+			tileFile += '\r\n\t}';
+			if (lutIndex !== lutIndexL - 1)
+				tileFile += ',\r\n';
+		}
+		tileFile += '\r\n};';
+
+		XHRUtility.JSPost('/saveFile.php', {
+			path: '/js/drawers/tiles',
+			filename: 'TileLUT.js',
+			data: tileFile
 		}, SaveController._Instance, SaveController.prototype.ContentSave);
 	}
 

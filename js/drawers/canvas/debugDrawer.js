@@ -1,4 +1,7 @@
-import { BoxCollision, Collision, PolygonCollision, CollisionHandler, Vector2D, RectOperation, Rectangle, Color, Cobject, Polygon, CanvasDrawer, Operation } from '../../internal.js';
+import {
+	BoxCollision, Collision, MeshOperation, PolygonCollision, PathOperation, CollisionHandler,
+	Vector2D, RectOperation, Mesh, Rectangle, Color, Cobject, Polygon, CanvasDrawer, Operation, TextOperation
+} from '../../internal.js';
 
 /** @typedef {import('./operation.js').Operations} Operations */
 
@@ -47,6 +50,7 @@ class DebugDrawer extends Cobject {
 		/** @type {HTMLCanvasElement} */ this.gameDebugCanvas = undefined;
 		/** @type {CanvasRenderingContext2D} */ this.gameDebugCanvasCtx = undefined;
 		/** @type {Vector2D} */ this.offset = new Vector2D(0, 0);
+		/** @type {ImageData} */ this.debugImageData = undefined;
 	}
 
 	/**
@@ -118,6 +122,35 @@ class DebugDrawer extends Cobject {
 	}
 
 	/**
+	 * Adds a drawing operation for a position
+	 * @param {Vector2D} position 
+	 * @param {string} text
+	 * @param {number} lifetime 
+	 * @param {string} color 
+	 * @param {string} font
+	 * @param {number} fontSize
+	 */
+	AddText(position, text = 'x', lifetime = 5, color = 'purple', font = 'sans-serif', fontSize = 14) {
+		if (this.gameDebugCanvas === undefined)
+			return;
+
+		this.debugOperations.push(new TextOperation(text, position, false, this.gameDebugCanvas, font, fontSize, color, 0, lifetime));
+	}
+
+	/**
+	* Adds a drawing operation for a position
+	* @param {Vector2D} position
+	* @param {string} text
+	* @param {number} lifetime 
+	* @param {string} color 
+	* @param {string} font
+	* @param {number} fontSize
+	*/
+	static AddText(position, text = 'x', lifetime = 5, color = 'purple', font = 'sans-serif', fontSize = 14) {
+		DebugDrawer._Instance.AddText(position, text, lifetime, color, font, fontSize);
+	}
+
+	/**
 	 * Adds a drawing operation for a rectangle
 	 * @param {Rectangle} rect 
 	 * @param {number} lifetime 
@@ -128,7 +161,16 @@ class DebugDrawer extends Cobject {
 		if (this.gameDebugCanvas === undefined)
 			return;
 
-		this.debugOperations.push(new RectOperation(new Vector2D(rect.x, rect.y), new Vector2D(rect.w, rect.h), this.gameDebugCanvas, color, false, 0, lifetime, 1.0, fillOrOutline));
+		this.debugOperations.push(new RectOperation(
+			new Vector2D(rect.x, rect.y),
+			new Vector2D(rect.w, rect.h),
+			this.gameDebugCanvas, color,
+			false,
+			0,
+			lifetime,
+			1.0,
+			fillOrOutline
+		));
 	}
 
 	/**
@@ -140,6 +182,54 @@ class DebugDrawer extends Cobject {
 	 */
 	static AddDebugRectOperation(rect, lifetime = 5, color = 'purple', fillOrOutline = false) {
 		DebugDrawer._Instance.AddDebugRectOperation(rect, lifetime, color, fillOrOutline);
+	}
+
+	/**
+	 * 
+	 * @param {Polygon} poly 
+	 * @param {number} lifetime 
+	 * @param {string} color 
+	 * @param {boolean} fillOrOutline 
+	 * @param {number} alpha
+	 */
+	AddPolygon(poly, lifetime = 5, color = 'purple', fillOrOutline = false, alpha = 0.5) {
+		this.debugOperations.push(new PathOperation(poly.points, this.gameDebugCanvas, color, false, 0, lifetime, fillOrOutline, alpha));
+	}
+
+	/**
+	 * 
+	 * @param {Polygon} poly 
+	 * @param {number} lifetime 
+	 * @param {string} color 
+	 * @param {boolean} fillOrOutline 
+	 * @param {number} alpha
+	 */
+	static AddPolygon(poly, lifetime = 5, color = 'purple', fillOrOutline = false, alpha = 0.5) {
+		DebugDrawer._Instance.AddPolygon(poly, lifetime, color, fillOrOutline, alpha);
+	}
+
+	/**
+	 * 
+	 * @param {Mesh} mesh 
+	 * @param {number} lifetime 
+	 * @param {string} color 
+	 * @param {boolean} fillOrOutline 
+	 * @param {number} alpha
+	 */
+	AddMesh(mesh, lifetime = 5, color = 'purple', fillOrOutline = false, alpha = 0.5) {
+		this.debugOperations.push(new MeshOperation(mesh, this.gameDebugCanvas, color, false, 0, lifetime, fillOrOutline, alpha));
+	}
+
+	/**
+	 * 
+	 * @param {Mesh} mesh 
+	 * @param {number} lifetime 
+	 * @param {string} color 
+	 * @param {boolean} fillOrOutline 
+	 * @param {number} alpha
+	 */
+	static AddMesh(mesh, lifetime = 5, color = 'purple', fillOrOutline = false, alpha = 0.5) {
+		DebugDrawer._Instance.AddMesh(mesh, lifetime, color, fillOrOutline, alpha);
 	}
 
 	/**
@@ -181,8 +271,20 @@ class DebugDrawer extends Cobject {
 					if (tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
 						this.CanvasClear(tObject);
 					break;
+
+				case 'MeshOperation':
+					if (tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
+						this.CanvasClear(tObject);
+					break;
+
+				case 'TextOperation':
+					if (tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
+						this.CanvasClear(tObject);
+					break;
 			}
 		}
+
+		this.debugImageData = this.gameDebugCanvasCtx.getImageData(0, 0, this.gameDebugCanvas.width, this.gameDebugCanvas.height);
 
 		for (let i = 0, l = this.debugOperations.length; i < l; ++i) {
 			if (this.debugOperations[i].shouldDelete === true) {
@@ -193,6 +295,8 @@ class DebugDrawer extends Cobject {
 				this.DrawDebugCanvasOperation(this.debugOperations[i], delta);
 			}
 		}
+
+		this.gameDebugCanvasCtx.putImageData(this.debugImageData, 0, 0);
 	}
 
 	/**
@@ -208,15 +312,40 @@ class DebugDrawer extends Cobject {
 			case 'RectOperation':
 				size.Set(drawingOperation.GetSize());
 				drawingOperation.drawingCanvas.getContext('2d').clearRect(oldPosition.x - 1 - this.offset.x, oldPosition.y - 1 - this.offset.y, size.x + 2, size.y + 2);
-				drawingOperation.drawingCanvas.getContext('2d').clearRect(drawingOperation.position.x - 1 - this.offset.x, drawingOperation.position.y - 1 - this.offset.y, size.x + 2, size.y + 2);
+				drawingOperation.drawingCanvas.getContext('2d').clearRect(
+					drawingOperation.position.x - 1 - this.offset.x,
+					drawingOperation.position.y - 1 - this.offset.y,
+					size.x + 2,
+					size.y + 2
+				);
 				break;
+
 			case 'PathOperation':
 				let boundingBox = Polygon.CalculateBoundingBox(drawingOperation.path);
 				boundingBox.x -= 1;
 				boundingBox.y -= 1;
-				boundingBox.z += 2;
-				boundingBox.a += 2;
-				drawingOperation.drawingCanvas.getContext('2d').clearRect(boundingBox.x - this.offset.x, boundingBox.y - this.offset.y, boundingBox.z, boundingBox.a);
+				boundingBox.w += 2;
+				boundingBox.h += 2;
+				drawingOperation.drawingCanvas.getContext('2d').clearRect(boundingBox.x - this.offset.x, boundingBox.y - this.offset.y, boundingBox.w, boundingBox.h);
+				break;
+
+			case 'MeshOperation':
+				let bb = drawingOperation.mesh.boundingBox.Clone();
+				bb.x -= 1;
+				bb.y -= 1;
+				bb.w += 2;
+				bb.h += 2;
+				drawingOperation.drawingCanvas.getContext('2d').clearRect(bb.x - this.offset.x, bb.y - this.offset.y, bb.w, bb.h);
+				break;
+
+			case 'TextOperation':
+				size.SetF(drawingOperation.GetSize());
+				drawingOperation.drawingCanvas.getContext('2d').clearRect(
+					drawingOperation.pos.x - 1 - this.offset.x,
+					drawingOperation.pos.y - 1 - this.offset.y - drawingOperation.size,
+					size.x + 2,
+					size.y + 2
+				);
 				break;
 		}
 	}
@@ -238,14 +367,122 @@ class DebugDrawer extends Cobject {
 
 				if (drawingOperation.fillOrOutline === false) {
 					context.fillStyle = drawingOperation.color;
-					context.fillRect(drawingOperation.position.x - this.offset.x, drawingOperation.position.y - this.offset.y, drawingOperation.size.x, drawingOperation.size.y);
+					context.fillRect(
+						drawingOperation.position.x - this.offset.x,
+						drawingOperation.position.y - this.offset.y,
+						drawingOperation.size.x,
+						drawingOperation.size.y
+					);
 				}
 				else {
 					context.strokeStyle = drawingOperation.color;
-					context.strokeRect(drawingOperation.position.x + 1 - this.offset.x, drawingOperation.position.y + 1 - this.offset.y, drawingOperation.size.x - 2, drawingOperation.size.y - 2);
+					context.strokeRect(
+						drawingOperation.position.x + 1 - this.offset.x,
+						drawingOperation.position.y + 1 - this.offset.y,
+						drawingOperation.size.x - 2,
+						drawingOperation.size.y - 2
+					);
 				}
 
 				context.globalAlpha = 0.3;
+
+				if (drawingOperation.lifeTime !== -1) {
+					drawingOperation.Tick(delta);
+
+					if (drawingOperation.lifeTime < 0)
+						return;
+				}
+				break;
+
+			case 'PathOperation':
+				context.globalAlpha = drawingOperation.alpha;
+
+				if (drawingOperation.fillOrOutline === null) {
+					context.fillStyle = drawingOperation.color;
+					for (let i = 0, l = drawingOperation.path.length; i < l; ++i) {
+						context.fillRect(drawingOperation.path[i].x - this.offset.x, drawingOperation.path[i].y - this.offset.y, 4, 4);
+					}
+				} else {
+					context.strokeStyle = context.fillStyle = drawingOperation.color;
+					context.beginPath();
+					context.moveTo(drawingOperation.path[0].x - this.offset.x, drawingOperation.path[0].y - this.offset.y);
+
+					for (let i = 1, l = drawingOperation.path.length; i < l; ++i) {
+						context.lineTo(drawingOperation.path[i].x - this.offset.x, drawingOperation.path[i].y - this.offset.y);
+					}
+
+					if (drawingOperation.fillOrOutline === true) {
+						//context.closePath();
+						context.stroke();
+					} else {
+						context.fill();
+					}
+				}
+
+				if (drawingOperation.lifeTime !== -1) {
+					drawingOperation.Tick(delta);
+
+					if (drawingOperation.lifeTime < 0)
+						return;
+				}
+				break;
+
+			case 'MeshOperation':
+				context.globalAlpha = drawingOperation.alpha;
+
+				if (drawingOperation.fillOrOutline === null) {
+					context.fillStyle = drawingOperation.color;
+					let points = drawingOperation.mesh.FlattenToVector2D();
+					for (let i = 0, l = points.length; i < l; ++i) {
+						context.fillRect(points[i].x - this.offset.x, points[i].y - this.offset.y, 4, 4);
+					}
+				} else {
+					for (let i = 0, l = drawingOperation.mesh.triangles.length; i < l; ++i) {
+						this.DrawLine(
+							drawingOperation.mesh.triangles[i].x.x - this.offset.x,
+							drawingOperation.mesh.triangles[i].x.y - this.offset.y,
+							drawingOperation.mesh.triangles[i].y.x - this.offset.x,
+							drawingOperation.mesh.triangles[i].y.y - this.offset.y,
+							Color.ColorToRGBA(drawingOperation.color)
+						);
+						this.DrawLine(
+							drawingOperation.mesh.triangles[i].y.x - this.offset.x,
+							drawingOperation.mesh.triangles[i].y.y - this.offset.y,
+							drawingOperation.mesh.triangles[i].z.x - this.offset.x,
+							drawingOperation.mesh.triangles[i].z.y - this.offset.y,
+							Color.ColorToRGBA(drawingOperation.color)
+						);
+						this.DrawLine(
+							drawingOperation.mesh.triangles[i].z.x - this.offset.x,
+							drawingOperation.mesh.triangles[i].z.y - this.offset.y,
+							drawingOperation.mesh.triangles[i].x.x - this.offset.x,
+							drawingOperation.mesh.triangles[i].x.y - this.offset.y,
+							Color.ColorToRGBA(drawingOperation.color)
+						);
+					}
+
+					if (drawingOperation.fillOrOutline === true) {
+						//context.closePath();
+						//context.stroke();
+					} else {
+						//context.fill('nonzero');
+					}
+				}
+
+				if (drawingOperation.lifeTime !== -1) {
+					drawingOperation.Tick(delta);
+
+					if (drawingOperation.lifeTime < 0)
+						return;
+				}
+				break;
+
+			case 'TextOperation':
+				context.globalAlpha = 1.0;
+				drawingOperation.UpdateDrawState(false);
+				context.font = drawingOperation.size + 'px ' + drawingOperation.font;
+				context.fillStyle = drawingOperation.color;
+				context.fillText(drawingOperation.text, drawingOperation.pos.x - this.offset.x, drawingOperation.pos.y - this.offset.y);
 
 				if (drawingOperation.lifeTime !== -1) {
 					drawingOperation.Tick(delta);
@@ -266,8 +503,18 @@ class DebugDrawer extends Cobject {
 		if (collision.debugDraw === false) {
 			this.gameDebugCanvasCtx.globalAlpha = 1.0;
 			this.gameDebugCanvasCtx.fillStyle = 'red';
-			this.gameDebugCanvasCtx.clearRect(Math.floor(collision.collisionOwner.position.x) - this.offset.x - 2, Math.floor(collision.collisionOwner.position.y) - this.offset.y - 2, 4, 4);
-			this.gameDebugCanvasCtx.fillRect(Math.floor(collision.collisionOwner.position.x) - this.offset.x - 2, Math.floor(collision.collisionOwner.position.y) - this.offset.y - 2, 4, 4);
+			this.gameDebugCanvasCtx.clearRect(
+				Math.floor(collision.collisionOwner.position.x) - this.offset.x - 2,
+				Math.floor(collision.collisionOwner.position.y) - this.offset.y - 2,
+				4,
+				4
+			);
+			this.gameDebugCanvasCtx.fillRect(
+				Math.floor(collision.collisionOwner.position.x) - this.offset.x - 2,
+				Math.floor(collision.collisionOwner.position.y) - this.offset.y - 2,
+				4,
+				4
+			);
 			return;
 		}
 
@@ -280,8 +527,18 @@ class DebugDrawer extends Cobject {
 
 		switch (collision.constructor) {
 			case BoxCollision:
-				this.gameDebugCanvasCtx.clearRect(collision.boundingBox.x - this.offset.x, collision.boundingBox.y - this.offset.y, collision.boundingBox.w, collision.boundingBox.h);
-				this.gameDebugCanvasCtx.fillRect(collision.boundingBox.x - this.offset.x, collision.boundingBox.y - this.offset.y, collision.boundingBox.w, collision.boundingBox.h);
+				this.gameDebugCanvasCtx.clearRect(
+					collision.boundingBox.x - this.offset.x,
+					collision.boundingBox.y - this.offset.y,
+					collision.boundingBox.w,
+					collision.boundingBox.h
+				);
+				this.gameDebugCanvasCtx.fillRect(
+					collision.boundingBox.x - this.offset.x,
+					collision.boundingBox.y - this.offset.y,
+					collision.boundingBox.w,
+					collision.boundingBox.h
+				);
 				break;
 
 			case PolygonCollision:
@@ -297,8 +554,18 @@ class DebugDrawer extends Cobject {
 				break;
 
 			case Collision:
-				this.gameDebugCanvasCtx.clearRect(collision.boundingBox.x - this.offset.x, collision.boundingBox.y - this.offset.y, collision.boundingBox.w, collision.boundingBox.h);
-				this.gameDebugCanvasCtx.fillRect(collision.boundingBox.x - this.offset.x, collision.boundingBox.y - this.offset.y, collision.boundingBox.w, collision.boundingBox.h);
+				this.gameDebugCanvasCtx.clearRect(
+					collision.boundingBox.x - this.offset.x,
+					collision.boundingBox.y - this.offset.y,
+					collision.boundingBox.w,
+					collision.boundingBox.h
+				);
+				this.gameDebugCanvasCtx.fillRect(
+					collision.boundingBox.x - this.offset.x,
+					collision.boundingBox.y - this.offset.y,
+					collision.boundingBox.w,
+					collision.boundingBox.h
+				);
 				break;
 		}
 	}
@@ -332,6 +599,74 @@ class DebugDrawer extends Cobject {
 			cameraPosition.x += size;
 		}
 		this.gameDebugCanvasCtx.stroke();
+	}
+
+	/**
+	 * 
+	 * @param {number} x0 
+	 * @param {number} y0 
+	 * @param {number} x1 
+	 * @param {number} y1 
+	 * @param {Color} color 
+	 */
+	DrawLine(x0, y0, x1, y1, color) {
+		let dy = Math.floor(y1 - y0);
+		let dx = Math.floor(x1 - x0);
+		let stepx, stepy;
+
+		if (dy < 0) { dy = -dy; stepy = -1; }
+		else { stepy = 1; }
+		if (dx < 0) { dx = -dx; stepx = -1; }
+		else { stepx = 1; }
+		dy <<= 1;
+		dx <<= 1;
+
+		let fraction = 0;
+
+		this.SetPixel(x0, y0, color);
+		if (dx > dy) {
+			fraction = dy - (dx >> 1);
+			while (Math.abs(x0 - x1) > 1) {
+				if (fraction >= 0) {
+					y0 += stepy;
+					fraction -= dx;
+				}
+				x0 += stepx;
+				fraction += dy;
+				this.SetPixel(x0, y0, color);
+			}
+		}
+		else {
+			fraction = dx - (dy >> 1);
+			while (Math.abs(y0 - y1) > 1) {
+				if (fraction >= 0) {
+					x0 += stepx;
+					fraction -= dy;
+				}
+				y0 += stepy;
+				fraction += dx;
+				this.SetPixel(x0, y0, color);
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param {number} x 
+	 * @param {number} y 
+	 * @param {Color} color 
+	 */
+	SetPixel(x, y, color) {
+		let index = this.GetColorIndex(x, y);
+
+		this.debugImageData.data[index] = color.red;
+		this.debugImageData.data[index + 1] = color.green;
+		this.debugImageData.data[index + 2] = color.blue;
+		this.debugImageData.data[index + 3] = 255;
+	}
+
+	GetColorIndex(x, y) {
+		return Math.floor(y) * (this.gameDebugCanvas.width * 4) + Math.floor(x) * 4;
 	}
 
 	FixedUpdate() {
@@ -373,6 +708,10 @@ class DebugDrawer extends Cobject {
 		this.gameDebugCanvasCtx = this.gameDebugCanvas.getContext('2d');
 		this.gameDebugCanvasCtx.imageSmoothingEnabled = false;
 		this.gameDebugCanvasCtx.globalAlpha = 0.3;
+		this.gameDebugCanvasCtx.fillStyle = 'black';
+		this.gameDebugCanvasCtx.fillRect(0, 0, this.gameDebugCanvas.width, this.gameDebugCanvas.height);
+
+		this.debugImageData = this.gameDebugCanvasCtx.getImageData(0, 0, this.gameDebugCanvas.width, this.gameDebugCanvas.height);
 	}
 
 	handleEvent(e) {

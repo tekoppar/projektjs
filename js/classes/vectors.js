@@ -1,4 +1,13 @@
-import { CMath } from '../internal.js';
+import { CMath, Logger, earcut } from '../internal.js';
+
+/**
+ * @memberof Number
+ */
+ Object.defineProperty(Number, 'Equals', {
+	value(a, b) {
+		return a === b; //The maximum is exclusive and the minimum is inclusive          
+	}
+});
 
 /**
  * @class
@@ -256,6 +265,15 @@ class Vector2D {
 
 	/**
 	 * 
+	 * @param {Vector2D} v
+	 * @returns {number} 
+	 */
+	Cross(v) {
+		return this.x * v.y - this.y * v.x;
+	}
+
+	/**
+	 * 
 	 * @returns {number}
 	 */
 	Magnitude() {
@@ -269,6 +287,14 @@ class Vector2D {
 	 */
 	static Magnitude(a) {
 		return Math.sqrt(Math.pow(a.x, 2) + Math.pow(a.y, 2));
+	}
+
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	Length() {
+		return Math.sqrt(this.x * this.x + this.y * this.y);
 	}
 
 	/**
@@ -303,6 +329,57 @@ class Vector2D {
 	 */
 	Distance(a) {
 		return Math.sqrt((a.x - this.x) * (a.x - this.x) + (a.y - this.y) * (a.y - this.y));
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} a 
+	 * @param {Vector2D} b
+	 * @returns {number}
+	 */
+	static Distance(a, b) {
+		return Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D|{x:number, y:number}} a 
+	 * @param {Vector2D|{x:number, y:number}} b
+	 * @returns {number}
+	 */
+	static DistanceObject(a, b) {
+		return Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
+	}
+
+	/**
+	 * 
+	 * @param {number} ax 
+	 * @param {number} ay 
+	 * @param {number} bx 
+	 * @param {number} by 
+	 * @returns {number}
+	 */
+	static DistanceXY(ax, ay, bx, by) {
+		return Math.sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay));
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} v 
+	 * @returns {number}
+	 */
+	DistanceTo(v) {
+		return Math.sqrt(this.DistanceToSqrt(v));
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} v 
+	 * @returns {number}
+	 */
+	DistanceToSqrt(v) {
+		const dx = this.x - v.x, dy = this.y - v.y;
+		return dx * dx + dy * dy;
 	}
 
 	/**
@@ -387,6 +464,10 @@ class Vector2D {
 		return this.x.toFixed(precision) + ', ' + this.y.toFixed(precision);
 	}
 
+	ToVector() {
+		return new Vector(this.x, this.y, 0);
+	}
+
 	/**
 	 * 
 	 * @param {Vector2D} center 
@@ -416,6 +497,36 @@ class Vector2D {
 			y: this.y
 		};
 	}
+
+	/**
+	 * 
+	 * @param {Array<{x:number, y:number}>} arr 
+	 * @returns {Vector2D[]}
+	 */
+	static ObjectXYToVector2DArray(arr) {
+		let vectorArr = [];
+
+		for (let i = 0, l = arr.length; i < l; ++i) {
+			vectorArr.push(new Vector2D(arr[i].x, arr[i].y));
+		}
+
+		return vectorArr;
+	}
+
+	/**
+	 * 
+	 * @param {(Vector2D[]|Array<{x:number, y:number}>)} arr 
+	 */
+	static FlattenVector2DArray(arr) {
+		let flatArr = [];
+
+		for (let i = 0, l = arr.length; i < l; ++i) {
+			flatArr.push(arr[i].x);
+			flatArr.push(arr[i].y);
+		}
+
+		return flatArr;
+	}
 }
 
 /**
@@ -443,6 +554,15 @@ class Vector {
 		this.x += a.x;
 		this.y += a.y;
 		this.z += a.z;
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} v2 
+	 */
+	AddV2(v2) {
+		this.x += v2.x;
+		this.y += v2.y;
 	}
 
 	/**
@@ -477,11 +597,89 @@ class Vector {
 
 	/**
 	 * 
+	 * @param {number} f 
+	 */
+	DivF(f) {
+		this.x /= f;
+		this.y /= f;
+		this.z /= f;
+	}
+
+	/**
+	 * 
+	 * @param {Vector} v 
+	 * @returns {number}
+	 */
+	Dot(v) {
+		return this.x * v.x + this.y * v.y + this.z * v.z;
+	}
+
+	/**
+	 * 
+	 * @param {Vector} b 
+	 * @returns {Vector}
+	 */
+	Cross(b) {
+		const ax = this.x, ay = this.y, az = this.z;
+		const bx = b.x, by = b.y, bz = b.z;
+
+		this.x = ay * bz - az * by;
+		this.y = az * bx - ax * bz;
+		this.z = ax * by - ay * bx;
+
+		return this;
+	}
+
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	Length() {
+		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+	}
+
+	/**
+	 * 
+	 * @param {Vector} v1 
+	 * @param {Vector} v2 
+	 * @param {Vector} normal 
+	 * @param {boolean} clockwise 
+	 * @returns {number}
+	 */
+	static AngleOffAroundAxis(v1, v2, normal, clockwise = true) {
+		//doesn't work if all the values are coplanar so offset them all slightly to get a working angle
+		var v1Off = v1.Clone();
+		v1Off.Add(new Vector(0.001, -0.001, 0.001));
+		var v2Off = v2.Clone();
+		v2Off.Add(new Vector(-0.001, 0.001, -0.001));
+
+		if (clockwise) {
+			var right = v2Off.Clone();
+			var forward = normal.Clone();
+			right.Cross(normal);
+			forward.Cross(right);
+		} else {
+			var right = normal.Clone();
+			var forward = right.Clone();
+			right.Cross(v2Off);
+			forward.Cross(normal);
+		}
+		var x = Math.atan2(v1Off.Dot(right), v1Off.Dot(forward));
+
+		return (x > 0 ? x : (2 * Math.PI + x)) * 360 / (2 * Math.PI);
+	}
+
+	/**
+	 * 
 	 * @param {Vector} a 
 	 * @returns {boolean}
 	 */
 	Equal(a) {
 		return this.x == a.x && this.y == a.y && this.z == a.z;
+	}
+
+	Clone() {
+		return new Vector(this.x, this.y, this.z);
 	}
 
 	/**
@@ -728,7 +926,7 @@ class Matrix {
 		for (let i = 0, l = arr.length; i < l; ++i) {
 			let temp = arr[i];
 			for (let k = 0, lK = keys.length; k < lK; ++k) {
-				if (temp !== undefined && temp[keys[k]] !== undefined)
+				if (temp !== undefined && temp !== null && temp[keys[k]] !== undefined)
 					temp = temp[keys[k]];
 				else
 					arr[i] = null;
@@ -1474,6 +1672,582 @@ class Direction {
  * @class
  * @constructor
  */
+class Intersection {
+
+	/**
+	 * 
+	 * @param {Vertex} s1
+	 * @param {Vertex} s2
+	 * @param {Vertex} c1
+	 * @param {Vertex} c2
+	 */
+	constructor(s1, s2, c1, c2) {
+
+		/** @type {number} */ this.x = 0.0;
+		/** @type {number} */ this.y = 0.0;
+		/** @type {number} */ this.toSource = 0.0;
+		/** @type {number} */ this.toClip = 0.0;
+
+		//const d = ((c2.y - c1.y) * (s2.x - s1.x)) - ((c2.x - c1.x) * (s2.y - s1.y));
+		const d = ((s2.x - s1.x) * (c2.y - c1.y) - (s2.y - s1.y) * (c2.x - c1.x));
+
+		if (d !== 0) {
+		///** @type {number} */ this.toSource = ((c2.x - c1.x) * (s1.y - c1.y) - (c2.y - c1.y) * (s1.x - c1.x)) / d;
+		///** @type {number} */ this.toClip = ((s2.x - s1.x) * (s1.y - c1.y) - (s2.y - s1.y) * (s1.x - c1.x)) / d;
+		/** @type {number} */ this.toSource = ((c1.x - s1.x) * (c2.y - c1.y) - (c1.y - s1.y) * (c2.x - c1.x)) / d;
+		/** @type {number} */ this.toClip = ((s2.y - s1.y) * (c1.x - s1.x) - (s2.x - s1.x) * (c1.y - s1.y)) / d;
+
+			if (this.Valid()) {
+				this.x = s1.x + this.toSource * (s2.x - s1.x);
+				this.y = s1.y + this.toSource * (s2.y - s1.y);
+			}
+		}
+	}
+
+
+	/**
+	 * 
+	 * @returns {boolean}
+	 */
+	Valid() {
+		return (0 < this.toSource && this.toSource < 1) && (0 < this.toClip && this.toClip < 1);
+	}
+}
+
+/**
+ * @class
+ * @constructor
+ */
+class Vertex {
+
+	/**
+	 * 
+	 * @param {number} x 
+	 * @param {number} y 
+	 */
+	constructor(x, y) {
+		/** @type {number} */ this.x = x;
+		/** @type {number} */ this.y = y;
+		/** @type {Vertex} */ this.next = undefined;
+		/** @type {Vertex} */ this.prev = undefined;
+		/** @type {Vertex} */ this.corresponding = undefined;
+		/** @type {number} */ this.distance = 0.0;
+		/** @type {boolean} */ this.isEntry = true;
+		/** @type {boolean} */ this.isIntersection = false;
+		/** @type {boolean} */ this.visited = false;
+	}
+
+	/**
+	 * 
+	 * @param {Vertex} v 
+	 * @returns {boolean}
+	 */
+	Equals(v) {
+		return this.x === v.x && this.y === v.y;
+	}
+
+	/**
+	 * 
+	 * @param {DLPolygon} poly 
+	 * @returns {boolean}
+	 */
+	IsInside(poly) {
+		let oddNodes = false,
+			vertex = poly.first,
+			next = vertex.next;
+
+		const x = this.x;
+		const y = this.y;
+
+		do {
+			if (
+				(vertex.y < y && next.y >= y || next.y < y && vertex.y >= y) &&
+				(vertex.x <= x || next.x <= x)
+			) {
+				//@ts-ignore
+				oddNodes ^= (vertex.x + (y - vertex.y) / (next.y - vertex.y) * (next.x - vertex.x) < x);
+			}
+
+			vertex = vertex.next;
+			next = vertex.next || poly.first;
+		} while (!vertex.Equals(poly.first));
+
+		return oddNodes;
+	}
+
+	Visit() {
+		this.visited = true;
+		if (this.corresponding !== undefined && !this.corresponding.visited) {
+			this.corresponding.Visit();
+		}
+	}
+
+	/**
+	 * 
+	 * @param {number} x 
+	 * @param {number} y 
+	 * @param {number} distance 
+	 * @returns {Vertex}
+	 */
+	static CreateIntersection(x, y, distance) {
+		const vertex = new Vertex(x, y);
+		vertex.distance = distance;
+		vertex.isIntersection = true;
+		vertex.isEntry = false;
+		return vertex;
+	}
+}
+
+/**
+ * @class
+ * @constructor
+ */
+class DLPolygon {
+
+	/**
+	 * 
+	 * @param {(Vertex[]|Vector2D[]|Array<{x:number, y:number}>)} points
+	 * @param {boolean} arrayVertices
+	 */
+	constructor(points, arrayVertices = undefined) {
+		/** @type {Vertex} */ this.first = undefined;
+		/** @type {number} */ this.vertices = 0;
+		/** @type {Vertex} */ this.lastUnprocessed = undefined;
+		/** @type {Vertex} */ this.firstIntersect = undefined;
+		/** @type {boolean} */ this.arrayObjectOrVertex = arrayVertices;
+
+		if (arrayVertices === undefined && points !== undefined && points.length > 0)
+			this.arrayObjectOrVertex = points[0] instanceof Vertex ? true : Array.isArray(points[0]);
+
+		for (let i = 0, len = points.length; i < len; i++) {
+			this.AddVertex(new Vertex(points[i].x, points[i].y));
+		}
+	}
+
+	/**
+	 * 
+	 * @private
+	 * @param {Vertex} vertex 
+	 */
+	AddVertex(vertex) {
+		if (this.first === undefined) {
+			this.first = vertex;
+			this.first.next = vertex;
+			this.first.prev = vertex;
+		} else {
+			const next = this.first;
+			const prev = next.prev;
+
+			next.prev = vertex;
+			vertex.next = next;
+			vertex.prev = prev;
+			prev.next = vertex;
+		}
+		this.vertices++;
+	}
+
+	/**
+	 * 
+	 * @private
+	 * @param {Vertex} vertex 
+	 * @param {Vertex} start 
+	 */
+	InsertVertexAfter(vertex, start) {
+		let next;
+
+		vertex.prev = start;
+		next = start.next;
+
+		vertex.next = start.next;
+		next.prev = vertex;
+		start.next = vertex;
+
+		this.vertices++;
+
+		return vertex;
+	}
+
+	/**
+	 * 
+	 * @private
+	 * @param {Vertex} vertex 
+	 * @param {Vertex} start 
+	 * @param {Vertex} end 
+	 */
+	InsertVertex(vertex, start, end) {
+		let prev, curr = start;
+
+		while (!curr.Equals(end) && curr.distance < vertex.distance) {
+			curr = curr.next;
+		}
+
+		vertex.next = curr;
+		prev = curr.prev;
+
+		vertex.prev = prev;
+		prev.next = vertex;
+		curr.prev = vertex;
+
+		this.vertices++;
+	}
+
+	/**
+	 * 
+	 * @private
+	 * @param {Vertex} v 
+	 * @returns {Vertex}
+	 */
+	Next(v) {
+		let c = v;
+		while (c.isIntersection)
+			c = c.next;
+		return c;
+	}
+
+	/**
+	 * 
+	 * @returns {Vertex}
+	 */
+	GetLast() {
+		let points = this.Vertices();
+		return points[points.length - 1];
+	}
+
+	/**
+	 * 
+	 * @param {Vertex} v 
+	 * @returns {Vertex}
+	 */
+	GetClosest(v) {
+		let points = this.Vertices(),
+			closest = undefined,
+			d = 999999999;
+
+		for (let i = 0, l = points.length; i < l; ++i) {
+			if (Vector2D.DistanceObject(v, points[i]) < d) {
+				d = Vector2D.DistanceObject(v, points[i]);
+				closest = points[i];
+			}
+		}
+
+		return closest;
+	}
+
+	/**
+	 * 
+	 * @private
+	 * @returns {Vertex}
+	 */
+	FirstIntersect() {
+		let v = this.firstIntersect || this.first;
+
+		do {
+			if (v.isIntersection && !v.visited)
+				break;
+
+			v = v.next;
+		} while (!v.Equals(this.first));
+
+		this.firstIntersect = v;
+		return v;
+	}
+
+	/**
+	 * 
+	 * @returns {Vertex[]}
+	 */
+	Vertices() {
+		const points = [];
+		let v = this.first;
+
+		if (this.arrayObjectOrVertex) {
+			do {
+				points.push(v);
+				v = v.next;
+			} while (v !== this.first);
+		} else {
+			do {
+				points.push(v);
+				v = v.next;
+			} while (v !== this.first);
+		}
+
+		return points;
+	}
+
+	/**
+	 * 
+	 * @public
+	 * @returns {Array<{x:number, y:number}>}
+	 */
+	Points() {
+		const points = [];
+		let v = this.first;
+
+		if (this.arrayObjectOrVertex) {
+			do {
+				points.push({ x: v.x, y: v.y });
+				v = v.next;
+			} while (v !== this.first);
+		} else {
+			do {
+				points.push({
+					x: v.x,
+					y: v.y
+				});
+				v = v.next;
+			} while (v !== this.first);
+		}
+
+		return points;
+	}
+
+	/**
+	 * 
+	 * @public
+	 * @returns {Array<number>}
+	 */
+	GetFlatArray() {
+		const points = [];
+		let v = this.first;
+
+		if (this.arrayObjectOrVertex) {
+			do {
+				points.push(v.x);
+				points.push(v.y);
+				v = v.next;
+			} while (v !== this.first);
+		} else {
+			do {
+				points.push(v.x);
+				points.push(v.y);
+				v = v.next;
+			} while (v !== this.first);
+		}
+
+		return points;
+	}
+
+	/**
+	 * 
+	 * @private
+	 * @returns {boolean}
+	 */
+	HasUnprocessed() {
+		let v = this.lastUnprocessed || this.first;
+		do {
+			if (v.isIntersection && !v.visited) {
+				this.lastUnprocessed = v;
+				return true;
+			}
+
+			v = v.next;
+		} while (!v.Equals(this.first));
+
+		this.lastUnprocessed = undefined;
+		return false;
+	}
+
+	/**
+	 * 
+	 * @public
+	 * @param {DLPolygon} clip 
+	 * @returns {Array<Array<{x:number, y:number}>>}
+	 */
+	Union(clip) {
+		return this.Clip(clip, false, false);
+	}
+
+	/**
+	 * 
+	 * @public
+	 * @param {DLPolygon} clip 
+	 * @returns {Array<Array<{x:number, y:number}>>}
+	 */
+	Intersection(clip) {
+		return this.Clip(clip, true, true);
+	}
+
+	/**
+	 * 
+	 * @public
+	 * @param {DLPolygon} clip 
+	 * @returns {Array<Array<{x:number, y:number}>>}
+	 */
+	Difference(clip) {
+		return this.Clip(clip, false, true);
+	}
+
+	/**
+	 * 
+	 * @private
+	 * @param {DLPolygon} clip 
+	 * @param {boolean} sourceForwards 
+	 * @param {boolean} clipForwards 
+	 * @returns {Array<Array<{x:number, y:number}>>}
+	 */
+	Clip(clip, sourceForwards, clipForwards) {
+		let sourceVertex = this.first;
+		let clipVertex = clip.first;
+		let sourceInClip, clipInSource;
+
+		const isUnion = !sourceForwards && !clipForwards;
+		const isIntersection = sourceForwards && clipForwards;
+		//const isDiff = !isUnion && !isIntersection;
+
+		// calculate and mark intersections
+		do {
+			if (!sourceVertex.isIntersection) {
+				do {
+					if (!clipVertex.isIntersection) {
+						const i = new Intersection(sourceVertex, this.Next(sourceVertex.next), clipVertex, clip.Next(clipVertex.next));
+
+						if (i.Valid()) {
+							const sourceIntersection = Vertex.CreateIntersection(i.x, i.y, i.toSource);
+							const clipIntersection = Vertex.CreateIntersection(i.x, i.y, i.toClip);
+
+							sourceIntersection.corresponding = clipIntersection;
+							clipIntersection.corresponding = sourceIntersection;
+
+							this.InsertVertex(sourceIntersection, sourceVertex, this.Next(sourceVertex.next));
+							clip.InsertVertex(clipIntersection, clipVertex, clip.Next(clipVertex.next));
+						}
+					}
+					clipVertex = clipVertex.next;
+				} while (!clipVertex.Equals(clip.first));
+			}
+
+			sourceVertex = sourceVertex.next;
+		} while (!sourceVertex.Equals(this.first));
+
+		// phase two - identify entry/exit points
+		sourceVertex = this.first;
+		clipVertex = clip.first;
+
+		sourceInClip = sourceVertex.IsInside(clip);
+		clipInSource = clipVertex.IsInside(this);
+
+		//@ts-ignore
+		sourceForwards ^= sourceInClip;
+		//@ts-ignore
+		clipForwards ^= clipInSource;
+
+		do {
+			if (sourceVertex.isIntersection) {
+				sourceVertex.isEntry = sourceForwards;
+				sourceForwards = !sourceForwards;
+			}
+			sourceVertex = sourceVertex.next;
+		} while (!sourceVertex.Equals(this.first));
+
+		do {
+			if (clipVertex.isIntersection) {
+				clipVertex.isEntry = clipForwards;
+				clipForwards = !clipForwards;
+			}
+			clipVertex = clipVertex.next;
+		} while (!clipVertex.Equals(clip.first));
+
+		// phase three - construct a list of clipped polygons
+		let list = [];
+		while (this.HasUnprocessed()) {
+			let current = this.FirstIntersect();
+			const clipped = new DLPolygon([], this.arrayObjectOrVertex);
+
+			clipped.AddVertex(new Vertex(current.x, current.y));
+			do {
+				current.Visit();
+				if (current.isEntry) {
+					do {
+						current = current.next;
+						clipped.AddVertex(new Vertex(current.x, current.y));
+					} while (!current.isIntersection);
+
+				} else {
+					do {
+						current = current.prev;
+						clipped.AddVertex(new Vertex(current.x, current.y));
+					} while (!current.isIntersection);
+				}
+				current = current.corresponding;
+			} while (!current.visited);
+
+			list.push(clipped.Points());
+		}
+
+		if (list.length === 0) {
+			if (isUnion) {
+				if (sourceInClip)
+					list.push(clip.Points());
+				else if (clipInSource)
+					list.push(this.Points());
+				else {
+					list.push(this.Points());
+					list.push(clip.Points());
+				}
+			} else if (isIntersection) { // intersection
+				if (sourceInClip)
+					list.push(this.Points());
+				else if (clipInSource)
+					list.push(clip.Points());
+			} else { // diff
+				if (sourceInClip) {
+					list.push(clip.Points());
+					list.push(this.Points());
+				}
+				else if (clipInSource) {
+					list.push(this.Points());
+					list.push(clip.Points());
+				}
+				else
+					list.push(this.Points());
+			}
+
+			if (list.length === 0)
+				list = undefined;
+		}
+
+		return list;
+	}
+
+	/**
+	 * 
+	 * @param {number[]} array 
+	 * @param {number[]} indices 
+	 * @returns {Array<{x:number, y:number}>}
+	 */
+	PolygonFromFlatArray(array, indices) {
+		let arr = [];
+
+		for (let i = 0, l = indices.length; i < l; ++i) {
+			let index = indices[i] * 2;
+			arr.push({ x: array[index], y: array[index + 1] });
+		}
+
+		return arr;
+	}
+
+	* iterator() {
+		let s = this.first;
+
+		while (true) {
+			yield s;
+			s = s.next;
+
+			if (s == this.first)
+				return;
+		}
+	}
+
+	[Symbol.iterator]() {
+		return this.iterator();
+	}
+}
+
+/**
+ * @class
+ * @constructor
+ */
 class Line {
 
 	/**
@@ -1578,6 +2352,25 @@ class Line {
 
 		let pointF = Math.min(Math.max((Math.abs(position.x - a.x) * abX + Math.abs(position.y - a.y) * abY) / ((abX * abX) + (abY * abY)), 0), 1);
 		return new Vector2D(a.x + (abX * pointF), a.y + (abY * pointF));
+
+		/*
+		let ap = Vector2D.Sub(position, a),
+			ab = Vector2D.Sub(b, a);
+
+		ap.Abs();
+		ab.Abs();
+
+		let magnitudeAB = ab.LengthSquared();
+		let abAPDot = Vector2D.Dot(ap, ab);
+		let distance = CMath.Clamp(abAPDot / magnitudeAB, 0, 1);
+
+		if (distance < 0)
+			return a
+		else if (distance > 1)
+			return b;
+		else
+		return Vector2D.Add(a, Vector2D.MultF(ab, distance));
+		*/
 	}
 }
 
@@ -1586,8 +2379,84 @@ class Line {
  * @constructor
  */
 class Polygon {
+
+	/**
+	 * 
+	 * @param {Vector2D[]} points 
+	 */
+	constructor(points) {
+		/** @type {Vector2D[]} */ this.points = points;
+		/** @type {Rectangle} */ this.boundingBox = undefined;
+	}
+
+	/**
+	 * 
+	 * @returns {Array<{x:number, y:number}>}
+	 */
+	ToObject() {
+		let arr = [];
+
+		for (let i = 0, l = this.points.length; i < l; ++i) {
+			arr.push({ x: this.points[i].x, y: this.points[i].y });
+		}
+		return arr;
+	}
+
+	/**
+	 * 
+	 * @returns {Array<number>}
+	 */
+	Flatten() {
+		let arr = [];
+
+		for (let i = 0, l = this.points.length; i < l; ++i) {
+			arr.push(this.points[i].x);
+			arr.push(this.points[i].y);
+		}
+		return arr;
+	}
+
+	/**
+	 * 
+	 */
+	CalculateBoundingBox() {
+		let sX = 9999999999, sY = 9999999999, lX = -9999999999, lY = -9999999999;
+
+		for (let pos of this.points) {
+			if (pos.x > lX)
+				lX = pos.x;
+			if (pos.x < sX)
+				sX = pos.x;
+			if (pos.y > lY)
+				lY = pos.y;
+			if (pos.y < sY)
+				sY = pos.y;
+		}
+		this.boundingBox = new Rectangle(sX, sY, lX - sX, lY - sY);
+	}
+
+	/**
+	 * 
+	 * @param {Array<{x:number, y:number}>} points 
+	 * @returns {Polygon}
+	 */
+	static FromObject(points) {
+		let poly = new Polygon([]);
+
+		for (let i = 0, l = points.length; i < l; ++i) {
+			poly.points.push(new Vector2D(points[i].x, points[i].y));
+		}
+
+		return poly;
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D[]} points 
+	 * @returns {Rectangle}
+	 */
 	static CalculateBoundingBox(points) {
-		let sX = 9999999999, sY = 9999999999, lX = -1, lY = -1;
+		let sX = 9999999999, sY = 9999999999, lX = -9999999999, lY = -9999999999;
 
 		for (let pos of points) {
 			if (pos.x > lX)
@@ -1599,7 +2468,269 @@ class Polygon {
 			if (pos.y < sY)
 				sY = pos.y;
 		}
-		return new Vector4D(sX, sY, lX - sX, lY - sY);
+		return new Rectangle(sX, sY, lX - sX, lY - sY);
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D[]} contour 
+	 * @param {Array<Vector2D[]>} holes 
+	 * @returns {number[]}
+	 */
+	static TriangulateShape(contour, holes) {
+		/** @type {number[]} */ const vertices = []; // flat array of vertices like [ x0,y0, x1,y1, x2,y2, ... ]
+		/** @type {number[]} */ const holeIndices = []; // array of hole indices
+		/** @type {number[]} */ const faces = []; // final array of vertex indices like [ [ a,b,d ], [ b,c,d ] ]
+
+		Polygon.RemoveDupEndPts(contour);
+		Polygon.AddContour(vertices, contour);
+
+		if (holes.length > 0) {
+			let holeIndex = contour.length;
+			for (let i = 0, l = holes.length; i < l; ++i) {
+				Polygon.RemoveDupEndPts(holes[i]);
+			}
+
+			for (let i = 0; i < holes.length; i++) {
+				holeIndices.push(holeIndex);
+				holeIndex += holes[i].length;
+				Polygon.AddContour(vertices, holes[i]);
+			}
+		}
+
+		const triangles = earcut(vertices, holeIndices);
+
+		for (let i = 0; i < triangles.length; i += 3) {
+			faces.push(...triangles.slice(i, i + 3));
+		}
+
+		return faces;
+	}
+
+	/**
+	 * 
+	 * @private
+	 * @param {Array<*>} points 
+	 */
+	static RemoveDupEndPts(points) {
+		const l = points.length;
+		
+		if (l > 2 && points[l - 1].Equal(points[0])) {
+			points.pop();
+		}
+	}
+
+	/**
+	 * 
+	 * @private
+	 * @param {number[]} vertices 
+	 * @param {Vector2D[]} contour 
+	 */
+	static AddContour(vertices, contour) {
+		for (let i = 0; i < contour.length; i++) {
+			vertices.push(contour[i].x);
+			vertices.push(contour[i].y);
+		}
+	}
+}
+
+/**
+ * @class
+ * @constructor
+ */
+class Vertice {
+
+	/**
+	 * 
+	 * @param {number} x 
+	 * @param {number} y 
+	 * @param {number} i
+	 */
+	constructor(x, y, i) {
+		/** @type {number} */ this.x = x;
+		/** @type {number} */ this.y = y;
+		/** @type {number} */ this.indice = i;
+	}
+
+	ToVector2D() {
+		return new Vector2D(this.x, this.y);
+	}
+
+	static FromVector2D(v) {
+		return new Vertice(v.x, v.y, -1);
+	}
+
+	Clone() {
+		return new Vertice(this.x, this.y, this.indice);
+	}
+
+	/**
+	 * 
+	 * @param {Vertice} a 
+	 * @returns {boolean}
+	 */
+	Equal(a) {
+		return this.x == a.x && this.y == a.y;
+	}
+}
+
+/**
+ * @class
+ * @constructor
+ */
+class Triangle {
+
+	/**
+	 * 
+	 * @param {Vertice} x 
+	 * @param {Vertice} y 
+	 * @param {Vertice} z 
+	 */
+	constructor(x, y, z) {
+		/** @type {Vertice} */ this.x = x;
+		/** @type {Vertice} */ this.y = y;
+		/** @type {Vertice} */ this.z = z;
+	}
+
+	GetArea() {
+		let v0 = Vector2D.Sub(this.z.ToVector2D(), this.y.ToVector2D()).ToVector();
+		let v1 = Vector2D.Sub(this.x.ToVector2D(), this.y.ToVector2D()).ToVector();
+
+		return v0.Cross(v1).Length() * 0.5;
+	}
+
+	/**
+	 * 
+	 * @returns {number[]}
+	 */
+	Flatten() {
+		return [this.x.x, this.x.y, this.y.x, this.y.y, this.z.x, this.z.y];
+	}
+
+	static FindCornerFromVertexIndex(a, b, c, length) {
+		if ((CMath.Mod((a - 1), length) === b || CMath.Mod((a - 1), length) === c) && (CMath.Mod((a + 1), length) === b || CMath.Mod((a + 1), length) === c)) return a;
+		if ((CMath.Mod((b - 1), length) === a || CMath.Mod((b - 1), length) === c) && (CMath.Mod((b + 1), length) === a || CMath.Mod((b + 1), length) === c)) return b;
+		if ((CMath.Mod((c - 1), length) === a || CMath.Mod((c - 1), length) === b) && (CMath.Mod((c + 1), length) === a || CMath.Mod((c + 1), length) === b)) return c;
+	}
+
+	Clone() {
+		return new Triangle(this.x.Clone(), this.y.Clone(), this.z.Clone());
+	}
+
+	*[Symbol.iterator]() {
+		yield this.x;
+		yield this.y;
+		yield this.z;
+	}
+}
+
+/**
+ * @class
+ * @constructor
+ */
+class Mesh {
+
+	/**
+	 * 
+	 * @param {Triangle[]} triangles 
+	 */
+	constructor(triangles, vertices = undefined) {
+		/** @type {Triangle[]} */ this.triangles = triangles;
+		/** @type {Rectangle} */ this.boundingBox = undefined;
+		this.vertices = vertices;
+
+		this.CalculateBoundingBox();
+	}
+
+	/**
+	 * 
+	 */
+	CalculateBoundingBox() {
+		let sX = 9999999999, sY = 9999999999, lX = -9999999999, lY = -9999999999;
+
+		for (let i = 0, l = this.triangles.length; i < l; ++i) {
+			for (let pos of this.triangles[i]) {
+				if (pos.x > lX)
+					lX = pos.x;
+				if (pos.x < sX)
+					sX = pos.x;
+				if (pos.y > lY)
+					lY = pos.y;
+				if (pos.y < sY)
+					sY = pos.y;
+			}
+		}
+		this.boundingBox = new Rectangle(sX, sY, lX - sX, lY - sY);
+	}
+
+	FlattenToVector2D() {
+		let vectors = [];
+
+		for (let i = 0, l = this.triangles.length; i < l; ++i) {
+			for (let pos of this.triangles[i]) {
+				vectors.push(pos.ToVector2D());
+			}
+		}
+
+		return vectors;
+	}
+
+	/**
+	 * 
+	 * @param {number[]} vertices 
+	 * @param {number[]} indices 
+	 */
+	static FromVerticesIndices(vertices, indices) {
+		let triangles = [];
+		for (let i = 0, l = indices.length; i < l; i += 3) {
+			triangles.push(new Triangle(
+				new Vertice(vertices[indices[i] * 2], vertices[indices[i] * 2 + 1], indices[i]),
+				new Vertice(vertices[indices[i + 1] * 2], vertices[indices[i + 1] * 2 + 1], indices[i + 1]),
+				new Vertice(vertices[indices[i + 2] * 2], vertices[indices[i + 2] * 2 + 1], indices[i + 2])
+			));
+		}
+
+		return new Mesh(triangles, vertices);
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D[]} vertices 
+	 * @param {number[]} indices 
+	 */
+	static FromVector2DIndices(vertices, indices) {
+		let triangles = [];
+
+		for (let i = 0, l = indices.length; i < l; i += 3) {
+			if (vertices[indices[i]] !== undefined && vertices[indices[i + 1]] !== undefined && vertices[indices[i + 2]] !== undefined) {
+				triangles.push(new Triangle(
+					new Vertice(vertices[indices[i]].x, vertices[indices[i]].y, indices[i]),
+					new Vertice(vertices[indices[i + 1]].x, vertices[indices[i + 1]].y, indices[i + 1]),
+					new Vertice(vertices[indices[i + 2]].x, vertices[indices[i + 2]].y, indices[i + 2])
+				));
+			}
+		}
+
+		return new Mesh(triangles, Vector2D.FlattenVector2DArray(vertices));
+	}
+
+	ToObj() {
+		let vertices = '',
+			faces = '';
+
+		for (let i = 0, l = this.vertices.length; i < l; i += 2) {
+			vertices += 'v ' + this.vertices[i] + ' ' + this.vertices[i + 1] + ' 0.0\r\n';
+		}
+
+		for (let i = 0, l = this.triangles.length; i < l; ++i) {
+			faces += 'f '
+			for (let pos of this.triangles[i]) {
+				faces += (pos.indice + 1) + ' ';
+			}
+			faces += '\r\n';
+		}
+
+		return vertices + '\r\n' + 'g Plane001\r\n' + faces;
 	}
 }
 
@@ -1930,6 +3061,12 @@ class Color {
 		'yellowgreen': 'rgba(154,205,50,1)'
 	};
 
+	static RandomColorInt = 0;
+	static RandomColorRGBA() {
+		Color.RandomColorInt = CMath.RandomInt(0, Color.CSS_COLOR_NAMES.length - 1);
+		return Color.CSS_COLOR_TABLE[Color.CSS_COLOR_NAMES[Color.RandomColorInt].toLowerCase()];
+	}
+
 	static ColorToRGBA(color) {
 		if (color !== undefined && color instanceof Color)
 			return color;
@@ -2163,4 +3300,4 @@ class Color {
 	}
 }
 
-export { Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Line, Polygon, Color };
+export { Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Intersection, Vertex, DLPolygon, Line, Vertice, Triangle, Polygon, Mesh, Color };

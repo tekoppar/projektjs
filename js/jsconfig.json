@@ -13,6 +13,7 @@
 		"noFallthroughCasesInSwitch": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
+		"noPropertyAccessFromIndexSignature": false,
 		"suppressExcessPropertyErrors": false,
 		"suppressImplicitAnyIndexErrors": false,
 		"strictFunctionTypes": true,
@@ -21,6 +22,6 @@
 	},
 	"exclude": [
 		"node_modules",
-		"js/drawers/tiles/worldTiles/"
+		"drawers/tiles/worldTiles"
 	]
 }

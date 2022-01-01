@@ -5,8 +5,8 @@ import { Cobject } from '../../internal.js';
  * @constructor
  * @extends Cobject
  */
-class CustomLogger extends Cobject {
-	static Logger = new CustomLogger();
+class Logger extends Cobject {
+	static Logger = new Logger();
 
 	constructor() {
 		super();
@@ -24,20 +24,29 @@ class CustomLogger extends Cobject {
 	}
 
 	DrawToLogs() {
-		CustomLogger.Logger.logEl.innerText = this.logs;
+		Logger.Logger.logEl.innerText = this.logs;
 		this.logs = '';
 	}
 
 	static Log(callee, content) {
+		/** @type {string} */ let name = '';
+		if (typeof callee === 'string')
+			name = callee;
+		else if (callee.name !== undefined && callee.name !== '')
+			name = callee.name
+		else {
+			name = callee.constructor.name;
+		}
+
 		if (Array.isArray(content)) {
-			CustomLogger.Logger.logs += (callee.name !== undefined ? callee.name : callee.constructor.name).slice(0, 25) + ': \r\n';
+			Logger.Logger.logs += name.slice(0, 25) + ': \r\n';
 			for (let i = 0, l = content.length; i < l; ++i) {
-				CustomLogger.Logger.logs += '\t' + content[i] + '\r\n';
+				Logger.Logger.logs += '\t' + content[i] + '\r\n';
 			}
 		} else {
-			CustomLogger.Logger.logs += (callee.name !== undefined ? callee.name : callee.constructor.name).slice(0, 25) + ': ' + content + '\r\n';
+			Logger.Logger.logs += name.slice(0, 25) + ': ' + content + '\r\n';
 		}
 	}
 }
 
-export { CustomLogger };
+export { Logger };

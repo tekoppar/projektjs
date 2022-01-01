@@ -1,4 +1,4 @@
-import { Vector2D, Rectangle, ShadowCanvasOperation, ObjectType, AmbientLight, Tile, CFrame } from '../../internal.js';
+import { Vector2D, Rectangle, ShadowCanvasOperation, ObjectType, AmbientLight, Tile, CFrame, Mesh } from '../../internal.js';
 
 /**
  * Enum for frustum culling state
@@ -38,7 +38,7 @@ class Operation {
 	 * @param {OperationType} operationType 
 	 */
 	constructor(drawingCanvas, operationType = OperationType.terrain) {
-		/** @type {('Operation'|'TextOperation'|'DrawingOperation'|'RectOperation'|'ClearOperation'|'LightingOperation'|'PathOperation')} */ this.ClassType;
+		/** @type {('Operation'|'TextOperation'|'DrawingOperation'|'RectOperation'|'ClearOperation'|'LightingOperation'|'PathOperation'|'MeshOperation')} */ this.ClassType;
 		/** @type {Vector2D} */ this.oldPosition = new Vector2D(0, 0);
 		/** @type {boolean} */ this.isVisible = false;
 		/** @type {boolean} */ this.shouldDelete = false;
@@ -82,7 +82,7 @@ class Operation {
 	FrustumCulling(frustum) {
 		let tPos = this.GetPosition();
 		let newState = frustum.InsideXY(tPos.x, tPos.y) || frustum.InsideXY(tPos.x + this.GetDrawSize().x, tPos.y + this.GetDrawSize().y);
-		//CustomLogger.Log(this.GetOwner(), [frustum.ToString(), newState, this.frustumCulled, this.oldPosition.ToString()]);
+		//Logger.Log(this.GetOwner(), [frustum.ToString(), newState, this.frustumCulled, this.oldPosition.ToString()]);
 
 		if (this.frustumCulled === true && newState === true && this.frustumState !== FrustumCullingState.Visible) {
 			this.UpdateDrawState(true);
@@ -203,7 +203,7 @@ class TextOperation extends Operation {
 	 * @param {string} color 
 	 * @param {number} drawIndex 
 	 */
-	constructor(text, pos, clear, drawingCanvas, font = 'sans-serif', size = 18, color = 'rgb(243, 197, 47)', drawIndex = 0) {
+	constructor(text, pos, clear, drawingCanvas, font = 'sans-serif', size = 18, color = 'rgb(243, 197, 47)', drawIndex = 0, lifetime = -1) {
 		super(drawingCanvas, OperationType.gui);
 
 		/** @type {'TextOperation'} */ this.ClassType = 'TextOperation';
@@ -215,6 +215,7 @@ class TextOperation extends Operation {
 		/** @type {string} */ this.color = color;
 		/** @type {number} */ this.drawIndex = drawIndex;
 		/** @type {boolean} */ this.needsToBeRedrawn = true;
+		/** @type {number} */ this.lifeTime = lifetime;
 	}
 
 	GetDrawIndex() {
@@ -256,6 +257,14 @@ class TextOperation extends Operation {
 
 	DrawState() {
 		return this.needsToBeRedrawn;
+	}
+
+	Tick(delta) {
+		this.lifeTime -= delta;
+
+		if (this.lifeTime <= 0) {
+			this.Delete();
+		}
 	}
 }
 
@@ -617,7 +626,7 @@ class PathOperation extends Operation {
 	 * @param {number} lifetime 
 	 * @param {number} alpha 
 	 */
-	constructor(path, drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, alpha = 0.3) {
+	constructor(path, drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, fillOrOutline = false, alpha = 0.3) {
 		super(drawingCanvas);
 
 		/** @type {'PathOperation'} */ this.ClassType = 'PathOperation';
@@ -627,6 +636,7 @@ class PathOperation extends Operation {
 		/** @type {number} */ this.drawIndex = drawIndex;
 		/** @type {boolean} */ this.needsToBeRedrawn = true;
 		/** @type {number} */ this.lifeTime = lifetime;
+		/** @type {boolean} */ this.fillOrOutline = fillOrOutline;
 		/** @type {number} */ this.alpha = alpha;
 	}
 
@@ -698,6 +708,109 @@ class PathOperation extends Operation {
 	 */
 	GetPreviousPosition() {
 		return this.oldPosition === undefined ? this.path[0] : this.oldPosition;
+	}
+
+	/**
+	 * 
+	 * @returns {boolean}
+	 */
+	DrawState() {
+		return this.needsToBeRedrawn;
+	}
+
+	/**
+	 * 
+	 * @param {number} delta 
+	 */
+	Tick(delta) {
+		this.lifeTime -= delta;
+
+		if (this.lifeTime <= 0) {
+			this.Delete();
+		}
+	}
+}
+
+class MeshOperation extends Operation {
+	/**
+	 * 
+	 * @param {Mesh} mesh 
+	 * @param {HTMLCanvasElement} drawingCanvas 
+	 * @param {string} color 
+	 * @param {boolean} clear 
+	 * @param {number} drawIndex 
+	 * @param {number} lifetime 
+	 * @param {number} alpha 
+	 */
+	constructor(mesh, drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, fillOrOutline = false, alpha = 0.3) {
+		super(drawingCanvas);
+
+		/** @type {'MeshOperation'} */ this.ClassType = 'MeshOperation';
+		/** @type {Mesh} */ this.mesh = mesh;
+		/** @type {boolean} */ this.clear = clear;
+		/** @type {string} */ this.color = color;
+		/** @type {number} */ this.drawIndex = drawIndex;
+		/** @type {boolean} */ this.needsToBeRedrawn = true;
+		/** @type {number} */ this.lifeTime = lifetime;
+		/** @type {boolean} */ this.fillOrOutline = fillOrOutline;
+		/** @type {number} */ this.alpha = alpha;
+	}
+
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	GetDrawIndex() {
+		return this.drawIndex;
+	}
+
+	/**
+	 * 
+	 * @returns {Vector2D}
+	 */
+	GetPosition() {
+		return this.mesh.triangles[0].x.ToVector2D();
+	}
+
+	/**
+	 * 
+	 * @returns {Vector2D}
+	 */
+	GetDrawPosition() {
+		return this.mesh.triangles[0].x.ToVector2D();
+	}
+
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	GetDrawPositionY() {
+		return this.mesh.triangles[0].x.ToVector2D().y;
+	}
+
+	/**
+	 * 
+	 * @returns {Vector2D}
+	 */
+	GetSize() {
+		return new Vector2D(32, 32);
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} pos 
+	 */
+	Update(pos) {
+		this.needsToBeRedrawn = true;
+		super.Update(pos === undefined ? this.mesh.triangles[0].x.ToVector2D() : pos);
+	}
+
+	/**
+	 * 
+	 * @returns {Vector2D}
+	 */
+	GetPreviousPosition() {
+		return this.oldPosition === undefined ? this.mesh.triangles[0].x.ToVector2D() : this.oldPosition;
 	}
 
 	/**
@@ -899,7 +1012,7 @@ class LightingOperation extends Operation {
 		tPos.SubF(this.light.halfAttenuation);
 
 		let newState = frustum.InsideXY(tPos.x, tPos.y) || frustum.InsideXY(tPos.x + this.GetDrawSize().x, tPos.y + this.GetDrawSize().y);
-		//CustomLogger.Log(this.GetOwner(), [frustum.ToString(), newState, this.frustumCulled, this.oldPosition.ToString()]);
+		//Logger.Log(this.GetOwner(), [frustum.ToString(), newState, this.frustumCulled, this.oldPosition.ToString()]);
 
 		if (this.frustumCulled === true && newState === true && this.frustumState !== FrustumCullingState.Visible) {
 			this.UpdateDrawState(true);
@@ -969,7 +1082,7 @@ class LightingOperation extends Operation {
 }
 
 /**
- * @typedef {DrawingOperation|RectOperation|PathOperation|TextOperation|ClearOperation|LightingOperation} Operations
+ * @typedef {DrawingOperation|RectOperation|PathOperation|TextOperation|ClearOperation|LightingOperation|MeshOperation} Operations
  */
 
-export { Operation, RectOperation, TextOperation, DrawingOperation, OperationType, ClearOperation, PathOperation, LightingOperation };
+export { Operation, RectOperation, TextOperation, DrawingOperation, OperationType, ClearOperation, PathOperation, MeshOperation, LightingOperation };

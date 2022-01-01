@@ -197,13 +197,22 @@ class Cobject {
 		Cobject.KeysAllCobjects.push(object.UID);
 	}
 
+	/**
+	 * 
+	 */
 	FixedUpdate() {
 	}
 
+	/**
+	 * 
+	 */
 	EndOfFrameUpdate() {
 
 	}
 
+	/**
+	 * 
+	 */
 	Delete() {
 		Cobject.DeleteObject(this);
 
@@ -232,6 +241,9 @@ class Cobject {
 		return this.position.Distance(checkPos) < range;
 	}
 
+	/**
+	 * 
+	 */
 	GameBegin() { }
 }
 

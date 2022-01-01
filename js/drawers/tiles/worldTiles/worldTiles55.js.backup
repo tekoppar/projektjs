@@ -241,19 +241,19 @@ let worldTiles55 = {
 		],
 	"60":
 		[
-			{ t: { p: { x: 1920, y: 1760 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 1920, y: 1760 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"61":
 		[
-			{ t: { p: { x: 1952, y: 1760 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 1952, y: 1760 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"62":
 		[
-			{ t: { p: { x: 1984, y: 1760 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 1984, y: 1760 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"63":
 		[
-			{ t: { p: { x: 2016, y: 1760 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2016, y: 1760 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"64":
 		[

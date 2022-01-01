@@ -1,8 +1,11 @@
-import { Matrix, Vector2D, CanvasDrawer, TileLUT, AtlasController, GetAtlasTileMatrix, CollisionEditor, PropEditor } from '../../internal.js';
+import {
+	Matrix, Vector2D, CanvasDrawer, TileLUT, AtlasController, GetAtlasTileMatrix, CollisionEditor,
+	PropEditor, SaveController
+} from '../../internal.js';
 
 /**
+ * @readonly 
  * @enum {number}
- * @readonly
  */
 const TileType = {
 	Water: 0,
@@ -10,11 +13,11 @@ const TileType = {
 	Air: 2,
 	Cliff: 3,
 	Prop: 4,
-}
+};
 
 /**
- * @enum {number}
  * @readonly
+ * @enum {number}
  */
 const TileTerrain = {
 	Grass: 0,
@@ -27,7 +30,59 @@ const TileTerrain = {
 	Fence: 7,
 	Leaves: 8,
 	Ground: 9,
-}
+};
+
+/**
+ * @readonly
+ * @enum {string}
+ */
+const TileULDREnum = {
+	0x00001100: 'UpLeft',
+	0x00001000: 'Up',
+	0x00001001: 'UpRight',
+	0x00000100: 'Left',
+	0x00001111: 'Middle',
+	0x00000001: 'Right',
+	0x00000110: 'DownLeft',
+	0x00000010: 'Down',
+	0x00000011: 'DownRight',
+	0x00010000: 'CornerUpLeft',
+	0x00100000: 'CornerUpRight',
+	0x01000000: 'CornerDownLeft',
+	0x10000000: 'CornerDownRight',
+	0x00010011: 'AngleUpLeft',
+	0x00100110: 'AngleUpRight',
+	0x01001001: 'AngleDownLeft',
+	0x10001100: 'AngleDownRight',
+	0x01100000: 'CornerDoubleDLUR',
+	0x10010000: 'CornerDoubleULDR'
+};
+
+/**
+ * @readonly
+ * @enum {number}
+ */
+const TileULDRLUT = {
+	UpLeft: 0x00001100,
+	Up: 0x00001000,
+	UpRight: 0x00001001,
+	Left: 0x00000100,
+	Middle: 0x00001111,
+	Right: 0x00000001,
+	DownLeft: 0x00000110,
+	Down: 0x00000010,
+	DownRight: 0x00000011,
+	CornerUpLeft: 0x01000000,
+	CornerUpRight: 0x10000000,
+	CornerDownLeft: 0x00010000,
+	CornerDownRight: 0x00100000,
+	AngleUpLeft: 0x00010011,
+	AngleUpRight: 0x00100110,
+	AngleDownLeft: 0x01001001,
+	AngleDownRight: 0x10001100,
+	CornerDoubleDLUR: 0x01100000,
+	CornerDoubleULDR: 0x10010000,
+};
 
 /**
  * @class
@@ -49,6 +104,10 @@ class TileULDR {
 		0x00100000: 'CornerUpRight',
 		0x01000000: 'CornerDownLeft',
 		0x10000000: 'CornerDownRight',
+		0x00010011: 'AngleUpLeft',
+		0x00100110: 'AngleUpRight',
+		0x01001001: 'AngleDownLeft',
+		0x10001100: 'AngleDownRight',
 		0x01100000: 'CornerDoubleDLUR',
 		0x10010000: 'CornerDoubleULDR'
 	};
@@ -67,6 +126,10 @@ class TileULDR {
 		CornerUpRight: 0x10000000,
 		CornerDownLeft: 0x00010000,
 		CornerDownRight: 0x00100000,
+		AngleUpLeft: 0x00010011,
+		AngleUpRight: 0x00100110,
+		AngleDownLeft: 0x01001001,
+		AngleDownRight: 0x10001100,
 		CornerDoubleDLUR: 0x01100000,
 		CornerDoubleULDR: 0x10010000,
 	};
@@ -78,6 +141,12 @@ class TileULDR {
 	 */
 	static Get(value) {
 		return TileULDR.TileULDRLUT[value] !== undefined ? value : TileULDR.TileULDR[value];
+	}
+
+	static GetNumber(value) {
+		let keys = Object.keys(this.TileULDRLUT);
+
+		return keys.indexOf(value);
 	}
 }
 
@@ -105,6 +174,23 @@ class TileLUTData {
 		/** @type {string} */ this.tileSet = tileSet;
 		/** @type {Vector2D} */ this.tilePosition = new Vector2D(0, 0);
 	}
+
+	/**
+	 * 
+	 * @returns {{atlas: string, tileType: number, tileTerrain: number, transparent: boolean, tileULDR: TileULDR, tileSet: string, tilePosition: {x:number, y:number}, size: { x: 32, y: 32 }}}
+	 */
+	toJSON() {
+		return {
+			atlas: this.atlas,
+			tileType: this.tileType,
+			tileTerrain: this.tileTerrain,
+			transparent: this.transparent,
+			tileULDR: this.tileULDR,
+			tileSet: this.tileSet,
+			tilePosition: this.tilePosition,
+			size: { x: 32, y: 32 }
+		};
+	}
 }
 
 /**
@@ -113,7 +199,7 @@ class TileLUTData {
  */
 class TileData {
 	static TileLUT = TileLUT;
-	static TileLUTSets = {};
+	/** @type {Object.<string, Object.<string, Tile>>} */ static TileLUTSets = {};
 	static TilesSets = {};
 	static tileData = new TileData();
 	static tileGUI = {};
@@ -389,7 +475,8 @@ class TileData {
 						break;
 
 					case 'tile-lut-editor-export':
-						navigator.clipboard.writeText(JSON.stringify(TileData.TileLUT));
+						SaveController.SaveTileLUT(TileData.TileLUT);
+						//navigator.clipboard.writeText(JSON.stringify(TileData.TileLUT));
 						break;
 
 					case 'tile-lut-editor-filter-bool-tiletype-legend':
@@ -483,9 +570,11 @@ class TileF {
 			//allTiles[i2].tile.ChangeSprite(paintTiles[i2]);
 		}
 
-		let newTiles = [];
+		let newTiles = [],
+			cliffBottomTilesTiles = [],
+			cliffBottomTiles = [];
 		for (let i = 0, l = operations.length; i < l; ++i) {
-			let trueMatrix = TileF.ConstructAtlasTileMatrix(operations[i].tile);
+			let trueMatrix = TileF.ConstructAtlasTileMatrix(operations[i].tile, tile.tileSet);
 			trueMatrix.y2 = 0;
 			//let uldr = trueMatrix.ToBinary();
 			//console.log(trueMatrix.To3DArray(), GetAtlasTileMatrix(uldr.replace('0x', '')));
@@ -502,7 +591,8 @@ class TileF {
 
 			let allTiles = TileF.GetSurroundingTiles(operations[i].tile.position, TileF.GetULDRMatrix(operations[i].tile));
 			for (let i2 = 0, l2 = allTiles.length; i2 < l2; ++i2) {
-				let newTilePaintMatrix = TileF.ConstructAtlasTileMatrix(allTiles[i2].tile);
+				let newTilePaintMatrix = TileF.ConstructAtlasTileMatrix(allTiles[i2].tile, tile.tileSet);
+
 				let temp = trueMatrix.Clone();
 				let tempOff = temp.OffsetMatrix(offsetTileMatrixArr[i2]);
 
@@ -519,20 +609,53 @@ class TileF {
 				let newTileData;
 				if (uldr !== undefined) {
 					if (uldr.includes('CornerDouble')) {
-						if (TileData.TileLUTSets['soilTiledDoubleCorner'][uldr] !== undefined)
-							newTileData = TileData.TileLUTSets['soilTiledDoubleCorner'][uldr];
+						if (TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'] !== undefined && TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'][uldr] !== undefined)
+							newTileData = TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'][uldr];
 					} else if (uldr.includes('Corner')) {
-						if (TileData.TileLUTSets['soilTiledCorner'][uldr] !== undefined)
-							newTileData = TileData.TileLUTSets['soilTiledCorner'][uldr];
+						if (TileData.TileLUTSets[tile.tileSet + 'Corner'] !== undefined && TileData.TileLUTSets[tile.tileSet + 'Corner'][uldr] !== undefined)
+							newTileData = TileData.TileLUTSets[tile.tileSet + 'Corner'][uldr];
+					} else if (uldr.includes('Angle')) {
+						if (TileData.TileLUTSets[tile.tileSet + 'Angle'] !== undefined && TileData.TileLUTSets[tile.tileSet + 'Angle'][uldr] !== undefined)
+							newTileData = TileData.TileLUTSets[tile.tileSet + 'Angle'][uldr];
 					} else {
-						if (TileData.TileLUTSets['soilTiled'][uldr] !== undefined)
-							newTileData = TileData.TileLUTSets['soilTiled'][uldr];
+						if (TileData.TileLUTSets[tile.tileSet] !== undefined && TileData.TileLUTSets[tile.tileSet][uldr] !== undefined) {
+							newTileData = TileData.TileLUTSets[tile.tileSet][uldr];
+
+							/*if (newTileData.tileType === TileType.Cliff && TileData.TileLUTSets[tile.tileSet + 'Bottom'] !== undefined) {
+								let tPos = allTiles[i2].tile.position.Clone();
+								tPos.y += 32;
+								tPos.ToGrid();
+								let tTile = CanvasDrawer.GCD.GetTileAtPosition(tPos, false);
+
+								switch (TileULDRLUT[newTileData.tileULDR]) {
+									case TileULDRLUT.Down:
+									case TileULDRLUT.DownRight:
+									case TileULDRLUT.DownLeft:
+										if (TileData.TileLUTSets[tile.tileSet + 'Bottom'][uldr] !== undefined) {
+											let cliffDown = TileData.TileLUTSets[tile.tileSet + 'Bottom'][uldr];
+
+											if (tTile !== undefined) {
+												for (let iT = 0, lT = tTile.length; iT < lT; ++iT) {
+													cliffBottomTilesTiles.push(tTile[iT]);
+													cliffBottomTiles.push(cliffDown);
+												}
+											}
+										}
+										break;
+								}
+							}*/
+						}
 					}
 				}
 
 				if (newTileData !== undefined)
 					newTiles.push(newTileData);
 				//console.log(TileF.ConstructTilePaintMatrix(allTiles[i2].tile, TileF.ConstructPaintULDRMatrix(allTiles[i2].tile).ToArray()), TileF.ConstructPaintULDRMatrix(allTiles[i2].tile));
+			}
+
+			if (cliffBottomTilesTiles.length > 0 && cliffBottomTiles.length > 0 && cliffBottomTilesTiles.length === cliffBottomTiles.length) {
+				allTiles.push(...cliffBottomTilesTiles);
+				newTiles.push(...cliffBottomTiles);
 			}
 
 			for (let i2 = 0, lI2 = allTiles.length; i2 < lI2; ++i2) {
@@ -549,17 +672,18 @@ class TileF {
 	 * @param {Tile} tile 
 	 * @returns {Matrix}
 	 */
-	static ConstructAtlasTileMatrix(tile) {
+	static ConstructAtlasTileMatrix(tile, tileSet = 'soilTiled') {
 		let surroundingTiles = Matrix.FromArray(TileF.GetSurroundingTiles(tile.position));
-
 		let a = surroundingTiles.Filter(['tile', 'tileULDR'], 'Middle');
 		a.ConvertToBinary();
 		a.InvertMatrix();
 
-		surroundingTiles = surroundingTiles.Filter(['tile', 'tileSet'], 'soilTiled');
+		surroundingTiles = surroundingTiles.Filter(['tile', 'tileSet'], tileSet);
+		surroundingTiles = surroundingTiles.Filter(['tile', 'tileULDR'], 'Middle');
 		surroundingTiles.ConvertToBinary();
-		surroundingTiles.InvertMatrix();
+		//surroundingTiles.InvertMatrix();
 		surroundingTiles.IsOne(a);
+		//surroundingTiles.InvertMatrix();
 		return surroundingTiles;
 	}
 
@@ -603,7 +727,7 @@ class TileF {
 	 * 
 	 * @param {Vector2D} position 
 	 * @param {Matrix} tilePaintULDRMatrix 
-	 * @returns 
+	 * @returns
 	 */
 	static GetSurroundingTiles(position, tilePaintULDRMatrix = null) {
 		let pos = position.Clone();

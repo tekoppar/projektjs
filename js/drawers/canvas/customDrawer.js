@@ -1,7 +1,7 @@
 import {
 	DebugDrawer, Vector2D, Tile, AtlasController, RectMerge, Operation, OverlapOICheck, AmbientLight,
 	BWDrawingType, AllCollisions, CollisionTypeCheck, Polygon, ClearOperation, TileData, InputHandler,
-	CollisionHandler, LightFalloffType, BoxCollision, worldTiles, Brush, BrushDrawState, Shadow2D,
+	CollisionHandler, LightFalloffType, BoxCollision, worldTiles, Brush, BrushDrawState, Shadow2D, TileF,
 	BrushType, RectOperation, PathOperation, TextOperation, DrawingOperation, OperationType, TileLUT,
 	SelectedTileEditor, UIDrawer, MasterObject, Rectangle, LightingOperation, Color, LightSystem, PropEditor, SaveController, Mastertime
 } from '../../internal.js';
@@ -345,6 +345,7 @@ class CanvasDrawer {
 		/** @type {ClearOperation[]} */ this.clearOperations = [];
 		/** @type {TextOperation[]} */ this.guiDrawingOperations = [];
 		/** @type {(Tile|Tile[])} */ this.selectedSprite;
+		/** @type {boolean} */ this.isMouseDown = false;
 		/** @type {boolean} */ this.isPainting = false;
 		/** @type {boolean} */ this.paintingEnabled = false;
 		/** @type {Vector2D} */ this.lastAtlasCoords = new Vector2D(0, 0);
@@ -384,6 +385,10 @@ class CanvasDrawer {
 				let tilesArr = worldTiles[keysY[y]][keysX[x]];
 				for (let i = 0; i < tilesArr.length; ++i) {
 					let newTile = tilesArr[i];
+
+					if (TileLUT[newTile.t.lut[0]] === undefined || TileLUT[newTile.t.lut[0]][newTile.t.lut[1]] === undefined || TileLUT[newTile.t.lut[0]][newTile.t.lut[1]][newTile.t.lut[2]] === undefined)
+						continue;
+
 					let tileLUT = TileLUT[newTile.t.lut[0]][newTile.t.lut[1]][newTile.t.lut[2]];
 
 					if (newTile.tc === undefined)
@@ -519,7 +524,7 @@ class CanvasDrawer {
 		this.mousePosition.y = tempMouse.y;
 		this.tileCursorPreview.position.ToGrid(32);
 		this.tileCursorPreview.position.MultF(32);
-		this.tileCursorPreview.position.Sub(this.canvasOffset);
+		//this.tileCursorPreview.position.Sub(this.canvasOffset);
 	}
 
 	GameBegin() {
@@ -602,7 +607,7 @@ class CanvasDrawer {
 			yMax = (Math.ceil((this.mainCanvas.height / 32)) + yMin) + 1,
 			xMax = (Math.ceil((this.mainCanvas.width / 32)) + xMin) + 1;
 
-		this.DrawTerrainXYWH(xMin, yMin, xMax, yMax, true);
+		this.DrawTerrainXYWH(xMin, yMin, xMax, yMax);
 	}
 
 	DrawTerrainLoop() {
@@ -842,8 +847,8 @@ class CanvasDrawer {
 			let posCoords = new Vector2D(this.lastAtlasCoords.x, this.lastAtlasCoords.y);
 
 			posCoords.MultF(32);
-			posCoords.x -= Math.abs((this.canvasOffset.x % 32));
-			posCoords.y -= Math.abs((this.canvasOffset.y % 32));
+			posCoords.x += Math.abs((this.canvasOffset.x % 32));
+			posCoords.y += Math.abs((this.canvasOffset.y % 32));
 			this.UpdateSpritePreview(posCoords);
 		}
 
@@ -1065,9 +1070,9 @@ class CanvasDrawer {
 				let boundingBox = Polygon.CalculateBoundingBox(drawingOperation.path);
 				boundingBox.x -= 1;
 				boundingBox.y -= 1;
-				boundingBox.z += 2;
-				boundingBox.a += 2;
-				ctx.clearRect(boundingBox.x, boundingBox.y, boundingBox.z, boundingBox.a);
+				boundingBox.w += 2;
+				boundingBox.h += 2;
+				ctx.clearRect(boundingBox.x, boundingBox.y, boundingBox.w, boundingBox.h);
 				break;
 
 			case 'LightingOperation':
@@ -1322,11 +1327,11 @@ class CanvasDrawer {
 
 				if (drawingOperation.fillOrOutline === false) {
 					context.fillStyle = drawingOperation.color;
-					context.fillRect(drawingOperation.position.x, drawingOperation.position.y, drawingOperation.size.x, drawingOperation.size.y);
+					context.fillRect(drawingOperation.position.x - this.canvasOffset.x, drawingOperation.position.y - this.canvasOffset.y, drawingOperation.size.x, drawingOperation.size.y);
 				}
 				else {
 					context.strokeStyle = drawingOperation.color;
-					context.strokeRect(drawingOperation.position.x + 1, drawingOperation.position.y + 1, drawingOperation.size.x - 2, drawingOperation.size.y - 2);
+					context.strokeRect(drawingOperation.position.x + 1 - this.canvasOffset.x, drawingOperation.position.y + 1 - this.canvasOffset.y, drawingOperation.size.x - 2, drawingOperation.size.y - 2);
 				}
 
 				context.globalAlpha = 0.3;
@@ -1459,7 +1464,7 @@ class CanvasDrawer {
 	 * @param {string} color 
 	 */
 	AddPathOperation(path, lifetime = 5, color = 'red') {
-		this.gameObjectDrawingOperations.push(new PathOperation(path, this.DebugDrawer.gameDebugCanvas, color, false, 0, lifetime, 1));
+		this.gameObjectDrawingOperations.push(new PathOperation(path, this.DebugDrawer.gameDebugCanvas, color, false, 0, lifetime, false, 1));
 	}
 
 	/**
@@ -1576,7 +1581,6 @@ class CanvasDrawer {
 
 		if (AllCollisions[/** @type {Tile} */(this.selectedSprite).atlas] !== undefined) {
 			this.spritePreviewCanvasCtx.clearRect(0, 0, this.spritePreviewCanvas.width, this.spritePreviewCanvas.height);
-
 		}
 
 		this.AddDrawOperations(
@@ -1595,7 +1599,7 @@ class CanvasDrawer {
 			case 'input':
 				if (key === 'leftMouse' && data.eventType === 0 && this.isPainting === false && this.selectedSprite === undefined) {
 					let gridMousePosition = this.mousePosition.Clone();
-					gridMousePosition.Add(this.canvasOffset);
+					//gridMousePosition.Add(this.canvasOffset);
 					gridMousePosition.ToGrid(32);
 
 					if (this.drawingOperations[gridMousePosition.y] !== undefined && this.drawingOperations[gridMousePosition.y][gridMousePosition.x] !== undefined) {
@@ -1633,6 +1637,18 @@ class CanvasDrawer {
 					this.isPainting = true;
 					this.CreatePaintOperation(e);
 				}
+				this.isMouseDown = true;
+
+				let objPos1 = MouseToScreen(e);
+				let gridMousePosition1 = new Vector2D(objPos1.x, objPos1.y);
+				gridMousePosition1.Add(this.canvasOffset);
+				gridMousePosition1.ToGrid(32);
+
+				let ops1 = this.GetTileAtPosition(gridMousePosition1, false);
+				if (ops1.length > 0 && this.selectedSprite instanceof Tile && this.selectedSprite !== undefined && this.isMouseDown && this.paintingEnabled === false) {
+					TileF.PaintTile(this.selectedSprite, gridMousePosition1);
+				}
+
 				break;
 
 			case 'change':
@@ -1644,6 +1660,7 @@ class CanvasDrawer {
 			case 'mouseleave':
 			case 'mouseup':
 				this.isPainting = false;
+				this.isMouseDown = false;
 				break;
 
 			case 'mousemove':
@@ -1652,6 +1669,11 @@ class CanvasDrawer {
 				gridMousePosition.Add(this.canvasOffset);
 				gridMousePosition.ToGrid(32);
 				this.gridMouse.innerHTML = gridMousePosition.ToString() + ' - ' + Vector2D.Add(objPos, this.canvasOffset).ToString();
+
+				let ops = this.GetTileAtPosition(gridMousePosition, false);
+				if (ops.length > 0 && this.selectedSprite instanceof Tile && this.selectedSprite !== undefined && this.isMouseDown && this.paintingEnabled === false) {
+					TileF.PaintTile(this.selectedSprite, gridMousePosition);
+				}
 
 				if (this.selectedSprite !== undefined && this.selectedSprite instanceof Tile) {
 					this.Brush.SetBrush(BrushType.box, this.selectedSprite);

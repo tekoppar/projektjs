@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 let worldTiles50 = {
 	"0":
 		[
@@ -249,39 +251,39 @@ let worldTiles50 = {
 		],
 	"62":
 		[
-			{ t: { p: { x: 1984, y: 1600 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 1984, y: 1600 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"63":
 		[
-			{ t: { p: { x: 2016, y: 1600 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2016, y: 1600 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"64":
 		[
-			{ t: { p: { x: 2048, y: 1600 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2048, y: 1600 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"65":
 		[
-			{ t: { p: { x: 2080, y: 1600 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2080, y: 1600 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"66":
 		[
-			{ t: { p: { x: 2112, y: 1600 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2112, y: 1600 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"67":
 		[
-			{ t: { p: { x: 2144, y: 1600 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2144, y: 1600 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"68":
 		[
-			{ t: { p: { x: 2176, y: 1600 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2176, y: 1600 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"69":
 		[
-			{ t: { p: { x: 2208, y: 1600 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2208, y: 1600 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"70":
 		[
-			{ t: { p: { x: 2240, y: 1600 }, lut: ["terrain", 12, 10] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 2240, y: 1600 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"71":
 		[

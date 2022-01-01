@@ -1,5 +1,7 @@
-import { Cobject, ItemStats, Vector2D, Inventory, Collision, inventoryItemIcons, CustomEventHandler, CollisionHandler, CanvasDrawer, Tile, TileType, TileF, TileLUT, ItemValues, CanvasSprite, CMath, Vector4D, AtlasController } from '../../internal.js';
-
+import {
+	Cobject, ItemStats, Vector2D, Inventory, Collision, inventoryItemIcons, CustomEventHandler, CollisionHandler,
+	CanvasDrawer, Tile, TileType, TileF, TileLUT, ItemValues, CanvasSprite, CMath, Vector4D, AtlasController
+} from '../../internal.js';
 
 /**
  * @readonly
@@ -244,19 +246,20 @@ class Hoe extends UsableItem {
 
 		if (ownerCollision.CheckInRealRange(ownerCollision.collisionOwner.BoxCollision, 112)) {
 			let pos = ownerCollision.position.Clone();
-			pos.Div(new Vector2D(32, 32));
+			pos.DivF(32);
 			pos.Floor();
 			let operations = CanvasDrawer.GCD.GetTileAtPosition(pos, false);
 
 			for (let i = 0, l = operations.length; i < l; ++i) {
 				if (operations[i].tile.tileType === TileType.Ground) {
 					TileF.PaintTile(new Tile(new Vector2D(0, 0), new Vector2D(6, 18), new Vector2D(32, 32), TileLUT.terrain[18][6].transparent, 'terrain'), pos);
-					operations[i].tile.ChangeSprite(new Tile(new Vector2D(0, 0), new Vector2D(6, 18), new Vector2D(32, 32), TileLUT.terrain[18][6].transparent, 'terrain'));
+					//operations[i].tile.ChangeSprite(new Tile(new Vector2D(0, 0), new Vector2D(6, 18), new Vector2D(32, 32), TileLUT.terrain[18][6].transparent, 'terrain'));
 					CanvasDrawer.UpdateTerrainOperation(operations[i]);
 					this.Durability();
 				}
 			}
 		}
+
 		CustomEventHandler.NewCustomEvent(this.name, this);
 		super.UseItem(ownerCollision);
 	}

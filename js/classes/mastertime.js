@@ -11,7 +11,7 @@ class Mastertime {
 		/** @type {number} @private */ this.DeltaTime = Date.now();
 		/** @type {number} @private */ this.PreviousTime = 0;
 		/** @type {number} @private */ this.GlobalFrameCounter = 0;
-		/** @type {Date} @private */ this.TimeOfDay = new Date('1995-12-17T24:00:00');
+		/** @type {Date} @private */ this.TimeOfDay = new Date('1995-12-17T12:00:00');
 	}
 
 	Next() {

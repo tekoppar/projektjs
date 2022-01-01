@@ -245,13 +245,13 @@ class PropEditor extends Cobject {
 
 							switch (this.selectedProp.BoxCollision.constructor) {
 								case PolygonCollision:
-									this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.GetPoints(), CanvasDrawer.GCD.DebugDrawer.gameDebugCanvas, 'white', false, 0, 5, 0.3);
+									this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.GetPoints(), CanvasDrawer.GCD.DebugDrawer.gameDebugCanvas, 'white', false, 0, 5, false, 0.3);
 									CanvasDrawer.GCD.AddPathObjectOperation(this.selectedPropDrawingOperation);
 									this.selectionState = PropEditorSelectionState.PropSelected;
 									break;
 
 								case BoxCollision:
-									this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.boundingBox.GetCornersVector2D(), CanvasDrawer.GCD.DebugDrawer.gameDebugCanvas, 'white', false, 0, 5, 0.3);
+									this.selectedPropDrawingOperation = new PathOperation(this.selectedProp.BoxCollision.boundingBox.GetCornersVector2D(), CanvasDrawer.GCD.DebugDrawer.gameDebugCanvas, 'white', false, 0, 5, false, 0.3);
 									CanvasDrawer.GCD.AddPathObjectOperation(this.selectedPropDrawingOperation);
 									this.selectionState = PropEditorSelectionState.PropSelected;
 									break;
