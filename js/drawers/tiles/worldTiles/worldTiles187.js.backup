@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 let worldTiles187 = {
 	"0":
 		[

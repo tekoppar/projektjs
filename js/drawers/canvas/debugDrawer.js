@@ -1,6 +1,6 @@
 import {
 	BoxCollision, Collision, MeshOperation, PolygonCollision, PathOperation, CollisionHandler,
-	Vector2D, RectOperation, Mesh, Rectangle, Color, Cobject, Polygon, CanvasDrawer, Operation, TextOperation
+	Vector2D, RectOperation, Mesh, Rectangle, Color, Cobject, Polygon, CanvasDrawer, Operation, TextOperation, Logger
 } from '../../internal.js';
 
 /** @typedef {import('./operation.js').Operations} Operations */
@@ -273,7 +273,7 @@ class DebugDrawer extends Cobject {
 					break;
 
 				case 'MeshOperation':
-					if (tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
+					if (this.DebugDraw === true && tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
 						this.CanvasClear(tObject);
 					break;
 
@@ -284,7 +284,9 @@ class DebugDrawer extends Cobject {
 			}
 		}
 
-		this.debugImageData = this.gameDebugCanvasCtx.getImageData(0, 0, this.gameDebugCanvas.width, this.gameDebugCanvas.height);
+		if (this.DebugDraw === true) {
+			this.debugImageData = this.gameDebugCanvasCtx.getImageData(0, 0, this.gameDebugCanvas.width, this.gameDebugCanvas.height);
+		}
 
 		for (let i = 0, l = this.debugOperations.length; i < l; ++i) {
 			if (this.debugOperations[i].shouldDelete === true) {
@@ -292,11 +294,40 @@ class DebugDrawer extends Cobject {
 				i--;
 				l--;
 			} else {
-				this.DrawDebugCanvasOperation(this.debugOperations[i], delta);
+				const tObject = this.debugOperations[i];
+
+				switch (tObject.ClassType) {
+					case 'RectOperation':
+						if (tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
+							this.DrawDebugCanvasOperation(tObject, delta);
+						break;
+					case 'PathOperation':
+						if (tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
+							this.DrawDebugCanvasOperation(tObject, delta);
+						else if (tObject.lifeTime !== -1)
+							tObject.Tick(delta);
+						break;
+
+					case 'MeshOperation':
+						if (this.DebugDraw === true && tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
+							this.DrawDebugCanvasOperation(tObject, delta);
+						else if (tObject.lifeTime !== -1)
+							tObject.Tick(delta);
+						break;
+
+					case 'TextOperation':
+						if (tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
+							this.DrawDebugCanvasOperation(tObject, delta);
+						else if (tObject.lifeTime !== -1)
+							tObject.Tick(delta);
+						break;
+				}
 			}
 		}
 
-		this.gameDebugCanvasCtx.putImageData(this.debugImageData, 0, 0);
+		if (this.DebugDraw === true) {
+			this.gameDebugCanvasCtx.putImageData(this.debugImageData, 0, 0);
+		}
 	}
 
 	/**
@@ -362,8 +393,7 @@ class DebugDrawer extends Cobject {
 		switch (drawingOperation.ClassType) {
 			case 'RectOperation':
 				context.globalAlpha = drawingOperation.alpha;
-
-				drawingOperation.UpdateDrawState(false);
+				drawingOperation.UpdateDrawState(true);
 
 				if (drawingOperation.fillOrOutline === false) {
 					context.fillStyle = drawingOperation.color;
@@ -396,6 +426,7 @@ class DebugDrawer extends Cobject {
 
 			case 'PathOperation':
 				context.globalAlpha = drawingOperation.alpha;
+				drawingOperation.UpdateDrawState(true);
 
 				if (drawingOperation.fillOrOutline === null) {
 					context.fillStyle = drawingOperation.color;
@@ -403,7 +434,8 @@ class DebugDrawer extends Cobject {
 						context.fillRect(drawingOperation.path[i].x - this.offset.x, drawingOperation.path[i].y - this.offset.y, 4, 4);
 					}
 				} else {
-					context.strokeStyle = context.fillStyle = drawingOperation.color;
+					context.strokeStyle = drawingOperation.color;
+					context.fillStyle = drawingOperation.color;
 					context.beginPath();
 					context.moveTo(drawingOperation.path[0].x - this.offset.x, drawingOperation.path[0].y - this.offset.y);
 
@@ -429,6 +461,7 @@ class DebugDrawer extends Cobject {
 
 			case 'MeshOperation':
 				context.globalAlpha = drawingOperation.alpha;
+				drawingOperation.UpdateDrawState(true);
 
 				if (drawingOperation.fillOrOutline === null) {
 					context.fillStyle = drawingOperation.color;
@@ -438,26 +471,33 @@ class DebugDrawer extends Cobject {
 					}
 				} else {
 					for (let i = 0, l = drawingOperation.mesh.triangles.length; i < l; ++i) {
+						const color = Color.ColorToRGBA(drawingOperation.color);
 						this.DrawLine(
 							drawingOperation.mesh.triangles[i].x.x - this.offset.x,
 							drawingOperation.mesh.triangles[i].x.y - this.offset.y,
 							drawingOperation.mesh.triangles[i].y.x - this.offset.x,
 							drawingOperation.mesh.triangles[i].y.y - this.offset.y,
-							Color.ColorToRGBA(drawingOperation.color)
+							color.red,
+							color.green,
+							color.blue
 						);
 						this.DrawLine(
 							drawingOperation.mesh.triangles[i].y.x - this.offset.x,
 							drawingOperation.mesh.triangles[i].y.y - this.offset.y,
 							drawingOperation.mesh.triangles[i].z.x - this.offset.x,
 							drawingOperation.mesh.triangles[i].z.y - this.offset.y,
-							Color.ColorToRGBA(drawingOperation.color)
+							color.red,
+							color.green,
+							color.blue
 						);
 						this.DrawLine(
 							drawingOperation.mesh.triangles[i].z.x - this.offset.x,
 							drawingOperation.mesh.triangles[i].z.y - this.offset.y,
 							drawingOperation.mesh.triangles[i].x.x - this.offset.x,
 							drawingOperation.mesh.triangles[i].x.y - this.offset.y,
-							Color.ColorToRGBA(drawingOperation.color)
+							color.red,
+							color.green,
+							color.blue
 						);
 					}
 
@@ -479,7 +519,7 @@ class DebugDrawer extends Cobject {
 
 			case 'TextOperation':
 				context.globalAlpha = 1.0;
-				drawingOperation.UpdateDrawState(false);
+				drawingOperation.UpdateDrawState(true);
 				context.font = drawingOperation.size + 'px ' + drawingOperation.font;
 				context.fillStyle = drawingOperation.color;
 				context.fillText(drawingOperation.text, drawingOperation.pos.x - this.offset.x, drawingOperation.pos.y - this.offset.y);
@@ -607,9 +647,11 @@ class DebugDrawer extends Cobject {
 	 * @param {number} y0 
 	 * @param {number} x1 
 	 * @param {number} y1 
-	 * @param {Color} color 
+	 * @param {number} red
+	 * @param {number} green
+	 * @param {number} blue 
 	 */
-	DrawLine(x0, y0, x1, y1, color) {
+	DrawLine(x0, y0, x1, y1, red, green, blue) {
 		let dy = Math.floor(y1 - y0);
 		let dx = Math.floor(x1 - x0);
 		let stepx, stepy;
@@ -623,7 +665,7 @@ class DebugDrawer extends Cobject {
 
 		let fraction = 0;
 
-		this.SetPixel(x0, y0, color);
+		this.SetPixel(x0, y0, red, green, blue);
 		if (dx > dy) {
 			fraction = dy - (dx >> 1);
 			while (Math.abs(x0 - x1) > 1) {
@@ -633,7 +675,7 @@ class DebugDrawer extends Cobject {
 				}
 				x0 += stepx;
 				fraction += dy;
-				this.SetPixel(x0, y0, color);
+				this.SetPixel(x0, y0, red, green, blue);
 			}
 		}
 		else {
@@ -645,7 +687,7 @@ class DebugDrawer extends Cobject {
 				}
 				y0 += stepy;
 				fraction += dx;
-				this.SetPixel(x0, y0, color);
+				this.SetPixel(x0, y0, red, green, blue);
 			}
 		}
 	}
@@ -654,19 +696,28 @@ class DebugDrawer extends Cobject {
 	 * 
 	 * @param {number} x 
 	 * @param {number} y 
-	 * @param {Color} color 
+	 * @param {number} red
+	 * @param {number} green
+	 * @param {number} blue  
 	 */
-	SetPixel(x, y, color) {
-		let index = this.GetColorIndex(x, y);
+	SetPixel(x, y, red, green, blue) {
+		const index = this.GetColorIndex(x, y);
 
-		this.debugImageData.data[index] = color.red;
-		this.debugImageData.data[index + 1] = color.green;
-		this.debugImageData.data[index + 2] = color.blue;
-		this.debugImageData.data[index + 3] = 255;
+		if (index > 0) {
+			this.debugImageData.data[index] = red;
+			this.debugImageData.data[index + 1] = green;
+			this.debugImageData.data[index + 2] = blue;
+			this.debugImageData.data[index + 3] = 255;
+		}
 	}
 
 	GetColorIndex(x, y) {
-		return Math.floor(y) * (this.gameDebugCanvas.width * 4) + Math.floor(x) * 4;
+		const index = Math.floor(y) * (this.gameDebugCanvas.width * 4) + Math.floor(x) * 4;
+
+		if (Math.floor(index / (this.gameDebugCanvas.width * 4)) === y)
+			return index;
+
+		return -1;
 	}
 
 	FixedUpdate() {
@@ -705,7 +756,9 @@ class DebugDrawer extends Cobject {
 		this.gameDebugCanvas.setAttribute('height', canvasEl.getAttribute('height'));
 		this.gameDebugCanvas.id = 'GameDebugCanvas';
 		document.getElementById('container-framebuffers').appendChild(this.gameDebugCanvas);
-		this.gameDebugCanvasCtx = this.gameDebugCanvas.getContext('2d');
+		this.gameDebugCanvasCtx = this.gameDebugCanvas.getContext('2d', {
+			willReadFrequently: true
+		});
 		this.gameDebugCanvasCtx.imageSmoothingEnabled = false;
 		this.gameDebugCanvasCtx.globalAlpha = 0.3;
 		this.gameDebugCanvasCtx.fillStyle = 'black';

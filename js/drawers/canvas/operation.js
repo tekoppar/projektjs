@@ -259,6 +259,10 @@ class TextOperation extends Operation {
 		return this.needsToBeRedrawn;
 	}
 
+	/**
+	 * 
+	 * @param {number} delta 
+	 */
 	Tick(delta) {
 		this.lifeTime -= delta;
 
@@ -372,6 +376,10 @@ class RectOperation extends Operation {
 		return this.needsToBeRedrawn;
 	}
 
+	/**
+	 * 
+	 * @param {number} delta 
+	 */
 	Tick(delta) {
 		this.lifeTime -= delta;
 
@@ -624,6 +632,7 @@ class PathOperation extends Operation {
 	 * @param {boolean} clear 
 	 * @param {number} drawIndex 
 	 * @param {number} lifetime 
+	 * @param {boolean} fillOrOutline
 	 * @param {number} alpha 
 	 */
 	constructor(path, drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, fillOrOutline = false, alpha = 0.3) {
@@ -712,6 +721,15 @@ class PathOperation extends Operation {
 
 	/**
 	 * 
+	 * @param {boolean} state 
+	 */
+	 UpdateDrawState(state) {
+		super.UpdateDrawState(state);
+		this.needsToBeRedrawn = state;
+	}
+
+	/**
+	 * 
 	 * @returns {boolean}
 	 */
 	DrawState() {
@@ -740,6 +758,7 @@ class MeshOperation extends Operation {
 	 * @param {boolean} clear 
 	 * @param {number} drawIndex 
 	 * @param {number} lifetime 
+	 * @param {boolean} fillOrOutline
 	 * @param {number} alpha 
 	 */
 	constructor(mesh, drawingCanvas, color = 'rgb(243, 197, 47)', clear, drawIndex = 0, lifetime = -1, fillOrOutline = false, alpha = 0.3) {
@@ -769,7 +788,10 @@ class MeshOperation extends Operation {
 	 * @returns {Vector2D}
 	 */
 	GetPosition() {
-		return this.mesh.triangles[0].x.ToVector2D();
+		if (this.mesh.triangles[0]?.x !== undefined)
+			return this.mesh.triangles[0].x.ToVector2D();
+
+		return new Vector2D(0, 0);
 	}
 
 	/**
@@ -777,7 +799,10 @@ class MeshOperation extends Operation {
 	 * @returns {Vector2D}
 	 */
 	GetDrawPosition() {
-		return this.mesh.triangles[0].x.ToVector2D();
+		if (this.mesh.triangles[0]?.x !== undefined)
+			return this.mesh.triangles[0].x.ToVector2D();
+
+		return new Vector2D(0, 0);
 	}
 
 	/**
@@ -785,7 +810,10 @@ class MeshOperation extends Operation {
 	 * @returns {number}
 	 */
 	GetDrawPositionY() {
-		return this.mesh.triangles[0].x.ToVector2D().y;
+		if (this.mesh.triangles[0]?.x !== undefined)
+			return this.mesh.triangles[0].x.y;
+
+		return 0;
 	}
 
 	/**
@@ -815,10 +843,23 @@ class MeshOperation extends Operation {
 
 	/**
 	 * 
+	 * @param {boolean} state 
+	 */
+	UpdateDrawState(state) {
+		super.UpdateDrawState(state);
+		this.needsToBeRedrawn = state;
+	}
+
+	/**
+	 * 
 	 * @returns {boolean}
 	 */
 	DrawState() {
 		return this.needsToBeRedrawn;
+	}
+
+	Delete() {
+		super.Delete();
 	}
 
 	/**

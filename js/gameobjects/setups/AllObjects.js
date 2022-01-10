@@ -87,11 +87,11 @@ import { Vector2D } from '../../internal.js';
 	{ class: 'ExtendedProp', name: 'Wooden Floor', canvasName: 'woodenFloor', position: new Vector2D(896, 672) },
 	{ class: 'CraftingStation', name: 'Planer Bench', canvasName: 'planerBench', position: new Vector2D(896, 544) },
 	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-320, 352) },
-	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-224, 448) },
-	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-192, 288) },
+	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-209.5, 699) },
+	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(38.5, 225) },
 	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-416, 256) },
-	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-448, 416) },
-	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-352, 480) }
+	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-589.5, 444) },
+	{ class: 'Rock', name: 'Rock Stone', canvasName: 'rockStone2', position: new Vector2D(-442.5, 638) }
 ];
 
 export { Objects };

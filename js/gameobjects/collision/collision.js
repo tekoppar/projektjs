@@ -1,4 +1,4 @@
-import { Vector2D, Rectangle, Vector4D, Vector } from '../../internal.js';
+import { Vector2D, Rectangle, Vector4D, Vector, Mastertime } from '../../internal.js';
 
 /**
  * @class
@@ -283,7 +283,7 @@ class CollisionHandler {
 	constructor() {
 		/** @type {Collision[]} */ this.Collisions = [];
 		/** @type {Collision[]} */ this.EnabledCollisions = [];
-		/** @type {QuadTree} */ this.QuadTree = QuadTree.MasterQuadTree = new QuadTree(0, new Rectangle(0, 0, 10000, 10000));
+		/** @type {QuadTree} */ this.QuadTree = QuadTree.MasterQuadTree = new QuadTree(0, new Rectangle(-10000, -10000, 20000, 20000));
 	}
 
 	FixedUpdate() {
@@ -945,6 +945,10 @@ class Collision {
 		return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
 	}
 
+	/**
+	 * 
+	 * @param {Vector2D} position 
+	 */
 	SetPosition(position) {
 		if (this.overlapEvents) {
 			let overlaps = CollisionHandler.GCH.GetOverlaps(this, OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
@@ -1033,6 +1037,10 @@ class BoxCollision extends Collision {
 		/** @type {Rectangle} */ this.boundingBox = new Rectangle(this.position.x, this.position.y, this.size.x, this.size.y);
 	}
 
+	/**
+	 * 
+	 * @param {Vector2D} position 
+	 */
 	SetPosition(position) {
 		super.SetPosition(position);
 	}
@@ -1075,6 +1083,10 @@ class PolygonCollision extends Collision {
 		super.Delete();
 	}
 
+	/**
+	 * 
+	 * @param {Vector2D} position 
+	 */
 	SetPosition(position) {
 		super.SetPosition(position);
 		this.UpdatePoints();

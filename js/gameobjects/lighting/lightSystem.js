@@ -32,7 +32,7 @@ class SkyLight extends Cobject {
 	 */
 	constructor(color, lightColor) {
 		super(new Vector2D(0, 0));
-		
+
 		/**@type {Color} */ this.color = color;
 		/**@type {Color} */ this.lightColor = lightColor;
 		/**@type {Color} */ this.previousColor = color.Clone();
@@ -136,7 +136,7 @@ class SkyLight extends Cobject {
  * @extends Cobject
  */
 class LightSystem extends Cobject {
-	/** @type {LightSystem} */ static _Instance;    
+	/** @type {LightSystem} */ static _Instance;
 	/** @type {AmbientLight[]} */ static AllAmbientLights = [];
 
 	static SkyLight = new SkyLight(new Color(25, 25, 25, 255), new Color(32, 57, 79, 255));
@@ -181,13 +181,13 @@ class LightSystem extends Cobject {
 		this.lightingV2.setAttribute('width', canvasEl.getAttribute('width'));
 		this.lightingV2.setAttribute('height', canvasEl.getAttribute('height'));
 		document.getElementById('container-framebuffers').appendChild(this.lightingV2);
-		
+
 		/** @type {CanvasRenderingContext2D} */ this.lightIntensityBufferCtx = this.lightIntensityBuffer.getContext('2d', { willReadFrequently: true });
 		this.lightIntensityBufferCtx.imageSmoothingEnabled = true;
-		
+
 		/** @type {CanvasRenderingContext2D} */ this.lightFrameBufferCtx = this.lightFrameBuffer.getContext('2d', { willReadFrequently: true });
 		this.lightFrameBufferCtx.imageSmoothingEnabled = true;
-		
+
 		/** @type {CanvasRenderingContext2D} */ this.ambientFrameBufferCtx = this.ambientFrameBuffer.getContext('2d', { willReadFrequently: true });
 		this.ambientFrameBufferCtx.imageSmoothingEnabled = true;
 
@@ -200,7 +200,7 @@ class LightSystem extends Cobject {
 		this.lightFrameBufferCtx.fillStyle = 'rgba(0,0,0,0)';//LightSystem.SkyLight.color.ToString();
 		this.lightIntensityBufferCtx.fillStyle = LightSystem.SkyLight.color.ToString();
 		this.lightFrameBufferCtx.fillRect(0, 0, this.lightFrameBuffer.width, this.lightFrameBuffer.height);
-		
+
 		/** @type {ImageData } */ this.lightData;// = this.lightFrameBufferCtx.getImageData(0, 0, this.lightFrameBuffer.width, this.lightFrameBuffer.height);
 		/** @type {ImageData } */ this.lightIntensityData;
 
@@ -665,7 +665,10 @@ class LightSystem extends Cobject {
 			return LightSystem.SkyLight.color.Clone();
 
 		let lights = this.GetOverlappingLights(position),
-			index = Math.floor(position.y) * (this.lightFrameBuffer.width * 4) + Math.floor(position.x) * 4,
+			index = this.GetColorIndex(position),// Math.floor(position.y) * (this.lightFrameBuffer.width * 4) + Math.floor(position.x) * 4,
+			color = new Color(0, 0, 0, 0);
+
+		if (index > 0)
 			color = new Color(
 				this.lightData.data[index],
 				this.lightData.data[index + 1],
@@ -677,13 +680,15 @@ class LightSystem extends Cobject {
 			let relativePosition = position.Clone();
 			relativePosition.x -= lights[0].BoxCollision.boundingBox.x;
 			relativePosition.y -= lights[0].BoxCollision.boundingBox.y;
-			index = Math.floor(relativePosition.y) * (lights[0].colorFrameBuffer.width * 4) + Math.floor(relativePosition.x) * 4;
-			color = new Color(
-				lights[0].colorData.data[index],
-				lights[0].colorData.data[index + 1],
-				lights[0].colorData.data[index + 2],
-				lights[0].colorData.data[index + 3]
-			);
+			index = this.GetColorIndex(relativePosition, lights[0].colorFrameBuffer.width);// Math.floor(relativePosition.y) * (lights[0].colorFrameBuffer.width * 4) + Math.floor(relativePosition.x) * 4;
+
+			if (index > 0)
+				color = new Color(
+					lights[0].colorData.data[index],
+					lights[0].colorData.data[index + 1],
+					lights[0].colorData.data[index + 2],
+					lights[0].colorData.data[index + 3]
+				);
 		}
 
 		let ambientColor = LightSystem.SkyLight.color.Clone();
@@ -701,8 +706,19 @@ class LightSystem extends Cobject {
 		return color;
 	}
 
-	GetColorIndex(position) {
-		return Math.floor(position.y) * (this.lightFrameBuffer.width * 4) + Math.floor(position.x) * 4;
+	/**
+	 * 
+	 * @param {Vector2D} position 
+	 * @param {number} frameBufferWidth
+	 * @returns {number}
+	 */
+	GetColorIndex(position, frameBufferWidth = this.lightFrameBuffer.width) {
+		const index = Math.floor(position.y) * (frameBufferWidth * 4) + Math.floor(position.x) * 4;
+
+		if (Math.floor(index / (frameBufferWidth * 4)) === position.y)
+			return index;
+
+		return -1;
 	}
 
 	ValidateGetColorIndex() {

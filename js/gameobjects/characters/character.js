@@ -2,7 +2,7 @@ import {
 	GameObject, Inventory, ItemStats, InputState, UsableItem, Collision, AmbientLight,
 	AtlasController, Vector2D, Shadow2D, BoxCollision, CollisionHandler, OperationType, CMath,
 	ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings,
-	ParticleType, AnimationType, BWDrawingType, Item, CAnimation, PlayerController
+	ParticleType, AnimationType, BWDrawingType, Item, CAnimation, PlayerController, Logger, Mastertime
 } from '../../internal.js';
 
 const FacingDirection = {

@@ -20,12 +20,14 @@ export { ObjectType, BWDrawingType, EditorState } from './classes/baseClasses/gl
 export { Graph, GraphPoint } from './classes/containerClasses/graph.js';
 export {
 	Vector2D, Vector, Vector4D, Matrix, Rectangle, Direction, Intersection,
-	Vertex, DLPolygon, Line, Polygon, Vertice, Triangle, Mesh, Color
+	Vertex, DLPolygon, Line, Polygon, Vertice, Triangle, Mesh, Color, PolygonClippingResults
 } from './classes/vectors.js';
 export { CMath } from './classes/math/customMath.js';
 export { Math3D } from './classes/math/3dMath.js';
 export { IntMath } from './classes/math/intMath.js';
 export { Dictionary } from './classes/containerClasses/dictionary.js';
+export { TQuadTree } from './classes/containerClasses/tQuadTree.js';
+export { PriorityQueue } from './classes/containerClasses/priorityQueue.js';
 
 export { RectMerge } from './classes/utility/rectMerge.js';
 
