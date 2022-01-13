@@ -1,4 +1,4 @@
-import { Vector2D, Rectangle, Vector4D, Vector, Mastertime } from '../../internal.js';
+import { Vector2D, Rectangle, Vector4D, Vector } from '../../internal.js';
 
 /**
  * @class
@@ -390,11 +390,36 @@ class CollisionHandler {
 	 * 
 	 * @param {Collision} collision 
 	 * @param {number} range 
+	 * @param {Object} type 
+	 * @returns {Collision[]}
+	 */
+	GetInRangeClass(collision, range, type) {
+		/** @type {Collision[]} */ let inRange = [],
+			/** @type {Collision[]} */ quadOverlaps = [];
+
+		this.QuadTree.GetNew(collision.GetBoundingBox(), quadOverlaps);
+
+		for (let i = 0, l = quadOverlaps.length; i < l; ++i) {
+			if (quadOverlaps[i].collisionOwner !== undefined && collision.collisionOwner !== quadOverlaps[i].collisionOwner &&
+				quadOverlaps[i].collisionOwner instanceof type && collision.CheckInRealRange(quadOverlaps[i], range) === true &&
+				inRange.indexOf(quadOverlaps[i].collisionOwner) === -1
+			) {
+				inRange.push(quadOverlaps[i]);
+			}
+		}
+
+		return inRange;
+	}
+
+	/**
+	 * 
+	 * @param {Collision} collision 
+	 * @param {number} range 
 	 * @returns {Array<*>}
 	 */
 	GetInRange(collision, range) {
-		let inRange = [],
-			quadOverlaps = [];
+		/** @type {Collision[]} */ let inRange = [],
+			/** @type {Collision[]} */ quadOverlaps = [];
 
 		this.QuadTree.GetNew(collision.GetBoundingBox(), quadOverlaps);
 
@@ -413,9 +438,9 @@ class CollisionHandler {
 	 * @returns {(Collision)}
 	 */
 	GetOverlap(collision) {
-		let quadOverlaps = [],
-			overlaps = [],
-			overlapsRange = [];
+		/** @type {Collision[]} */ let quadOverlaps = [],
+			/** @type {Collision[]} */ overlaps = [],
+			/** @type {Array<{d:number, i:number}>} */ overlapsRange = [];
 
 		this.QuadTree.GetNew(collision.GetBoundingBox(), quadOverlaps);
 
@@ -443,11 +468,11 @@ class CollisionHandler {
 	 * @returns {(Collision|false)}
 	 */
 	GetOverlapByClass(collision, className) {
-		let quadOverlaps = [],
-			overlaps = [],
-			overlapsRange = [];
+		/** @type {Collision[]} */ let quadOverlaps = [],
+			/** @type {Collision[]} */ overlaps = [],
+			/** @type {Array<{d:number, i:number}>} */ overlapsRange = [];
 
-			this.QuadTree.GetNew(collision.GetBoundingBox(), quadOverlaps);
+		this.QuadTree.GetNew(collision.GetBoundingBox(), quadOverlaps);
 
 		let realPos = collision.GetCenterPositionV2();// collisionOwner.GetPosition();
 		for (let i = 0, l = quadOverlaps.length; i < l; ++i) {
@@ -477,8 +502,8 @@ class CollisionHandler {
 	 * @returns {Collision[]}
 	 */
 	GetOverlaps(collision, OverlapCheckType = DefaultOverlapCheck, CollisionCheckType = CollisionTypeCheck.Overlap) {
-		let overlaps = [],
-			quadOverlaps = [];
+		/** @type {Collision[]} */ let overlaps = [],
+			/** @type {Collision[]} */ quadOverlaps = [];
 
 		this.QuadTree.GetNew(collision.GetBoundingBox(), quadOverlaps);
 
@@ -516,8 +541,8 @@ class CollisionHandler {
 	 * @returns {Collision[]} 
 	 */
 	GetOverlapsByClassName(collision, className, OverlapCheckType = DefaultOverlapCheck, CollisionCheckType = CollisionTypeCheck.Overlap) {
-		let overlaps = [],
-			quadOverlaps = [];
+		/** @type {Collision[]} */ let overlaps = [],
+			/** @type {Collision[]} */ quadOverlaps = [];
 
 		this.QuadTree.GetNew(collision.GetBoundingBox(), quadOverlaps);
 
@@ -555,9 +580,9 @@ class CollisionHandler {
 	* @returns {Collision[]}
 	*/
 	GetOverlapsByClass(collision, constructor, OverlapCheckType = DefaultOverlapCheck, CollisionCheckType = CollisionTypeCheck.Overlap) {
-		let /** @type {Collision[]} */ overlaps = [],
-			quadOverlaps = [];
-			
+		/** @type {Collision[]} */ let overlaps = [],
+			/** @type {Collision[]} */ quadOverlaps = [];
+
 		this.QuadTree.GetNew(collision.GetBoundingBox(), quadOverlaps);
 
 		for (let i = 0, l = quadOverlaps.length; i < l; ++i) {

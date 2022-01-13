@@ -2,7 +2,7 @@ import {
 	GameObject, Inventory, ItemStats, InputState, UsableItem, Collision, AmbientLight,
 	AtlasController, Vector2D, Shadow2D, BoxCollision, CollisionHandler, OperationType, CMath,
 	ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings,
-	ParticleType, AnimationType, BWDrawingType, Item, CAnimation, PlayerController, Logger, Mastertime
+	ParticleType, AnimationType, BWDrawingType, Item, CAnimation, PlayerController
 } from '../../internal.js';
 
 const FacingDirection = {
@@ -20,6 +20,24 @@ const FacingDirection = {
 		}
 	}
 };
+
+/**
+ * @readonly
+ * @enum {number}
+ */
+const MovemementDirection = {
+	x: 0,
+	y: 1
+};
+
+/**
+ * @readonly
+ * @enum {number}
+ */
+const MovementType = {
+	Running: 0,
+	Walking: 1,
+}
 
 /**
  * @class
@@ -227,6 +245,23 @@ class CharacterAttributes {
 /**
  * @class
  * @constructor
+ */
+class CharacterStates {
+
+	/**
+	 * 
+	 * @param {boolean} isIdle 
+	 * @param {boolean} isRunning 
+	 */
+	constructor(isIdle = false, isRunning = false) {
+		this.isIdle = isIdle;
+		this.isRunning = isRunning;
+	}
+}
+
+/**
+ * @class
+ * @constructor
  * @extends GameObject
  */
 class Character extends GameObject {
@@ -237,12 +272,10 @@ class Character extends GameObject {
 	 * @param {Vector2D} position 
 	 * @param {Object.<string, CAnimation>} animations 
 	 * @param {CharacterAttributes} characterAttributes 
-	 * @param {PlayerController} controller 
 	 */
-	constructor(spriteSheetName, position = new Vector2D(0, 0), animations = undefined, characterAttributes = new CharacterAttributes(5, 5, 5, 5, 5, 5, 0, 0), controller = undefined) {
+	constructor(spriteSheetName, position = new Vector2D(0, 0), animations = undefined, characterAttributes = new CharacterAttributes(5, 5, 5, 5, 5, 5, 0, 0)) {
 		super(spriteSheetName, position, false);
 
-		/** @type {PlayerController} */ this.controller = controller;
 		/** @type {CharacterData} */ this.characterData = new CharacterData();
 		/** @type {CharacterAttributes} */ this.characterAttributes = characterAttributes;
 		/** @type {Object.<string, CAnimation>} */ this.animations = animations;
@@ -250,8 +283,7 @@ class Character extends GameObject {
 		/** @type {CharacterAttachments} */ this.shadowAttachment = new CharacterAttachments(this.position, 'shadow');
 		/** @type {CharacterAttachments} */ this.itemAttachment = undefined;
 		/** @type {Object<string, CharacterAttachments>} */ this.attachments = {};
-		/** @type {boolean} */ this.isRunning = false;
-		/** @type {boolean} */ this.isIdle = false;
+		/** @type {CharacterStates} */ this.characterState = new CharacterStates(false, false);
 		/** @type {BoxCollision} */ this.BlockingCollision = new BoxCollision(this.GetPosition(), new Vector2D(16, 16), true, this, true);
 		/** @type {Shadow2D} */ this.realtimeShadow = undefined;
 	}
@@ -276,7 +308,7 @@ class Character extends GameObject {
 			this.currentAnimation = animation;
 
 			if (animation.animationType === AnimationType.Idle)
-				this.isIdle = true;
+				this.characterState.isIdle = true;
 
 			if (this.shadowAttachment !== undefined)
 				this.shadowAttachment.ChangeAnimation(animation.Clone());
@@ -468,7 +500,7 @@ class Character extends GameObject {
 		let facingDirection = this.GetFacingDirection();
 
 		if (this.currentAnimation !== undefined && this.currentAnimation.animationFinished === true) {
-			this.isIdle = false;
+			this.characterState.isIdle = false;
 		}
 
 		if (this.currentAnimation !== undefined && this.currentAnimation.AnimationLocked() === true)
@@ -477,55 +509,55 @@ class Character extends GameObject {
 		if (facingDirection !== undefined) {
 			switch (facingDirection) {
 				case FacingDirection.Left:
-					if (this.Velocity.x === 1) {
-						this.isIdle = false;
-						if (this.isRunning === true && this.animations.runLeft !== undefined)
+					if (this.Velocity.x > 0) {
+						this.characterState.isIdle = false;
+						if (this.characterState.isRunning === true && this.animations.runLeft !== undefined)
 							this.ChangeAnimation(this.animations.runLeft.Clone());
 						else if (this.animations.walkLeft !== undefined)
 							this.ChangeAnimation(this.animations.walkLeft.Clone());
 					}
-					else if (this.animations.walkLeftIdle !== undefined && this.isIdle === false) {
+					else if (this.animations.walkLeftIdle !== undefined && this.characterState.isIdle === false) {
 						this.ChangeAnimation(this.animations.walkLeftIdle.Clone());
-						this.isIdle = true;
+						this.characterState.isIdle = true;
 					}
 					break;
 				case FacingDirection.Right:
-					if (this.Velocity.x === -1) {
-						this.isIdle = false;
-						if (this.isRunning === true && this.animations.runRight !== undefined)
+					if (this.Velocity.x < 0) {
+						this.characterState.isIdle = false;
+						if (this.characterState.isRunning === true && this.animations.runRight !== undefined)
 							this.ChangeAnimation(this.animations.runRight.Clone());
 						else if (this.animations.walkRight !== undefined)
 							this.ChangeAnimation(this.animations.walkRight.Clone());
 					}
-					else if (this.animations.walkRightIdle !== undefined && this.isIdle === false) {
+					else if (this.animations.walkRightIdle !== undefined && this.characterState.isIdle === false) {
 						this.ChangeAnimation(this.animations.walkRightIdle.Clone());
-						this.isIdle = true;
+						this.characterState.isIdle = true;
 					}
 					break;
 				case FacingDirection.Up:
-					if (this.Velocity.y === 1) {
-						this.isIdle = false;
-						if (this.isRunning === true && this.animations.runUp !== undefined)
+					if (this.Velocity.y > 0) {
+						this.characterState.isIdle = false;
+						if (this.characterState.isRunning === true && this.animations.runUp !== undefined)
 							this.ChangeAnimation(this.animations.runUp.Clone());
 						else if (this.animations.walkUp !== undefined)
 							this.ChangeAnimation(this.animations.walkUp.Clone());
 					}
-					else if (this.animations.walkUpIdle !== undefined && this.isIdle === false) {
+					else if (this.animations.walkUpIdle !== undefined && this.characterState.isIdle === false) {
 						this.ChangeAnimation(this.animations.walkUpIdle.Clone());
-						this.isIdle = true;
+						this.characterState.isIdle = true;
 					}
 					break;
 				case FacingDirection.Down:
-					if (this.Velocity.y === -1) {
-						this.isIdle = false;
-						if (this.isRunning === true && this.animations.runDown !== undefined)
+					if (this.Velocity.y < 0) {
+						this.characterState.isIdle = false;
+						if (this.characterState.isRunning === true && this.animations.runDown !== undefined)
 							this.ChangeAnimation(this.animations.runDown.Clone());
 						else if (this.animations.walkDown !== undefined)
 							this.ChangeAnimation(this.animations.walkDown.Clone());
 					}
-					else if (this.animations.walkDownIdle !== undefined && this.isIdle === false) {
+					else if (this.animations.walkDownIdle !== undefined && this.characterState.isIdle === false) {
 						this.ChangeAnimation(this.animations.walkDownIdle.Clone());
-						this.isIdle = true;
+						this.characterState.isIdle = true;
 					}
 					break;
 			}
@@ -597,12 +629,12 @@ class Character extends GameObject {
 	 */
 	GetFacingDirection() {
 		if (this.Direction.x !== 0) {
-			if (this.Direction.x === 1)
+			if (this.Direction.x > 0)
 				return FacingDirection.Left;
 			else
 				return FacingDirection.Right;
 		} else if (this.Direction.y !== 0) {
-			if (this.Direction.y === 1)
+			if (this.Direction.y > 0)
 				return FacingDirection.Up;
 			else
 				return FacingDirection.Down;
@@ -666,7 +698,7 @@ class Character extends GameObject {
 
 	/**
 	 * 
-	 * @param {string} direction 
+	 * @param {MovemementDirection} direction 
 	 * @param {number} value 
 	 * @returns {void}
 	 */
@@ -675,18 +707,16 @@ class Character extends GameObject {
 			return;
 
 		switch (direction) {
-			case 'x':
+			case MovemementDirection.x:
 				this.Velocity.x = this.Direction.x = value;
 				this.Direction.y = 0;
 				break;
 
-			case 'y':
+			case MovemementDirection.y:
 				this.Velocity.y = this.Direction.y = value;
 				this.Direction.x = 0;
 				break;
 		}
-
-		//this.NeedsRedraw(this.GetPosition());
 	}
 
 	StopMovement() {
@@ -696,7 +726,7 @@ class Character extends GameObject {
 
 	/**
 	 * 
-	 * @param {string} type 
+	 * @param {MovementType} type 
 	 * @param {number} speed 
 	 * @returns {void}
 	 */
@@ -705,12 +735,11 @@ class Character extends GameObject {
 			return;
 
 		switch (type) {
-			case 'running': this.isRunning = true; break;
-			case 'walking': this.isRunning = false; break;
+			case MovementType.Running: this.characterState.isRunning = true; break;
+			case MovementType.Walking: this.characterState.isRunning = false; break;
 		}
 
 		this.MovementSpeed.y = this.MovementSpeed.x = speed;
-		//this.NeedsRedraw(this.GetPosition());
 	}
 
 	Interact() {
@@ -741,9 +770,6 @@ class Character extends GameObject {
 			return;
 
 		this.activeItem = item;
-
-		if (this.controller !== undefined && item instanceof UsableItem)
-			this.controller.TogglePreviewCursor(item.drawTilePreview);
 
 		if (ItemStats[this.activeItem.name]?.atlas !== undefined) {
 			this.itemAttachment = new CharacterAttachments(this.position, this.activeItem.name, ItemStats[this.activeItem.name].animation, ItemStats[this.activeItem.name].bones);
@@ -858,14 +884,27 @@ class MainCharacter extends Character {
 	 * @param {string} name 
 	 * @param {Vector2D} position
 	 * @param {Object.<string, CAnimation>} animations 
+	 * @param {PlayerController} controller 
 	 */
-	constructor(spriteSheetName, name, position = new Vector2D(0, 0), animations = undefined) {
+	constructor(spriteSheetName, name, position = new Vector2D(0, 0), animations = undefined, controller = undefined) {
 		super(spriteSheetName, position, animations);
 
+		/** @type {PlayerController} */ this.controller = controller;
 		/** @type {string} */ this.name = name;
 		/** @type {Inventory} */ this.inventory = new Inventory(this);
 		/** @type {UsableItem} */ this.activeItem;
 		/** @type {AmbientLight} */ this.light = undefined;
+	}
+
+	/**
+	 * 
+	 * @param {Item} item 
+	 */
+	SetActiveItem(item) {
+		super.SetActiveItem(item);
+
+		if (this.controller !== undefined && item instanceof UsableItem)
+			this.controller.TogglePreviewCursor(item.drawTilePreview);
 	}
 
 	FixedUpdate() {
@@ -901,7 +940,7 @@ class MainCharacter extends Character {
 	}
 }
 
-export { Character, CharacterAttachments, CharacterData, MainCharacter };
+export { Character, CharacterAttachments, CharacterData, MainCharacter, MovemementDirection, CharacterStates, MovementType };
 
 /*
 	UpdateRealTimeShadow() {

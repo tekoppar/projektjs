@@ -265,6 +265,18 @@ class Vector2D {
 
 	/**
 	 * 
+	 * @param {Vector2D} v 
+	 * @returns {Vector2D}
+	 */
+	Direction(v) {
+		let d = new Vector2D(v.x - this.x, v.y - this.y);
+		d.Normalize();
+		d.OneMinus();
+		return d;
+	}
+
+	/**
+	 * 
 	 * @param {Vector2D} v
 	 * @returns {number} 
 	 */
@@ -2823,26 +2835,23 @@ class Mesh {
 	 * @returns {Triangle[]}
 	 */
 	FindNeighbouringTriangles(a) {
-		/** @type {Triangle[]} */ let neighbours = [],
-			count = 0;
+		/** @type {Triangle[]} */ let neighbours = [];
 
 		for (let i = 0, l = this.triangles.length; i < l; ++i) {
 			if (a.x.indice === this.triangles[i].x.indice || a.x.indice === this.triangles[i].y.indice || a.x.indice === this.triangles[i].z.indice) {
-				count++;
+				neighbours.push(this.triangles[i]);
+				continue;
 			}
 
 			if (a.y.indice === this.triangles[i].x.indice || a.y.indice === this.triangles[i].y.indice || a.y.indice === this.triangles[i].z.indice) {
-				count++;
+				neighbours.push(this.triangles[i]);
+				continue;
 			}
 
 			if (a.z.indice === this.triangles[i].x.indice || a.z.indice === this.triangles[i].y.indice || a.z.indice === this.triangles[i].z.indice) {
-				count++;
-			}
-
-			if (count > 1 && neighbours.indexOf(this.triangles[i]) === -1 && this.triangles[i] !== a)
 				neighbours.push(this.triangles[i]);
-
-			count = 0;
+				continue;
+			}
 		}
 
 		return neighbours;

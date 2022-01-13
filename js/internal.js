@@ -86,6 +86,12 @@ export { Camera } from './controllers/camera.js';
 export { PlayerController } from './controllers/playerController.js';
 export { Minimap } from './drawers/minimap.js';
 
+export {
+	BehaviorTree, BehaviorAction, BehaviorActionCharacter, BehaviorActionMovement, BehaviorActionPoint,
+	BehaviorCondition, BehaviorConditionDistance, BehaviorConditionAvoidClass, BehaviorActionMoveAway
+} from './controllers/behaviourTree/behaviorTree.js';
+export { BehaviourController } from './controllers/behaviourTree/behaviourController.js';
+
 export { GetAtlasTileMatrix } from './drawers/tiles/atlasTileMatrix.js';
 export { TileLUT } from './drawers/tiles/TileLUT.js';
 export { TileMaker } from './drawers/tiles/tilemaker.js';
@@ -140,7 +146,7 @@ export { Rock } from './gameobjects/props/resources/rock.js';
 export { Props } from './gameobjects/setups/AllGameObjects.js';
 
 export { Plant, AllPlantData } from './gameobjects/props/plants/plants.js';
-export { Character, MainCharacter, CharacterAttachments } from './gameobjects/characters/character.js';
+export { Character, MainCharacter, CharacterAttachments, MovemementDirection, MovementType } from './gameobjects/characters/character.js';
 
 export { Seed } from './gameobjects/props/plants/plantitem.js';
 export { Shop } from './gameobjects/props/shop.js';

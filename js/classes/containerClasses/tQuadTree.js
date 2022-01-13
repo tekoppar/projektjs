@@ -1,4 +1,4 @@
-import { Rectangle, Cobject, Vector2D } from '../../internal.js';
+import { Rectangle, Vector2D } from '../../internal.js';
 
 /** 
  * @typedef {Object} TreeGeneric

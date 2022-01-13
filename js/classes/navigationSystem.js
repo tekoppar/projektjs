@@ -1,7 +1,9 @@
 import {
 	Polygon, Vector2D, DLPolygon, ArrayUtility, Cobject, DebugDrawer, Mesh, CollisionHandler,
-	Rectangle, PolygonClippingResults, MasterObject, PriorityQueue, Triangle, TQuadTree
+	Rectangle, PolygonClippingResults, PriorityQueue, Triangle, TQuadTree, Character, MasterObject, earcut
 } from '../internal.js';
+
+let doOnce = false;
 
 /**
  * @class
@@ -106,16 +108,22 @@ class NavigationSystem extends Cobject {
 	 */
 	GenerateNavigation() {
 		this.navigationMesh.CalculateBoundingBox();
-		let /** @type {NavigationBounds[]} */ navigationBoundsToUpdate = [],
-			/** @type {NavigationBounds[]} */ navBoundsUpdateDLPoly = [];
+		/** @type {NavigationBounds[]} */  let navigationBoundsToUpdate = [],
+			/** @type {NavigationBounds[]} */ navBoundsUpdateDLPoly = [],
+			x = 0,
+			xl = 0,
+			/** @type {NavigationBounds[]} */ navBounds = [];
 
 		for (let i = 0, l = CollisionHandler.GCH.EnabledCollisions.length; i < l; ++i) {
-			let dlPol = new DLPolygon(CollisionHandler.GCH.EnabledCollisions[i].GetPoints());
+			//if (CollisionHandler.GCH.EnabledCollisions[i].collisionOwner !== undefined && CollisionHandler.GCH.EnabledCollisions[i].collisionOwner instanceof Character)
+				//continue;
 
-			let navBounds = [];
+			const dlPol = new DLPolygon(CollisionHandler.GCH.EnabledCollisions[i].GetPoints());
+
+			navBounds = [];
 			this.navigationTree2.GetNew(CollisionHandler.GCH.EnabledCollisions[i].boundingBox, navBounds);
 
-			for (let x = 0, xl = navBounds.length; x < xl; ++x) {
+			for (x = 0, xl = navBounds.length; x < xl; ++x) {
 				if (navBounds[x].polygon.boundingBox.IsRectOverlappingOrInsideF(CollisionHandler.GCH.EnabledCollisions[i].boundingBox.x, CollisionHandler.GCH.EnabledCollisions[i].boundingBox.y, CollisionHandler.GCH.EnabledCollisions[i].boundingBox.w, CollisionHandler.GCH.EnabledCollisions[i].boundingBox.h) === false)
 					continue;
 
@@ -156,6 +164,17 @@ class NavigationSystem extends Cobject {
 
 	/**
 	 * 
+	 * @param {Vector2D} a 
+	 * @param {Vector2D} b 
+	 * @returns {number}
+	 */
+	Euclidean(a, b) {
+		let dx = a.x - b.x, dy = a.y - b.y;
+		return Math.sqrt(dx * dx + dy * dy);
+	}
+
+	/**
+	 * 
 	 * @param {Vector2D} position 
 	 * @returns {NavigationBounds}
 	 */
@@ -182,32 +201,24 @@ class NavigationSystem extends Cobject {
 	 * @returns {Vector2D[]}
 	 */
 	PathFromPointToPoint(a, b) {
-		let currentTriangle = undefined,
-			goalTriangle = undefined,
-			currentTree = undefined;
+		/** @type {Triangle} */ let currentTriangle = undefined,
+			/** @type {Triangle} */ goalTriangle = undefined,
+			/** @type {NavigationBounds} */ currentTree = undefined;
+
+		if (a === undefined || b === undefined)
+			return undefined;
 
 		currentTree = this.GetTree(a);
-
 		if (currentTree === undefined)
 			return undefined;
 
 		currentTriangle = currentTree.mesh.GetTriangle(a);
-		goalTriangle = this.GetTree(b).mesh.GetTriangle(b);
 
-		/*for (let i = 0, l = this.navigationTree.length; i < l; ++i) {
-			if (this.navigationTree[i].mesh !== undefined && this.navigationTree[i].mesh.PointInMesh(a) === true) {
-				for (let t = 0, tl = this.navigationTree[i].mesh.triangles.length; t < tl; ++t) {
-					if (this.navigationTree[i].mesh.triangles[t].PointInTriangle(a) === true) {
-						currentTriangle = this.navigationTree[i].mesh.triangles[t];
-						currentTree = this.navigationTree[i];
-					}
-					if (this.navigationTree[i].mesh.triangles[t].PointInTriangle(b) === true) {
-						goalTriangle = this.navigationTree[i].mesh.triangles[t];
-					}
-				}
-			}
-		}*/
+		let goalTree = this.GetTree(b);
+		if (goalTree === undefined)
+			return undefined;
 
+		goalTriangle = goalTree.mesh.GetTriangle(b);
 		if (goalTriangle === undefined || currentTriangle === undefined)
 			return undefined;
 
@@ -216,23 +227,27 @@ class NavigationSystem extends Cobject {
 
 		/** @type {Object.<string, Vector2D>} */ let cameFrom = {},
 		/** @type {Object.<string, number>} */ costSoFar = {};
-
 		cameFrom[currentTriangle.GetCenter().ToString()] = currentTriangle.GetCenter();
 		costSoFar[currentTriangle.GetCenter().ToString()] = 0;
 
 		while (frontier.Empty() === false) {
 			let current = frontier.Get();
 
-			if (current.GetCenter().Equal(goalTriangle.GetCenter()) === true) {
+			if (current.GetCenter().Equal(goalTriangle.GetCenter()) === true)
 				break;
-			}
 
 			let neighbourTriangles = currentTree.mesh.FindNeighbouringTriangles(current);
 			for (let i = 0, l = neighbourTriangles.length; i < l; ++i) {
 				let next = neighbourTriangles[i].GetCenter(),
 					newCost = costSoFar[current.GetCenter().ToString()] + current.GetCenter().Distance(next);
 
-				if (costSoFar[next.ToString()] === costSoFar[costSoFar.length - 1] || newCost < costSoFar[next.ToString()]) {
+				let keys = Object.keys(costSoFar),
+					index = keys.indexOf(next.ToString());
+
+				if (index === -1)
+					index = keys.length - 1;
+
+				if (costSoFar[keys[index]] === costSoFar[keys[keys.length - 1]] || newCost < costSoFar[next.ToString()]) {
 					costSoFar[next.ToString()] = newCost;
 					let priority = newCost + this.Heuristic(next, goalTriangle.GetCenter());
 					frontier.Put(neighbourTriangles[i], priority);
@@ -241,15 +256,33 @@ class NavigationSystem extends Cobject {
 			}
 		}
 
-		let current = goalTriangle.GetCenter(),
-			returnArr = [];
+		let currentPosition = goalTriangle.GetCenter(),
+			/** @type {Vector2D[]} */ returnArr = [];
 
-		while (current !== undefined && current.Equal(currentTriangle.GetCenter()) === false) {
-			returnArr.push(current);
-			current = cameFrom[current.ToString()];
+		while (currentPosition !== undefined && currentPosition.Equal(currentTriangle.GetCenter()) === false) {
+			returnArr.push(currentPosition);
+			currentPosition = cameFrom[currentPosition.ToString()];
 		}
 		returnArr.push(currentTriangle.GetCenter());
+
 		return returnArr;
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} a 
+	 * @param {Vector2D} b
+	 * @returns {Vector2D[]}
+	 */
+	static PathFromPointToPoint(a, b) {
+		let arr = NavigationSystem._Instance.PathFromPointToPoint(a, b);
+
+		if (arr !== undefined) {
+			arr.reverse();
+			return arr;
+		} else {
+			return [];
+		}
 	}
 
 	FixedUpdate() {
@@ -266,9 +299,12 @@ class NavigationSystem extends Cobject {
 			}
 		}
 
-		let paths = this.PathFromPointToPoint(new Vector2D(81, 261), MasterObject.MO.playerController.playerCharacter.position);
-		if (paths !== undefined)
-			DebugDrawer.AddPolygon(new Polygon(paths), 0.016, 'red', true, 1);
+		/*if (doOnce === false) {
+			let paths = this.PathFromPointToPoint(new Vector2D(192, 125), MasterObject.MO.playerController.playerCharacter.position, true);
+			doOnce = true;
+			if (paths !== undefined)
+				DebugDrawer.AddPolygon(new Polygon(paths), 25, 'red', true, 1);
+		}*/
 	}
 
 	Delete() {

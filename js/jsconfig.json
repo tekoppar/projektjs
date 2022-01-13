@@ -10,9 +10,11 @@
 		"noImplicitAny": false,
 		"noImplicitReturns": true,
 		"noImplicitThis": true,
+		"noImplicitOverride": false,
 		"noFallthroughCasesInSwitch": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
+		"noUncheckedIndexedAccess": true,
 		"noPropertyAccessFromIndexSignature": false,
 		"suppressExcessPropertyErrors": false,
 		"suppressImplicitAnyIndexErrors": false,
@@ -22,6 +24,6 @@
 	},
 	"exclude": [
 		"node_modules",
-		"drawers/tiles/worldTiles"
+		"drawers/tiles/worldTiles",
 	]
 }

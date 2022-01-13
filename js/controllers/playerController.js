@@ -1,6 +1,6 @@
 import {
 	Vector2D, Hoe, Shovel, Axe, MainCharacter, Weapon, Seed, Controller, CraftingRecipes,
-	Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Item, Building
+	Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Item, Building, MovemementDirection, MovementType
 } from '../internal.js';
 
 /**
@@ -113,14 +113,14 @@ class PlayerController extends Controller {
 			case 'input':
 				if (data.eventType == 0) {
 					switch (key) {
-						case 'a': this.playerCharacter.UpdateDirection('x', 1); break;
-						case 'w': this.playerCharacter.UpdateDirection('y', 1); break;
-						case 'd': this.playerCharacter.UpdateDirection('x', -1); break;
-						case 's': this.playerCharacter.UpdateDirection('y', -1); break;
+						case 'a': this.playerCharacter.UpdateDirection(MovemementDirection.x, 1); break;
+						case 'w': this.playerCharacter.UpdateDirection(MovemementDirection.y, 1); break;
+						case 'd': this.playerCharacter.UpdateDirection(MovemementDirection.x, -1); break;
+						case 's': this.playerCharacter.UpdateDirection(MovemementDirection.y, -1); break;
 						case 'e':
 							this.playerCharacter.Interact();
 							break;
-						case 'leftShift': this.playerCharacter.SetMovement('running', -3); break;
+						case 'leftShift': this.playerCharacter.SetMovement(MovementType.Running, -3); break;
 						case 'leftMouse':
 							if (data.eventType === 0)
 								this.playerCharacter.UseItem(data);
@@ -129,11 +129,11 @@ class PlayerController extends Controller {
 				}
 				if (data.eventType == 1) {
 					switch (key) {
-						case 'a': this.playerCharacter.UpdateDirection('x', 1); break;
-						case 'w': this.playerCharacter.UpdateDirection('y', 1); break;
-						case 'd': this.playerCharacter.UpdateDirection('x', -1); break;
-						case 's': this.playerCharacter.UpdateDirection('y', -1); break;
-						case 'leftShift': this.playerCharacter.SetMovement('running', -3); break;
+						case 'a': this.playerCharacter.UpdateDirection(MovemementDirection.x, 1); break;
+						case 'w': this.playerCharacter.UpdateDirection(MovemementDirection.y, 1); break;
+						case 'd': this.playerCharacter.UpdateDirection(MovemementDirection.x, -1); break;
+						case 's': this.playerCharacter.UpdateDirection(MovemementDirection.y, -1); break;
+						case 'leftShift': this.playerCharacter.SetMovement(MovementType.Running, -3); break;
 					}
 				} else if (data.eventType == 2 || data.eventType == 3) {
 					switch (key) {
@@ -161,7 +161,7 @@ class PlayerController extends Controller {
 							}
 							break;
 
-						case 'leftShift': this.playerCharacter.SetMovement('walking', -1); break;
+						case 'leftShift': this.playerCharacter.SetMovement(MovementType.Walking, -1); break;
 					}
 				}
 				break;

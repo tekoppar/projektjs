@@ -36,6 +36,7 @@ const TileTerrain = {
  * @readonly
  * @enum {string}
  */
+//@ts-ignore
 const TileULDREnum = {
 	0x00001100: 'UpLeft',
 	0x00001000: 'Up',
@@ -62,6 +63,7 @@ const TileULDREnum = {
  * @readonly
  * @enum {number}
  */
+//@ts-ignore
 const TileULDRLUT = {
 	UpLeft: 0x00001100,
 	Up: 0x00001000,

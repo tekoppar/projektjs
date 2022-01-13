@@ -670,7 +670,10 @@ class PathOperation extends Operation {
 	 * @returns {Vector2D}
 	 */
 	GetDrawPosition() {
-		return this.path[0];
+		if (this.path[0] !== undefined)
+			return this.path[0];
+
+		return new Vector2D(0, 0);
 	}
 
 	/**
@@ -678,7 +681,10 @@ class PathOperation extends Operation {
 	 * @returns {number}
 	 */
 	GetDrawPositionY() {
-		return this.path[0].y;
+		if (this.path[0] !== undefined)
+			return this.path[0].y;
+
+		return 0;
 	}
 
 	/**
@@ -723,7 +729,7 @@ class PathOperation extends Operation {
 	 * 
 	 * @param {boolean} state 
 	 */
-	 UpdateDrawState(state) {
+	UpdateDrawState(state) {
 		super.UpdateDrawState(state);
 		this.needsToBeRedrawn = state;
 	}

@@ -1,8 +1,9 @@
 import {
 	ObjectsHasBeenInitialized, LightSystem, Rectangle, DrawingOperation, CAnimation, Mastertime,
-	AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler,
+	AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler, Character,
 	Plant, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite, PawnSetupController,
-	Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController, TileMakerEditor
+	Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController, TileMakerEditor,
+	BehaviourController, BehaviorTree, BehaviorActionMovement, BehaviorActionCharacter, BehaviorConditionDistance, BehaviorConditionAvoidClass, BehaviorActionMoveAway
 } from '../internal.js';
 import { GenerateCustomSheets } from '../drawers/tiles/TileMakerCustomSheets/tileMakerCustomSheetsImports.js';
 
@@ -128,6 +129,42 @@ class MasterObject {
 			PawnSetupController.LoadSavedObjects();
 		}
 
+		var duckController = new BehaviourController(duck, new BehaviorTree(
+			[
+				new BehaviorActionMovement(
+					duck,
+					[
+						new BehaviorConditionDistance(100, true),
+					],
+					new BehaviorActionCharacter(MasterObject.MO.playerController.playerCharacter)
+				)
+			]
+		));
+
+		var duckController1 = new BehaviourController(duck1, new BehaviorTree(
+			[
+				new BehaviorActionMoveAway(
+					duck1,
+					[
+						new BehaviorConditionAvoidClass(MainCharacter, 125),
+					],
+					new BehaviorActionCharacter(undefined)
+				)
+			]
+		));
+
+		var duckController2 = new BehaviourController(duck2, new BehaviorTree(
+			[
+				new BehaviorActionMoveAway(
+					duck2,
+					[
+						new BehaviorConditionAvoidClass(MainCharacter, 125),
+					],
+					new BehaviorActionCharacter(undefined)
+				)
+			]
+		));
+
 		this.CheckFullscreen();
 		window.requestAnimationFrame(GlobalLoop);
 	}
@@ -223,7 +260,7 @@ class MasterObject {
 	}
 }
 
-var shopTest = new Shop('seedShop', new Vector2D(368, 256), undefined, 'pepoSeedShop');
+var shopTest = new Shop('seedShop', new Vector2D(-256, 256), undefined, 'pepoSeedShop');
 shopTest.AddItem(new Seed('cornSeed', 420));
 shopTest.AddItems([
 	new Seed('potatoSeed', 999), new Seed('watermelonSeed', 999),
@@ -240,14 +277,16 @@ shopTest.AddItems([
 ]);
 CustomEventHandler.AddListener(shopTest);
 
-/*var duck = new Character('duckWalk', 0, new Vector2D(250, 400), AllAnimationsList.smallAnimalAnimations);
+
+var duck = new Character('duckWalk', new Vector2D(250, 600), AllAnimationsList.smallAnimalAnimations);
 duck.name = 'duck';
-var duck1 = new Character('duckWalk', 0, new Vector2D(250, 432), AllAnimationsList.smallAnimalAnimations);
+
+var duck1 = new Character('duckWalk', new Vector2D(250, 460), AllAnimationsList.smallAnimalAnimations);
 duck1.name = 'duck1';
-var duck2 = new Character('duckWalk', 0, new Vector2D(250, 464), AllAnimationsList.smallAnimalAnimations);
+var duck2 = new Character('duckWalk', new Vector2D(250, 532), AllAnimationsList.smallAnimalAnimations);
 duck2.name = 'duck2';
-var duck3 = new Character('duckWalk', 0, new Vector2D(250, 30 * 32), AllAnimationsList.smallAnimalAnimations);
-duck3.name = 'duck3';*/
+var duck3 = new Character('duckWalk', new Vector2D(250, 30 * 32), AllAnimationsList.smallAnimalAnimations);
+duck3.name = 'duck3';
 
 var AllPlants = [
 	new Plant('crops', 'corn', new Vector2D(592, 128)),

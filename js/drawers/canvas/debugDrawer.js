@@ -1,6 +1,6 @@
 import {
 	BoxCollision, Collision, MeshOperation, PolygonCollision, PathOperation, CollisionHandler,
-	Vector2D, RectOperation, Mesh, Rectangle, Color, Cobject, Polygon, CanvasDrawer, Operation, TextOperation, Logger
+	Vector2D, RectOperation, Mesh, Rectangle, Color, Cobject, Polygon, CanvasDrawer, Operation, TextOperation
 } from '../../internal.js';
 
 /** @typedef {import('./operation.js').Operations} Operations */
@@ -427,6 +427,9 @@ class DebugDrawer extends Cobject {
 			case 'PathOperation':
 				context.globalAlpha = drawingOperation.alpha;
 				drawingOperation.UpdateDrawState(true);
+
+				if (drawingOperation.path === undefined || (drawingOperation.path !== undefined && drawingOperation.path.length === 0))
+					return;
 
 				if (drawingOperation.fillOrOutline === null) {
 					context.fillStyle = drawingOperation.color;
