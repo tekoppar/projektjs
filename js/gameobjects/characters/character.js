@@ -280,7 +280,7 @@ class Character extends GameObject {
 		/** @type {CharacterAttributes} */ this.characterAttributes = characterAttributes;
 		/** @type {Object.<string, CAnimation>} */ this.animations = animations;
 		/** @type {CAnimation} */ this.currentAnimation = undefined;
-		/** @type {CharacterAttachments} */ this.shadowAttachment = new CharacterAttachments(this.position, 'shadow');
+		/** @type {CharacterAttachments} */ this.shadowAttachment = new CharacterAttachments(this.position, spriteSheetName + 'Shadow');
 		/** @type {CharacterAttachments} */ this.itemAttachment = undefined;
 		/** @type {Object<string, CharacterAttachments>} */ this.attachments = {};
 		/** @type {CharacterStates} */ this.characterState = new CharacterStates(false, false);
@@ -599,7 +599,12 @@ class Character extends GameObject {
 
 			this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
 			this.BoxCollision.position = this.GetPosition();
-			this.BlockingCollision.position.Sub(new Vector2D(this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5, this.BlockingCollision.size.y - this.BlockingCollision.size.y));
+			this.BlockingCollision.position.Sub(
+				new Vector2D(
+					this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5,
+					this.BlockingCollision.size.y - (this.BoxCollision.size.y > 32 ? this.BlockingCollision.size.y : 0)
+				)
+			);
 
 			if (CollisionHandler.GCH.CheckCollisions(this.BlockingCollision) === true) {
 				this.previousPosition = this.GetPosition();

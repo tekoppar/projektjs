@@ -30,4 +30,13 @@ const BWDrawingType = {
 	Open: 1,
 }
 
-export { ObjectType, BWDrawingType, EditorState };
+/**
+ * @readonly
+ * @enum {number}
+ */
+const OpenClosed = {
+	Closed: 0,
+	Open: 1,
+}
+
+export { ObjectType, BWDrawingType, EditorState, OpenClosed };

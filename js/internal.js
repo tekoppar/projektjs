@@ -15,7 +15,7 @@ export { ObjectUtility } from './classes/utility/objectUtility.js';
 export { ImageUtility } from './classes/utility/imageUtility.js';
 export { earcut } from './classes/utility/earcut.js';
 
-export { ObjectType, BWDrawingType, EditorState } from './classes/baseClasses/globalEnums.js';
+export { ObjectType, BWDrawingType, EditorState, OpenClosed } from './classes/baseClasses/globalEnums.js';
 
 export { Graph, GraphPoint } from './classes/containerClasses/graph.js';
 export {
@@ -40,7 +40,7 @@ export { PageFetcher } from './classes/utility/pageFetcher.js';
 export { AllCollisions, AllBlockingCollisions } from './gameobjects/collision/allCollisions.js';
 
 export {
-	Collision, BoxCollision, CollisionHandler, PolygonCollision, OverlapCheckEnum,
+	Collision, BoxCollision, QuadTree, CollisionHandler, PolygonCollision, OverlapCheckEnum,
 	OverlapOICheck, OverlapOverlapsCheck, CollisionTypeCheck
 } from './gameobjects/collision/collision.js';
 
@@ -88,7 +88,8 @@ export { Minimap } from './drawers/minimap.js';
 
 export {
 	BehaviorTree, BehaviorAction, BehaviorActionCharacter, BehaviorActionMovement, BehaviorActionPoint,
-	BehaviorCondition, BehaviorConditionDistance, BehaviorConditionAvoidClass, BehaviorActionMoveAway
+	BehaviorCondition, BehaviorConditionDistance, BehaviorConditionAvoidClass, BehaviorActionMoveAway,
+	BehaviorActionModifySpeed
 } from './controllers/behaviourTree/behaviorTree.js';
 export { BehaviourController } from './controllers/behaviourTree/behaviourController.js';
 
@@ -99,7 +100,8 @@ export { Tile, TileData, TileType, TileF, TileTerrain } from './drawers/tiles/ti
 
 //export { worldTiles } from './drawers/tiles/worldTiles.js';
 
-export { NavigationSystem } from './classes/navigationSystem.js';
+export { NavigationBounds } from './classes/navigation/navigationBound.js';
+export { NavigationSystem } from './classes/navigation/navigationSystem.js';
 
 export {
 	ParticleSystem, ParticleGenerator, ParticleGeneratorSettings, Particle,

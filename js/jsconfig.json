@@ -2,7 +2,7 @@
 	"typescript.tsserver.experimental.enableProjectDiagnostics": true,
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "es2017",
+		"target": "es2021",
 		"checkJs": true,
 		"allowUnreachableCode": false,
 		"allowUnusedLabels": false,

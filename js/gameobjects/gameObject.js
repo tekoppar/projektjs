@@ -31,7 +31,7 @@ class Pawn extends Cobject {
 		if (this.canvasName !== undefined && AtlasController.GetAtlas(this.canvasName) !== undefined) {
 			this.canvas = AtlasController.GetAtlas(this.canvasName).GetCanvas();
 		}
-		
+
 		/** @type {ObjectType} */ this.objectType = ObjectType.Pawn;
 	}
 
@@ -290,8 +290,14 @@ class GameObject extends Pawn {
 		if (this.BlockingCollision !== undefined) {
 			this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
 			//this.BlockingCollision.position = this.position.Clone();
-			this.BlockingCollision.position.Sub(new Vector2D(this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5, this.BlockingCollision.size.y - this.BlockingCollision.size.y));
-			this.BlockingCollision.CalculateBoundingBox();
+			this.BlockingCollision.position.Sub(
+				new Vector2D(
+					this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5,
+					this.BlockingCollision.size.y - (this.BoxCollision.size.y > 32 ? this.BlockingCollision.size.y : 0)
+				)
+			);
+			this.BlockingCollision.SetPosition(this.BlockingCollision.position);
+			//this.BlockingCollision.CalculateBoundingBox();
 		}
 	}
 

@@ -1,4 +1,4 @@
-import { CMath, earcut } from '../internal.js';
+import { CMath, DebugDrawer, earcut, OpenClosed } from '../internal.js';
 
 /**
  * @memberof Number
@@ -243,6 +243,16 @@ class Vector2D {
 	 */
 	Equal(a) {
 		return this.x == a.x && this.y == a.y;
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} a 
+	 * @param {number} distance 
+	 * @returns {boolean}
+	 */
+	NearlyEqual(a, distance = 0.001) {
+		return this.Distance(a) <= distance;
 	}
 
 	/**
@@ -1204,6 +1214,17 @@ class Rectangle {
 
 	/**
 	 * 
+	 * @param {number} f 
+	 */
+	ExpandF(f) {
+		this.x -= f;
+		this.y -= f;
+		this.w += f * 2;
+		this.h += f * 2;
+	}
+
+	/**
+	 * 
 	 * @param {number} aX 
 	 * @param {number} aY 
 	 * @param {number} bX 
@@ -1758,6 +1779,44 @@ class Intersection {
 				this.y = s1.y + this.toSource * (s2.y - s1.y);
 			}
 		}
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} s1
+	 * @param {Vector2D} s2
+	 * @param {Vector2D} c1
+	 * @param {Vector2D} c2
+	 */
+	static LineIntersectionVector2D(s1, s2, c1, c2) {
+		const d = ((c2.y - c1.y) * (s2.x - s1.x)) - ((c2.x - c1.x) * (s2.y - s1.y));
+
+		if (d === 0)
+			return false;
+
+		const toSource = ((c2.x - c1.x) * (s1.y - c1.y) - (c2.y - c1.y) * (s1.x - c1.x)) / d,
+			toClip = ((s2.x - s1.x) * (s1.y - c1.y) - (s2.y - s1.y) * (s1.x - c1.x)) / d;
+
+		return (0 < toSource && toSource < 1) && (0 < toClip && toClip < 1);
+	}
+
+	/**
+	 * 
+	 * @param {Line} a 
+	 * @param {Line} b 
+	 */
+	static LineIntersectionLine(a, b) {
+		const s1 = a.a, s2 = a.b, c1 = b.a, c2 = b.b;
+
+		const d = ((c2.y - c1.y) * (s2.x - s1.x)) - ((c2.x - c1.x) * (s2.y - s1.y));
+
+		if (d === 0)
+			return false;
+
+		const toSource = ((c2.x - c1.x) * (s1.y - c1.y) - (c2.y - c1.y) * (s1.x - c1.x)) / d,
+			toClip = ((s2.x - s1.x) * (s1.y - c1.y) - (s2.y - s1.y) * (s1.x - c1.x)) / d;
+
+		return (0 < toSource && toSource < 1) && (0 < toClip && toClip < 1);
 	}
 
 	/**
@@ -2348,8 +2407,9 @@ class Line {
 	 * 
 	 * @param {Vector2D} a 
 	 * @param {Vector2D} b 
+	 * @param {OpenClosed} openClosed
 	 */
-	constructor(a = new Vector2D(0, 0), b = new Vector2D(0, 0)) {
+	constructor(a, b, openClosed = OpenClosed.Open) {
 		if (a.y < b.y) {
 			/** @type {Vector2D} */ this.a = a;
 			/** @type {Vector2D} */ this.b = b;
@@ -2357,6 +2417,8 @@ class Line {
 			/** @type {Vector2D} */ this.a = b;
 			/** @type {Vector2D} */ this.b = a;
 		}
+
+		/** @type {OpenClosed} */ this.openClosed = openClosed;
 	}
 
 	/**
@@ -2380,6 +2442,14 @@ class Line {
 	 */
 	Delta() {
 		return Vector2D.Sub(this.b, this.a);
+	}
+
+	/**
+	 * Gets the line centroid
+	 * @returns {Vector2D}
+	 */
+	GetCentroid() {
+		return this.PointAt(0.5);
 	}
 
 	/**
@@ -2461,11 +2531,100 @@ class Line {
 
 	/**
 	 * 
+	 * @param {Vector2D} v
+	 * @returns {boolean} 
+	 */
+	Inside(v) {
+		if (this.a.NearlyEqual(v) === true || this.b.NearlyEqual(v) === true || this.a.NearlyEqual(this.b) === true)
+			return false;
+
+		let closestPoint = Line.ClosestPointAlongLine(this.a, this.b, v);
+
+		if (closestPoint === undefined)
+			return false;
+
+		return v.NearlyEqual(closestPoint, 0.0000001);
+	}
+
+	/**
+	 * 
+	 * @param {Line} line
+	 * @param {Vector2D} v
+	 * @returns {boolean} 
+	 */
+	static Inside(line, v) {
+		let closestPoint = Line.ClosestPointAlongLine(line.a, line.b, v);
+
+		if (closestPoint === undefined)
+			return false;
+
+		return v.NearlyEqual(closestPoint);
+	}
+
+	/**
+	 * 
+	 * @param {Line} line
+	 * @returns {boolean} 
+	 */
+	LineContainsLine(line) {
+		let bA = false, bB = false;
+
+		//if (line.a.NearlyEqual(line.b) || this.a.NearlyEqual(this.b) || this.Equal(line) === true)
+			//return false;
+
+		if (this.a.NearlyEqual(line.a)) {
+			bA = true;
+
+			if (this.b.NearlyEqual(line.b))
+				bB = true;
+			else if (this.Inside(line.b))
+				bB = true;
+		} else if (this.b.NearlyEqual(line.a)) {
+			bA = true;
+
+			if (this.a.NearlyEqual(line.b))
+				bB = true;
+			else if (this.Inside(line.b))
+				bB = true;
+		} else if (this.Inside(line.a)) {
+			bA = true;
+
+			if (this.a.NearlyEqual(line.b))
+				bB = true;
+			else if (this.b.NearlyEqual(line.b))
+				bB = true;
+			else if (this.Inside(line.b))
+				bB = true;
+		}
+
+		return bA === true && bB === true;
+	}
+
+	/**
+	 * 
+	 * @param {Line} a 
+	 * @param {Line} b
+	 * @returns {boolean} 
+	 */
+	static LineContainsLine(a, b) {
+		let bA = false, bB = false;
+
+		if (a.a.NearlyEqual(b.a) || a.b.NearlyEqual(b.a) || a.Inside(b.a))
+			bA = true;
+
+		if (a.a.NearlyEqual(b.b) || a.b.NearlyEqual(b.b) || a.Inside(b.b))
+			bB = true;
+
+		return bA && bB;
+	}
+
+	/**
+	 * Returns the closest point along the line clamped to the line
 	 * @param {number} positionX
 	 * @param {number} positionY
 	 * @returns {Vector2D}
 	 */
-	ClosestPointAlongLine(positionX, positionY) {
+	ClosestPointAlongLineClamped(positionX, positionY) {
 		let abX = Math.abs(this.b.x - this.a.x),
 			abY = Math.abs(this.b.y - this.a.y),
 			pointF = Math.min(Math.max((Math.abs(positionX - this.a.x) * abX + Math.abs(positionY - this.a.y) * abY) / ((abX * abX) + (abY * abY)), 0), 1);
@@ -2474,13 +2633,32 @@ class Line {
 	}
 
 	/**
-	 * 
+	 * Returns closest point along the line or undefined if greater or less
 	 * @param {Vector2D} a 
 	 * @param {Vector2D} b 
 	 * @param {Vector2D} position 
 	 * @returns {Vector2D}
 	 */
 	static ClosestPointAlongLine(a, b, position) {
+		let abX = b.x - a.x,
+			abY = b.y - a.y;
+
+		let pointF = ((position.x - a.x) * abX + (position.y - a.y) * abY) / ((abX * abX) + (abY * abY));
+
+		if (pointF < 0 || pointF > 1)
+			return undefined;
+
+		return new Vector2D(a.x + (abX * pointF), a.y + (abY * pointF));
+	}
+
+	/**
+	 * Returns the closest point along the line clamped to the line a
+	 * @param {Vector2D} a 
+	 * @param {Vector2D} b 
+	 * @param {Vector2D} position 
+	 * @returns {Vector2D}
+	 */
+	static ClosestPointAlongLineClamped(a, b, position) {
 		let abX = Math.abs(b.x - a.x),
 			abY = Math.abs(b.y - a.y);
 
@@ -2505,6 +2683,14 @@ class Line {
 		else
 		return Vector2D.Add(a, Vector2D.MultF(ab, distance));
 		*/
+	}
+
+	/**
+	 * 
+	 * @param {Line} line 
+	 */
+	Equal(line) {
+		return (this.a.NearlyEqual(line.a) && this.b.NearlyEqual(line.b)) || (this.b.NearlyEqual(line.a) && this.a.NearlyEqual(line.b))
 	}
 }
 
@@ -2684,6 +2870,7 @@ class Vertice {
 		/** @type {number} */ this.x = x;
 		/** @type {number} */ this.y = y;
 		/** @type {number} */ this.indice = i;
+		/** @type {boolean} */ this.open = true;
 	}
 
 	ToVector2D() {
@@ -2700,11 +2887,21 @@ class Vertice {
 
 	/**
 	 * 
+	 * @param {number} precision 
+	 * @returns {string}
+	 */
+	ToString(precision = 0) {
+		return this.x.toFixed(precision) + ', ' + this.y.toFixed(precision);
+	}
+
+	/**
+	 * 
 	 * @param {Vertice} a 
+	 * @param {(0|1|2|3|4|5|6|7|8|9)} precision
 	 * @returns {boolean}
 	 */
-	Equal(a) {
-		return this.x == a.x && this.y == a.y;
+	Equal(a, precision = 9) {
+		return this.x.toFixed(precision) == a.x.toFixed(precision) && this.y.toFixed(precision) == a.y.toFixed(precision);
 	}
 }
 
@@ -2724,6 +2921,61 @@ class Triangle {
 		/** @type {Vertice} */ this.x = x;
 		/** @type {Vertice} */ this.y = y;
 		/** @type {Vertice} */ this.z = z;
+		this.xy = new Line(this.x.ToVector2D(), this.y.ToVector2D());
+		this.yz = new Line(this.y.ToVector2D(), this.z.ToVector2D());
+		this.zx = new Line(this.z.ToVector2D(), this.x.ToVector2D());
+		this.centroid = this.GetCenter();
+	}
+
+	CheckHoles() {
+		let count = 0;
+
+		if (this.x.open === false && this.y.open === false && this.xy.openClosed === OpenClosed.Open) {
+			this.xy.openClosed = OpenClosed.Closed;
+			DebugDrawer.AddPolygon(new Polygon([this.xy.a, this.xy.b]), 0.016, 'teal', true, 1.0);
+		}
+
+		if (this.y.open === false && this.z.open === false && this.yz.openClosed === OpenClosed.Open) {
+			this.yz.openClosed = OpenClosed.Closed;
+			DebugDrawer.AddPolygon(new Polygon([this.yz.a, this.yz.b]), 0.016, 'magenta', true, 1.0);
+		}
+
+		if (this.z.open === false && this.x.open === false && this.zx.openClosed === OpenClosed.Open) {
+			this.zx.openClosed = OpenClosed.Closed;
+			DebugDrawer.AddPolygon(new Polygon([this.zx.a, this.zx.b]), 0.016, 'yellow', true, 1.0);
+		}
+
+		if (this.x.open === false)
+			count++;
+
+		if (this.y.open === false)
+			count++;
+
+		if (this.z.open === false)
+			count++;
+
+		if (count < 2) {
+			this.x.open = this.y.open = this.z.open = true;
+		}
+		this.x.open = this.y.open = this.z.open = true;
+	}
+
+	/**
+	 * 
+	 * @returns {boolean}
+	 */
+	HasHoles() {
+		let count = 0;
+		if (this.x.open === false)
+			count++;
+
+		if (this.y.open === false)
+			count++;
+
+		if (this.z.open === false)
+			count++;
+
+		return count > 1;
 	}
 
 	GetArea() {
@@ -2748,6 +3000,33 @@ class Triangle {
 
 	/**
 	 * 
+	 * @param {Vector2D} position
+	 * @returns {Line} 
+	 */
+	GetClosestLine(position) {
+		let d = 99999999999999,
+			closestLine = undefined;
+
+		if (this.xy.openClosed === OpenClosed.Open && this.xy.GetCentroid().Distance(position) < d) {
+			d = this.xy.GetCentroid().Distance(position);
+			closestLine = this.xy;
+		}
+
+		if (this.yz.openClosed === OpenClosed.Open && this.yz.GetCentroid().Distance(position) < d) {
+			d = this.yz.GetCentroid().Distance(position);
+			closestLine = this.yz;
+		}
+
+		if (this.zx.openClosed === OpenClosed.Open && this.zx.GetCentroid().Distance(position) < d) {
+			d = this.zx.GetCentroid().Distance(position);
+			closestLine = this.zx;
+		}
+
+		return closestLine;
+	}
+
+	/**
+	 * 
 	 * @returns {Vector2D}
 	 */
 	GetCenter() {
@@ -2757,7 +3036,7 @@ class Triangle {
 		ax += this.z.x;
 		ay += this.z.y;
 
-		return new Vector2D(ax * 0.333333333, ay * 0.333333333);
+		return new Vector2D(ax / 3, ay / 3);
 	}
 
 	/**
@@ -2783,6 +3062,22 @@ class Triangle {
 		return (this.z.x - v.x) * (this.x.y - v.y) - (this.x.x - v.x) * (this.z.y - v.y) >= 0 &&
 			(this.x.x - v.x) * (this.y.y - v.y) - (this.y.x - v.x) * (this.x.y - v.y) >= 0 &&
 			(this.y.x - v.x) * (this.z.y - v.y) - (this.z.x - v.x) * (this.y.y - v.y) >= 0;
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} v 
+	 * @returns {boolean}
+	 */
+	PointInTriangleV2(v) {
+		const s = (this.x.x - this.z.x) * (v.y - this.z.y) - (this.x.y - this.z.y) * (v.x - this.z.x);
+		const t = (this.y.x - this.x.x) * (v.y - this.x.y) - (this.y.y - this.x.y) * (v.x - this.x.x);
+
+		if ((s < 0) !== (t < 0) && s !== 0 && t !== 0)
+			return false;
+
+		const d = (this.z.x - this.y.x) * (v.y - this.y.y) - (this.z.y - this.y.y) * (v.x - this.y.x);
+		return d == 0 || (d < 0) === (s + t <= 0);
 	}
 
 	/**
@@ -2819,14 +3114,70 @@ class Mesh {
 	 * @param {Triangle[]} triangles 
 	 * @param {number[]} indices
 	 * @param {Vector2D[]} vertices
+	 * @param {Array<Vector2D[]>} holes
 	 */
-	constructor(triangles, indices, vertices = undefined) {
+	constructor(triangles, indices, vertices = undefined, holes = undefined) {
 		/** @type {Triangle[]} */ this.triangles = triangles;
 		/** @type {Rectangle} */ this.boundingBox = undefined;
 		/** @type {number[]} */ this.indices = indices;
 		/** @type {Vector2D[]} */ this.vertices = vertices;
+		/** @type {Array<Vector2D[]>} */ this.holes = holes;
 
 		this.CalculateBoundingBox();
+		this.FindHoleVertices();
+	}
+
+	FindHoleVertices() {
+		if (this.holes !== undefined) {
+			for (let i = 0, l = this.holes.length; i < l; ++i) {
+				for (let y = 0, yl = this.triangles.length; y < yl; ++y) {
+					for (let x = 0, x2 = this.holes[i].length - 1, xl = this.holes[i].length; x < xl; ++x) {
+						const tempLine = new Line(this.holes[i][x2], this.holes[i][x]);
+
+						if (this.triangles[y].xy.LineContainsLine(tempLine) === true || tempLine.LineContainsLine(this.triangles[y].xy) === true) {
+							this.triangles[y].xy.openClosed = OpenClosed.Closed;
+							//DebugDrawer.AddPolygon(new Polygon([this.triangles[y].xy.a, this.triangles[y].xy.b]), 0.016, 'teal', true, 1.0);
+						}
+
+						if (this.triangles[y].yz.LineContainsLine(tempLine) === true || tempLine.LineContainsLine(this.triangles[y].yz) === true) {
+							this.triangles[y].yz.openClosed = OpenClosed.Closed;
+							//DebugDrawer.AddPolygon(new Polygon([this.triangles[y].yz.a, this.triangles[y].yz.b]), 0.016, 'magenta', true, 1.0);
+						}
+
+						if (this.triangles[y].zx.LineContainsLine(tempLine) === true || tempLine.LineContainsLine(this.triangles[y].zx) === true) {
+							this.triangles[y].zx.openClosed = OpenClosed.Closed;
+							//DebugDrawer.AddPolygon(new Polygon([this.triangles[y].zx.a, this.triangles[y].zx.b]), 0.016, 'yellow', true, 1.0);
+						}
+						x2 = x;
+					}
+				}
+			}
+		}
+
+		///** @type {Object.<string, Vector2D>} */ let holesLUT = {};
+
+		/*if (this.holes !== undefined) {
+			for (let i = 0, l = this.holes.length; i < l; ++i) {
+				holesLUT = {};
+				for (let x = 0, xl = this.holes[i].length; x < xl; ++x) {
+					holesLUT[this.holes[i][x].ToString()] = this.holes[i][x];
+				}
+
+				for (let y = 0, yl = this.triangles.length; y < yl; ++y) {
+					if (holesLUT[this.triangles[y].x.ToString()] !== undefined) {
+						this.triangles[y].x.open = false;
+					}
+					if (holesLUT[this.triangles[y].y.ToString()] !== undefined) {
+						this.triangles[y].y.open = false;
+					}
+					if (holesLUT[this.triangles[y].z.ToString()] !== undefined) {
+						this.triangles[y].z.open = false;
+					}
+	
+					this.triangles[y].CheckHoles();
+				}
+			}
+		}*/
 	}
 
 	/**
@@ -2838,19 +3189,103 @@ class Mesh {
 		/** @type {Triangle[]} */ let neighbours = [];
 
 		for (let i = 0, l = this.triangles.length; i < l; ++i) {
-			if (a.x.indice === this.triangles[i].x.indice || a.x.indice === this.triangles[i].y.indice || a.x.indice === this.triangles[i].z.indice) {
+			if (this.triangles[i] === a)
+				continue;
+
+			if (
+				a.x.Equal(this.triangles[i].x, 1) ||
+				a.x.Equal(this.triangles[i].y, 1) ||
+				a.x.Equal(this.triangles[i].z, 1)
+			) {
 				neighbours.push(this.triangles[i]);
 				continue;
 			}
 
-			if (a.y.indice === this.triangles[i].x.indice || a.y.indice === this.triangles[i].y.indice || a.y.indice === this.triangles[i].z.indice) {
+			if (
+				a.y.Equal(this.triangles[i].x, 1) ||
+				a.y.Equal(this.triangles[i].y, 1) ||
+				a.y.Equal(this.triangles[i].z, 1)
+			) {
 				neighbours.push(this.triangles[i]);
 				continue;
 			}
 
-			if (a.z.indice === this.triangles[i].x.indice || a.z.indice === this.triangles[i].y.indice || a.z.indice === this.triangles[i].z.indice) {
+			if (
+				a.z.Equal(this.triangles[i].x, 1) ||
+				a.z.Equal(this.triangles[i].y, 1) ||
+				a.z.Equal(this.triangles[i].z, 1)
+			) {
 				neighbours.push(this.triangles[i]);
 				continue;
+			}
+		}
+
+		return neighbours;
+	}
+
+	/**
+	 * 
+	 * @param {Triangle} a 
+	 * @returns {Triangle[]}
+	 */
+	FindNeighbouringTrianglesNew(a) {
+		/** @type {Triangle[]} */ let neighbours = [],
+			count = 0;
+
+		for (let i = 0, l = this.triangles.length; i < l; ++i) {
+			if (this.triangles[i] === a)
+				continue;
+
+			count = 0;
+			let hasHoles = this.triangles[i].HasHoles();
+
+			if (
+				a.x.Equal(this.triangles[i].x, 1) ||
+				a.y.Equal(this.triangles[i].x, 1) ||
+				a.z.Equal(this.triangles[i].x, 1)
+			) {
+				if (this.triangles[i].x.open === true) {
+					if (hasHoles === false) {
+						neighbours.push(this.triangles[i]);
+						continue;
+					} else
+						count++;
+				} else
+					count++;
+			}
+
+			if (
+				a.x.Equal(this.triangles[i].y, 1) ||
+				a.y.Equal(this.triangles[i].y, 1) ||
+				a.z.Equal(this.triangles[i].y, 1)
+			) {
+				if (this.triangles[i].y.open === true) {
+					if (hasHoles === false) {
+						neighbours.push(this.triangles[i]);
+						continue;
+					} else
+						count++;
+				} else
+					count++;
+			}
+
+			if (
+				a.x.Equal(this.triangles[i].z, 1) ||
+				a.y.Equal(this.triangles[i].z, 1) ||
+				a.z.Equal(this.triangles[i].z, 1)
+			) {
+				if (this.triangles[i].z.open === true) {
+					if (hasHoles === false) {
+						neighbours.push(this.triangles[i]);
+						continue;
+					} else
+						count++;
+				} else
+					count++;
+			}
+
+			if (count > 1) {
+				neighbours.push(this.triangles[i]);
 			}
 		}
 
@@ -2928,8 +3363,9 @@ class Mesh {
 	 * 
 	 * @param {number[]} vertices 
 	 * @param {number[]} indices 
+	 * @param {Array<Vector2D[]>} holes
 	 */
-	static FromVerticesIndices(vertices, indices) {
+	static FromVerticesIndices(vertices, indices, holes = undefined) {
 		let triangles = [],
 			vectors = [];
 
@@ -2942,15 +3378,16 @@ class Mesh {
 			));
 		}
 
-		return new Mesh(triangles, indices, vectors);
+		return new Mesh(triangles, indices, vectors, holes);
 	}
 
 	/**
 	 * 
 	 * @param {Vector2D[]} vertices 
 	 * @param {number[]} indices 
+	 * @param {Array<Vector2D[]>} holes
 	 */
-	static FromVector2DIndices(vertices, indices) {
+	static FromVector2DIndices(vertices, indices, holes = undefined) {
 		let triangles = [];
 
 		for (let i = 0, l = indices.length; i < l; i += 3) {
@@ -2963,7 +3400,7 @@ class Mesh {
 			}
 		}
 
-		return new Mesh(triangles, indices, vertices);
+		return new Mesh(triangles, indices, vertices, holes);
 	}
 
 	ToObj() {

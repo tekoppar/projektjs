@@ -1,4 +1,4 @@
-import { Vector2D, NavigationSystem, Character, MovemementDirection, DebugDrawer, Polygon, CollisionHandler, CMath } from '../../internal.js';
+import { Vector2D, NavigationSystem, Character, MovemementDirection, CollisionHandler, CMath, MovementType, DebugDrawer, Polygon } from '../../internal.js';
 
 /**
  * @readonly
@@ -285,8 +285,11 @@ class BehaviorActionMovement extends BehaviorAction {
 	CalculatePath() {
 		let b = this.behaviorActionPoint.GetPoint();
 
-		if (b !== undefined)
+		if (b !== undefined) {
 			this.path = NavigationSystem.PathFromPointToPoint(this.agent.position, b);
+
+			DebugDrawer.AddPolygon(new Polygon(this.path), 5, 'pink', true, 1.0);
+		}
 	}
 
 	/**
@@ -432,7 +435,65 @@ class BehaviorActionMoveAway extends BehaviorAction {
 	}
 }
 
+/**
+ * @class
+ * @constructor
+ * @extends BehaviorAction
+ */
+class BehaviorActionModifySpeed extends BehaviorAction {
+	
+	/**
+	 * 
+	 * @param {Character} agent
+	 * @param {BehaviorCondition[]} conditions 
+	 * @param {BehaviorActionPoint} behaviorActionPoint 
+	 * @param {number} speedNormal
+	 * @param {number} speedModified
+	 */
+	constructor(agent, conditions, behaviorActionPoint, speedNormal, speedModified) {
+		super(conditions);
+
+		/** @type {Character} */ this.agent = agent;
+		/** @type {BehaviorActionPoint} */ this.behaviorActionPoint = behaviorActionPoint;
+		/** @type {number} */ this.speedNormal = speedNormal;
+		/** @type {number} */ this.speedModified = speedModified;
+	}
+
+	/**
+	 * 
+	 * @returns {boolean}
+	 */
+	 Action() {
+		super.Action();
+
+		if (this.CheckConditions() === false) {
+			this.agent.SetMovement(MovementType.Walking, this.speedNormal);
+			return false;
+		} else {
+			this.agent.SetMovement(MovementType.Running, this.speedModified);
+			return true;
+		}
+	}
+
+	/**
+	 * @private
+	 * @returns {boolean}
+	 */
+	 CheckConditions() {
+		let state = true;
+
+		for (let i = 0, l = this.conditions.length; i < l; ++i) {
+			state = this.conditions[i].Check(this, this.behaviorActionPoint);
+
+			if (state === false)
+				return false;
+		}
+
+		return state;
+	}
+}
+
 export {
 	BehaviorTree, BehaviorAction, BehaviorActionPoint, BehaviorActionMovement, BehaviorActionCharacter, BehaviorCondition,
-	BehaviorConditionDistance, BehaviorConditionAvoidClass, BehaviorActionMoveAway
+	BehaviorConditionDistance, BehaviorConditionAvoidClass, BehaviorActionMoveAway, BehaviorActionModifySpeed
 };

@@ -3,7 +3,8 @@ import {
 	AllAnimationsList, ToggleObjectsHasBeenInitialized, CollisionHandler, CustomEventHandler, Character,
 	Plant, MainCharacter, InputHandler, Vector2D, CanvasDrawer, CanvasSprite, PawnSetupController,
 	Cobject, TileData, Seed, Shop, TileMaker, CollisionEditor, PlayerController, AtlasController, TileMakerEditor,
-	BehaviourController, BehaviorTree, BehaviorActionMovement, BehaviorActionCharacter, BehaviorConditionDistance, BehaviorConditionAvoidClass, BehaviorActionMoveAway
+	BehaviourController, BehaviorTree, BehaviorActionMovement, BehaviorActionCharacter, BehaviorConditionDistance,
+	BehaviorConditionAvoidClass, BehaviorActionMoveAway, BehaviorActionModifySpeed, NavigationSystem
 } from '../internal.js';
 import { GenerateCustomSheets } from '../drawers/tiles/TileMakerCustomSheets/tileMakerCustomSheetsImports.js';
 
@@ -134,9 +135,18 @@ class MasterObject {
 				new BehaviorActionMovement(
 					duck,
 					[
-						new BehaviorConditionDistance(100, true),
+						new BehaviorConditionDistance(50, true),
 					],
 					new BehaviorActionCharacter(MasterObject.MO.playerController.playerCharacter)
+				),
+				new BehaviorActionModifySpeed(
+					duck,
+					[
+						new BehaviorConditionDistance(150, true),
+					],
+					new BehaviorActionCharacter(MasterObject.MO.playerController.playerCharacter),
+					-1,
+					-2
 				)
 			]
 		));
@@ -198,6 +208,8 @@ class MasterObject {
 			if (Cobject.KeysAllCobjects[i] !== undefined && Cobject.AllCobjects[Cobject.KeysAllCobjects[i]] !== undefined)
 				Cobject.AllCobjects[Cobject.KeysAllCobjects[i]].EndOfFrameUpdate();
 		}
+
+		NavigationSystem._Instance.EndOfFrameUpdate();
 	}
 
 	GameLoop() {

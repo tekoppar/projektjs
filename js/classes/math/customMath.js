@@ -127,13 +127,13 @@ class CMath {
 			return null;
 
 		let line = new Line(points[0], points[1]),
-			lineTest = new Line(),
+			lineTest = new Line(new Vector2D(0, 0), new Vector2D(0, 0)),
 			tDist = 999999999999999,
-			distance = position.Distance(line.ClosestPointAlongLine(position.x, position.y));
+			distance = position.Distance(line.ClosestPointAlongLineClamped(position.x, position.y));
 
 		for (let i = 1, l = points.length; i < l; ++i) {
 			lineTest.Set(points[i], points[(i + 1) % points.length]);
-			tDist = position.Distance(lineTest.ClosestPointAlongLine(position.x, position.y));
+			tDist = position.Distance(lineTest.ClosestPointAlongLineClamped(position.x, position.y));
 
 			if (tDist < distance) {
 				distance = tDist;
@@ -142,7 +142,7 @@ class CMath {
 			}
 		}
 
-		return line.ClosestPointAlongLine(position.x, position.y);
+		return line.ClosestPointAlongLineClamped(position.x, position.y);
 	}
 
 	static CSS_COLOR_NAMES = [

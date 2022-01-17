@@ -285,7 +285,7 @@ class DebugDrawer extends Cobject {
 		}
 
 		if (this.DebugDraw === true) {
-			this.debugImageData = this.gameDebugCanvasCtx.getImageData(0, 0, this.gameDebugCanvas.width, this.gameDebugCanvas.height);
+			this.debugImageData = this.gameDebugCanvasCtx.createImageData(this.gameDebugCanvas.width, this.gameDebugCanvas.height);
 		}
 
 		for (let i = 0, l = this.debugOperations.length; i < l; ++i) {
@@ -326,7 +326,13 @@ class DebugDrawer extends Cobject {
 		}
 
 		if (this.DebugDraw === true) {
-			this.gameDebugCanvasCtx.putImageData(this.debugImageData, 0, 0);
+			let colorData = this.gameDebugCanvasCtx.getImageData(0, 0, this.gameDebugCanvas.width, this.gameDebugCanvas.height);
+
+			for (let i = 0, l = colorData.data.length; i < l; ++i) {
+				colorData.data[i] += this.debugImageData.data[i];
+			}
+
+			this.gameDebugCanvasCtx.putImageData(colorData, 0, 0);
 		}
 	}
 
@@ -342,22 +348,34 @@ class DebugDrawer extends Cobject {
 		switch (drawingOperation.ClassType) {
 			case 'RectOperation':
 				size.Set(drawingOperation.GetSize());
-				drawingOperation.drawingCanvas.getContext('2d').clearRect(oldPosition.x - 1 - this.offset.x, oldPosition.y - 1 - this.offset.y, size.x + 2, size.y + 2);
 				drawingOperation.drawingCanvas.getContext('2d').clearRect(
-					drawingOperation.position.x - 1 - this.offset.x,
-					drawingOperation.position.y - 1 - this.offset.y,
+					Math.floor(oldPosition.x - 1),// - this.offset.x),
+					Math.floor(oldPosition.y - 1),// - this.offset.y),
+					size.x + 2,
+					size.y + 2
+				);
+				drawingOperation.drawingCanvas.getContext('2d').clearRect(
+					Math.floor(drawingOperation.position.x - 1),// - this.offset.x),
+					Math.floor(drawingOperation.position.y - 1),// - this.offset.y),
 					size.x + 2,
 					size.y + 2
 				);
 				break;
 
 			case 'PathOperation':
-				let boundingBox = Polygon.CalculateBoundingBox(drawingOperation.path);
-				boundingBox.x -= 1;
-				boundingBox.y -= 1;
-				boundingBox.w += 2;
-				boundingBox.h += 2;
-				drawingOperation.drawingCanvas.getContext('2d').clearRect(boundingBox.x - this.offset.x, boundingBox.y - this.offset.y, boundingBox.w, boundingBox.h);
+				if (drawingOperation.fillOrOutline === null) {
+					let boundingBox = Polygon.CalculateBoundingBox(drawingOperation.path);
+					boundingBox.x -= 1;
+					boundingBox.y -= 1;
+					boundingBox.w += 2;
+					boundingBox.h += 2;
+					drawingOperation.drawingCanvas.getContext('2d').clearRect(
+						Math.floor(boundingBox.x - this.offset.x),
+						Math.floor(boundingBox.y - this.offset.y),
+						boundingBox.w,
+						boundingBox.h
+					);
+				}
 				break;
 
 			case 'MeshOperation':
@@ -366,14 +384,19 @@ class DebugDrawer extends Cobject {
 				bb.y -= 1;
 				bb.w += 2;
 				bb.h += 2;
-				drawingOperation.drawingCanvas.getContext('2d').clearRect(bb.x - this.offset.x, bb.y - this.offset.y, bb.w, bb.h);
+				drawingOperation.drawingCanvas.getContext('2d').clearRect(
+					Math.floor(bb.x - this.offset.x),
+					Math.floor(bb.y - this.offset.y),
+					bb.w,
+					bb.h
+				);
 				break;
 
 			case 'TextOperation':
 				size.SetF(drawingOperation.GetSize());
 				drawingOperation.drawingCanvas.getContext('2d').clearRect(
-					drawingOperation.pos.x - 1 - this.offset.x,
-					drawingOperation.pos.y - 1 - this.offset.y - drawingOperation.size,
+					Math.floor(drawingOperation.pos.x - 1 - this.offset.x),
+					Math.floor(drawingOperation.pos.y - 1 - this.offset.y - drawingOperation.size),
 					size.x + 2,
 					size.y + 2
 				);
@@ -398,8 +421,8 @@ class DebugDrawer extends Cobject {
 				if (drawingOperation.fillOrOutline === false) {
 					context.fillStyle = drawingOperation.color;
 					context.fillRect(
-						drawingOperation.position.x - this.offset.x,
-						drawingOperation.position.y - this.offset.y,
+						Math.floor(drawingOperation.position.x - this.offset.x),
+						Math.floor(drawingOperation.position.y - this.offset.y),
 						drawingOperation.size.x,
 						drawingOperation.size.y
 					);
@@ -407,8 +430,8 @@ class DebugDrawer extends Cobject {
 				else {
 					context.strokeStyle = drawingOperation.color;
 					context.strokeRect(
-						drawingOperation.position.x + 1 - this.offset.x,
-						drawingOperation.position.y + 1 - this.offset.y,
+						Math.floor(drawingOperation.position.x + 1 - this.offset.x),
+						Math.floor(drawingOperation.position.y + 1 - this.offset.y),
 						drawingOperation.size.x - 2,
 						drawingOperation.size.y - 2
 					);
@@ -428,16 +451,41 @@ class DebugDrawer extends Cobject {
 				context.globalAlpha = drawingOperation.alpha;
 				drawingOperation.UpdateDrawState(true);
 
-				if (drawingOperation.path === undefined || (drawingOperation.path !== undefined && drawingOperation.path.length === 0))
+				if (drawingOperation.path === undefined || (drawingOperation.path !== undefined && drawingOperation.path.length === 0)) {
+					if (drawingOperation.lifeTime !== -1) {
+						drawingOperation.Tick(delta);
+
+						if (drawingOperation.lifeTime < 0)
+							return;
+					}
 					return;
+				}
 
 				if (drawingOperation.fillOrOutline === null) {
 					context.fillStyle = drawingOperation.color;
 					for (let i = 0, l = drawingOperation.path.length; i < l; ++i) {
-						context.fillRect(drawingOperation.path[i].x - this.offset.x, drawingOperation.path[i].y - this.offset.y, 4, 4);
+						context.fillRect(
+							Math.floor(drawingOperation.path[i].x - this.offset.x),
+							Math.floor(drawingOperation.path[i].y - this.offset.y),
+							4,
+							4
+						);
 					}
 				} else {
-					context.strokeStyle = drawingOperation.color;
+					const color = Color.ColorToRGBA(drawingOperation.color);
+					for (let i = 1, l = drawingOperation.path.length; i < l; ++i) {
+						this.DrawLine(
+							Math.floor(drawingOperation.path[i - 1].x - this.offset.x),
+							Math.floor(drawingOperation.path[i - 1].y - this.offset.y),
+							Math.floor(drawingOperation.path[i].x - this.offset.x),
+							Math.floor(drawingOperation.path[i].y - this.offset.y),
+							color.red,
+							color.green,
+							color.blue
+						);
+					}
+
+					/*context.strokeStyle = drawingOperation.color;
 					context.fillStyle = drawingOperation.color;
 					context.beginPath();
 					context.moveTo(drawingOperation.path[0].x - this.offset.x, drawingOperation.path[0].y - this.offset.y);
@@ -451,7 +499,7 @@ class DebugDrawer extends Cobject {
 						context.stroke();
 					} else {
 						context.fill();
-					}
+					}*/
 				}
 
 				if (drawingOperation.lifeTime !== -1) {
@@ -470,34 +518,39 @@ class DebugDrawer extends Cobject {
 					context.fillStyle = drawingOperation.color;
 					let points = drawingOperation.mesh.FlattenToVector2D();
 					for (let i = 0, l = points.length; i < l; ++i) {
-						context.fillRect(points[i].x - this.offset.x, points[i].y - this.offset.y, 4, 4);
+						context.fillRect(
+							Math.floor(points[i].x - this.offset.x),
+							Math.floor(points[i].y - this.offset.y),
+							4,
+							4
+						);
 					}
 				} else {
 					for (let i = 0, l = drawingOperation.mesh.triangles.length; i < l; ++i) {
 						const color = Color.ColorToRGBA(drawingOperation.color);
 						this.DrawLine(
-							drawingOperation.mesh.triangles[i].x.x - this.offset.x,
-							drawingOperation.mesh.triangles[i].x.y - this.offset.y,
-							drawingOperation.mesh.triangles[i].y.x - this.offset.x,
-							drawingOperation.mesh.triangles[i].y.y - this.offset.y,
+							Math.floor(drawingOperation.mesh.triangles[i].x.x - this.offset.x),
+							Math.floor(drawingOperation.mesh.triangles[i].x.y - this.offset.y),
+							Math.floor(drawingOperation.mesh.triangles[i].y.x - this.offset.x),
+							Math.floor(drawingOperation.mesh.triangles[i].y.y - this.offset.y),
 							color.red,
 							color.green,
 							color.blue
 						);
 						this.DrawLine(
-							drawingOperation.mesh.triangles[i].y.x - this.offset.x,
-							drawingOperation.mesh.triangles[i].y.y - this.offset.y,
-							drawingOperation.mesh.triangles[i].z.x - this.offset.x,
-							drawingOperation.mesh.triangles[i].z.y - this.offset.y,
+							Math.floor(drawingOperation.mesh.triangles[i].y.x - this.offset.x),
+							Math.floor(drawingOperation.mesh.triangles[i].y.y - this.offset.y),
+							Math.floor(drawingOperation.mesh.triangles[i].z.x - this.offset.x),
+							Math.floor(drawingOperation.mesh.triangles[i].z.y - this.offset.y),
 							color.red,
 							color.green,
 							color.blue
 						);
 						this.DrawLine(
-							drawingOperation.mesh.triangles[i].z.x - this.offset.x,
-							drawingOperation.mesh.triangles[i].z.y - this.offset.y,
-							drawingOperation.mesh.triangles[i].x.x - this.offset.x,
-							drawingOperation.mesh.triangles[i].x.y - this.offset.y,
+							Math.floor(drawingOperation.mesh.triangles[i].z.x - this.offset.x),
+							Math.floor(drawingOperation.mesh.triangles[i].z.y - this.offset.y),
+							Math.floor(drawingOperation.mesh.triangles[i].x.x - this.offset.x),
+							Math.floor(drawingOperation.mesh.triangles[i].x.y - this.offset.y),
 							color.red,
 							color.green,
 							color.blue
@@ -525,7 +578,7 @@ class DebugDrawer extends Cobject {
 				drawingOperation.UpdateDrawState(true);
 				context.font = drawingOperation.size + 'px ' + drawingOperation.font;
 				context.fillStyle = drawingOperation.color;
-				context.fillText(drawingOperation.text, drawingOperation.pos.x - this.offset.x, drawingOperation.pos.y - this.offset.y);
+				context.fillText(drawingOperation.text, Math.floor(drawingOperation.pos.x - this.offset.x), Math.floor(drawingOperation.pos.y - this.offset.y));
 
 				if (drawingOperation.lifeTime !== -1) {
 					drawingOperation.Tick(delta);

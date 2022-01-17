@@ -110,20 +110,21 @@ class AtlasController {
 	LoadAllAtlases() {
 		this.LoadSpriteAtlas("/content/sprites/terrain_atlas.png", 1024, 1216, 32, "terrain");
 		this.hasLoadedAllImages["terrain"] = false;
+		this.LoadSpriteAtlas("/content/sprites/Collection/TerrainOutside.png", 1024, 1216, 32, "terrainoutside");
+		this.hasLoadedAllImages["terrainoutside"] = false;
+
 		this.LoadSpriteAtlas("/content/sprites/crops.png", 1024, 1024, 32, "crops");
 		this.hasLoadedAllImages["crops"] = false;
 		this.LoadSpriteAtlas("/content/sprites/fence.png", 96, 192, 32, "fence");
 		this.hasLoadedAllImages["fence"] = false;
-		this.LoadSpriteAtlas("/content/sprites/ui_big_pieces.png", 864, 568, 32, "uipieces");
-		this.hasLoadedAllImages["uipieces"] = false;
+
 		this.LoadSpriteAtlas("/content/sprites/fruits-veggies.png", 1024, 1536, 32, "fruitsveggies");
 		this.hasLoadedAllImages["fruitsveggies"] = false;
 		this.LoadSpriteAtlas("/content/sprites/fruits-veggies-seeds.png", 1024, 512, 32, "fruitsveggiesseeds");
 		this.hasLoadedAllImages["fruitsveggiesseeds"] = false;
 		this.LoadSpriteAtlas("/content/sprites/farming_fishing.png", 640, 640, 32, "farmingfishing");
 		this.hasLoadedAllImages["farmingfishing"] = false;
-		this.LoadSpriteAtlas("/content/sprites/Collection/TerrainOutside.png", 1024, 1216, 32, "terrainoutside");
-		this.hasLoadedAllImages["terrainoutside"] = false;
+
 		this.LoadSpriteAtlas("/content/sprites/Collection/victorian-streets.png", 512, 3072, 32, "victorianstreets");
 		this.hasLoadedAllImages["victorianstreets"] = false;
 		this.LoadSpriteAtlas("/content/sprites/Collection/walls.png", 2048, 3072, 32, "walls");
@@ -132,16 +133,13 @@ class AtlasController {
 		this.hasLoadedAllImages["windowsdoors"] = false;
 		this.LoadSpriteAtlas("/content/sprites/Collection/roofs.png", 2048, 2048, 32, "roofs");
 		this.hasLoadedAllImages["windowsdoors"] = false;
+		
 		this.LoadSpriteAtlas("/content/sprites/items/items1.png", 512, 512, 32, "items1");
 		this.hasLoadedAllImages["items1"] = false;
 		this.LoadSpriteAtlas('/content/sprites/items/ore.png', 512, 512, 32, 'ore');
 		this.hasLoadedAllImages['ore'] = false;
 		this.LoadSpriteAtlas("/content/sprites/clouds-small.png", 224, 64, 32, "clouds");
 		this.hasLoadedAllImages["clouds"] = false;
-		this.LoadSpriteAtlas("/content/sprites/animals/chicken_walk.png", 128, 128, 32, "chickenWalk");
-		this.hasLoadedAllImages["chickenWalk"] = false;
-		this.LoadSpriteAtlas("/content/sprites/animals/duck_walk.png", 128, 160, 32, "duckWalk");
-		this.hasLoadedAllImages["duckWalk"] = false;
 		this.LoadSpriteAtlas("/content/sprites/cottage.png", 512, 512, 32, 'cottage');
 		this.hasLoadedAllImages['cottage'] = false;
 		this.LoadSpriteAtlas("/content/sprites/Collection/container.png", 512, 2048, 32, 'container');
@@ -172,8 +170,15 @@ class AtlasController {
 		this.hasLoadedAllImages['redHair'] = false;
 		this.LoadSpriteAtlas('/content/sprites/lpcfemaleunderdress.png', 832, 1344, 64, 'underDress');
 		this.hasLoadedAllImages['underDress'] = false;
-		this.LoadSpriteAtlas('./content/sprites/lpc_shadow.png', 832, 1344, 64, 'shadow');
-		this.hasLoadedAllImages['shadow'] = false;
+		this.LoadSpriteAtlas('./content/sprites/lpc_shadow.png', 832, 1344, 64, 'femaleLightShadow');
+		this.hasLoadedAllImages['femaleLightShadow'] = false;
+
+		this.LoadSpriteAtlas("/content/sprites/animals/chicken_walk.png", 128, 128, 32, "chickenWalk");
+		this.hasLoadedAllImages["chickenWalk"] = false;
+		this.LoadSpriteAtlas("/content/sprites/animals/duck_walk.png", 128, 160, 32, "duckWalk");
+		this.hasLoadedAllImages["duckWalk"] = false;
+		this.LoadSpriteAtlas("/content/sprites/animals/duck_shadow.png", 128, 160, 32, "duckWalkShadow");
+		this.hasLoadedAllImages["duckWalkShadow"] = false;
 
 		this.LoadSpriteAtlas("/content/sprites/ui/inputLeft.png", 16, 26, 16, "inputLeft");
 		this.hasLoadedAllImages["inputLeft"] = false;
@@ -184,6 +189,9 @@ class AtlasController {
 
 		this.LoadSpriteAtlas("/content/sprites/items/weapons/short_sword_female.png", 384, 256, 32, "shortSwordFemale");
 		this.hasLoadedAllImages["shortSwordFemale"] = false;
+
+		this.LoadSpriteAtlas("/content/sprites/ui_big_pieces.png", 864, 568, 32, "uipieces");
+		this.hasLoadedAllImages["uipieces"] = false;
 	}
 }
 

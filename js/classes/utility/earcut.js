@@ -67,7 +67,7 @@ function filterPoints(start, end) {
 	do {
 		again = false;
 
-		if (!p.steiner && (equals(p, p.next) || area(p.prev, p, p.next) === 0)) {
+		if (!p.steiner && (equals(p, p.next)/* || area(p.prev, p, p.next) === 0*/)) {
 			removeNode(p);
 			p = end = p.prev;
 			if (p === p.next) break;

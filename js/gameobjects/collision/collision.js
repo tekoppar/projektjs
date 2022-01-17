@@ -1,4 +1,4 @@
-import { Vector2D, Rectangle, Vector4D, Vector } from '../../internal.js';
+import { Vector2D, Rectangle, Vector4D, Vector, NavigationBounds } from '../../internal.js';
 
 /**
  * @class
@@ -53,6 +53,7 @@ class QuadTree {
 		/** @type {Collision[]} */ this.objects = [];
 		/** @type {Rectangle} */ this.bounds = bounds;
 		/** @type {QuadTree[]} */ this.nodes = [];
+		/** @type {NavigationBounds} */ this.navBounds = undefined;
 	}
 
 	Clear() {
@@ -76,6 +77,8 @@ class QuadTree {
 			new QuadTree(this.level + 1, new Rectangle(this.bounds.x, this.bounds.y + boundsH, boundsW, boundsH)),
 			new QuadTree(this.level + 1, new Rectangle(this.bounds.x + boundsW, this.bounds.y + boundsH, boundsW, boundsH))
 		];
+
+		this.navBounds.Delete();
 
 		let outsideObjects = [];
 		for (let object of this.objects) {
@@ -140,6 +143,12 @@ class QuadTree {
 
 			if (this.objects.length >= QuadTree.MAX_OBJECTS && this.level <= QuadTree.MAX_LEVEL) {
 				this.Split();
+			} else if (this.objects.length > 0) {
+				if (this.navBounds === undefined) {
+					this.navBounds = new NavigationBounds(this.bounds.GetCornersVector2D(), this);
+				}
+
+				this.navBounds.generateNavigation = true;
 			}
 		} else {
 			let bounds = object.GetBoundingBox();
@@ -165,6 +174,10 @@ class QuadTree {
 			for (let i = 0, l = this.objects.length; i < l; ++i) {
 				if (this.objects[i] === object) {
 					this.objects.splice(i, 1);
+
+					if (this.objects.length > 0 && this.navBounds !== undefined) {		
+						this.navBounds.generateNavigation = true;
+					}
 					return;
 				}
 			}
@@ -975,6 +988,8 @@ class Collision {
 	 * @param {Vector2D} position 
 	 */
 	SetPosition(position) {
+		CollisionHandler.GCH.RemoveFromQuadTree(this);
+
 		if (this.overlapEvents) {
 			let overlaps = CollisionHandler.GCH.GetOverlaps(this, OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
 
