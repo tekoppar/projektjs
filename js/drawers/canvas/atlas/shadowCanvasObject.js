@@ -236,6 +236,22 @@ class ShadowCanvasObject {
 	GetSize() {
 		return new Vector2D(this.canvas.width, this.canvas.height);
 	}
+
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	 GetSizeX() {
+		return this.canvas.width;
+	}
+
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	 GetSizeY() {
+		return this.canvas.height;
+	}
 }
 
 export { ShadowCanvasObject };

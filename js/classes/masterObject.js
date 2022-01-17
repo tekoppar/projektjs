@@ -30,7 +30,7 @@ class MasterObject {
 			CAnimation: false,
 			InputHandler: false,
 			CustomEventHandler: false,
-		}
+		};
 		this.classesHasBeenInitialized = false;
 		this.frameStepping = false;
 		this.playerController;
@@ -159,6 +159,15 @@ class MasterObject {
 						new BehaviorConditionAvoidClass(MainCharacter, 125),
 					],
 					new BehaviorActionCharacter(undefined)
+				),
+				new BehaviorActionModifySpeed(
+					duck1,
+					[
+						new BehaviorConditionDistance(75, false),
+					],
+					new BehaviorActionCharacter(MasterObject.MO.playerController.playerCharacter),
+					-1,
+					-2
 				)
 			]
 		));
@@ -171,6 +180,15 @@ class MasterObject {
 						new BehaviorConditionAvoidClass(MainCharacter, 125),
 					],
 					new BehaviorActionCharacter(undefined)
+				),
+				new BehaviorActionModifySpeed(
+					duck2,
+					[
+						new BehaviorConditionDistance(75, false),
+					],
+					new BehaviorActionCharacter(MasterObject.MO.playerController.playerCharacter),
+					-1,
+					-2
 				)
 			]
 		));

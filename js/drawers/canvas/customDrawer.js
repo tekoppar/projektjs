@@ -1207,7 +1207,7 @@ class CanvasDrawer {
 				return;
 		}
 
-		let context = drawingOperation.drawingCanvas.getContext('2d');
+		const context = drawingOperation.drawingCanvas.getContext('2d');
 
 		drawingOperation.isVisible = true;
 		switch (drawingOperation.ClassType) {
@@ -1229,7 +1229,7 @@ class CanvasDrawer {
 						}
 
 						if (drawingOperation.operationType === OperationType.shadow2D) {
-							let owner = /** @type {Shadow2D} */ (drawingOperation.GetOwner());
+							const owner = /** @type {Shadow2D} */ (drawingOperation.GetOwner());
 
 							CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
 								owner.shadowObject.canvas,
@@ -1249,7 +1249,7 @@ class CanvasDrawer {
 							tempcolorPicked.AlphaMultiply();
 							drawingOperation.shadowOperation.ChangeColorTest(drawingOperation.GetOwner().BoxCollision, this.lightSystem);
 
-							let owner = drawingOperation.GetOwner();
+							const owner = drawingOperation.GetOwner();
 							CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
 								drawingOperation.shadowOperation.shadowCanvas,
 								(Math.floor(drawingOperation.updateRects[i].x)) - Math.floor(owner.BoxCollision.position.x),
@@ -1267,8 +1267,8 @@ class CanvasDrawer {
 					if (drawingOperation.operationType !== OperationType.shadow2D) {
 						context.drawImage(
 							drawingOperation.targetCanvas,
-							drawingOperation.tile.GetPosX(),
-							drawingOperation.tile.GetPosY(),
+							drawingOperation.tile.tilePosition.x * drawingOperation.tile.size.x,//drawingOperation.tile.GetPosX(),
+							drawingOperation.tile.tilePosition.y * drawingOperation.tile.size.y,//drawingOperation.tile.GetPosY(),
 							drawingOperation.tile.size.x,
 							drawingOperation.tile.size.y,
 							Math.floor(drawingOperation.tile.position.x) - this.canvasOffset.x,
@@ -1277,16 +1277,18 @@ class CanvasDrawer {
 							drawingOperation.GetDrawSize().y
 						);
 					} else {
+						/** @type {Shadow2D} */ const owner = drawingOperation.GetOwner();
+
 						CanvasDrawer.GCD.lightSystem.lightingV2Ctx.drawImage(
-							drawingOperation.GetOwner().shadowObject.canvas,
+							owner.shadowObject.canvas,
 							0,
 							0,
-							drawingOperation.GetOwner().shadowObject.GetSize().x,
-							drawingOperation.GetOwner().shadowObject.GetSize().y,
+							owner.shadowObject.GetSizeX(),
+							owner.shadowObject.GetSizeY(),
 							Math.floor((drawingOperation.tile.position.x - this.canvasOffset.x)),
 							Math.floor((drawingOperation.tile.position.y - this.canvasOffset.y)),
-							drawingOperation.GetOwner().shadowObject.GetSize().x,
-							drawingOperation.GetOwner().shadowObject.GetSize().y
+							owner.shadowObject.GetSizeX(),
+							owner.shadowObject.GetSizeY()
 						);
 					}
 

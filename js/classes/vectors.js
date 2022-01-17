@@ -257,6 +257,17 @@ class Vector2D {
 
 	/**
 	 * 
+	 * @param {number} x
+	 * @param {number} y 
+	 * @param {number} distance 
+	 * @returns {boolean}
+	 */
+	NearlyEqualXY(x, y, distance = 0.001) {
+		return this.DistanceXY(x, y) <= distance;
+	}
+
+	/**
+	 * 
 	 * @returns {Vector2D}
 	 */
 	Sqrt() {
@@ -351,6 +362,16 @@ class Vector2D {
 	 */
 	Distance(a) {
 		return Math.sqrt((a.x - this.x) * (a.x - this.x) + (a.y - this.y) * (a.y - this.y));
+	}
+
+	/**
+	 * 
+	 * @param {number} xa
+	 * @param {number} ya
+	 * @returns {number}
+	 */
+	DistanceXY(xa, ya) {
+		return Math.sqrt((xa - this.x) * (xa - this.x) + (ya - this.y) * (ya - this.y));
 	}
 
 	/**
@@ -700,6 +721,10 @@ class Vector {
 		return this.x == a.x && this.y == a.y && this.z == a.z;
 	}
 
+	/**
+	 * 
+	 * @returns {Vector}
+	 */
 	Clone() {
 		return new Vector(this.x, this.y, this.z);
 	}
@@ -1127,18 +1152,28 @@ class Rectangle {
 		/** @type {Array<number[]>} */ this.corners = undefined;
 	}
 
+	/**
+	 * 
+	 * @param {Rectangle} a 
+	 */
 	Add(a) {
-		if (a.x !== undefined) {
-			this.x += a.x;
-			this.y += a.y;
-			this.w += a.w;
-			this.h += a.h;
-		} else {
-			this.x += a;
-			this.y += a;
-			this.w += a;
-			this.h += a;
-		}
+		this.x += a.x;
+		this.y += a.y;
+		this.w += a.w;
+		this.h += a.h;
+
+		this.UpdateCornersData();
+	}
+
+	/**
+	 * 
+	 * @param {number} f 
+	 */
+	AddF(f) {
+		this.x += f;
+		this.y += f;
+		this.w += f;
+		this.h += f;
 
 		this.UpdateCornersData();
 	}
@@ -1153,18 +1188,28 @@ class Rectangle {
 		return new Rectangle(a.x + b.x, a.y + b.y, a.w + b.w, a.h + b.h);
 	}
 
+	/**
+	 * 
+	 * @param {Rectangle} a 
+	 */
 	Sub(a) {
-		if (a.x !== undefined) {
-			this.x -= a.x;
-			this.y -= a.y;
-			this.w -= a.w;
-			this.h -= a.h;
-		} else {
-			this.x -= a;
-			this.y -= a;
-			this.w -= a;
-			this.h -= a;
-		}
+		this.x -= a.x;
+		this.y -= a.y;
+		this.w -= a.w;
+		this.h -= a.h;
+
+		this.UpdateCornersData();
+	}
+
+	/**
+	 * 
+	 * @param {number} f 
+	 */
+	SubF(f) {
+		this.x -= f;
+		this.y -= f;
+		this.w -= f;
+		this.h -= f;
 
 		this.UpdateCornersData();
 	}
@@ -2405,17 +2450,29 @@ class Line {
 
 	/**
 	 * 
-	 * @param {Vector2D} a 
-	 * @param {Vector2D} b 
+	 * @param {(Vector2D|Vertice)} a 
+	 * @param {(Vector2D|Vertice)} b 
 	 * @param {OpenClosed} openClosed
 	 */
 	constructor(a, b, openClosed = OpenClosed.Open) {
-		if (a.y < b.y) {
-			/** @type {Vector2D} */ this.a = a;
-			/** @type {Vector2D} */ this.b = b;
-		} else {
-			/** @type {Vector2D} */ this.a = b;
-			/** @type {Vector2D} */ this.b = a;
+		/** @type {Vector2D} */ this.a = undefined;
+		/** @type {Vector2D} */ this.b = undefined;
+		if (a instanceof Vector2D && b instanceof Vector2D) {
+			if (a.y < b.y) {
+				this.a = a;
+				this.b = b;
+			} else {
+				this.a = b;
+				this.b = a;
+			}
+		} else if (a instanceof Vertice && b instanceof Vertice) {
+			if (a.y < b.y) {
+				this.a = new Vector2D(a.x, a.y);
+				this.b = new Vector2D(b.x, b.y);;
+			} else {
+				this.a = new Vector2D(b.x, b.y);;
+				this.b = new Vector2D(a.x, a.y);
+			}
 		}
 
 		/** @type {OpenClosed} */ this.openClosed = openClosed;
@@ -2433,6 +2490,23 @@ class Line {
 		} else {
 			this.a = b;
 			this.b = a;
+		}
+	}
+
+	/**
+	 * Sets the line from ax ay and bx by
+	 * @param {number} ax 
+	 * @param {number} ay 
+	 * @param {number} bx 
+	 * @param {number} by 
+	 */
+	SetXY(ax, ay, bx, by) {
+		if (ay < by) {
+			this.a = new Vector2D(ax, ay);
+			this.b = new Vector2D(bx, by);
+		} else {
+			this.a = new Vector2D(bx, by);
+			this.b = new Vector2D(ax, ay);
 		}
 	}
 
@@ -2535,15 +2609,18 @@ class Line {
 	 * @returns {boolean} 
 	 */
 	Inside(v) {
-		if (this.a.NearlyEqual(v) === true || this.b.NearlyEqual(v) === true || this.a.NearlyEqual(this.b) === true)
+		if (this.a.NearlyEqualXY(v.x, v.y) === true || this.b.NearlyEqualXY(v.x, v.y) === true || this.a.NearlyEqualXY(this.b.x, this.b.y) === true)
 			return false;
 
-		let closestPoint = Line.ClosestPointAlongLine(this.a, this.b, v);
+		const abX = this.b.x - this.a.x,
+			abY = this.b.y - this.a.y;
 
-		if (closestPoint === undefined)
+		const pointF = ((v.x - this.a.x) * abX + (v.y - this.a.y) * abY) / ((abX * abX) + (abY * abY));
+
+		if (pointF < 0 || pointF > 1)
 			return false;
 
-		return v.NearlyEqual(closestPoint, 0.0000001);
+		return v.NearlyEqualXY(this.a.x + (abX * pointF), this.a.y + (abY * pointF), 0.0000001);
 	}
 
 	/**
@@ -2570,7 +2647,7 @@ class Line {
 		let bA = false, bB = false;
 
 		//if (line.a.NearlyEqual(line.b) || this.a.NearlyEqual(this.b) || this.Equal(line) === true)
-			//return false;
+		//return false;
 
 		if (this.a.NearlyEqual(line.a)) {
 			bA = true;
@@ -2873,14 +2950,27 @@ class Vertice {
 		/** @type {boolean} */ this.open = true;
 	}
 
+	/**
+	 * 
+	 * @returns {Vector2D}
+	 */
 	ToVector2D() {
 		return new Vector2D(this.x, this.y);
 	}
 
+	/**
+	 * 
+	 * @param {Vector2D} v 
+	 * @returns {Vertice}
+	 */
 	static FromVector2D(v) {
 		return new Vertice(v.x, v.y, -1);
 	}
 
+	/**
+	 * 
+	 * @returns {Vertice}
+	 */
 	Clone() {
 		return new Vertice(this.x, this.y, this.indice);
 	}
@@ -2921,10 +3011,10 @@ class Triangle {
 		/** @type {Vertice} */ this.x = x;
 		/** @type {Vertice} */ this.y = y;
 		/** @type {Vertice} */ this.z = z;
-		this.xy = new Line(this.x.ToVector2D(), this.y.ToVector2D());
-		this.yz = new Line(this.y.ToVector2D(), this.z.ToVector2D());
-		this.zx = new Line(this.z.ToVector2D(), this.x.ToVector2D());
-		this.centroid = this.GetCenter();
+		/** @type {Line} */ this.xy = new Line(this.x, this.y);
+		/** @type {Line} */ this.yz = new Line(this.y, this.z);
+		/** @type {Line} */ this.zx = new Line(this.z, this.x);
+		/** @type {Vector2D} */ this.centroid = this.GetCenter();
 	}
 
 	CheckHoles() {
@@ -2978,6 +3068,10 @@ class Triangle {
 		return count > 1;
 	}
 
+	/**
+	 * Returns the area of the triangle
+	 * @returns {number}
+	 */
 	GetArea() {
 		let v0 = Vector2D.Sub(this.z.ToVector2D(), this.y.ToVector2D()).ToVector();
 		let v1 = Vector2D.Sub(this.x.ToVector2D(), this.y.ToVector2D()).ToVector();
@@ -3026,17 +3120,11 @@ class Triangle {
 	}
 
 	/**
-	 * 
+	 * Gets the centroid of the triangle
 	 * @returns {Vector2D}
 	 */
 	GetCenter() {
-		let ax = this.x.x + this.y.x,
-			ay = this.x.y + this.y.y;
-
-		ax += this.z.x;
-		ay += this.z.y;
-
-		return new Vector2D(ax / 3, ay / 3);
+		return new Vector2D((this.x.x + this.y.x + this.z.x) / 3, (this.x.y + this.y.y + this.z.y) / 3);
 	}
 
 	/**
@@ -3047,10 +3135,20 @@ class Triangle {
 		return [this.x.x, this.x.y, this.y.x, this.y.y, this.z.x, this.z.y];
 	}
 
+	/**
+	 * 
+	 * @param {number} a 
+	 * @param {number} b 
+	 * @param {number} c 
+	 * @param {number} length 
+	 * @returns {number}
+	 */
 	static FindCornerFromVertexIndex(a, b, c, length) {
 		if ((CMath.Mod((a - 1), length) === b || CMath.Mod((a - 1), length) === c) && (CMath.Mod((a + 1), length) === b || CMath.Mod((a + 1), length) === c)) return a;
 		if ((CMath.Mod((b - 1), length) === a || CMath.Mod((b - 1), length) === c) && (CMath.Mod((b + 1), length) === a || CMath.Mod((b + 1), length) === c)) return b;
 		if ((CMath.Mod((c - 1), length) === a || CMath.Mod((c - 1), length) === b) && (CMath.Mod((c + 1), length) === a || CMath.Mod((c + 1), length) === b)) return c;
+
+		return undefined;
 	}
 
 	/**
@@ -3092,6 +3190,10 @@ class Triangle {
 			(tri.y.x - v.x) * (tri.z.y - v.y) - (tri.z.x - v.x) * (tri.y.y - v.y) >= 0;
 	}
 
+	/**
+	 * 
+	 * @returns {Triangle}
+	 */
 	Clone() {
 		return new Triangle(this.x.Clone(), this.y.Clone(), this.z.Clone());
 	}
@@ -3129,10 +3231,12 @@ class Mesh {
 
 	FindHoleVertices() {
 		if (this.holes !== undefined) {
+			let tempLine = new Line(new Vector2D(0, 0), new Vector2D(0, 0));
 			for (let i = 0, l = this.holes.length; i < l; ++i) {
 				for (let y = 0, yl = this.triangles.length; y < yl; ++y) {
 					for (let x = 0, x2 = this.holes[i].length - 1, xl = this.holes[i].length; x < xl; ++x) {
-						const tempLine = new Line(this.holes[i][x2], this.holes[i][x]);
+						tempLine.Set(this.holes[i][x2], this.holes[i][x]);
+						//const tempLine = new Line(this.holes[i][x2], this.holes[i][x]);
 
 						if (this.triangles[y].xy.LineContainsLine(tempLine) === true || tempLine.LineContainsLine(this.triangles[y].xy) === true) {
 							this.triangles[y].xy.openClosed = OpenClosed.Closed;
@@ -3403,6 +3507,10 @@ class Mesh {
 		return new Mesh(triangles, indices, vertices, holes);
 	}
 
+	/**
+	 * Returns the mesh in the obj format as a string
+	 * @returns {string}
+	 */
 	ToObj() {
 		let vertices = '',
 			faces = '';
@@ -3770,8 +3878,8 @@ class Color {
 			let rgbaColor = color,
 				splitColors = rgbaColor.slice(rgbaColor.indexOf('(') + 1, rgbaColor.indexOf(')'));
 
-			splitColors = splitColors.split(',');
-			return new Color(parseFloat(splitColors[0]), parseFloat(splitColors[1]), parseFloat(splitColors[2]), parseFloat(splitColors[3]));
+			const splitColorsArr = splitColors.split(',');
+			return new Color(parseFloat(splitColorsArr[0]), parseFloat(splitColorsArr[1]), parseFloat(splitColorsArr[2]), parseFloat(splitColorsArr[3]));
 		} else
 			return new Color(0, 0, 0, 0);
 	}
@@ -3940,6 +4048,9 @@ class Color {
 		return this.red === b.red && this.green === b.green && this.blue === b.blue;
 	}
 
+	/**
+	 * Clamps and rounds the values from 0-255
+	 */
 	ToInt() {
 		this.red = Math.min(Math.max(Math.round(this.red), 0), 255);
 		this.green = Math.min(Math.max(Math.round(this.green), 0), 255);

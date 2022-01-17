@@ -175,7 +175,7 @@ class QuadTree {
 				if (this.objects[i] === object) {
 					this.objects.splice(i, 1);
 
-					if (this.objects.length > 0 && this.navBounds !== undefined) {		
+					if (this.objects.length > 0 && this.navBounds !== undefined) {
 						this.navBounds.generateNavigation = true;
 					}
 					return;
@@ -367,7 +367,7 @@ class CollisionHandler {
 			quads.splice(0, 1);
 		}*/
 
-		let quadOverlaps = [];
+		/** @type {Collision[]} */ let quadOverlaps = [];
 		this.QuadTree.GetNew(collision.collisionOwner.BoxCollision.GetBoundingBox(), quadOverlaps);
 		this.QuadTree.GetNew(collision.GetBoundingBox(), quadOverlaps);
 
@@ -781,6 +781,23 @@ class Collision {
 
 	/**
 	 * 
+	 * @returns {Array<{x:number, y:number}>}
+	 */
+	GetPointsXY() {
+		if (this.position !== null) {
+			return [
+				{ x: this.position.x, y: this.position.y },
+				{ x: this.position.x + this.size.x, y: this.position.y },
+				{ x: this.position.x + this.size.x, y: this.position.y + this.size.y },
+				{ x: this.position.x, y: this.position.y + this.size.y }
+			];
+		} else {
+			return [];
+		}
+	}
+
+	/**
+	 * 
 	 * @private
 	 * @param {number} aMin 
 	 * @param {number} aMax 
@@ -829,15 +846,15 @@ class Collision {
 
 	/**
 	 * 
-	 * @param {Vector2D[]} points 
+	 * @param {(Vector2D[]|Array<{x:number, y:number}>)} points 
 	 * @returns {number}
 	 */
 	GetIntersections(points) {
 		let intersections = 0;
 
 		for (let i = 0, l = points.length; i < l; ++i) {
-			let pt1 = points[i];
-			let pt2 = points[(i + 1) % l];
+			const pt1 = points[i],
+				pt2 = points[(i + 1) % l];
 
 			if (this.intersects(this.position.x, this.position.y, this.position.x + this.size.x, this.position.y, pt1.x, pt1.y, pt2.x, pt2.y) ||
 				this.intersects(this.position.x + this.size.x, this.position.y, this.position.x + this.size.x, this.position.y + this.size.y, pt1.x, pt1.y, pt2.x, pt2.y) ||
