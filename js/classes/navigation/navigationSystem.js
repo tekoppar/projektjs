@@ -1,10 +1,8 @@
 import {
 	Polygon, Vector2D, DLPolygon, DebugDrawer, NavigationBounds, CollisionHandler, Line,
 	Rectangle, PolygonClippingResults, PriorityQueue, Triangle, TQuadTree, MasterObject, Character,
-	Intersection, Mastertime, OpenClosed
+	Intersection, Mastertime, OpenClosed, Cobject, CMath
 } from '../../internal.js';
-
-let doOnce = false;
 
 /**
  * @readonly
@@ -38,6 +36,23 @@ class ASettings {
 }
 
 /**
+ * @class
+ * @constructor
+ */
+class PathConstructionSettings {
+
+	/**
+	 * 
+	 * @param {boolean} smoothPath 
+	 * @param {boolean} simplifyPath 
+	 */
+	constructor(smoothPath = false, simplifyPath = false) {
+		/** @type {boolean} */ this.SmoothPath = smoothPath;
+		/** @type {boolean} */ this.SimplifyPath = simplifyPath;
+	}
+}
+
+/**
  * 
  * @template T
  * @class
@@ -64,10 +79,11 @@ class NavigationSystem {
 	static _Instance = new NavigationSystem();
 
 	constructor() {
+		/** @type {number} */ this.weight = 2;
 		//let rects = Rectangle.Split(5, new Rectangle(-10000, -10000, 20000, 20000));
 
 		/** @type {NavigationBounds[]} */ this.navigationTree = [];
-		
+
 		/** @type {TQuadTree<NavigationBounds>} */ this.navigationTree2 = new TQuadTree(0, new Rectangle(-10000, -10000, 20000, 20000), undefined, 16, 25);
 		//this.navigationTree2.topParent = this.navigationTree2;
 
@@ -165,26 +181,38 @@ class NavigationSystem {
 	 * @returns {number}
 	 */
 	Euclidean(a, b) {
-		let dx = a.x - b.x, dy = a.y - b.y;
+		let dx = Math.abs(a.x - b.x), dy = Math.abs(a.y - b.y);
 		return Math.sqrt(dx * dx + dy * dy);
 	}
 
 	/**
 	 * 
+	 * @param {Vector2D} a 
+	 * @param {Vector2D} b 
+	 * @returns {number}
+	 */
+	Octile(a, b) {
+		let dx = a.x - b.x, dy = a.y - b.y;
+		return (dx < dy) ? (Math.SQRT2 - 1) * dx + dy : (Math.SQRT2 - 1) * dy + dx;
+	}
+
+	/**
+	 * 
 	 * @param {Vector2D} position 
+	 * @param {NavigationBounds[]} trees
 	 * @returns {NavigationBounds}
 	 */
-	GetTree(position) {
-		for (let i = 0, l = this.navigationTree.length; i < l; ++i) {
-			if (this.navigationTree[i]?.mesh !== undefined && this.navigationTree[i].mesh.PointInMesh(position) === true) {
-				return this.navigationTree[i];
+	GetTree(position, trees = this.navigationTree) {
+		for (let i = 0, l = trees.length; i < l; ++i) {
+			if (trees[i]?.mesh !== undefined && trees[i].mesh.PointInMesh(position) === true) {
+				return trees[i];
 			}
 		}
 
 		return undefined;
-		
+
 		///** @type {NavigationBounds[]} */ let navBounds = [];
-		/*this.navigationTree2.GetNew(new Rectangle(position.x, position.y, 5, 5), navBounds);
+		/*trees2.GetNew(new Rectangle(position.x, position.y, 5, 5), navBounds);
 
 		if (navBounds.length === 1)
 			return navBounds[0];
@@ -201,25 +229,40 @@ class NavigationSystem {
 	/**
 	 * 
 	 * @param {NavigationBounds} tree 
+	 * @param {NavigationBounds[]} trees
 	 * @returns {NavigationBounds[]}
 	 */
-	 GetTrees(tree) {
-		/** @type {NavigationBounds[]} */ let returnArr = [];
+	GetTrees(tree, trees = this.navigationTree) {
+		/** @type {NavigationBounds[]} */ let returnArr = [],
+			lineA = new Line(new Vector2D(0, 0), new Vector2D(0, 0)),
+			lineB = new Line(new Vector2D(0, 0), new Vector2D(0, 0));
 
-		for (let i = 0, l = this.navigationTree.length; i < l; ++i) {
-			let bbA = tree.polygon.boundingBox.GetCornersVector2D(),
-				bbB = this.navigationTree[i].polygon.boundingBox.GetCornersVector2D();
+		let y = 0, y2 = 0, yl = 0, x = 0, x2 = 0, xl = 0;
 
-			for (let x = 0, xl = bbA.length; x < xl; ++x) {
-				if (bbA[x].CheckInRange(bbB[x], 10) === true && this.navigationTree[i] !== tree) {
-					returnArr.push(this.navigationTree[i]);
-					break;
+		for (let i = 0, l = trees.length; i < l; ++i) {
+			if (trees[i] !== tree) {
+				let bbA = tree.polygon.boundingBox.GetCornersVector2D(),
+					bbB = trees[i].polygon.boundingBox.GetCornersVector2D();
+
+				for (y = 0, y2 = bbA.length - 1, yl = bbA.length; y < yl; ++y) {
+					lineA.Set(bbA[y2], bbA[y]);
+					for (x = 0, x2 = bbB.length - 1, xl = bbB.length; x < xl; ++x) {
+						lineB.Set(bbB[x2], bbB[x]);
+
+						if (lineA.LineContainsLine(lineB) === true || lineB.LineContainsLine(lineA) === true) {
+							returnArr.push(trees[i]);
+							x = xl;
+							y = yl;
+						}
+
+						x2 = x;
+					}
+					y2 = y;
 				}
 			}
 		}
 
 		return returnArr;
-
 	}
 
 	/**
@@ -275,9 +318,10 @@ class NavigationSystem {
 	 * 
 	 * @param {NavigationBounds[]} treePath 
 	 * @param {Line} line 
+	 * @param {Cobject} agent
 	 * @returns {Line[]}
 	 */
-	GetNeighbouringLinesFromTrees(treePath, line) {
+	GetNeighbouringLinesFromTrees(treePath, line, agent = undefined) {
 		/** @type {Array<{v:Vector2D,l:Line}>} */ let allMidpoints = [],
 			/** @type {Line[]} */ allLines = [],
 			/** @type {Line[]} */ returnArr = [],
@@ -309,16 +353,27 @@ class NavigationSystem {
 		for (let i = 0, l = allMidpoints.length; i < l; ++i) {
 			let intersectsLine = false;
 			for (let t = 0, tl = allLines.length; t < tl; ++t) {
-				if (allMidpoints[i].l !== line && allLines[t] !== line && Intersection.LineIntersectionVector2D(position, allMidpoints[i].v, allLines[t].a, allLines[t].b) === true) {
-					intersectsLine = true;
-					break;
+				if (allMidpoints[i].l !== line && allLines[t] !== line) {
+					if (line.LineSlope(line.a, line.b) === line.LineSlope(position, allMidpoints[i].v) || Intersection.LineIntersectionVector2D(position, allMidpoints[i].v, allLines[t].a, allLines[t].b) === true) {
+						intersectsLine = true;
+						break;
+					}
 				}
 			}
 
-			if (intersectsLine === false && allMidpoints[i].l.openClosed === OpenClosed.Open && allMidpoints[i].l !== line) {
-				returnArr.push(allMidpoints[i].l);
+			if (agent !== undefined) {
+				if (agent.GetRadius() + 5 < allMidpoints[i].l.GetLength() && intersectsLine === false && allMidpoints[i].l.openClosed === OpenClosed.Open && allMidpoints[i].l !== line) {
+					returnArr.push(allMidpoints[i].l);
+					//DebugDrawer.AddPolygon(new Polygon([allMidpoints[i].l.a, allMidpoints[i].l.b]), 0.016, 'teal', false, 1.0);
+				}
+			} else {
+				if (intersectsLine === false && allMidpoints[i].l.openClosed === OpenClosed.Open && allMidpoints[i].l !== line) {
+					returnArr.push(allMidpoints[i].l);
+				}
 			}
 		}
+
+		//DebugDrawer.AddPolygon(new Polygon([line.a, line.b]), 0.016, 'red', false, 1.0);
 
 		return returnArr;
 	}
@@ -327,9 +382,11 @@ class NavigationSystem {
 	 * 
 	 * @param {Vector2D} a 
 	 * @param {Vector2D} b
+	 * @param {Cobject} agent
+	 * @param {PathConstructionSettings} pathConstructionSettings
 	 * @returns {Vector2D[]}
 	 */
-	PathFromPointToPoint(a, b) {
+	PathFromPointToPoint(a, b, agent = undefined, pathConstructionSettings = new PathConstructionSettings()) {
 		/** @type {Triangle} */ let currentTriangle = undefined,
 			/** @type {Triangle} */ goalTriangle = undefined,
 			/** @type {NavigationBounds} */ currentTree = undefined;
@@ -371,14 +428,26 @@ class NavigationSystem {
 			new ASettings(ASettingsPropertyMethod.Method, Triangle.prototype.GetCenter, NavigationSystem.prototype.GetNeighbouringTrianglesFromTrees, this)
 		);*/
 
+		const closestStartLine = currentTriangle.GetClosestLine(a),
+			closestGoalLine = goalTriangle.GetClosestLine(b);
+
 		paths = this.BuildPathT(
-			currentTriangle.GetClosestLine(a),
-			goalTriangle.GetClosestLine(b),
+			closestStartLine,
+			closestGoalLine,
+			agent,
 			treePath,
 			new ASettings(ASettingsPropertyMethod.Method, Line.prototype.GetCentroid, NavigationSystem.prototype.GetNeighbouringLinesFromTrees, this)
 		);
 
-		return this.Backtrace(paths.cameFrom, goalTriangle.GetClosestLine(b).GetCentroid(), currentTriangle.GetClosestLine(a).GetCentroid());
+		let backtracedPath = this.Backtrace(paths.cameFrom, closestGoalLine.GetCentroid(), closestStartLine.GetCentroid());
+
+		if (backtracedPath.length > 3 && pathConstructionSettings.SmoothPath === true)
+			backtracedPath = this.SmoothPath(backtracedPath);
+
+		if (backtracedPath.length > 3 && pathConstructionSettings.SimplifyPath === true)
+			this.SimplifyPath(backtracedPath);
+
+		return backtracedPath;
 	}
 
 	/**
@@ -402,10 +471,10 @@ class NavigationSystem {
 			if (current.position.Equal(goalTree.position) === true)
 				break;
 
-			let neighbouringTrees = this.GetTrees(currentTree);// this.GetNeighbouringTrees(currentTree);
+			let neighbouringTrees = this.GetTrees(current);// this.GetNeighbouringTrees(currentTree);
 			for (let i = 0, l = neighbouringTrees.length; i < l; ++i) {
 				let next = neighbouringTrees[i].position,
-					newCost = costSoFar[current.position.ToString()] + current.position.Distance(next);
+					newCost = costSoFar[current.position.ToString()] + 1;// current.position.Distance(next);
 
 				let keys = Object.keys(costSoFar),
 					index = keys.indexOf(next.ToString());
@@ -415,7 +484,7 @@ class NavigationSystem {
 
 				if (costSoFar[keys[index]] === costSoFar[keys[keys.length - 1]] || newCost < costSoFar[next.ToString()]) {
 					costSoFar[next.ToString()] = newCost;
-					let priority = newCost + this.Heuristic(next, goalTree.position);
+					let priority = newCost + this.Euclidean(next, goalTree.position);
 					frontier.Put(neighbouringTrees[i], priority);
 					cameFrom[next.ToString()] = current;
 				}
@@ -476,17 +545,17 @@ class NavigationSystem {
 	 * @template T
 	 * @param {T} startObject 
 	 * @param {T} goalObject 
+	 * @param {Cobject} agent
 	 * @param {NavigationBounds[]} treePath 
 	 * @param {ASettings} settings
 	 * @returns {BuildPathResult}
 	 */
-	BuildPathT(startObject, goalObject, treePath, settings) {
+	BuildPathT(startObject, goalObject, agent = undefined, treePath, settings) {
 		/** @type {PriorityQueue<T>} */ let frontier = new PriorityQueue();
 		frontier.Put(startObject, 0);
 
 		/** @type {Map<string, Vector2D>} */ let cameFrom = new Map(),
 		/** @type {Object.<string, number>} */ costSoFar = {};
-
 
 		/** @type {Vector2D} */ let startObjectPosition,
 			/** @type {Vector2D} */ goalObjectPosition;
@@ -515,18 +584,22 @@ class NavigationSystem {
 			if (currentPosition.Equal(goalObjectPosition) === true)
 				break;
 
-			let neighbourTriangles = settings.getNeighboursMethod.call(settings.getNeighboursCallee, treePath, current);
+			let tree = this.GetTree(currentPosition, treePath),
+				trees = this.GetTrees(tree, treePath);
+			trees.splice(0, 0, tree);
 
-			for (let i = 0, l = neighbourTriangles.length; i < l; ++i) {
+			/** @type {T[]} */ let neighbouringObjects = settings.getNeighboursMethod.call(settings.getNeighboursCallee, trees, current, agent);
+
+			for (let i = 0, l = neighbouringObjects.length; i < l; ++i) {
 				/** @type {Vector2D} */ let next;
 
 				if (settings.isPropertyMethod === ASettingsPropertyMethod.Property) {
-					next = neighbourTriangles[i][settings.positionCall.name];
+					next = neighbouringObjects[i][settings.positionCall.name];
 				} else {
-					next = settings.positionCall.call(neighbourTriangles[i]);
+					next = settings.positionCall.call(neighbouringObjects[i]);
 				}
 
-				let newCost = costSoFar[currentPosition.ToString()] + currentPosition.Distance(next),
+				let newCost = costSoFar[currentPosition.ToString()] + currentPosition.Distance(next),// this.Euclidean(currentPosition, next),//currentPosition.Distance(next),
 					keys = Object.keys(costSoFar),
 					index = keys.indexOf(next.ToString());
 
@@ -535,8 +608,8 @@ class NavigationSystem {
 
 				if (costSoFar[keys[index]] === costSoFar[keys[keys.length - 1]] || newCost < costSoFar[next.ToString()]) {
 					costSoFar[next.ToString()] = newCost;
-					let priority = newCost + this.Heuristic(next, goalObjectPosition);
-					frontier.Put(neighbourTriangles[i], priority);
+					let priority = newCost + (this.weight * this.Euclidean(next, goalObjectPosition));
+					frontier.Put(neighbouringObjects[i], priority);
 					cameFrom.set(next.ToString(), currentPosition);
 				}
 			}
@@ -574,13 +647,16 @@ class NavigationSystem {
 	 */
 	Backtrace(cameFrom, goalPosition, startPosition) {
 		let currentPosition = goalPosition,
+			whileCount = 0,
+			whileLimit = cameFrom.size * 4,
 			/** @type {Vector2D[]} */ returnArr = [];
 
-		while (currentPosition !== undefined && currentPosition.Equal(startPosition) === false) {
+		while (currentPosition !== undefined && currentPosition.Equal(startPosition) === false && whileCount < whileLimit) {
+			whileCount++;
 			returnArr.push(currentPosition);
 
-			if (cameFrom.get(currentPosition.ToString()) === undefined || currentPosition.Equal(cameFrom.get(currentPosition.ToString())))
-				break;
+			/*if (cameFrom.get(currentPosition.ToString()) === undefined || currentPosition.Equal(cameFrom.get(currentPosition.ToString())))
+				break;*/
 
 			currentPosition = cameFrom.get(currentPosition.ToString());
 		}
@@ -590,13 +666,65 @@ class NavigationSystem {
 	}
 
 	/**
+	 * Smooths the path in place
+	 * @param {Vector2D[]} path 
+	 * @returns {Vector2D[]}
+	 */
+	SmoothPath(path) {
+		/** @type {Vector2D[]} */ let returnArr = [path[0]],
+			checkPosition = path[1],
+			checkLine = new Line(path[0], path[2]);
+
+		for (let i = 1, l = path.length - 2; i < l; ++i) {
+			checkPosition = path[i];
+			const closestPosition = checkLine.ClosestPointAlongLineClamped(checkPosition.x, checkPosition.y);
+
+			if (closestPosition.Distance(path[i + 1]) < checkPosition.Distance(path[i + 1])) {
+				returnArr.push(closestPosition);
+			} else {
+				returnArr.push(checkPosition);
+			}
+
+			checkLine.Set(path[i], path[i + 2]);
+		}
+		returnArr.push(path[path.length - 1]);
+
+		return returnArr;
+	}
+
+	/**
+	 * Smooths the path in place
+	 * @param {Vector2D[]} path 
+	 */
+	SimplifyPath(path) {
+		let distA = 0,
+			distB = 0,
+			angleA = 0,
+			angleB = 0;
+
+		for (let i = 1, l = path.length - 1; i < l; ++i) {
+			distA = path[i - 1].Distance(path[i + 1]) * 1.2;
+			distB = path[i - 1].Distance(path[i]) + path[i].Distance(path[i + 1]),
+			angleA = CMath.LookAt2D(path[i - 1], path[i]),
+			angleB = CMath.LookAt2D(path[i], path[i + 1]);
+
+			if (distA < distB || Math.abs(angleA - angleB) < 15) {
+				path.splice(i, 1);
+				i = 1;
+				l--;
+			}
+		}
+	}
+
+	/**
 	 * 
 	 * @param {Vector2D} a 
 	 * @param {Vector2D} b
+	 * @param {Cobject} agent
 	 * @returns {Vector2D[]}
 	 */
-	static PathFromPointToPoint(a, b) {
-		let arr = NavigationSystem._Instance.PathFromPointToPoint(a, b);
+	static PathFromPointToPoint(a, b, agent = undefined) {
+		let arr = NavigationSystem._Instance.PathFromPointToPoint(a, b, agent, new PathConstructionSettings(false, false));
 
 		if (arr !== undefined) {
 			arr.reverse();
@@ -617,14 +745,44 @@ class NavigationSystem {
 			}
 		}
 
-		if (doOnce === false && Mastertime.Frame() === 100) {
-			let paths = this.PathFromPointToPoint(new Vector2D(365, 933), MasterObject.MO.playerController.playerCharacter.position);
-			doOnce = true;
+		if (Mastertime.Frame() === -100) {
+			/*let paths2 = this.PathFromPointToPoint(new Vector2D(556, 1207), MasterObject.MO.playerController.playerCharacter.position, MasterObject.MO.playerController.playerCharacter);
 
-			console.log(paths);
+			if (paths2 !== undefined)
+				DebugDrawer.AddPolygon(new Polygon(paths2), 25, 'teal', false, 1);*/
+
+			this.weight = 2;
+			let paths = this.PathFromPointToPoint(new Vector2D(556, 1207), MasterObject.MO.playerController.playerCharacter.position, MasterObject.MO.playerController.playerCharacter, new PathConstructionSettings(false, false));
 
 			if (paths !== undefined)
 				DebugDrawer.AddPolygon(new Polygon(paths), 25, 'purple', false, 1);
+
+			this.weight = 2;
+			paths = this.PathFromPointToPoint(new Vector2D(556, 1207), MasterObject.MO.playerController.playerCharacter.position, MasterObject.MO.playerController.playerCharacter, new PathConstructionSettings(false, false));
+
+			if (paths !== undefined)
+				DebugDrawer.AddPolygon(new Polygon(paths), 25, 'teal', false, 1);
+
+			this.weight = 2;
+		}
+
+		if (Mastertime.Frame() === -25) {
+			this.weight = 2;
+			let paths = this.PathFromPointToPoint(new Vector2D(142, 798), MasterObject.MO.playerController.playerCharacter.position, MasterObject.MO.playerController.playerCharacter, new PathConstructionSettings(false, false));
+
+			if (paths !== undefined)
+				DebugDrawer.AddPolygon(new Polygon(paths), 25, 'green', false, 1);
+
+			paths = this.PathFromPointToPoint(new Vector2D(431, 229), MasterObject.MO.playerController.playerCharacter.position, MasterObject.MO.playerController.playerCharacter, new PathConstructionSettings(false, false));
+
+			if (paths !== undefined)
+				DebugDrawer.AddPolygon(new Polygon(paths), 25, 'gold', false, 1);
+
+			this.weight = 2;
+			paths = this.PathFromPointToPoint(new Vector2D(1173, 323), MasterObject.MO.playerController.playerCharacter.position, MasterObject.MO.playerController.playerCharacter, new PathConstructionSettings(false, false));
+
+			if (paths !== undefined)
+				DebugDrawer.AddPolygon(new Polygon(paths), 25, 'brown', false, 1);
 		}
 	}
 

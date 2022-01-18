@@ -863,6 +863,16 @@ class Character extends GameObject {
 		switch (eventType) {
 		}
 	}
+
+	Delete() {
+		super.Delete();
+
+		if (this.realtimeShadow !== undefined)
+			this.realtimeShadow.Delete();
+
+		if (this.shadowAttachment !== undefined)
+			this.shadowAttachment.Delete();
+	}
 }
 
 /**

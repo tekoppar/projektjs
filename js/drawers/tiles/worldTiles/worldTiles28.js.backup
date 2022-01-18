@@ -115,11 +115,11 @@ let worldTiles28 = {
 		],
 	"27":
 		[
-			{ t: { p: { x: 864, y: 896 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 864, y: 896 }, lut: ["tinRock", 0, 0] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"28":
 		[
-			{ t: { p: { x: 896, y: 896 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 896, y: 896 }, lut: ["tinRock", 0, 0] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"29":
 		[

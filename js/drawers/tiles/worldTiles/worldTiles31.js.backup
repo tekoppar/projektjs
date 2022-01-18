@@ -87,23 +87,23 @@ let worldTiles31 = {
 		],
 	"20":
 		[
-			{ t: { p: { x: 640, y: 992 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 640, y: 992 }, lut: ["tinRock", 0, 0] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"21":
 		[
-			{ t: { p: { x: 672, y: 992 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 672, y: 992 }, lut: ["tinRock", 0, 0] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"22":
 		[
-			{ t: { p: { x: 704, y: 992 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 704, y: 992 }, lut: ["tinRock", 0, 0] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"23":
 		[
-			{ t: { p: { x: 736, y: 992 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 736, y: 992 }, lut: ["tinRock", 0, 0] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"24":
 		[
-			{ t: { p: { x: 768, y: 992 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 768, y: 992 }, lut: ["tinRock", 0, 0] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"25":
 		[

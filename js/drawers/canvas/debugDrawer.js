@@ -329,10 +329,10 @@ class DebugDrawer extends Cobject {
 			let colorData = this.gameDebugCanvasCtx.getImageData(0, 0, this.gameDebugCanvas.width, this.gameDebugCanvas.height);
 
 			for (let i = 0, l = colorData.data.length; i < l; ++i) {
-				colorData.data[i] += this.debugImageData.data[i];
+				this.debugImageData.data[i] += colorData.data[i];
 			}
 
-			this.gameDebugCanvasCtx.putImageData(colorData, 0, 0);
+			this.gameDebugCanvasCtx.putImageData(this.debugImageData, 0, 0);
 		}
 	}
 
@@ -379,7 +379,7 @@ class DebugDrawer extends Cobject {
 				break;
 
 			case 'MeshOperation':
-				let bb = drawingOperation.mesh.boundingBox.Clone();
+				/*let bb = drawingOperation.mesh.boundingBox.Clone();
 				bb.x -= 1;
 				bb.y -= 1;
 				bb.w += 2;
@@ -389,7 +389,7 @@ class DebugDrawer extends Cobject {
 					Math.floor(bb.y - this.offset.y),
 					bb.w,
 					bb.h
-				);
+				);*/
 				break;
 
 			case 'TextOperation':

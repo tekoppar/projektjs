@@ -124,8 +124,11 @@ class BehaviorConditionAvoidClass extends BehaviorCondition {
 	 * @returns {boolean}
 	 */
 	Check(actionA, actionB) {
-		let a = actionA.agent,
-			found = CollisionHandler.GCH.GetInRangeClass(a.BoxCollision, this.distance, this.classType);
+		if (actionA.agent === undefined || actionA.agent.BoxCollision === undefined)
+			return false;
+
+		let a = actionA.agent;
+		let found = CollisionHandler.GCH.GetInRangeClass(a.BoxCollision, this.distance, this.classType);
 
 		for (let i = 0, l = found.length; i < l; ++i) {
 			if (found[i].collisionOwner instanceof this.classType) {
@@ -286,9 +289,9 @@ class BehaviorActionMovement extends BehaviorAction {
 		let b = this.behaviorActionPoint.GetPoint();
 
 		if (b !== undefined) {
-			this.path = NavigationSystem.PathFromPointToPoint(this.agent.position, b);
+			this.path = NavigationSystem.PathFromPointToPoint(this.agent.position, b, this.agent);
 
-			DebugDrawer.AddPolygon(new Polygon(this.path), 5, 'pink', true, 1.0);
+			//DebugDrawer.AddPolygon(new Polygon(this.path), 5, 'pink', true, 1.0);
 		}
 	}
 

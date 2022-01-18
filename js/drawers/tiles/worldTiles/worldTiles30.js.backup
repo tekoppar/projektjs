@@ -107,7 +107,7 @@ let worldTiles30 = {
 		],
 	"25":
 		[
-			{ t: { p: { x: 800, y: 960 }, lut: ["terrain", 3, 22] }, dc: 'game-canvas', tc: 'terrain' }
+			{ t: { p: { x: 800, y: 960 }, lut: ["tinRock", 0, 0] }, dc: 'game-canvas', tc: 'terrain' }
 		],
 	"26":
 		[

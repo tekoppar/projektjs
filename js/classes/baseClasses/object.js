@@ -55,6 +55,38 @@ class Cobject {
 
 	/**
 	 * 
+	 * @returns {Vector2D}
+	 */
+	GetSize() {
+		return this.size;
+	}
+
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	 GetSizeX() {
+		return this.size.x;
+	}
+
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	 GetSizeY() {
+		return this.size.y;
+	}
+
+	/**
+	 * Gets the calculated radius from the objects size
+	 * @returns {number}
+	 */
+	GetRadius() {
+		return 0.5 * Math.sqrt(this.size.x * this.size.x + this.size.y * this.size.y);
+	}
+
+	/**
+	 * 
 	 * @returns {Cobject}
 	 */
 	GetParent() {

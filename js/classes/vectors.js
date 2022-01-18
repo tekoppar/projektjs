@@ -428,7 +428,7 @@ class Vector2D {
 	/**
 	 * 
 	 * @param {Vector2D} a 
-	 * @param {number} t 
+	 * @param {number} t - range 0-1
 	 * @returns {Vector2D}
 	 */
 	Lerp(a, t) {
@@ -438,7 +438,7 @@ class Vector2D {
 	/**
 	 * 
 	 * @param {Vector2D} a 
-	 * @param {number} v 
+	 * @param {number} v - range 0-1
 	 * @returns {Vector2D}
 	 */
 	LerpValue(a, v) {
@@ -1506,6 +1506,57 @@ class Rectangle {
 
 	/**
 	 * 
+	 * @param {number} tesselationLevel
+	 * @returns {Vector2D[]}
+	 */
+	GetTesselatedCornerPoints(tesselationLevel = 1) {
+		/** @type {Vector2D[]}*/ let returnArr = [],
+			bottomLeft = new Vector2D(this.x, this.y),
+			bottomRight = new Vector2D(this.x + this.w, this.y),
+			topLeft = new Vector2D(this.x, this.y + this.h),
+			topRight = new Vector2D(this.x + this.w, this.y + this.h);
+
+		for (let i = 1, l = tesselationLevel + 2; i < l; ++i) {
+			returnArr.push(topLeft.Lerp(topRight, 1 / i));
+		}
+		returnArr.push(topLeft);
+
+		for (let i = 1, l = tesselationLevel + 2; i < l; ++i) {
+			returnArr.push(topRight.Lerp(bottomRight, 1 / i));
+		}
+		returnArr.push(topRight);
+
+		for (let i = 1, l = tesselationLevel + 2; i < l; ++i) {
+			returnArr.push(bottomRight.Lerp(bottomLeft, 1 / i));
+		}
+		returnArr.push(bottomRight);
+
+		for (let i = 1, l = tesselationLevel + 2; i < l; ++i) {
+			returnArr.push(bottomLeft.Lerp(topLeft, 1 / i));
+		}
+		returnArr.push(bottomLeft);
+
+		return returnArr;
+	}
+
+	/**
+	 * 
+	 * @param {number} tesselationLevel 
+	 * @returns {Vector2D[]}
+	 */
+	GetTesselatedPoints(tesselationLevel = 1) {
+		let returnArr = [],
+			splitRects = Rectangle.Split(tesselationLevel, this);
+
+		for (let i = 0, l = splitRects.length; i < l; ++i) {
+			returnArr.push(...splitRects[i].GetCornersVector2D());
+		}
+
+		return [...new Set(returnArr)];
+	}
+
+	/**
+	 * 
 	 * @returns {Vector2D}
 	 */
 	GetCenterPoint() {
@@ -2528,6 +2579,14 @@ class Line {
 
 	/**
 	 * 
+	 * @returns {number}
+	 */
+	GetLength() {
+		return this.a.DistanceXY(this.b.x, this.b.y);
+	}
+
+	/**
+	 * 
 	 * @param {number} t 
 	 * @returns {Vector2D}
 	 */
@@ -3022,17 +3081,17 @@ class Triangle {
 
 		if (this.x.open === false && this.y.open === false && this.xy.openClosed === OpenClosed.Open) {
 			this.xy.openClosed = OpenClosed.Closed;
-			DebugDrawer.AddPolygon(new Polygon([this.xy.a, this.xy.b]), 0.016, 'teal', true, 1.0);
+			//DebugDrawer.AddPolygon(new Polygon([this.xy.a, this.xy.b]), 0.016, 'teal', true, 1.0);
 		}
 
 		if (this.y.open === false && this.z.open === false && this.yz.openClosed === OpenClosed.Open) {
 			this.yz.openClosed = OpenClosed.Closed;
-			DebugDrawer.AddPolygon(new Polygon([this.yz.a, this.yz.b]), 0.016, 'magenta', true, 1.0);
+			//DebugDrawer.AddPolygon(new Polygon([this.yz.a, this.yz.b]), 0.016, 'magenta', true, 1.0);
 		}
 
 		if (this.z.open === false && this.x.open === false && this.zx.openClosed === OpenClosed.Open) {
 			this.zx.openClosed = OpenClosed.Closed;
-			DebugDrawer.AddPolygon(new Polygon([this.zx.a, this.zx.b]), 0.016, 'yellow', true, 1.0);
+			//DebugDrawer.AddPolygon(new Polygon([this.zx.a, this.zx.b]), 0.016, 'yellow', true, 1.0);
 		}
 
 		if (this.x.open === false)

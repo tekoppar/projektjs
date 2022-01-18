@@ -2,7 +2,8 @@ import {
 	Vector2D, CanvasDrawer, CollisionEditor, PawnSetupParams, TileMaker, Tile,
 	TileType, TileTerrain, EditorState, Cobject, Tree, MasterObject, InputHandler,
 	CollisionHandler, BoxCollision, PolygonCollision, PathOperation, GameObject,
-	AtlasController, AllCollisions, TileMakerEditor, OverlapOverlapsCheck, CollisionTypeCheck, Pawn, AllBlockingCollisions, PawnSetupController
+	AtlasController, AllCollisions, TileMakerEditor, OverlapOverlapsCheck, CollisionTypeCheck, Pawn,
+	 AllBlockingCollisions, PawnSetupController, AllAnimationsList, Logger
 } from '../internal.js';
 
 /**
@@ -192,12 +193,13 @@ class PropEditor extends Cobject {
 			AtlasController.GetAtlasObject(setupParams[3]).SetSelection(MasterObject.MO.playerController.playerCharacter.position.Clone());
 		} else if (AtlasController.GetAtlasObject(propName + PawnSetupController._AtlasObjectSuffix) !== undefined) {
 			AtlasController.GetAtlasObject(propName + PawnSetupController._AtlasObjectSuffix).SetSelection(MasterObject.MO.playerController.playerCharacter.position.Clone());
-		} else {
+		} else if (AllAnimationsList.propAnimations[propName]?.idle !== undefined) {
+			const propAnimation = AllAnimationsList.propAnimations[propName].idle;
 			CanvasDrawer.GCD.SetSelection(
 				new Tile(
 					MasterObject.MO.playerController.playerCharacter.position.Clone(),
-					new Vector2D(setupParams[2].start.x, setupParams[2].start.y),
-					new Vector2D(setupParams[2].w, setupParams[2].h),
+					new Vector2D(propAnimation.start.x, propAnimation.start.y),
+					new Vector2D(propAnimation.w, propAnimation.h),
 					false,
 					AtlasController.GetAtlas(setupParams[3]).name,
 					0,

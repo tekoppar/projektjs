@@ -31,6 +31,9 @@ class NavigationBounds extends Cobject {
 		/** @type {QuadTree} */ this.owner = owner;
 
 		NavigationSystem._Instance.AddTree(this);
+
+		this.holes = [];
+		this.UpdateNavigation();
 	}
 
 	/**
@@ -69,7 +72,8 @@ class NavigationBounds extends Cobject {
 			if (intersection !== undefined) {
 				shouldUpdate = true;
 				if (this.dlPolygon.clipState === PolygonClippingResults.PolygonClipped) {
-					//navBounds[x].UpdatePolygon(Vector2D.ObjectXYToVector2DArray(intersection[0]));
+					this.AddHole(Vector2D.ObjectXYToVector2DArray(intersection[0]));
+					//this.UpdatePolygon(Vector2D.ObjectXYToVector2DArray(intersection[0]));
 				} else {
 					this.AddHole(Vector2D.ObjectXYToVector2DArray(intersection[0]));
 				}

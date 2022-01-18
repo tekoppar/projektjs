@@ -78,7 +78,13 @@ class QuadTree {
 			new QuadTree(this.level + 1, new Rectangle(this.bounds.x + boundsW, this.bounds.y + boundsH, boundsW, boundsH))
 		];
 
-		this.navBounds.Delete();
+		if (this.navBounds !== undefined)
+			this.navBounds.Delete();
+
+		this.nodes[0].navBounds = new NavigationBounds(this.nodes[0].bounds.GetCornersVector2D(), this.nodes[0]);
+		this.nodes[1].navBounds = new NavigationBounds(this.nodes[1].bounds.GetCornersVector2D(), this.nodes[1]);
+		this.nodes[2].navBounds = new NavigationBounds(this.nodes[2].bounds.GetCornersVector2D(), this.nodes[2]);
+		this.nodes[3].navBounds = new NavigationBounds(this.nodes[3].bounds.GetCornersVector2D(), this.nodes[3]);
 
 		let outsideObjects = [];
 		for (let object of this.objects) {
@@ -143,11 +149,7 @@ class QuadTree {
 
 			if (this.objects.length >= QuadTree.MAX_OBJECTS && this.level <= QuadTree.MAX_LEVEL) {
 				this.Split();
-			} else if (this.objects.length > 0) {
-				if (this.navBounds === undefined) {
-					this.navBounds = new NavigationBounds(this.bounds.GetCornersVector2D(), this);
-				}
-
+			} else if (this.objects.length > 0 && this.navBounds !== undefined) {
 				this.navBounds.generateNavigation = true;
 			}
 		} else {
@@ -1147,6 +1149,7 @@ class PolygonCollision extends Collision {
 	SetPosition(position) {
 		super.SetPosition(position);
 		this.UpdatePoints();
+		this.CalculateBoundingBox();
 	}
 
 	UpdatePoints() {
