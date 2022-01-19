@@ -1,6 +1,6 @@
 import {
 	Vector2D, Hoe, Shovel, Axe, MainCharacter, Weapon, Seed, Controller, CraftingRecipes,
-	Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Item, Building, MovemementDirection, MovementType
+	Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Item, Building, MovemementDirection, MovementType, EquipabbleItem, ItemStats
 } from '../internal.js';
 
 /**
@@ -66,7 +66,7 @@ class PlayerController extends Controller {
 		this.playerCharacter.inventory.AddItem(new Item('stonePiece', 25));
 		this.playerCharacter.inventory.AddItem(new Item('coalLump', 25));
 		this.playerCharacter.inventory.AddItem(new Item('iron', 25));
-		this.playerCharacter.inventory.AddItem(new Item('tin', 25));
+		/*this.playerCharacter.inventory.AddItem(new Item('tin', 25));
 		this.playerCharacter.inventory.AddItem(new Item('copper', 25));
 		this.playerCharacter.inventory.AddItem(new Item('silver', 25));
 		this.playerCharacter.inventory.AddItem(new Item('gold', 25));
@@ -79,7 +79,20 @@ class PlayerController extends Controller {
 		this.playerCharacter.inventory.AddItem(new Item('silverBar', 25));
 		this.playerCharacter.inventory.AddItem(new Item('goldBar', 25));
 		this.playerCharacter.inventory.AddItem(new Item('bronzeBar', 25));
-		this.playerCharacter.inventory.AddItem(new Item('steelBar', 25));
+		this.playerCharacter.inventory.AddItem(new Item('steelBar', 25));*/
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.leatherArmor.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.leatherHood.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.leatherShoes.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.leatherSkirt.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.clothPantsGreen.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.chainArmorHood.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.chainArmorTorso.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.plateArmorGloves.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.plateArmorHelmet.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.plateArmorPants.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.plateArmorShoes.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.plateArmorShoulders.atlas));
+		this.playerCharacter.inventory.AddItem(new EquipabbleItem(ItemStats.plateArmorTorso.atlas));
 		this.playerCharacter.inventory.AddMoney(5000);
 		this.playerCharacter.controller = this;
 		this.crafting.owner = this.playerCharacter;
@@ -111,58 +124,74 @@ class PlayerController extends Controller {
 	CEvent(eventType, key, data) {
 		switch (eventType) {
 			case 'input':
-				if (data.eventType == 0) {
-					switch (key) {
-						case 'a': this.playerCharacter.UpdateDirection(MovemementDirection.x, 1); break;
-						case 'w': this.playerCharacter.UpdateDirection(MovemementDirection.y, 1); break;
-						case 'd': this.playerCharacter.UpdateDirection(MovemementDirection.x, -1); break;
-						case 's': this.playerCharacter.UpdateDirection(MovemementDirection.y, -1); break;
-						case 'e':
-							this.playerCharacter.Interact();
-							break;
-						case 'leftShift': this.playerCharacter.SetMovement(MovementType.Running, -3); break;
-						case 'leftMouse':
-							if (data.eventType === 0)
-								this.playerCharacter.UseItem(data);
-							break;
-					}
-				}
-				if (data.eventType == 1) {
-					switch (key) {
-						case 'a': this.playerCharacter.UpdateDirection(MovemementDirection.x, 1); break;
-						case 'w': this.playerCharacter.UpdateDirection(MovemementDirection.y, 1); break;
-						case 'd': this.playerCharacter.UpdateDirection(MovemementDirection.x, -1); break;
-						case 's': this.playerCharacter.UpdateDirection(MovemementDirection.y, -1); break;
-						case 'leftShift': this.playerCharacter.SetMovement(MovementType.Running, -3); break;
-					}
-				} else if (data.eventType == 2 || data.eventType == 3) {
-					switch (key) {
-						case 'a':
-						case 'w':
-						case 'd':
-						case 's':
-							this.playerCharacter.StopMovement();
-							break;
+				switch (data.eventType) {
+					case 0:
+						switch (key) {
+							case 'a': this.playerCharacter.UpdateDirection(MovemementDirection.x, 1); break;
+							case 'w': this.playerCharacter.UpdateDirection(MovemementDirection.y, 1); break;
+							case 'd': this.playerCharacter.UpdateDirection(MovemementDirection.x, -1); break;
+							case 's': this.playerCharacter.UpdateDirection(MovemementDirection.y, -1); break;
+							case 'e':
+								this.playerCharacter.Interact();
+								break;
+							case 'leftShift': this.playerCharacter.SetMovement(MovementType.Running, -3); break;
+							case 'leftMouse':
+								if (data.eventType === 0)
+									this.playerCharacter.UseItem(data);
+								break;
+						}
+						break;
 
-						case 'tab':
-							if (data.eventType === 2) {
-								this.playerCharacter.inventory.ShowInventory();
-							}
-							break;
+					case 1:
+						switch (key) {
+							case 'a': this.playerCharacter.UpdateDirection(MovemementDirection.x, 1); break;
+							case 'w': this.playerCharacter.UpdateDirection(MovemementDirection.y, 1); break;
+							case 'd': this.playerCharacter.UpdateDirection(MovemementDirection.x, -1); break;
+							case 's': this.playerCharacter.UpdateDirection(MovemementDirection.y, -1); break;
+							case 'leftShift': this.playerCharacter.SetMovement(MovementType.Running, -3); break;
+						}
+						break;
 
-						case 'e':
-							if (data.eventType == 3) {
-								this.playerCharacter.StoppedInteracting();
-							}
-							break;
-						case 'c':
-							if (data.eventType === 2) {
-								this.crafting.CEvent('use', this.playerCharacter);
-							}
-							break;
+					case 2:
+						switch (key) {
+							case 'a':
+							case 'w':
+							case 'd':
+							case 's': this.playerCharacter.StopMovement(); break;
 
-						case 'leftShift': this.playerCharacter.SetMovement(MovementType.Walking, -1); break;
-					}
+							case 'i':
+							case 'tab': this.playerCharacter.inventory.ShowInventory(); break;
+
+							case 'c':
+								this.crafting.ShowCrafting();
+								this.crafting.characterUser = this.playerCharacter;
+								break;
+
+							case 'b':
+								this.building.ShowBuilding();
+								this.building.ShowRecipe();
+								break;
+
+							case 'k': this.playerCharacter.characterAttributes.characterSheet.ShowCharacterSheet(); break;
+
+							case 'leftShift': this.playerCharacter.SetMovement(MovementType.Walking, -1); break;
+						}
+						break;
+
+					case 3:
+						switch (key) {
+							case 'a':
+							case 'w':
+							case 'd':
+							case 's':
+								this.playerCharacter.StopMovement();
+								break;
+
+							case 'e': this.playerCharacter.StoppedInteracting(); break;
+
+							case 'leftShift': this.playerCharacter.SetMovement(MovementType.Walking, -1); break;
+						}
+						break;
 				}
 				break;
 		}

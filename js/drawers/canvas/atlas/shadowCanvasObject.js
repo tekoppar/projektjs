@@ -100,10 +100,10 @@ class ShadowCanvasObject {
 		this.shadowData = this.canvasCtx.getImageData(0, 0, this.canvas.width, this.canvas.height);
 		this.firstDraw = false;
 
-		let overlaps = CollisionHandler.GCH.GetOverlapByClass(boxCollision, 'AmbientLight');
+		let overlaps = LightSystem.GetOverlappingLightsByCollision(boxCollision);// CollisionHandler.GCH.GetOverlapByClass(boxCollision, 'AmbientLight');
 
-		if (overlaps !== false) {
-			let overlapPosition = overlaps.collisionOwner.GetPosition();
+		if (overlaps.length > 0/* overlaps !== false*/) {
+			let overlapPosition = overlaps[0].GetPosition();//overlaps.collisionOwner.GetPosition();
 			let shadowPos = position.Clone();
 			shadowPos.y -= 15;
 			let rotation = CMath.LookAt2D(shadowPos, overlapPosition.Clone());

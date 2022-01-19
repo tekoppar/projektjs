@@ -39,4 +39,26 @@ const OpenClosed = {
 	Open: 1,
 }
 
-export { ObjectType, BWDrawingType, EditorState, OpenClosed };
+/**
+ * @readonly
+ * @enum {string}
+ */
+ const EquipmentSlotType = {
+	helmet: 'helmet',
+	armor: 'armor',
+	belt: 'belt',
+	pants: 'pants',
+	boots: 'boots',
+	shoulders: 'shoulders',
+	gloves: 'gloves',
+	ring1: 'ring1',
+	ring2: 'ring2',
+	handLeft: 'handLeft',
+	amulet: 'amulet',
+	bracers: 'bracers',
+	ring3: 'ring3',
+	ring4: 'ring4',
+	handRight: 'handRight'
+};
+
+export { ObjectType, BWDrawingType, EditorState, OpenClosed, EquipmentSlotType };

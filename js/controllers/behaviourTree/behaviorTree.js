@@ -1,4 +1,4 @@
-import { Vector2D, NavigationSystem, Character, MovemementDirection, CollisionHandler, CMath, MovementType, DebugDrawer, Polygon } from '../../internal.js';
+import { Vector2D, NavigationSystem, Character, MovemementDirection, CollisionHandler, CMath, MovementType } from '../../internal.js';
 
 /**
  * @readonly
@@ -26,13 +26,27 @@ class BehaviorTree {
 	 * @param {BehaviorAction[]} actions 
 	 */
 	constructor(actions = undefined) {
-		this.actions = actions;
+		/** @type {BehaviorAction[]} */ this.actions = actions;
 	}
 
 	CheckActions() {
 		for (let i = 0, l = this.actions.length; i < l; ++i) {
 			this.actions[i].Action();
 		}
+	}
+
+	/**
+	 * 
+	 * @returns {BehaviorTree}
+	 */
+	Clone() {
+		/** @type {BehaviorAction[]} */ let clonedActions = [];
+
+		for (let i = 0, l = this.actions.length; i < l; ++i) {
+			clonedActions.push(this.actions[i].Clone());
+		}
+
+		return new BehaviorTree(clonedActions);
 	}
 }
 
@@ -59,6 +73,14 @@ class BehaviorCondition {
 	 */
 	Check(a, b) {
 		return a === b;
+	}
+
+	/**
+	 * 
+	 * @returns {BehaviorCondition}
+	 */
+	Clone() {
+		return new BehaviorCondition(this.inverseCheck);
 	}
 }
 
@@ -94,6 +116,14 @@ class BehaviorConditionDistance extends BehaviorCondition {
 			return !a.CheckInRange(b, this.distance);
 		else
 			return a.CheckInRange(b, this.distance);
+	}
+
+	/**
+	 * 
+	 * @returns {BehaviorConditionDistance}
+	 */
+	Clone() {
+		return new BehaviorConditionDistance(this.distance, this.inverseCheck);
 	}
 }
 
@@ -149,6 +179,14 @@ class BehaviorConditionAvoidClass extends BehaviorCondition {
 		else
 			return true;
 	}
+
+	/**
+	 * 
+	 * @returns {BehaviorConditionAvoidClass}
+	 */
+	Clone() {
+		return new BehaviorConditionAvoidClass(this.classType, this.distance, this.inverseCheck);
+	}
 }
 
 /**
@@ -167,6 +205,7 @@ class BehaviorAction {
 		/** @type {BehaviorNodeType} */ this.behaviorNodeType = nodeType;
 		/** @type {BehaviorCondition[]} */ this.conditions = conditions;
 		/** @type {BehaviorAction[]} */ this.children = children;
+		/** @type {Character} */ this.agent = undefined;
 	}
 
 	/**
@@ -190,6 +229,40 @@ class BehaviorAction {
 
 		return true;
 	}
+
+	/**
+	 * 
+	 * @returns {Character}
+	 */
+	GetAgent() {
+		return this.agent;
+	}
+
+	/**
+	 * 
+	 * @param {Character} agent 
+	 */
+	SetAgent(agent) {
+		this.agent = agent;
+	}
+
+	/**
+	 * 
+	 * @returns {BehaviorAction}
+	 */
+	Clone() {
+		/** @type {BehaviorCondition[]} */ let clonedConditions = [],
+			/** @type {BehaviorAction[]} */ clonedActions = [];
+
+		for (let i = 0, l = this.conditions.length; i < l; ++i) {
+			clonedConditions.push(this.conditions[i].Clone());
+		}
+
+		for (let i = 0, l = this.children.length; i < l; ++i) {
+			clonedActions.push(this.children[i].Clone());
+		}
+		return new BehaviorAction(clonedConditions, clonedActions, this.behaviorNodeType);
+	}
 }
 
 /**
@@ -199,13 +272,8 @@ class BehaviorAction {
  */
 class BehaviorActionPoint extends BehaviorAction {
 
-	/**
-	 * @param {Character} agent
-	 */
-	constructor(agent) {
+	constructor() {
 		super();
-
-		/** @type {Character} */ this.agent = agent;
 	}
 
 	/**
@@ -217,20 +285,23 @@ class BehaviorActionPoint extends BehaviorAction {
 
 	/**
 	 * 
-	 * @returns {Character}
+	 * @returns {BehaviorActionPoint}
 	 */
-	GetAgent() {
-		return this.agent;
+	Clone() {
+		return new BehaviorActionPoint();
 	}
 }
 
 class BehaviorActionCharacter extends BehaviorActionPoint {
 
 	/**
-	 * @param {Character} agent
+	 * 
+	 * @param {Character} agent 
 	 */
 	constructor(agent) {
-		super(agent);
+		super();
+
+		this.agent = agent;
 	}
 
 	/**
@@ -246,10 +317,10 @@ class BehaviorActionCharacter extends BehaviorActionPoint {
 
 	/**
 	 * 
-	 * @returns {Character}
+	 * @returns {BehaviorActionCharacter}
 	 */
-	GetAgent() {
-		return this.agent;
+	Clone() {
+		return new BehaviorActionCharacter(this.agent);
 	}
 }
 
@@ -262,14 +333,12 @@ class BehaviorActionMovement extends BehaviorAction {
 
 	/**
 	 * 
-	 * @param {Character} agent
 	 * @param {BehaviorCondition[]} conditions 
 	 * @param {BehaviorActionPoint} behaviorActionPoint 
 	 */
-	constructor(agent, conditions, behaviorActionPoint) {
+	constructor(conditions, behaviorActionPoint) {
 		super(conditions);
 
-		/** @type {Character} */ this.agent = agent;
 		/** @type {Vector2D[]} */ this.path = [];
 		/** @type {BehaviorActionPoint} */ this.behaviorActionPoint = behaviorActionPoint;
 	}
@@ -343,6 +412,20 @@ class BehaviorActionMovement extends BehaviorAction {
 
 		return state;
 	}
+
+	/**
+	 * 
+	 * @returns {BehaviorActionMovement}
+	 */
+	Clone() {
+		/** @type {BehaviorCondition[]} */ let clonedConditions = [];
+
+		for (let i = 0, l = this.conditions.length; i < l; ++i) {
+			clonedConditions.push(this.conditions[i].Clone());
+		}
+
+		return new BehaviorActionMovement(clonedConditions, this.behaviorActionPoint.Clone());
+	}
 }
 
 /**
@@ -354,14 +437,12 @@ class BehaviorActionMoveAway extends BehaviorAction {
 
 	/**
 	 * 
-	 * @param {Character} agent
 	 * @param {BehaviorCondition[]} conditions 
 	 * @param {BehaviorActionPoint} behaviorActionPoint 
 	 */
-	constructor(agent, conditions, behaviorActionPoint) {
+	constructor(conditions, behaviorActionPoint) {
 		super(conditions);
 
-		/** @type {Character} */ this.agent = agent;
 		/** @type {Vector2D[]} */ this.path = [];
 		/** @type {BehaviorActionPoint} */ this.behaviorActionPoint = behaviorActionPoint;
 	}
@@ -436,6 +517,20 @@ class BehaviorActionMoveAway extends BehaviorAction {
 
 		return state;
 	}
+
+	/**
+	 * 
+	 * @returns {BehaviorActionMoveAway}
+	 */
+	Clone() {
+		/** @type {BehaviorCondition[]} */ let clonedConditions = [];
+
+		for (let i = 0, l = this.conditions.length; i < l; ++i) {
+			clonedConditions.push(this.conditions[i].Clone());
+		}
+
+		return new BehaviorActionMoveAway(clonedConditions, this.behaviorActionPoint.Clone());
+	}
 }
 
 /**
@@ -444,19 +539,17 @@ class BehaviorActionMoveAway extends BehaviorAction {
  * @extends BehaviorAction
  */
 class BehaviorActionModifySpeed extends BehaviorAction {
-	
+
 	/**
 	 * 
-	 * @param {Character} agent
 	 * @param {BehaviorCondition[]} conditions 
 	 * @param {BehaviorActionPoint} behaviorActionPoint 
 	 * @param {number} speedNormal
 	 * @param {number} speedModified
 	 */
-	constructor(agent, conditions, behaviorActionPoint, speedNormal, speedModified) {
+	constructor(conditions, behaviorActionPoint, speedNormal, speedModified) {
 		super(conditions);
 
-		/** @type {Character} */ this.agent = agent;
 		/** @type {BehaviorActionPoint} */ this.behaviorActionPoint = behaviorActionPoint;
 		/** @type {number} */ this.speedNormal = speedNormal;
 		/** @type {number} */ this.speedModified = speedModified;
@@ -466,7 +559,7 @@ class BehaviorActionModifySpeed extends BehaviorAction {
 	 * 
 	 * @returns {boolean}
 	 */
-	 Action() {
+	Action() {
 		super.Action();
 
 		if (this.CheckConditions() === false) {
@@ -482,7 +575,7 @@ class BehaviorActionModifySpeed extends BehaviorAction {
 	 * @private
 	 * @returns {boolean}
 	 */
-	 CheckConditions() {
+	CheckConditions() {
 		let state = true;
 
 		for (let i = 0, l = this.conditions.length; i < l; ++i) {
@@ -493,6 +586,20 @@ class BehaviorActionModifySpeed extends BehaviorAction {
 		}
 
 		return state;
+	}
+
+	/**
+	 * 
+	 * @returns {BehaviorActionModifySpeed}
+	 */
+	 Clone() {
+		/** @type {BehaviorCondition[]} */ let clonedConditions = [];
+
+		for (let i = 0, l = this.conditions.length; i < l; ++i) {
+			clonedConditions.push(this.conditions[i].Clone());
+		}
+
+		return new BehaviorActionModifySpeed(clonedConditions, this.behaviorActionPoint.Clone(), this.speedNormal, this.speedModified);
 	}
 }
 

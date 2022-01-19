@@ -124,6 +124,7 @@ class InputHandler {
 			'p': new Input('p'),
 			'g': new Input('g'),
 			'b': new Input('b'),
+			'k': new Input('k'),
 			'tab': new Input('tab'),
 			'escape': new Input('escape'),
 			'backspace': new Input('backspace'),
@@ -244,6 +245,7 @@ class InputHandler {
 					case 69: this.AddInput('e', InputState.OnPressed); break;
 					case 71: this.AddInput('g', InputState.OnPressed); break;
 					case 73: this.AddInput('i', InputState.OnPressed); break;
+					case 75: this.AddInput('k', InputState.OnPressed); break;
 					case 80: this.AddInput('p', InputState.OnPressed); break;
 					case 81: this.AddInput('q', InputState.OnPressed); break;
 					case 83: this.AddInput('s', InputState.OnPressed); break;
@@ -284,6 +286,7 @@ class InputHandler {
 					case 69: this.AddInput('e', InputState.OnReleased); break;
 					case 71: this.AddInput('g', InputState.OnReleased); MasterObject.MO.NextFrame(); break;
 					case 73: this.AddInput('i', InputState.OnReleased); break;
+					case 75: this.AddInput('k', InputState.OnReleased); break;
 					case 80: this.AddInput('p', InputState.OnReleased); MasterObject.MO.ToggleFrameStepping(); break;
 					case 81: this.AddInput('q', InputState.OnReleased); break;
 					case 83: this.AddInput('s', InputState.OnReleased); break;

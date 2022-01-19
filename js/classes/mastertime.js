@@ -27,7 +27,7 @@ class Mastertime {
 
 	UpdateTime() {
 		if (this.DeltaTime < 10000)
-			this.TimeOfDay = new Date(this.TimeOfDay.valueOf() + (this.DeltaTime * 1));
+			this.TimeOfDay = new Date(this.TimeOfDay.valueOf() + (this.DeltaTime * 10));
 	}
 
 	/**

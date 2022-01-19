@@ -1,5 +1,5 @@
 import {
-	Cobject, Item, InputHandler, Vector2D, GameToolbar, GUI, CanvasDrawer, AtlasController,
+	Cobject, Item, Vector2D, GameToolbar, GUI, CanvasDrawer, AtlasController,
 	Vector4D, ItemProp, CAnimation, AnimationType, MasterObject, ItemPrototypeList, Dictionary,
 	CanvasUtility, inventoryItemIcons
 } from '../../internal.js';
@@ -29,7 +29,6 @@ class Inventory extends Cobject {
 	 */
 	constructor(owner) {
 		super();
-
 
 		/** @type {Object.<string, Item>}>} */ this.inventory = {};
 		/** @type {Object} */ this.characterOwner = owner;
@@ -64,7 +63,6 @@ class Inventory extends Cobject {
 			this.inventoryHTML.classList.add('inventory-div');
 			document.getElementById('game-gui').appendChild(this.inventoryHTML);
 
-			InputHandler.GIH.AddListener(this);
 			this.inventorySetupDone = true;
 		} else
 			window.requestAnimationFrame(() => this.SetupInventory());
@@ -300,7 +298,7 @@ class Inventory extends Cobject {
 	 * @param {boolean} visibility 
 	 */
 	ShowInventory(visibility = !this.isVisible) {
-		this.inventoryHTML.style.visibility = (visibility === true ? 'visible' : 'hidden');
+		this.inventoryHTML.style.display = (visibility === true ? 'flex' : 'none');
 		this.isVisible = visibility;
 		this.inventoryHTMLValue.value = this.moneyAmount;
 		this.selectedItem = undefined;
@@ -312,16 +310,6 @@ class Inventory extends Cobject {
 		}
 
 		super.FixedUpdate();
-	}
-
-	CEvent(eventType, key, data) {
-		switch (eventType) {
-			case 'inventory':
-				if ((key === 'i' || key === 'tab') && data.eventType === 2) {
-					this.ShowInventory();
-				}
-				break;
-		}
 	}
 
 	handleEvent(e) {
@@ -378,17 +366,21 @@ class Inventory extends Cobject {
 							}
 						}
 					}
-				} else if (e.target.classList.contains('inventory-div')) {
+				} else if (e.target.classList.contains('inventory-div') || e.target.classList.contains('panel-middle')) {
 					const data = JSON.parse(e.dataTransfer.getData('text/plain'));
 					let droppedItem = document.getElementById(data.id);
 					let item = /** @type {Item} */ (Cobject.GetObjectFromUID(data.item));
 
-					droppedItem.id = '';
-					if (item instanceof Item) {
-						let name = item.name,
-							amount = item.GetAmountAsNumber();
-						item.inventory.RemoveItem(item);
-						this.AddNewItem(name, amount);
+					if (droppedItem !== null) {
+						droppedItem.id = '';
+
+						if (item instanceof Item) {
+							/*let name = item.name,
+								amount = item.GetAmountAsNumber();*/
+
+							item.inventory.RemoveItem(item);
+							this.AddItem(item);
+						}
 					}
 				}
 				break;

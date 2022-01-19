@@ -1,33 +1,8 @@
 import {
 	Cobject, ItemStats, Vector2D, Inventory, Collision, inventoryItemIcons, CustomEventHandler, CollisionHandler,
-	CanvasDrawer, Tile, TileType, TileF, TileLUT, ItemValues, CanvasSprite, CMath, Vector4D, AtlasController
+	CanvasDrawer, Tile, TileType, TileF, TileLUT, ItemValues, CanvasSprite, CMath, Vector4D, AtlasController,
+	Character, EquipmentSlotType
 } from '../../internal.js';
-
-/**
- * @readonly
- * @enum {boolean}
- */
-const stackableItems = {
-	shovel: false,
-	ironAxe: false,
-	steelAxe: false,
-	goldAxe: false,
-	hoe: false,
-	pickaxe: false,
-	ironSword: false,
-	steelSword: false,
-	goldSword: false,
-	mallet: false,
-	copingSaw: false,
-	ironHandSaw: false,
-	plane: false,
-	ironHammer: false,
-	layoutSquare: false,
-	brace: false,
-	rawhideHammer: false,
-	chisel: false,
-	pincer: false,
-};
 
 /**
  * @class
@@ -51,7 +26,7 @@ class Item extends Cobject {
 		/** @type {string} */ this.url = inventoryItemIcons[name].url;
 		/** @type {string} */ this.atlas = AtlasController.GetAtlas(this.url).name;
 		/** @type {boolean} */ this.isUsableItem = this.amount > 0 ? true : false;
-		/** @type {boolean} */ this.isStackable = stackableItems[this.name] === undefined ? true : stackableItems[this.name];
+		/** @type {boolean} */ this.isStackable = ItemStats[this.name] === undefined ? true : ItemStats[this.name].isStackable;
 		/** @type {number} */ this.value = ItemValues[this.name] !== undefined ? ItemValues[this.name] : 0;
 		/** @type {Inventory} */ this.inventory = undefined;
 	}
@@ -142,6 +117,122 @@ class Item extends Cobject {
  * @constructor
  * @extends Item
  */
+class EquipabbleItem extends Item {
+
+	/**
+	 * 
+	 * @param {string} name 
+	 * @param {EquipmentSlotType} slotType
+	 */
+	constructor(name, slotType = undefined) {
+		super(name, 0);
+		/** @type {number} */ this.durability = ItemStats[this.name].durability;
+		/** @type {boolean} */ this.isEquipped = false;
+		/** @type {EquipmentSlotType} */ this.equipmentSlotType;
+
+		if (slotType !== undefined)
+			this.equipmentSlotType = slotType;
+		else if (ItemStats[this.name].slotType !== undefined)
+			this.equipmentSlotType = ItemStats[this.name].slotType;
+	}
+
+	Delete() {
+		this.inventory.RemoveItem(this);
+		super.Delete();
+	}
+
+	/**
+	 * 
+	 * @returns {string}
+	 */
+	GetRealName() {
+		return super.GetRealName();
+	}
+
+	/**
+	 * 
+	 * @param {number} value 
+	 */
+	AddAmount(value) {
+		super.AddAmount(value);
+	}
+
+	/**
+	 * 
+	 * @param {number} value 
+	 */
+	RemoveAmount(value) {
+		super.RemoveAmount(value);
+	}
+
+	/**
+	 * 
+	 * @param {number} amount 
+	 * @returns {boolean}
+	 */
+	HasAmount(amount) {
+		return super.HasAmount(amount);
+	}
+
+	/**
+	 * 
+	 * @returns {(number|string)}
+	 */
+	GetAmount() {
+		return super.GetAmount();
+	}
+
+	Durability() {
+		this.durability--;
+
+		if (this.durability <= 0) {
+			this.Delete();
+		}
+	}
+
+	/**
+	 * 
+	 * @param {Collision} ownerCollision 
+	 */
+	UseItem(ownerCollision) {
+		//super.UseItem(ownerCollision);
+
+		if (ownerCollision.collisionOwner !== undefined && ownerCollision.collisionOwner instanceof Character) {
+			if (this.isEquipped === false)
+				this.EquipItem(ownerCollision.collisionOwner);
+			else
+				this.UnequipItem(ownerCollision.collisionOwner);
+		}
+	}
+
+	/**
+	 * 
+	 * @param {Character} owner 
+	 */
+	EquipItem(owner) {
+		if (owner !== undefined) {
+			owner.AddAttachment(ItemStats[this.name].atlas);
+			this.isEquipped = true;
+		}
+	}
+
+	/**
+	 * 
+	 * @param {Character} owner 
+	 */
+	UnequipItem(owner) {
+		if (owner !== undefined) {
+			owner.RemoveAttachment(ItemStats[this.name].atlas);
+			this.isEquipped = false;
+		}
+	}
+}
+
+/**
+ * @class
+ * @constructor
+ * @extends Item
+ */
 class UsableItem extends Item {
 
 	/**
@@ -209,11 +300,14 @@ class UsableItem extends Item {
 		}
 	}
 
+	/**
+	 * 
+	 * @param {Collision} ownerCollision 
+	 */
 	UseItem(ownerCollision) {
 		super.UseItem(ownerCollision);
 	}
 }
-
 
 /**
  * @class
@@ -429,5 +523,6 @@ class Weapon extends UsableItem {
 /** @lends {Shovel.prototype} */ ItemPrototypeList.shovel = Shovel.prototype;
 /** @lends {Hoe.prototype} */ ItemPrototypeList.hoe = Hoe.prototype;
 /** @lends {Weapon.prototype} */ ItemPrototypeList.weapon = Weapon.prototype;
+/** @lends {EquipabbleItem.prototype} */ ItemPrototypeList.equipabbleItem = EquipabbleItem.prototype;
 
-export { Item, UsableItem, Shovel, Hoe, Axe, Pickaxe, Weapon, ItemPrototypeList };
+export { Item, UsableItem, Shovel, Hoe, Axe, Pickaxe, Weapon, EquipabbleItem, ItemPrototypeList };

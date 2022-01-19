@@ -15,7 +15,7 @@ export { ObjectUtility } from './classes/utility/objectUtility.js';
 export { ImageUtility } from './classes/utility/imageUtility.js';
 export { earcut } from './classes/utility/earcut.js';
 
-export { ObjectType, BWDrawingType, EditorState, OpenClosed } from './classes/baseClasses/globalEnums.js';
+export { ObjectType, BWDrawingType, EditorState, OpenClosed, EquipmentSlotType } from './classes/baseClasses/globalEnums.js';
 
 export { Graph, GraphPoint } from './classes/containerClasses/graph.js';
 export {
@@ -131,7 +131,7 @@ export * as AllAnimationSkeletonsList from './animations/allSkeletalAnimations.j
 
 export { inventoryItemIcons } from './gameobjects/items/inventoryItemIcons.js';
 export { ItemStats } from './gameobjects/items/itemStats.js';
-export { Item, UsableItem, Hoe, Shovel, Axe, Pickaxe, Weapon, ItemPrototypeList } from './gameobjects/items/item.js';
+export { Item, UsableItem, Hoe, Shovel, Axe, Pickaxe, Weapon, EquipabbleItem, ItemPrototypeList } from './gameobjects/items/item.js';
 export { ItemValues } from './gameobjects/items/itemValue.js';
 
 export { resourceSprites } from './gameobjects/props/resources/resourceSprites.js';
@@ -148,6 +148,9 @@ export { Rock } from './gameobjects/props/resources/rock.js';
 export { Props } from './gameobjects/setups/AllGameObjects.js';
 
 export { Plant, AllPlantData } from './gameobjects/props/plants/plants.js';
+
+export { CharacterSheetUI } from './gameobjects/characters/characterStats/characterSheetUI.js';
+export { CharacterStats, AttributeEnum, CharacterAttributes } from './gameobjects/characters/characterStats/characterAttributes.js';
 export { Character, MainCharacter, CharacterAttachments, MovemementDirection, MovementType } from './gameobjects/characters/character.js';
 
 export { Seed } from './gameobjects/props/plants/plantitem.js';

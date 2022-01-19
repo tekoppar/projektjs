@@ -170,8 +170,49 @@ class AtlasController {
 		this.hasLoadedAllImages['redHair'] = false;
 		this.LoadSpriteAtlas('/content/sprites/lpcfemaleunderdress.png', 832, 1344, 64, 'underDress');
 		this.hasLoadedAllImages['underDress'] = false;
-		this.LoadSpriteAtlas('./content/sprites/lpc_shadow.png', 832, 1344, 64, 'femaleLightShadow');
-		this.hasLoadedAllImages['femaleLightShadow'] = false;
+		this.LoadSpriteAtlas('./content/sprites/lpc_shadow.png', 832, 1344, 64, 'humanAdultShadow');
+		this.hasLoadedAllImages['humanAdultShadow'] = false;
+
+		this.LoadSpriteAtlas('/content/sprites/npcs/male/lpcmalelight_updated.png', 832, 1856, 64, 'maleLight');
+		this.hasLoadedAllImages['maleLight'] = false;
+
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_leather_hood.png', 832, 1856, 64, 'leatherHood');
+		this.hasLoadedAllImages['leatherHood'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_leather_shoes.png', 832, 1856, 64, 'leatherShoes');
+		this.hasLoadedAllImages['leatherShoes'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_leather_armor.png', 832, 1856, 64, 'leatherArmor');
+		this.hasLoadedAllImages['leatherArmor'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_leather_skirt.png', 832, 1856, 64, 'leatherSkirt');
+		this.hasLoadedAllImages['leatherSkirt'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_cloth_pants_green.png', 832, 1856, 64, 'clothPantsGreen');
+		this.hasLoadedAllImages['clothPantsGreen'] = false;
+
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_chain_armor_hood.png', 832, 1856, 64, 'chainArmorHood');
+		this.hasLoadedAllImages['chainArmorHood'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_chain_armor_torso.png', 832, 1856, 64, 'chainArmorTorso');
+		this.hasLoadedAllImages['chainArmorTorso'] = false;
+
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_plate_armor_gloves.png', 832, 1856, 64, 'plateArmorGloves');
+		this.hasLoadedAllImages['plateArmorGloves'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_plate_armor_helmet.png', 832, 1856, 64, 'plateArmorHelmet');
+		this.hasLoadedAllImages['plateArmorHelmet'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_plate_armor_pants.png', 832, 1856, 64, 'plateArmorPants');
+		this.hasLoadedAllImages['plateArmorPants'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_plate_armor_shoes.png', 832, 1856, 64, 'plateArmorShoes');
+		this.hasLoadedAllImages['plateArmorShoes'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_plate_armor_shoulders.png', 832, 1856, 64, 'plateArmorShoulders');
+		this.hasLoadedAllImages['plateArmorShoulders'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/lpc_plate_armor_torso.png', 832, 1856, 64, 'plateArmorTorso');
+		this.hasLoadedAllImages['plateArmorTorso'] = false;
+
+		this.LoadSpriteAtlas('/content/sprites/npcs/hair/idol/male.png', 832, 1344, 64, 'maleHairIdol');
+		this.hasLoadedAllImages['maleHairIdol'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/hair/natural/male.png', 832, 1344, 64, 'maleHairNatural');
+		this.hasLoadedAllImages['maleHairNatural'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/hair/part2/male.png', 832, 1344, 64, 'maleHairPart2');
+		this.hasLoadedAllImages['maleHairPart2'] = false;
+		this.LoadSpriteAtlas('/content/sprites/npcs/hair/messy3/male.png', 832, 1344, 64, 'maleHairMessy3');
+		this.hasLoadedAllImages['maleHairMessy3'] = false;
 
 		this.LoadSpriteAtlas("/content/sprites/animals/chicken_walk.png", 128, 128, 32, "chickenWalk");
 		this.hasLoadedAllImages["chickenWalk"] = false;

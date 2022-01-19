@@ -18,6 +18,25 @@ class BehaviourController extends Cobject {
 
 		/** @type {Character}*/ this.agent = agent;
 		/** @type {BehaviorTree}*/ this.behaviorTree = behaviorTree;
+		this.SetupAgent();
+	}
+
+	SetupAgent() {
+		for (let i = 0, l = this.behaviorTree.actions.length; i < l; ++i) {
+			this.behaviorTree.actions[i].SetAgent(this.agent);
+		}
+	}
+
+	/**
+	 * 
+	 * @param {Character} newAgent
+	 * @returns {BehaviourController}
+	 */
+	CloneTree(newAgent = undefined) {
+		if (newAgent !== undefined)
+			return new BehaviourController(newAgent, this.behaviorTree.Clone());
+		else
+			return new BehaviourController(this.agent, this.behaviorTree.Clone());
 	}
 
 	/**
@@ -33,7 +52,9 @@ class BehaviourController extends Cobject {
 	EndOfFrameUpdate() {
 		super.EndOfFrameUpdate();
 
-		this.behaviorTree.CheckActions();
+		if (this.agent !== undefined) {
+			this.behaviorTree.CheckActions();
+		}
 	}
 
 	/**

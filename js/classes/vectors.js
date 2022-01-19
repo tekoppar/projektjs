@@ -1,4 +1,4 @@
-import { CMath, DebugDrawer, earcut, OpenClosed } from '../internal.js';
+import { CMath, earcut, OpenClosed } from '../internal.js';
 
 /**
  * @memberof Number
@@ -23,6 +23,7 @@ class Vector2D {
 	constructor(x, y) {
 		/** @type {number} */ this.x = Number(x);
 		/** @type {number} */ this.y = Number(y);
+		/** @type {string} */ this._ToString = undefined;
 	}
 
 	/**
@@ -504,7 +505,15 @@ class Vector2D {
 	 * @returns {string}
 	 */
 	ToString(precision = 0) {
-		return this.x.toFixed(precision) + ', ' + this.y.toFixed(precision);
+		if (precision === 0) {
+			if (this._ToString !== undefined)
+				return this._ToString;
+			else {
+				this._ToString = this.x.toFixed(precision) + ', ' + this.y.toFixed(precision);
+				return this._ToString;
+			}
+		} else
+			return this.x.toFixed(precision) + ', ' + this.y.toFixed(precision);
 	}
 
 	ToVector() {
@@ -2668,7 +2677,15 @@ class Line {
 	 * @returns {boolean} 
 	 */
 	Inside(v) {
-		if (this.a.NearlyEqualXY(v.x, v.y) === true || this.b.NearlyEqualXY(v.x, v.y) === true || this.a.NearlyEqualXY(this.b.x, this.b.y) === true)
+		//NearlyEqualXY = (Math.sqrt((xa - this.x) * (xa - this.x) + (ya - this.y) * (ya - this.y))) <= 0.001;
+		if (
+			//(Math.sqrt((v.x - this.a.x) * (v.x - this.a.x) + (v.y - this.a.y) * (v.y - this.a.y))) <= 0.001 ||
+			this.a.NearlyEqualXY(v.x, v.y) === true ||
+			//(Math.sqrt((v.x - this.b.x) * (v.x - this.b.x) + (v.y - this.b.y) * (v.y - this.b.y))) <= 0.001 ||
+			this.b.NearlyEqualXY(v.x, v.y) === true ||
+			//(Math.sqrt((this.b.x - this.a.x) * (this.b.x - this.a.x) + (this.b.y - this.a.y) * (this.b.y - this.a.y))) <= 0.001
+			this.a.NearlyEqualXY(this.b.x, this.b.y) === true
+		)
 			return false;
 
 		const abX = this.b.x - this.a.x,

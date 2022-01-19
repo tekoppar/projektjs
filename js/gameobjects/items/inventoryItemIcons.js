@@ -57,7 +57,7 @@ Object.assign(inventoryItemIcons, {
 	broccoliSeed: { sprite: new Vector4D(15, 1, 32, 32), atlasSize: new Vector2D(1024, 256), url: '/content/sprites/fruits-veggies-seeds.png' },
 });
 
-//items
+//tools
 Object.assign(inventoryItemIcons, {
 	shovel: { sprite: new Vector4D(1, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
 	hoe: { sprite: new Vector4D(4, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
@@ -69,7 +69,7 @@ Object.assign(inventoryItemIcons, {
 
 	pickaxe: { sprite: new Vector4D(3, 0, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
 
-	ironSword: { sprite: new Vector4D(0, 0, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	/*ironSword: { sprite: new Vector4D(0, 0, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
 	steelSword: { sprite: new Vector4D(0, 2, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
 	goldSword: { sprite: new Vector4D(0, 4, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
 
@@ -111,7 +111,7 @@ Object.assign(inventoryItemIcons, {
 
 	stoneBlock: { sprite: new Vector4D(13, 23, 32, 32), atlasSize: new Vector2D(1024, 1216), url: '/content/sprites/terrain_atlas.png' },
 
-	nails: { sprite: new Vector4D(18, 18, 32, 32), atlasSize: new Vector2D(1024, 1024), url: '/content/sprites/Collection/blacksmith-smelter.png' },
+	nails: { sprite: new Vector4D(18, 18, 32, 32), atlasSize: new Vector2D(1024, 1024), url: '/content/sprites/Collection/blacksmith-smelter.png' },*/
 
 	mallet: { sprite: new Vector4D(0, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
 	copingSaw: { sprite: new Vector4D(1, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
@@ -124,6 +124,68 @@ Object.assign(inventoryItemIcons, {
 	chisel: { sprite: new Vector4D(10, 8, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
 	pincer: { sprite: new Vector4D(13, 9, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
 
+	/*woodenChest: {sprite: new Vector4D(1, 8, 32, 32), atlasSize: new Vector2D(512, 2048), url: '/content/sprites/Collection/container.png' },
+	stoneSmelter: {sprite: new Vector4D(0, 13, 64, 96), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	anvil: {sprite: new Vector4D(10, 13, 64, 32), atlasSize: new Vector2D(1024, 1024), url: '/content/sprites/Collection/blacksmith-smelter.png' },
+	workbench: {sprite: new Vector4D(8, 15, 64, 64), atlasSize: new Vector2D(1024, 1024), url: '/content/sprites/Collection/blacksmith-smelter.png' },
+	choppingBlock: {sprite: new Vector4D(23, 18, 32, 32), atlasSize: new Vector2D(1024, 1216), url: '/content/sprites/terrain_atlas.png' },
+	stoneCutter: {sprite: new Vector4D(0, 0, 64, 64), atlasSize: new Vector2D(64, 64), url: 'stoneCutter' + PawnSetupController._AtlasObjectSuffix },
+	planerBench: {sprite: new Vector4D(0, 0, 96, 64), atlasSize: new Vector2D(96, 64), url: 'planerBench' },
+	sawTable: {sprite: new Vector4D(0, 0, 64, 64), atlasSize: new Vector2D(64, 64), url: 'sawTable' },*/
+});
+
+//weapons
+Object.assign(inventoryItemIcons, {
+	ironSword: { sprite: new Vector4D(0, 0, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	steelSword: { sprite: new Vector4D(0, 2, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	goldSword: { sprite: new Vector4D(0, 4, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+
+	ironBattleAxe: { sprite: new Vector4D(10, 5, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	steelBattleAxe: { sprite: new Vector4D(10, 4, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	goldBattleAxe: { sprite: new Vector4D(10, 3, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+
+	ironBattleHammer: { sprite: new Vector4D(11, 2, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	steelBattleHammer: { sprite: new Vector4D(11, 3, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+
+	shortBow: { sprite: new Vector4D(5, 1, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	compositeBow: { sprite: new Vector4D(4, 1, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+});
+
+//resources
+Object.assign(inventoryItemIcons, {
+	birchLog: { sprite: new Vector4D(5, 0, 32, 32), atlasSize: new Vector2D(640, 640), url: '/content/sprites/farming_fishing.png' },
+	flitch: { sprite: new Vector4D(6, 12, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+	stonePiece: { sprite: new Vector4D(26, 25, 32, 32), atlasSize: new Vector2D(1024, 1216), url: '/content/sprites/terrain_atlas.png' },
+
+	coalLump: { sprite: new Vector4D(0, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	iron: { sprite: new Vector4D(1, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	tin: { sprite: new Vector4D(2, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	copper: { sprite: new Vector4D(3, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	silver: { sprite: new Vector4D(4, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	gold: { sprite: new Vector4D(5, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	bronze: { sprite: new Vector4D(6, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	steel: { sprite: new Vector4D(7, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+
+	coal: { sprite: new Vector4D(0, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	ironBar: { sprite: new Vector4D(1, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	tinBar: { sprite: new Vector4D(2, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	copperBar: { sprite: new Vector4D(3, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	silverBar: { sprite: new Vector4D(4, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	goldBar: { sprite: new Vector4D(5, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	bronzeBar: { sprite: new Vector4D(6, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+	steelBar: { sprite: new Vector4D(7, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
+
+	birchPlank: { sprite: new Vector4D(0, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+	birchBeam: { sprite: new Vector4D(11, 12, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+	sawDust: { sprite: new Vector4D(0, 15, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/Collection/woodshop.png' },
+
+	stoneBlock: { sprite: new Vector4D(13, 23, 32, 32), atlasSize: new Vector2D(1024, 1216), url: '/content/sprites/terrain_atlas.png' },
+
+	nails: { sprite: new Vector4D(18, 18, 32, 32), atlasSize: new Vector2D(1024, 1024), url: '/content/sprites/Collection/blacksmith-smelter.png' },
+});
+
+//buildings
+Object.assign(inventoryItemIcons, {
 	woodenChest: {sprite: new Vector4D(1, 8, 32, 32), atlasSize: new Vector2D(512, 2048), url: '/content/sprites/Collection/container.png' },
 	stoneSmelter: {sprite: new Vector4D(0, 13, 64, 96), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/ore.png' },
 	anvil: {sprite: new Vector4D(10, 13, 64, 32), atlasSize: new Vector2D(1024, 1024), url: '/content/sprites/Collection/blacksmith-smelter.png' },
@@ -133,5 +195,25 @@ Object.assign(inventoryItemIcons, {
 	planerBench: {sprite: new Vector4D(0, 0, 96, 64), atlasSize: new Vector2D(96, 64), url: 'planerBench' },
 	sawTable: {sprite: new Vector4D(0, 0, 64, 64), atlasSize: new Vector2D(64, 64), url: 'sawTable' },
 });
+
+//equippable items
+Object.assign(inventoryItemIcons, {
+	leatherHood: {sprite: new Vector4D(8, 9, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	leatherArmor: {sprite: new Vector4D(8, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	leatherSkirt: {sprite: new Vector4D(8, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	leatherShoes: {sprite: new Vector4D(8, 12, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	
+	clothPantsGreen: {sprite: new Vector4D(7, 9, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	
+	chainArmorHood: {sprite: new Vector4D(6, 9, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	chainArmorTorso: {sprite: new Vector4D(6, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	
+	plateArmorHelmet: {sprite: new Vector4D(9, 9, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	plateArmorShoulders: {sprite: new Vector4D(9, 10, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	plateArmorTorso: {sprite: new Vector4D(9, 11, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	plateArmorGloves: {sprite: new Vector4D(9, 12, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	plateArmorPants: {sprite: new Vector4D(9, 13, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+	plateArmorShoes: {sprite: new Vector4D(9, 14, 32, 32), atlasSize: new Vector2D(512, 512), url: '/content/sprites/items/items1.png' },
+}); 
 
 export { inventoryItemIcons };

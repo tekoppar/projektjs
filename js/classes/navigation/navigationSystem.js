@@ -240,7 +240,7 @@ class NavigationSystem {
 		let y = 0, y2 = 0, yl = 0, x = 0, x2 = 0, xl = 0;
 
 		for (let i = 0, l = trees.length; i < l; ++i) {
-			if (trees[i] !== tree) {
+			if (trees[i] !== tree && tree?.polygon?.boundingBox !== undefined && trees[i]?.polygon?.boundingBox !== undefined) {
 				let bbA = tree.polygon.boundingBox.GetCornersVector2D(),
 					bbB = trees[i].polygon.boundingBox.GetCornersVector2D();
 
@@ -329,6 +329,9 @@ class NavigationSystem {
 			position = line.GetCentroid();
 
 		for (let i = 0, l = treePath.length; i < l; ++i) {
+			if (treePath[i]?.mesh?.triangles === undefined)
+				continue;
+				
 			for (let t = 0, tl = treePath[i].mesh.triangles.length; t < tl; ++t) {
 				if (lineLUT[treePath[i].mesh.triangles[t].xy.a.ToString() + treePath[i].mesh.triangles[t].xy.b.ToString()] === undefined) {
 					allLines.push(treePath[i].mesh.triangles[t].xy);

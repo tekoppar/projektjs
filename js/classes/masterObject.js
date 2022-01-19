@@ -93,8 +93,8 @@ class MasterObject {
 
 		if (ObjectsHasBeenInitialized === true && (AtlasController._Instance.isLoadingFinished == null || AtlasController._Instance.isLoadingFinished === true)) {
 			this.playerController = new PlayerController(new MainCharacter('femaleLight', 'mainP', new Vector2D(534, 570), AllAnimationsList.femaleAnimations));
-			this.playerController.playerCharacter.AddAttachment('redHair');
-			this.playerController.playerCharacter.AddAttachment('underDress');
+			//this.playerController.playerCharacter.AddAttachment('redHair');
+			//this.playerController.playerCharacter.AddAttachment('underDress');
 			InputHandler.GIH.AddListener(this.playerController);
 
 			window.requestAnimationFrame(() => this.GameBegin());
@@ -130,17 +130,39 @@ class MasterObject {
 			PawnSetupController.LoadSavedObjects();
 		}
 
+		var fleeController = new BehaviourController(undefined, new BehaviorTree(
+			[
+				new BehaviorActionMoveAway(
+					[
+						new BehaviorConditionAvoidClass(MainCharacter, 125),
+					],
+					new BehaviorActionCharacter(undefined)
+				),
+				new BehaviorActionModifySpeed(
+					[
+						new BehaviorConditionDistance(75, false),
+					],
+					new BehaviorActionCharacter(MasterObject.MO.playerController.playerCharacter),
+					-1,
+					-2
+				)
+			]
+		));
+
+		var fleeControllers = [];
+		for (let i = 0, l = snowStorms.length; i < l; ++i) {
+			fleeControllers.push(fleeController.CloneTree(snowStorms[i]));
+		}
+
 		var duckController = new BehaviourController(duck, new BehaviorTree(
 			[
 				new BehaviorActionMovement(
-					duck,
 					[
 						new BehaviorConditionDistance(50, true),
 					],
 					new BehaviorActionCharacter(MasterObject.MO.playerController.playerCharacter)
 				),
 				new BehaviorActionModifySpeed(
-					duck,
 					[
 						new BehaviorConditionDistance(150, true),
 					],
@@ -151,47 +173,8 @@ class MasterObject {
 			]
 		));
 
-		var duckController1 = new BehaviourController(duck1, new BehaviorTree(
-			[
-				new BehaviorActionMoveAway(
-					duck1,
-					[
-						new BehaviorConditionAvoidClass(MainCharacter, 125),
-					],
-					new BehaviorActionCharacter(undefined)
-				),
-				new BehaviorActionModifySpeed(
-					duck1,
-					[
-						new BehaviorConditionDistance(75, false),
-					],
-					new BehaviorActionCharacter(MasterObject.MO.playerController.playerCharacter),
-					-1,
-					-2
-				)
-			]
-		));
-
-		var duckController2 = new BehaviourController(duck2, new BehaviorTree(
-			[
-				new BehaviorActionMoveAway(
-					duck2,
-					[
-						new BehaviorConditionAvoidClass(MainCharacter, 125),
-					],
-					new BehaviorActionCharacter(undefined)
-				),
-				new BehaviorActionModifySpeed(
-					duck2,
-					[
-						new BehaviorConditionDistance(75, false),
-					],
-					new BehaviorActionCharacter(MasterObject.MO.playerController.playerCharacter),
-					-1,
-					-2
-				)
-			]
-		));
+		var duckController1 = fleeController.CloneTree(duck1);
+		var duckController2 = fleeController.CloneTree(duck2);
 
 		this.CheckFullscreen();
 		window.requestAnimationFrame(GlobalLoop);
@@ -307,6 +290,39 @@ shopTest.AddItems([
 ]);
 CustomEventHandler.AddListener(shopTest);
 
+/** @type {Character[]} */ let snowStorms = [];
+
+for (let i = 0, l = 4; i < l; ++i) {
+	for (let x = 0, xl = 4; x < xl; ++x) {
+		var newSnowstorm = new Character('maleLight', new Vector2D(32 * 34 + (i * 64), 32 * 18 + (x * 64)), AllAnimationsList.femaleAnimations);
+		newSnowstorm.AddAttachment('clothPantsGreen');
+		newSnowstorm.AddAttachment('maleHairMessy3');
+		newSnowstorm.AddAttachment('leatherHood');
+		newSnowstorm.AddAttachment('leatherShoes');
+		newSnowstorm.AddAttachment('leatherArmor');
+
+		snowStorms.push(newSnowstorm);
+	}
+}
+
+var newSnowstorm1 = new Character('maleLight', new Vector2D(32 * 33, 32 * 17), AllAnimationsList.femaleAnimations);
+newSnowstorm1.AddAttachment('clothPantsGreen');
+newSnowstorm1.AddAttachment('maleHairMessy3');
+newSnowstorm1.AddAttachment('plateArmorHelmet');
+newSnowstorm1.AddAttachment('plateArmorShoulders');
+newSnowstorm1.AddAttachment('plateArmorTorso');
+newSnowstorm1.AddAttachment('plateArmorGloves');
+newSnowstorm1.AddAttachment('plateArmorPants');
+newSnowstorm1.AddAttachment('plateArmorShoes');
+snowStorms.push(newSnowstorm1);
+
+var newSnowstorm2 = new Character('maleLight', new Vector2D(32 * 32, 32 * 16), AllAnimationsList.femaleAnimations);
+newSnowstorm2.AddAttachment('clothPantsGreen');
+newSnowstorm2.AddAttachment('maleHairMessy3');
+newSnowstorm2.AddAttachment('chainArmorHood');
+newSnowstorm2.AddAttachment('chainArmorTorso');
+newSnowstorm2.AddAttachment('leatherShoes');
+snowStorms.push(newSnowstorm2);
 
 var duck = new Character('duckWalk', new Vector2D(250, 600), AllAnimationsList.smallAnimalAnimations);
 duck.name = 'duck';

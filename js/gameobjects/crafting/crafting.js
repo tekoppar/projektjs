@@ -214,7 +214,7 @@ class Crafting extends Cobject {
 	 * @param {boolean} visibility 
 	 */
 	ShowCrafting(visibility = !this.isVisible) {
-		this.craftingHTML.style.visibility = (visibility === true ? 'visible' : 'hidden');
+		this.craftingHTML.style.display = (visibility === true ? 'flex' : 'none');
 		this.isVisible = visibility;
 		this.didCraftingChange = true;
 

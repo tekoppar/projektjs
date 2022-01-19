@@ -161,7 +161,7 @@ class Building extends Cobject {
 	}
 
 	ShowBuilding(visibility = !this.isVisible) {
-		this.buildingHTML.style.visibility = (visibility === true ? 'visible' : 'hidden');
+		this.buildingHTML.style.display = (visibility === true ? 'flex' : 'none');
 		this.isVisible = visibility;
 		this.didBuildingChange = true;
 
@@ -245,11 +245,6 @@ class Building extends Cobject {
 	CEvent(eventType, key, data) {
 		switch (eventType) {
 			case 'input':
-				if (key === 'b' && data.eventType === 2) {
-					this.ShowBuilding();
-					this.ShowRecipe();
-				}
-
 				if (key === 'leftMouse' && data.eventType === 0 && this.selectedBuilding !== undefined && this.buildingState === BuildingModeState.Placing) {
 					this.PlaceBuildingZone();
 				}
@@ -258,6 +253,12 @@ class Building extends Cobject {
 					this.BuildingCancelled();
 				}
 				break;
+			
+			case 'use':
+				if (key !== undefined && data.eventType === 2) {
+					this.ShowBuilding();
+					this.ShowRecipe();
+				}
 		}
 	}
 

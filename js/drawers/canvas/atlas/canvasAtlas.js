@@ -301,7 +301,7 @@ class ShadowCanvasOperation {
 			return;
 
 		this.shadowCanvasCtx.globalCompositeOperation = 'source-in';
-		this.shadowCanvasCtx.fillStyle = LightSystem.SkyLight.color.ToString();
+		this.shadowCanvasCtx.fillStyle = 'rgba(' + LightSystem.SkyLight.color.red + ', ' + LightSystem.SkyLight.color.green + ', ' + LightSystem.SkyLight.color.blue + ', ' + LightSystem.SkyLight.color.alpha + ')';// LightSystem.SkyLight.color.ToString();
 		this.shadowCanvasCtx.fillRect(0, 0, this.shadowCanvas.width, this.shadowCanvas.height);
 		this.shadowCanvasCtx.globalCompositeOperation = 'source-over';
 	}

@@ -134,6 +134,7 @@ PageFetcher.GPF.AddRequest(includeGUI, '/html/propEditor.html');
 PageFetcher.GPF.AddRequest(includeGUI, '/html/tileMakerEditor.html');
 PageFetcher.GPF.AddRequest(includeTemplates, '/html/craftingWindow.html');
 PageFetcher.GPF.AddRequest(includeTemplates, '/html/buildingWindow.html');
+PageFetcher.GPF.AddRequest(includeTemplates, '/html/characterSheetWindow.html');
 
 window.onload = function () {
 	window.requestAnimationFrame(() => MasterObject.MO.GameStart());

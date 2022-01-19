@@ -3,7 +3,7 @@ import {
 	TileType, TileTerrain, EditorState, Cobject, Tree, MasterObject, InputHandler,
 	CollisionHandler, BoxCollision, PolygonCollision, PathOperation, GameObject,
 	AtlasController, AllCollisions, TileMakerEditor, OverlapOverlapsCheck, CollisionTypeCheck, Pawn,
-	 AllBlockingCollisions, PawnSetupController, AllAnimationsList, Logger
+	 AllBlockingCollisions, PawnSetupController, AllAnimationsList
 } from '../internal.js';
 
 /**

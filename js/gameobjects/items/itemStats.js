@@ -1,4 +1,4 @@
-import { Vector2D, AllAnimationsList, AllAnimationSkeletonsList } from '../../internal.js';
+import { Vector2D, AllAnimationsList, AllAnimationSkeletonsList, EquipmentSlotType } from '../../internal.js';
 
 let ItemStats = {};
 
@@ -9,7 +9,8 @@ ItemStats.ironAxe = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.steelAxe = {
 	durability: 750,
@@ -18,7 +19,8 @@ ItemStats.steelAxe = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.goldAxe = {
 	durability: 2500,
@@ -27,7 +29,8 @@ ItemStats.goldAxe = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.shovel = {
 	durability: 250,
@@ -36,7 +39,8 @@ ItemStats.shovel = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.pickaxe = {
 	durability: 250,
@@ -45,16 +49,19 @@ ItemStats.pickaxe = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.hoe = {
 	durability: 250,
-	tilePreview: true
+	tilePreview: true,
+	isStackable: false,
 };
 
 ItemStats.bucket = {
 	durability: 250,
-	tilePreview: false
+	tilePreview: false,
+	isStackable: false,
 };
 
 ItemStats.mallet = {
@@ -64,7 +71,8 @@ ItemStats.mallet = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'woodshop',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.copingSaw = {
 	durability: 250,
@@ -73,7 +81,8 @@ ItemStats.copingSaw = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'woodshop',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.ironHandSaw = {
 	durability: 250,
@@ -82,7 +91,8 @@ ItemStats.ironHandSaw = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'woodshop',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.plane = {
 	durability: 250,
@@ -91,7 +101,8 @@ ItemStats.plane = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'woodshop',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.ironHammer = {
 	durability: 250,
@@ -100,7 +111,8 @@ ItemStats.ironHammer = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'woodshop',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.layoutSquare = {
 	durability: 250,
@@ -109,7 +121,8 @@ ItemStats.layoutSquare = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'woodshop',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.brace = {
 	durability: 250,
@@ -118,7 +131,8 @@ ItemStats.brace = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'woodshop',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.rawhideHammer = {
 	durability: 250,
@@ -127,7 +141,8 @@ ItemStats.rawhideHammer = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'woodshop',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.chisel = {
 	durability: 250,
@@ -136,7 +151,8 @@ ItemStats.chisel = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'woodshop',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.pincer = {
 	durability: 250,
@@ -145,7 +161,8 @@ ItemStats.pincer = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'woodshop',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 
 ItemStats.ironSword = {
@@ -155,7 +172,8 @@ ItemStats.ironSword = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.steelSword = {
 	durability: 750,
@@ -164,7 +182,8 @@ ItemStats.steelSword = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.goldSword = {
 	durability: 2500,
@@ -173,7 +192,8 @@ ItemStats.goldSword = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 
 ItemStats.ironBattleAxe = {
@@ -183,7 +203,8 @@ ItemStats.ironBattleAxe = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.steelBattleAxe = {
 	durability: 750,
@@ -192,7 +213,8 @@ ItemStats.steelBattleAxe = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.goldBattleAxe = {
 	durability: 2500,
@@ -201,7 +223,8 @@ ItemStats.goldBattleAxe = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 
 ItemStats.ironBattleHammer = {
@@ -211,7 +234,8 @@ ItemStats.ironBattleHammer = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.steelBattleHammer = {
 	durability: 750,
@@ -220,7 +244,8 @@ ItemStats.steelBattleHammer = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 
 ItemStats.shortBow = {
@@ -230,7 +255,8 @@ ItemStats.shortBow = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
 };
 ItemStats.compositeBow = {
 	durability: 750,
@@ -239,7 +265,90 @@ ItemStats.compositeBow = {
 	characterAnimation: 'melee',
 	animation: AllAnimationsList.meleeFemaleWeaponAnimations.sword,
 	atlas: 'shortSwordFemale',
-	bones: AllAnimationSkeletonsList.femaleAnimations.sword
+	bones: AllAnimationSkeletonsList.femaleAnimations.sword,
+	isStackable: false,
+};
+
+ItemStats.leatherHood = {
+	durability: 1000,
+	atlas: 'leatherHood',
+	slotType: EquipmentSlotType.helmet,
+	isStackable: false,
+};
+ItemStats.leatherShoes = {
+	durability: 1000,
+	atlas: 'leatherShoes',
+	slotType: EquipmentSlotType.boots,
+	isStackable: false,
+};
+ItemStats.leatherArmor = {
+	durability: 1000,
+	atlas: 'leatherArmor',
+	slotType: EquipmentSlotType.armor,
+	isStackable: false,
+};
+ItemStats.leatherSkirt = {
+	durability: 1000,
+	atlas: 'leatherSkirt',
+	slotType: EquipmentSlotType.pants,
+	isStackable: false,
+};
+
+ItemStats.clothPantsGreen = {
+	durability: 1000,
+	atlas: 'clothPantsGreen',
+	slotType: EquipmentSlotType.pants,
+	isStackable: false,
+};
+
+ItemStats.chainArmorHood = {
+	durability: 1000,
+	atlas: 'chainArmorHood',
+	slotType: EquipmentSlotType.helmet,
+	isStackable: false,
+};
+ItemStats.chainArmorTorso = {
+	durability: 1000,
+	atlas: 'chainArmorTorso',
+	slotType: EquipmentSlotType.armor,
+	isStackable: false,
+};
+
+ItemStats.plateArmorGloves = {
+	durability: 1000,
+	atlas: 'plateArmorGloves',
+	slotType: EquipmentSlotType.gloves,
+	isStackable: false,
+};
+ItemStats.plateArmorHelmet = {
+	durability: 1000,
+	atlas: 'plateArmorHelmet',
+	slotType: EquipmentSlotType.helmet,
+	isStackable: false,
+};
+ItemStats.plateArmorPants = {
+	durability: 1000,
+	atlas: 'plateArmorPants',
+	slotType: EquipmentSlotType.pants,
+	isStackable: false,
+};
+ItemStats.plateArmorShoes = {
+	durability: 1000,
+	atlas: 'plateArmorShoes',
+	slotType: EquipmentSlotType.boots,
+	isStackable: false,
+};
+ItemStats.plateArmorShoulders = {
+	durability: 1000,
+	atlas: 'plateArmorShoulders',
+	slotType: EquipmentSlotType.shoulders,
+	isStackable: false,
+};
+ItemStats.plateArmorTorso = {
+	durability: 1000,
+	atlas: 'plateArmorTorso',
+	slotType: EquipmentSlotType.armor,
+	isStackable: false,
 };
 
 export { ItemStats };

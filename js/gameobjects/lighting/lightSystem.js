@@ -1,6 +1,6 @@
 import {
 	Cobject, Color, Vector2D, CMath, Mastertime, Graph, GraphPoint,
-	DrawingOperation, AmbientLight, CanvasDrawer
+	DrawingOperation, AmbientLight, CanvasDrawer, BoxCollision
 } from '../../internal.js';
 
 /**
@@ -20,6 +20,8 @@ const LightDataType = {
 }
 
 /**
+ * 
+ * @todo cache the color.ToString() into a string property to avoid string construction
  * @class
  * @constructor
  * @extends Cobject
@@ -649,6 +651,22 @@ class LightSystem extends Cobject {
 
 		for (let i = 0, l = LightSystem.AllAmbientLights.length; i < l; ++i) {
 			if (LightSystem.AllAmbientLights[i].BoxCollision.boundingBox.InsideXY(position.x, position.y))
+				lights.push(LightSystem.AllAmbientLights[i]);
+		}
+
+		return lights;
+	}
+
+	/**
+	 * 
+	 * @param {BoxCollision} collision 
+	 * @returns {AmbientLight[]}
+	 */
+	 static GetOverlappingLightsByCollision(collision) {
+		let lights = [];
+
+		for (let i = 0, l = LightSystem.AllAmbientLights.length; i < l; ++i) {
+			if (LightSystem.AllAmbientLights[i].BoxCollision.boundingBox.IsRectOverlappingOrInside(collision.boundingBox))
 				lights.push(LightSystem.AllAmbientLights[i]);
 		}
 

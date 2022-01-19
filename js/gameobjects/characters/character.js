@@ -1,8 +1,9 @@
 import {
 	GameObject, Inventory, ItemStats, InputState, UsableItem, Collision, AmbientLight,
-	AtlasController, Vector2D, Shadow2D, BoxCollision, CollisionHandler, OperationType, CMath,
+	AtlasController, Vector2D, Shadow2D, BoxCollision, CollisionHandler, OperationType,
 	ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings,
-	ParticleType, AnimationType, BWDrawingType, Item, CAnimation, PlayerController
+	ParticleType, AnimationType, BWDrawingType, Item, CAnimation, PlayerController,
+	CharacterAttributes,
 } from '../../internal.js';
 
 const FacingDirection = {
@@ -97,16 +98,18 @@ class CharacterAttachments extends GameObject {
 	 * @param {Vector2D} position 
 	 */
 	PlayAnimaion(position) {
-		this.CreateDrawOperation(this.currentAnimation.GetFrame(), position, false, this.canvas, OperationType.gameObjects);
+		if (this.currentAnimation !== undefined) {
+			this.CreateDrawOperation(this.currentAnimation.GetFrame(), position, false, this.canvas, OperationType.gameObjects);
 
-		if (this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None)
-			this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile, true);
+			if (this?.drawingOperation?.shadowOperation?.drawType !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None)
+				this.drawingOperation.shadowOperation.UpdateShadow(this.drawingOperation.tile, true);
+		}
 	}
 
 	FixedUpdate() {
 		super.FixedUpdate();
 
-		if (this.currentAnimation !== undefined && this.currentAnimation.frameUpdate === true && this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None) {
+		if (this.currentAnimation !== undefined && this.currentAnimation.frameUpdate === true && this?.drawingOperation?.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType !== BWDrawingType.None) {
 			this.drawingOperation.shadowOperation.UpdateShadow();
 		}
 	}
@@ -120,125 +123,14 @@ class CharacterAttachments extends GameObject {
 	 * @param {OperationType} operationType 
 	 */
 	CreateDrawOperation(frame, position, clear, canvas, operationType = OperationType.gameObjects) {
-		super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
+		if (canvas !== undefined) {
+			super.CreateDrawOperation(frame, position, clear, canvas, operationType, AtlasController.GetAtlas(canvas.id).canvasObject);
 
-		if (this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType === BWDrawingType.None) {
-			this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
-			this.drawingOperation.shadowOperation.GenerateShadow();
+			if (this.drawingOperation.shadowOperation !== undefined && this.drawingOperation.shadowOperation.drawType === BWDrawingType.None) {
+				this.drawingOperation.shadowOperation.drawType = BWDrawingType.Front;
+				this.drawingOperation.shadowOperation.GenerateShadow();
+			}
 		}
-	}
-}
-
-/**
- * @class
- * @constructor
- */
-class CharacterStats {
-
-	/**
-	 * 
-	 * @param {number} maxHealth 
-	 */
-	constructor(maxHealth) {
-		/** @type {number} */ this.health = maxHealth;
-		/** @type {number} */ this.maxHealth = maxHealth;
-	}
-}
-
-/**
- * @readonly
- * @enum {number}
- */
-const AttributeEnum = {
-	Strength: 0,
-	Constitution: 1,
-	Dexterity: 2,
-	Agility: 3,
-	Intelligence: 4,
-	Wisdom: 5,
-	Charisma: 6,
-	Luck: 7,
-}
-
-/**
- * @class
- * @constructor
- */
-class CharacterAttributes {
-
-	/**
-	 * 
-	 * @param {number} strength 
-	 * @param {number} constituion 
-	 * @param {number} dexterity 
-	 * @param {number} agility 
-	 * @param {number} intelligence 
-	 * @param {number} wisdom 
-	 * @param {number} luck 
-	 * @param {number} charisma 
-	 */
-	constructor(strength, constituion, dexterity, agility, intelligence, wisdom, luck, charisma) {
-		/** @type {number} */ this.Strength = strength;
-		/** @type {number} */ this.Constitution = constituion;
-		/** @type {number} */ this.Dexterity = dexterity;
-		/** @type {number} */ this.Agility = agility;
-		/** @type {number} */ this.Intelligence = intelligence;
-		/** @type {number} */ this.Wisdom = wisdom;
-		/** @type {number} */ this.Luck = luck;
-		/** @type {number} */ this.Charisma = charisma;
-		/** @type {CharacterStats} */  this.CharacterStats = new CharacterStats(this.Constitution * 17);
-
-		this.CalculateStats();
-	}
-
-	/**
-	 * 
-	 * @param {AttributeEnum} attribute 
-	 * @param {number} value 
-	 */
-	IncreaseAttribute(attribute = AttributeEnum.Strength, value = 1) {
-		switch (attribute) {
-			case AttributeEnum.Strength: this.Strength += value; break;
-			case AttributeEnum.Constitution: this.Constitution += value; break;
-			case AttributeEnum.Dexterity: this.Dexterity += value; break;
-			case AttributeEnum.Agility: this.Agility += value; break;
-			case AttributeEnum.Intelligence: this.Intelligence += value; break;
-			case AttributeEnum.Wisdom: this.Wisdom += value; break;
-			case AttributeEnum.Luck: this.Luck += value; break;
-			case AttributeEnum.Charisma: this.Charisma += value; break;
-		}
-
-		this.CalculateStats();
-	}
-
-	CalculateStats() {
-		let percent = this.CharacterStats.health / this.CharacterStats.maxHealth;
-		this.CharacterStats.maxHealth = this.Constitution * 17;
-		this.CharacterStats.health = percent * this.CharacterStats.maxHealth;
-	}
-
-	/**
-	 * 
-	 * @param {number} value 
-	 */
-	UpdateHealth(value) {
-		this.CharacterStats.health += Number(value);
-	}
-
-	/**
-	 * 
-	 * @returns {number}
-	 */
-	GetHealth() {
-		return this.CharacterStats.health;
-	}
-
-	/**
-	 * 
-	 * @returns {number}
-	 */
-	GetDamage() {
-		return CMath.RandomFloat(this.Strength * 0.69 + this.Dexterity * 0.34, this.Strength * 1.72 + this.Dexterity * 0.41);
 	}
 }
 
@@ -273,14 +165,14 @@ class Character extends GameObject {
 	 * @param {Object.<string, CAnimation>} animations 
 	 * @param {CharacterAttributes} characterAttributes 
 	 */
-	constructor(spriteSheetName, position = new Vector2D(0, 0), animations = undefined, characterAttributes = new CharacterAttributes(5, 5, 5, 5, 5, 5, 0, 0)) {
+	constructor(spriteSheetName, position = new Vector2D(0, 0), animations = undefined, characterAttributes = undefined) {
 		super(spriteSheetName, position, false);
 
 		/** @type {CharacterData} */ this.characterData = new CharacterData();
-		/** @type {CharacterAttributes} */ this.characterAttributes = characterAttributes;
+		/** @type {CharacterAttributes} */ this.characterAttributes = (characterAttributes !== undefined ? characterAttributes : new CharacterAttributes(this, 5, 5, 5, 5, 5, 5, 0, 0));
 		/** @type {Object.<string, CAnimation>} */ this.animations = animations;
 		/** @type {CAnimation} */ this.currentAnimation = undefined;
-		/** @type {CharacterAttachments} */ this.shadowAttachment = new CharacterAttachments(this.position, spriteSheetName + 'Shadow');
+		/** @type {CharacterAttachments} */ this.shadowAttachment = new CharacterAttachments(this.position, 'humanAdultShadow');
 		/** @type {CharacterAttachments} */ this.itemAttachment = undefined;
 		/** @type {Object<string, CharacterAttachments>} */ this.attachments = {};
 		/** @type {CharacterStates} */ this.characterState = new CharacterStates(false, false);
@@ -289,7 +181,7 @@ class Character extends GameObject {
 	}
 
 	/**
-	 * 
+	 * Adds attachment by name to character, name refers to the atlas name
 	 * @param {string} name 
 	 * @param {Object.<string, CAnimation>} animations 
 	 */
@@ -297,6 +189,17 @@ class Character extends GameObject {
 		let newAttachment = new CharacterAttachments(this.position, name, animations);
 		newAttachment.GameBegin();
 		this.attachments[name] = newAttachment;
+	}
+
+	/**
+	 * Removes attachment by name from character, name refers to the atlas name
+	 * @param {string} name 
+	 */
+	RemoveAttachment(name) {
+		if (this.attachments[name] !== undefined) {
+			this.attachments[name].Delete();
+			delete this.attachments[name];
+		}
 	}
 
 	/**
@@ -459,29 +362,29 @@ class Character extends GameObject {
 
 		switch (facingDirection) {
 			case FacingDirection.Up:
-				if (this.attachments.redHair !== undefined && this.attachments.redHair.drawingOperation !== undefined)
+				if (this.attachments?.redHair?.drawingOperation !== undefined)
 					this.attachments.redHair.drawingOperation.tile.drawIndex = 2;
-				if (this.itemAttachment !== undefined && this.itemAttachment.drawingOperation !== undefined)
+				if (this.itemAttachment?.drawingOperation !== undefined)
 					this.itemAttachment.drawingOperation.tile.drawIndex = 2;
-				if (this.attachments.underDress !== undefined && this.attachments.underDress.drawingOperation !== undefined)
+				if (this.attachments?.underDress?.drawingOperation !== undefined)
 					this.attachments.underDress.drawingOperation.tile.drawIndex = 0;
 				break;
 
 			case FacingDirection.Left:
-				if (this.attachments.redHair !== undefined && this.attachments.redHair.drawingOperation !== undefined)
+				if (this.attachments?.redHair?.drawingOperation !== undefined)
 					this.attachments.redHair.drawingOperation.tile.drawIndex = 0;
-				if (this.itemAttachment !== undefined && this.itemAttachment.drawingOperation !== undefined)
+				if (this.itemAttachment?.drawingOperation !== undefined)
 					this.itemAttachment.drawingOperation.tile.drawIndex = 0;
-				if (this.attachments.underDress !== undefined && this.attachments.underDress.drawingOperation !== undefined)
+				if (this.attachments?.underDress?.drawingOperation !== undefined)
 					this.attachments.underDress.drawingOperation.tile.drawIndex = 2;
 				break;
 
 			case FacingDirection.Right:
-				if (this.attachments.redHair !== undefined && this.attachments.redHair.drawingOperation !== undefined)
+				if (this.attachments?.redHair?.drawingOperation !== undefined)
 					this.attachments.redHair.drawingOperation.tile.drawIndex = 0;
-				if (this.itemAttachment !== undefined && this.itemAttachment.drawingOperation !== undefined)
+				if (this.itemAttachment?.drawingOperation !== undefined)
 					this.itemAttachment.drawingOperation.tile.drawIndex = 0;
-				if (this.attachments.underDress !== undefined && this.attachments.underDress.drawingOperation !== undefined)
+				if (this.attachments?.underDress?.drawingOperation !== undefined)
 					this.attachments.underDress.drawingOperation.tile.drawIndex = 2;
 				break;
 
@@ -776,7 +679,7 @@ class Character extends GameObject {
 
 		this.activeItem = item;
 
-		if (ItemStats[this.activeItem.name]?.atlas !== undefined) {
+		if (ItemStats[this.activeItem.name]?.atlas !== undefined && item instanceof UsableItem) {
 			this.itemAttachment = new CharacterAttachments(this.position, this.activeItem.name, ItemStats[this.activeItem.name].animation, ItemStats[this.activeItem.name].bones);
 			this.itemAttachment.GameBegin();
 			this.itemAttachment.ChangeAnimation(this.currentAnimation.Clone(), true);
@@ -872,6 +775,11 @@ class Character extends GameObject {
 
 		if (this.shadowAttachment !== undefined)
 			this.shadowAttachment.Delete();
+
+		let keys = Object.keys(this.attachments);
+		for (let i = 0, l = keys.length; i < l; ++i) {
+			this.attachments[keys[i]].Delete();
+		}
 	}
 }
 
