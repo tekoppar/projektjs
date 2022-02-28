@@ -1,6 +1,6 @@
 import {
 	Vector2D, CanvasDrawer, BoxCollision, AtlasController, Tile, LightSystem, CollisionHandler, Math3D,
-	CMath, Vector4D, Vector, OverlapOverlapsCheck, CollisionTypeCheck, Shadow2D, PolygonCollision, Collision
+	CMath, Vector4D, Vector, CollisionCheckEnum, CollisionTypeCheck, Shadow2D, PolygonCollision, Collision
 } from '../../../internal.js';
 
 /**
@@ -40,7 +40,7 @@ class ShadowCanvasObject {
 		/** @type {HTMLCanvasElement} */ this.canvas;
 		/** @type {CanvasRenderingContext2D} */ this.canvasCtx;
 		/** @type {ImageData} */ this.shadowData;
-		/** @type {Vector2D} */ this.centerPosition;
+		/** @type {Vector2D} */ this.centerPosition = new Vector2D(0, 0);
 		/** @type {boolean} */ this.firstDraw = false;
 		/** @type {boolean} */ this.UpdatedThisFrame = false;
 		/** @type {Shadow2D} */ this.owner = owner;
@@ -104,9 +104,9 @@ class ShadowCanvasObject {
 
 		if (overlaps.length > 0/* overlaps !== false*/) {
 			let overlapPosition = overlaps[0].GetPosition();//overlaps.collisionOwner.GetPosition();
-			let shadowPos = position.Clone();
-			shadowPos.y -= 15;
-			let rotation = CMath.LookAt2D(shadowPos, overlapPosition.Clone());
+			//let shadowPos = position.Clone();
+			//shadowPos.y -= 15;
+			let rotation = CMath.LookAt2DXY(position.x, position.y - 15, overlapPosition.x, overlapPosition.y);
 			rotation -= ShadowRotationLUT[name] !== undefined ? ShadowRotationLUT[name] : 90;
 
 			Math3D.RotatePixelData2D(this.shadowData.data, new Vector2D(biggest, biggest), new Vector(0, 0, rotation), 0, new Vector(biggest / 2, biggest / 2, biggest / 2));
@@ -114,7 +114,8 @@ class ShadowCanvasObject {
 
 			let rotationArr = [new Vector4D(biggest / 2, biggest, biggest / 2, 0)];
 			Math3D.Rotate(0, 0, CMath.DegreesToRadians(rotation), rotationArr, new Vector(biggest / 2, biggest / 2, biggest / 2));
-			this.centerPosition = new Vector2D(rotationArr[0].x, rotationArr[0].y);
+			this.centerPosition.x = rotationArr[0].x;
+			this.centerPosition.y = rotationArr[0].y; // = new Vector2D(rotationArr[0].x, rotationArr[0].y);
 			this.centerPosition.x -= tile.size.x / 2;
 			this.centerPosition.y -= tile.size.y - 10;
 
@@ -136,7 +137,7 @@ class ShadowCanvasObject {
 	 * @param {HTMLCanvasElement} canvas
 	 */
 	DrawToFramebuffer(canvas) {
-		let overlaps = CollisionHandler.GCH.GetOverlapsByClassName(this.parentBoxCollision, 'AmbientLight', OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
+		let overlaps = CollisionHandler.GCH.GetOverlapsByClassName(this.parentBoxCollision, 'AmbientLight', CollisionCheckEnum.Overlaps, CollisionTypeCheck.Overlap);
 
 		if (overlaps.length > 0) {
 			this.DrawNewShadowFrame();

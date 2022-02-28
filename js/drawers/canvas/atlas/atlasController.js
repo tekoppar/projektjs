@@ -133,6 +133,8 @@ class AtlasController {
 		this.hasLoadedAllImages["windowsdoors"] = false;
 		this.LoadSpriteAtlas("/content/sprites/Collection/roofs.png", 2048, 2048, 32, "roofs");
 		this.hasLoadedAllImages["windowsdoors"] = false;
+		this.LoadSpriteAtlas('/content/sprites/Collection/floors.png', 1024, 2048, 32, 'floors');
+		this.hasLoadedAllImages["floors"] = false;
 		
 		this.LoadSpriteAtlas("/content/sprites/items/items1.png", 512, 512, 32, "items1");
 		this.hasLoadedAllImages["items1"] = false;

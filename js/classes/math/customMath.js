@@ -92,9 +92,11 @@ class CMath {
 	}
 
 	static LookAt2D(a, b) {
-		let dx = a.x - b.x;
-		let dy = a.y - b.y;
-		return Math.atan2(dy, dx) * 180 / Math.PI + 180;
+		return Math.atan2(a.y - b.y, a.x - b.x) * 180 / Math.PI + 180;
+	}
+
+	static LookAt2DXY(aX, aY, bX, bY) {
+		return Math.atan2(aY - bY, aX - bX) * 180 / Math.PI + 180;
 	}
 
 	static LineSlope(a, b) {

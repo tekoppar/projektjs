@@ -17,13 +17,15 @@ PawnSetupParams.HouseTest = ['House Test', [0.5, 0], undefined, 'HouseTest', { x
 
 PawnSetupParams.woodenChest = ['Wooden Chest', [0.5, 0], undefined, 'woodenChest'];
 
+PawnSetupParams.woodenFloor = ['Wooden Floor', [0, 0], undefined, 'woodenFloor', { x: 32, y: -32, w: 0, h: -32 }, 'floors', 'floorCarpetPatternRed'];
+
 PawnSetupParams.stoneSmelter = ['Stone Smelter', [0.5, 0], undefined, 'stoneSmelter', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListSmelter, { x: 64, y: 96, z: 0, a: 96 }];
 PawnSetupParams.anvil = ['Anvil', [0.5, 0], undefined, 'anvil', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListAnvil, { x: 64, y: 32, z: 0, a: 24 }];
 PawnSetupParams.workbench = ['Workbench', [0.5, 0], undefined, 'workbench', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListWorkbench, { x: 64, y: 64, z: 0, a: 42 }];
 PawnSetupParams.choppingBlock = ['Chopping Block', [0.5, 0], undefined, 'choppingBlock', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListChoppingBlock, { x: 64, y: 64, z: 0, a: 32 }];
 PawnSetupParams.planerBench = ['Planer Bench', [0.5, 0], undefined, 'planerBench', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListPlanerBench, { x: 64, y: 64, z: 0, a: 42 }];
 PawnSetupParams.stoneCutter = {
-	woodenFloor: ['Wooden Floor', [0.5, 0], undefined, 'woodenFloor', { x: 64, y: -32, w: 0, h: -32 }],
+	woodenFloor2x2: ['Wooden Floor 2x2', [0.5, 0], undefined, 'woodenFloor2x2', { x: 64, y: -32, w: 0, h: -32 }],
 	stoneCutter: ['Stone Cutter', [0.5, 0], undefined, 'stoneCutter', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListStoneCutter, { x: 64, y: 64, z: 0, a: 42 }]
 };
 PawnSetupParams.sawTable = ['Saw Table', [0.5, 0], undefined, 'sawTable', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListSawTable, { x: 64, y: 64, z: 0, a: 42 }];

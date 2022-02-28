@@ -1,6 +1,7 @@
 import {
 	Cobject, InputHandler, GUI, BuildingRecipeList, BuildingZone, BuildingCategory, inventoryItemIcons, StringUtility,
-	MasterObject, CanvasDrawer, ObjectClassLUT, AtlasController, CanvasUtility, BuildingRecipe, PawnSetupController
+	MasterObject, CanvasDrawer, ObjectClassLUT, AtlasController, CanvasUtility, BuildingRecipe, PawnSetupController,
+	CollisionHandler, CollisionTypeCheck, CollisionCheckEnum, DebugDrawer, Color
 } from '../../internal.js';
 
 /**
@@ -33,6 +34,7 @@ class Building extends Cobject {
 		/** @type {boolean} */ this.isBuilding = false;
 		/** @type {BuildingModeState} */ this.buildingState = BuildingModeState.None;
 		this.selectedBuilding = undefined;
+		this.continuePlacing = false;
 	}
 
 	SetupBuilding() {
@@ -200,6 +202,11 @@ class Building extends Cobject {
 			this.selectedBuilding = undefined;
 			this.buildingState = BuildingModeState.None;
 			this.ShowBuilding(false);
+
+			if (this.continuePlacing === true) {
+				this.buildingState = BuildingModeState.Selecting;
+				this.SetupPlacingBuilding(false);
+			}
 		}
 	}
 
@@ -212,10 +219,10 @@ class Building extends Cobject {
 		}
 	}
 
-	SetupPlacingBuilding() {
+	SetupPlacingBuilding(toggleMenu = !this.isVisible) {
 		if (this.buildingRecipe !== undefined && this.buildingState === BuildingModeState.Selecting) {
 			this.buildingState = BuildingModeState.Placing;
-			this.ShowBuilding();
+			this.ShowBuilding(toggleMenu);
 			this.SetupBuildingPawn();
 		}
 	}
@@ -237,8 +244,18 @@ class Building extends Cobject {
 			let tMousePos = MasterObject.MO.playerController.mousePosition.Clone();
 			tMousePos.Add(CanvasDrawer.GCD.canvasOffset);
 			tMousePos.SnapToGridF(32);
+			tMousePos.x += 16;
+			tMousePos.y += 32;
 
 			this.selectedBuilding.SetPosition(tMousePos);
+
+			let overlaps = CollisionHandler.GCH.GetOverlaps(this.selectedBuilding.BoxCollision, CollisionCheckEnum.Inside, CollisionTypeCheck.All);
+
+			if (overlaps.length === 0) {
+				DebugDrawer.AddDebugRectOperation(this.selectedBuilding.BoxCollision.boundingBox, 0.0016, Color.ColorValuesToCSS(0, 255, 0, 0.75), true, 1);
+			} else {
+				DebugDrawer.AddDebugRectOperation(this.selectedBuilding.BoxCollision.boundingBox, 0.0016, Color.ColorValuesToCSS(255, 0, 0, 0.75), true, 1);
+			}
 		}
 	}
 
@@ -246,14 +263,27 @@ class Building extends Cobject {
 		switch (eventType) {
 			case 'input':
 				if (key === 'leftMouse' && data.eventType === 0 && this.selectedBuilding !== undefined && this.buildingState === BuildingModeState.Placing) {
-					this.PlaceBuildingZone();
+					let overlaps = CollisionHandler.GCH.GetOverlaps(this.selectedBuilding.BoxCollision, CollisionCheckEnum.Inside, CollisionTypeCheck.All);
+
+					if (overlaps.length === 0)
+						this.PlaceBuildingZone();
+				}
+
+				switch (key) {
+					case 'leftShift':
+						if (data.eventType === 0) {
+							this.continuePlacing = true;
+						} else if (data.eventType === 2) {
+							this.continuePlacing = false;
+						}
+						break;
 				}
 
 				if (key === 'rightMouse' && data.eventType === 2 && this.selectedBuilding !== undefined) {
 					this.BuildingCancelled();
 				}
 				break;
-			
+
 			case 'use':
 				if (key !== undefined && data.eventType === 2) {
 					this.ShowBuilding();

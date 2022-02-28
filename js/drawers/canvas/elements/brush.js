@@ -110,7 +110,7 @@ class Brush {
 	 * @param {Vector2D} pos 
 	 * @param {HTMLCanvasElement} drawingCanvas 
 	 * @param {HTMLCanvasElement} targetCanvas 
-	 * @returns {Array<Object>}
+	 * @returns {Array<DrawingOperation>}
 	 */
 	GenerateDrawingOperations(pos, drawingCanvas, targetCanvas) {
 		let drawingOperations = [];

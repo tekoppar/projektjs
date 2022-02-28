@@ -40,8 +40,8 @@ export { PageFetcher } from './classes/utility/pageFetcher.js';
 export { AllCollisions, AllBlockingCollisions } from './gameobjects/collision/allCollisions.js';
 
 export {
-	Collision, BoxCollision, QuadTree, CollisionHandler, PolygonCollision, OverlapCheckEnum,
-	OverlapOICheck, OverlapOverlapsCheck, CollisionTypeCheck
+	Collision, BoxCollision, QuadTree, CollisionHandler, PolygonCollision,
+	CollisionTypeCheck, CollisionCheckEnum
 } from './gameobjects/collision/collision.js';
 
 export { GUI } from './gui/gui.js';

@@ -29,10 +29,11 @@ AllCollisions.workbench = [new Vector2D(0, 0), new Vector2D(64, 0), new Vector2D
 AllCollisions.choppingBlock = [new Vector2D(0, 0), new Vector2D(64, 0), new Vector2D(64, 64), new Vector2D(0, 64)];
 AllCollisions.planerBench = [new Vector2D(0, 0), new Vector2D(96, 0), new Vector2D(96, 64), new Vector2D(0, 64)];
 AllCollisions.stoneCutter = [new Vector2D(0, 0), new Vector2D(64, 0), new Vector2D(64, 64), new Vector2D(0, 64)];
-AllCollisions.woodenFloor = [new Vector2D(0, 0), new Vector2D(64, 0), new Vector2D(64, 64), new Vector2D(0, 64)];
+AllCollisions.woodenFloor2x2 = [new Vector2D(0, 0), new Vector2D(64, 0), new Vector2D(64, 64), new Vector2D(0, 64)];
 AllCollisions.sawTable = [new Vector2D(0, 0), new Vector2D(64, 0), new Vector2D(64, 64), new Vector2D(0, 64)];
 AllCollisions.planningTable = [new Vector2D(0, 0), new Vector2D(64, 0), new Vector2D(64, 64), new Vector2D(0, 64)];
 AllCollisions.waterFilledBoat = [new Vector2D(0, 0), new Vector2D(128, 0), new Vector2D(128, 64), new Vector2D(0, 64)];
+AllCollisions.woodenFloor = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(0, 32)];
 
 AllBlockingCollisions.house1 = [new Vector2D(0, 160), new Vector2D(224, 160), new Vector2D(224, 256), new Vector2D(0, 256)];
 AllBlockingCollisions.HouseTest = [new Vector2D(32, 192), new Vector2D(192, 192), new Vector2D(192, 288), new Vector2D(32, 288)];
@@ -43,7 +44,7 @@ AllBlockingCollisions.workbench = [new Vector2D(5, 14), new Vector2D(59, 14), ne
 AllBlockingCollisions.choppingBlock = [new Vector2D(7, 38), new Vector2D(20, 28), new Vector2D(32, 26), new Vector2D(34, 12), new Vector2D(35, 13), new Vector2D(59, 13), new Vector2D(60, 29), new Vector2D(55, 36), new Vector2D(32, 51)];
 AllBlockingCollisions.planerBench = [new Vector2D(16, 29), new Vector2D(79, 29), new Vector2D(79, 59), new Vector2D(16, 59)];
 AllBlockingCollisions.stoneCutter = [new Vector2D(9, 38), new Vector2D(53, 38), new Vector2D(53, 53), new Vector2D(9, 53)];
-AllBlockingCollisions.woodenFloor = [new Vector2D(9, 38), new Vector2D(53, 38), new Vector2D(53, 53), new Vector2D(9, 53)];
+AllBlockingCollisions.woodenFloor2x2 = [new Vector2D(9, 38), new Vector2D(53, 38), new Vector2D(53, 53), new Vector2D(9, 53)];
 AllBlockingCollisions.sawTable = [new Vector2D(4, 32), new Vector2D(60, 32), new Vector2D(60, 64), new Vector2D(4, 64)];
 AllBlockingCollisions.planningTable = [new Vector2D(4, 22), new Vector2D(60, 22), new Vector2D(60, 48), new Vector2D(4, 48)];
 AllBlockingCollisions.waterFilledBoat = [new Vector2D(5, 24), new Vector2D(37, 17), new Vector2D(86, 16), new Vector2D(117, 33), new Vector2D(97, 49), new Vector2D(69, 57), new Vector2D(35, 58), new Vector2D(4, 52)];
@@ -62,5 +63,6 @@ AllBlockingCollisions.stonewall_r_c_ltb = [new Vector2D(0, 22), new Vector2D(12,
 AllBlockingCollisions.stonewall_bl_c_tr = [new Vector2D(12, 0), new Vector2D(20, 0), new Vector2D(20, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(12, 32)];
 AllBlockingCollisions.stonewall_b_c_ltr = [new Vector2D(0, 22), new Vector2D(12, 22), new Vector2D(12, 0), new Vector2D(20, 0), new Vector2D(20, 22), new Vector2D(32, 22), new Vector2D(32, 32), new Vector2D(0, 32)];
 AllBlockingCollisions.stonewall_br_c_lt = [new Vector2D(0, 22), new Vector2D(12, 22), new Vector2D(12, 0), new Vector2D(20, 0), new Vector2D(20, 32), new Vector2D(0, 32)];
+AllBlockingCollisions.woodenFloor = [new Vector2D(0, 0), new Vector2D(0, 0), new Vector2D(0, 0), new Vector2D(0, 0)];
 
 export { AllCollisions, AllBlockingCollisions };

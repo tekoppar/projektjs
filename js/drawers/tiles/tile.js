@@ -1,6 +1,6 @@
 import {
 	Matrix, Vector2D, CanvasDrawer, TileLUT, AtlasController, GetAtlasTileMatrix, CollisionEditor,
-	PropEditor, SaveController
+	PropEditor, SaveController, DrawingOperation, DebugDrawer, CollisionHandler, GameObject
 } from '../../internal.js';
 
 /**
@@ -233,6 +233,17 @@ class TileData {
 			TileULDR.Get(TileData.tileGUI.tileuldr.value),
 			TileData.tileGUI.tileset.value
 		);
+	}
+
+	/**
+	 * 
+	 * @param {string} tileset - Tileset name for the tile 
+	 * @returns {object}
+	 */
+	static GetTileLUT(tileset) {
+		if (TileData.TileLUTSets[tileset] !== undefined) {
+			return TileData.TileLUTSets[tileset];
+		}
 	}
 
 	/**
@@ -560,29 +571,19 @@ class TileF {
 		let operations = CanvasDrawer.GCD.GetTileAtPosition(position, false);
 
 		for (let i = 0, l = operations.length; i < l; ++i) {
-			//let tilePaintULDRMatrix = TileF.ConstructPaintULDRMatrix(operations[i].tile);
-			//let centerTileOffset = TileF.GetTileOffsets(operations[i].tile);
 			let centerTile = TileF.GetCenterTile(tile);
-			tile.tilePosition.Add(centerTile);
-			//let paintTiles = TileF.ConstructTilePaintMatrix(tile, tilePaintULDRMatrix.ToArray());
-			//let allTiles = TileF.GetSurroundingTiles(operations[i].tile.position, TileF.GetULDRMatrix(operations[i].tile));
 
+			tile.tilePosition.Add(centerTile);
 			operations[i].tile.ChangeSprite(tile);
-			//for (let i2 = 0; i2 < allTiles.length; i2++)
-			//allTiles[i2].tile.ChangeSprite(paintTiles[i2]);
 		}
 
 		let newTiles = [],
 			cliffBottomTilesTiles = [],
 			cliffBottomTiles = [];
+
 		for (let i = 0, l = operations.length; i < l; ++i) {
 			let trueMatrix = TileF.ConstructAtlasTileMatrix(operations[i].tile, tile.tileSet);
 			trueMatrix.y2 = 0;
-			//let uldr = trueMatrix.ToBinary();
-			//console.log(trueMatrix.To3DArray(), GetAtlasTileMatrix(uldr.replace('0x', '')));
-			//uldr = GetAtlasTileMatrix(uldr.replace('0x', ''));
-			//let aroundTiles = TileF.GetSurroundingTiles(operations[i].tile.position, trueMatrix);
-			//console.log(aroundTiles);
 
 			let offsetTileMatrix = new Matrix(
 				new Vector2D(-1, -1), new Vector2D(0, -1), new Vector2D(1, -1),
@@ -592,6 +593,7 @@ class TileF {
 			let offsetTileMatrixArr = offsetTileMatrix.ToArray();
 
 			let allTiles = TileF.GetSurroundingTiles(operations[i].tile.position, TileF.GetULDRMatrix(operations[i].tile));
+
 			for (let i2 = 0, l2 = allTiles.length; i2 < l2; ++i2) {
 				let newTilePaintMatrix = TileF.ConstructAtlasTileMatrix(allTiles[i2].tile, tile.tileSet);
 
@@ -602,11 +604,12 @@ class TileF {
 					break;
 
 				newTilePaintMatrix.IsOne(tempOff);
-				//console.log(newTilePaintMatrix.To3DArray(), newTilePaintMatrix.ToBinary());
 				let uldr = newTilePaintMatrix.ToBinary();
-				//console.log(GetAtlasTileMatrix(uldr.replace('0x', '')), newTilePaintMatrix.y2);
+
+				if (i2 === 4)
+					DebugDrawer.AddText(allTiles[i2].tile.position, uldr.replace('0x', ''), 1, 'white', 'sans-serif', 6);
+
 				uldr = TileULDR.Get(Number(GetAtlasTileMatrix(uldr.replace('0x', ''), newTilePaintMatrix.y2)));
-				//console.log(uldr);
 
 				let newTileData;
 				if (uldr !== undefined) {
@@ -622,37 +625,17 @@ class TileF {
 					} else {
 						if (TileData.TileLUTSets[tile.tileSet] !== undefined && TileData.TileLUTSets[tile.tileSet][uldr] !== undefined) {
 							newTileData = TileData.TileLUTSets[tile.tileSet][uldr];
-
-							/*if (newTileData.tileType === TileType.Cliff && TileData.TileLUTSets[tile.tileSet + 'Bottom'] !== undefined) {
-								let tPos = allTiles[i2].tile.position.Clone();
-								tPos.y += 32;
-								tPos.ToGrid();
-								let tTile = CanvasDrawer.GCD.GetTileAtPosition(tPos, false);
-
-								switch (TileULDRLUT[newTileData.tileULDR]) {
-									case TileULDRLUT.Down:
-									case TileULDRLUT.DownRight:
-									case TileULDRLUT.DownLeft:
-										if (TileData.TileLUTSets[tile.tileSet + 'Bottom'][uldr] !== undefined) {
-											let cliffDown = TileData.TileLUTSets[tile.tileSet + 'Bottom'][uldr];
-
-											if (tTile !== undefined) {
-												for (let iT = 0, lT = tTile.length; iT < lT; ++iT) {
-													cliffBottomTilesTiles.push(tTile[iT]);
-													cliffBottomTiles.push(cliffDown);
-												}
-											}
-										}
-										break;
-								}
-							}*/
 						}
 					}
 				}
 
-				if (newTileData !== undefined)
+				if (newTileData === undefined) {
+					newTiles.push(TileData.TileLUTSets[tile.tileSet][0x00001111]);
+				} else
 					newTiles.push(newTileData);
-				//console.log(TileF.ConstructTilePaintMatrix(allTiles[i2].tile, TileF.ConstructPaintULDRMatrix(allTiles[i2].tile).ToArray()), TileF.ConstructPaintULDRMatrix(allTiles[i2].tile));
+
+				//if (newTileData !== undefined)
+				//newTiles.push(newTileData);
 			}
 
 			if (cliffBottomTilesTiles.length > 0 && cliffBottomTiles.length > 0 && cliffBottomTilesTiles.length === cliffBottomTiles.length) {
@@ -660,10 +643,17 @@ class TileF {
 				newTiles.push(...cliffBottomTiles);
 			}
 
+			//allTiles[4].tile.ChangeSprite(newTiles[4]);
+			//allTiles[4].targetCanvas = AtlasController.GetAtlas(newTiles[4].atlas).GetCanvas();
+			//CanvasDrawer.UpdateTerrainOperation(allTiles[4]);
+
 			for (let i2 = 0, lI2 = allTiles.length; i2 < lI2; ++i2) {
 				if (newTiles[i2] !== undefined && newTiles[i2] !== null) {
-					allTiles[i2].tile.ChangeSprite(newTiles[i2]);
-					CanvasDrawer.UpdateTerrainOperation(allTiles[i2]);
+					if (allTiles[i2].tile.tileSet === tile.tileSet) {
+						allTiles[i2].tile.ChangeSprite(newTiles[i2]);
+						allTiles[i2].targetCanvas = AtlasController.GetAtlas(newTiles[i2].atlas).GetCanvas();
+						CanvasDrawer.UpdateTerrainOperation(allTiles[i2]);
+					}
 				}
 			}
 		}
@@ -671,7 +661,147 @@ class TileF {
 
 	/**
 	 * 
+	 * @param {GameObject} object 
+	 */
+	static GetPaintedTileData(object) {
+		const tile = object.drawingOperation.tile;
+		let objects = TileF.GetNeighbourObjects(object, tile.tileSet);
+
+		/*let test = TileF.ConstructAtlasObjectTileMatrix(objects, tile.tileSet);
+		let tempuldr = test.ToBinary();
+		let uldr = TileULDR.Get(Number(GetAtlasTileMatrix(tempuldr.replace('0x', ''), 0)));
+
+		let newTileData;
+		if (uldr !== undefined) {
+			if (uldr.includes('CornerDouble')) {
+				if (TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'] !== undefined && TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'][uldr] !== undefined)
+					newTileData = TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'][uldr];
+			} else if (uldr.includes('Corner')) {
+				if (TileData.TileLUTSets[tile.tileSet + 'Corner'] !== undefined && TileData.TileLUTSets[tile.tileSet + 'Corner'][uldr] !== undefined)
+					newTileData = TileData.TileLUTSets[tile.tileSet + 'Corner'][uldr];
+			} else if (uldr.includes('Angle')) {
+				if (TileData.TileLUTSets[tile.tileSet + 'Angle'] !== undefined && TileData.TileLUTSets[tile.tileSet + 'Angle'][uldr] !== undefined)
+					newTileData = TileData.TileLUTSets[tile.tileSet + 'Angle'][uldr];
+			} else {
+				if (TileData.TileLUTSets[tile.tileSet] !== undefined && TileData.TileLUTSets[tile.tileSet][uldr] !== undefined) {
+					newTileData = TileData.TileLUTSets[tile.tileSet][uldr];
+				}
+			}
+		}
+
+		if (newTileData !== undefined) {
+			object.drawingOperation.tile.ChangeSprite(newTileData);
+			object.drawingOperation.targetCanvas = AtlasController.GetAtlas(newTileData.atlas).GetCanvas();
+			object.FlagDrawingUpdate(object.position);
+		}*/
+
+		for (let i = 0, l = objects.length; i < l; ++i) {
+			if (objects[i] !== null && objects[i] !== undefined) {
+				let updatedTileData = TileF.UpdateObjectTile(objects[i].owner, tile.tileSet);
+
+				if (updatedTileData !== undefined) {
+					objects[i].owner.drawingOperation.tile.ChangeSprite(updatedTileData);
+					objects[i].owner.drawingOperation.targetCanvas = AtlasController.GetAtlas(updatedTileData.atlas).GetCanvas();
+					objects[i].owner.FlagDrawingUpdate(objects[i].owner.position);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 
+	 * @param {GameObject} object 
+	 */
+	static UpdateObjectTile(object, tileSet) {
+		const tile = object.drawingOperation.tile;
+
+		let objects = TileF.GetNeighbourObjects(object, tileSet);
+
+		let test = TileF.ConstructAtlasObjectTileMatrix(objects);
+		let tempuldr = test.ToBinary();
+		let uldr = TileULDR.Get(Number(GetAtlasTileMatrix(tempuldr.replace('0x', ''), 1)));
+
+		let newTileData;
+		if (uldr !== undefined) {
+			if (uldr.includes('CornerDouble')) {
+				if (TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'] !== undefined && TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'][uldr] !== undefined)
+					newTileData = TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'][uldr];
+			} else if (uldr.includes('Corner')) {
+				if (TileData.TileLUTSets[tile.tileSet + 'Corner'] !== undefined && TileData.TileLUTSets[tile.tileSet + 'Corner'][uldr] !== undefined)
+					newTileData = TileData.TileLUTSets[tile.tileSet + 'Corner'][uldr];
+			} else if (uldr.includes('Angle')) {
+				if (TileData.TileLUTSets[tile.tileSet + 'Angle'] !== undefined && TileData.TileLUTSets[tile.tileSet + 'Angle'][uldr] !== undefined)
+					newTileData = TileData.TileLUTSets[tile.tileSet + 'Angle'][uldr];
+			} else {
+				if (TileData.TileLUTSets[tile.tileSet] !== undefined && TileData.TileLUTSets[tile.tileSet][uldr] !== undefined) {
+					newTileData = TileData.TileLUTSets[tile.tileSet][uldr];
+				}
+			}
+		}
+
+		return newTileData;
+
+		/*if (newTileData !== undefined) {
+			object.drawingOperation.tile.ChangeSprite(newTileData);
+			object.drawingOperation.targetCanvas = AtlasController.GetAtlas(newTileData.atlas).GetCanvas();
+			object.FlagDrawingUpdate(object.position);
+		}*/
+	}
+
+	/**
+	 * 
+	 * @param {GameObject} object 
+	 * @param {string} tileSet 
+	 * @returns {DrawingOperation[]}
+	 */
+	static GetNeighbourObjects(object, tileSet) {
+		let nearbyObjects = CollisionHandler.GCH.GetInRangeClassName(object.BoxCollision, object.drawingOperation.tile.size.x * 2, object.constructor.name);
+
+		let offsetTileMatrix = new Matrix(
+			new Vector2D(-1, -1), new Vector2D(0, -1), new Vector2D(1, -1),
+			new Vector2D(-1, 0), new Vector2D(0, 0), new Vector2D(1, 0),
+			new Vector2D(-1, 1), new Vector2D(0, 1), new Vector2D(1, 1)
+		);
+
+		/** @type{Vector2D[]} */ let offsetTileMatrixArr = offsetTileMatrix.ToArray();
+
+		for (let i = 0, l = offsetTileMatrixArr.length; i < l; ++i) {
+			offsetTileMatrixArr[i].x = object.drawingOperation.tile.position.x + (offsetTileMatrixArr[i].x * object.drawingOperation.tile.size.x);
+			offsetTileMatrixArr[i].y = object.drawingOperation.tile.position.y + (offsetTileMatrixArr[i].y * object.drawingOperation.tile.size.y);
+		}
+
+		/** @type {DrawingOperation[]} */ let objectTileArr = [
+			null, null, null,
+			null, object.drawingOperation, null,
+			null, null, null
+		];
+
+		for (let i = 0, l = nearbyObjects.length; i < l; ++i) {
+			for (let i2 = 0, l2 = offsetTileMatrixArr.length; i2 < l2; ++i2) {
+				if (offsetTileMatrixArr[i2].NearlyEqual(nearbyObjects[i].position)) {
+					objectTileArr[i2] = nearbyObjects[i].collisionOwner.drawingOperation;
+				}
+			}
+		}
+
+		return objectTileArr;
+	}
+
+	/**
+	 * 
+	 * @param {DrawingOperation[]} objects 
+	 * @returns 
+	 */
+	static ConstructAtlasObjectTileMatrix(objects) {
+		let surroundingTiles = Matrix.FromArray(objects);
+		surroundingTiles.ConvertToBinary();
+		return surroundingTiles;
+	}
+
+	/**
+	 * 
 	 * @param {Tile} tile 
+	 * @param {string} tileSet
 	 * @returns {Matrix}
 	 */
 	static ConstructAtlasTileMatrix(tile, tileSet = 'soilTiled') {
@@ -729,7 +859,7 @@ class TileF {
 	 * 
 	 * @param {Vector2D} position 
 	 * @param {Matrix} tilePaintULDRMatrix 
-	 * @returns
+	 * @returns {DrawingOperation[]}
 	 */
 	static GetSurroundingTiles(position, tilePaintULDRMatrix = null) {
 		let pos = position.Clone();
@@ -1079,7 +1209,15 @@ class Tile {
 	 * @returns {Tile}
 	 */
 	Clone() {
-		return new Tile(new Vector2D(this.position.x, this.position.y), new Vector2D(this.tilePosition.x, this.tilePosition.y), new Vector2D(this.size.x, this.size.y), this.transparent, this.atlas, this.tileType, this.tileTerrain);
+		return new Tile(
+			new Vector2D(this.position.x, this.position.y),
+			new Vector2D(this.tilePosition.x, this.tilePosition.y),
+			new Vector2D(this.size.x, this.size.y),
+			this.transparent,
+			this.atlas,
+			this.tileType,
+			this.tileTerrain
+		);
 	}
 
 	/**

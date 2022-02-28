@@ -1,9 +1,9 @@
 import {
-	DebugDrawer, Vector2D, Tile, AtlasController, RectMerge, Operation, OverlapOICheck, AmbientLight,
+	DebugDrawer, Vector2D, Tile, AtlasController, RectMerge, Operation, AmbientLight,
 	BWDrawingType, AllCollisions, CollisionTypeCheck, Polygon, ClearOperation, TileData, InputHandler,
 	CollisionHandler, LightFalloffType, BoxCollision, worldTiles, Brush, BrushDrawState, Shadow2D, TileF,
 	BrushType, RectOperation, PathOperation, TextOperation, DrawingOperation, OperationType, TileLUT,
-	SelectedTileEditor, UIDrawer, MasterObject, Rectangle, LightingOperation, Color, LightSystem, PropEditor, SaveController, Mastertime
+	SelectedTileEditor, UIDrawer, MasterObject, Rectangle, LightingOperation, Color, LightSystem, PropEditor, SaveController, Mastertime, CollisionCheckEnum
 } from '../../internal.js';
 
 /** @typedef {import('./operation.js').Operations} Operations */
@@ -295,6 +295,8 @@ class CanvasDrawer {
 		//this.mainCanvas.setAttribute('height', 1440);
 		//this.mainCanvas.style.width = '2560px';
 		//this.mainCanvas.style.height = '1440px';
+
+		window.addEventListener('resize', this);
 
 		/** @type {CanvasRenderingContext2D} */ this.mainCanvasCtx = this.mainCanvas.getContext('2d');
 		this.mainCanvasCtx.imageSmoothingEnabled = false;
@@ -643,7 +645,7 @@ class CanvasDrawer {
 			i = 0,
 			iL = 0;
 
-			
+
 
 		for (y = yMin; y < yMax; ++y) {
 			if (this.drawingOperations[y] !== undefined) {
@@ -847,8 +849,11 @@ class CanvasDrawer {
 			let posCoords = new Vector2D(this.lastAtlasCoords.x, this.lastAtlasCoords.y);
 
 			posCoords.MultF(32);
-			posCoords.x += Math.abs((this.canvasOffset.x % 32));
-			posCoords.y += Math.abs((this.canvasOffset.y % 32));
+			posCoords.Sub(this.canvasOffset);
+			//posCoords.x += Math.abs((this.canvasOffset.x % 32));
+			//posCoords.y += Math.abs((this.canvasOffset.y % 32));
+			posCoords.x += 32;
+
 			this.UpdateSpritePreview(posCoords);
 		}
 
@@ -1062,7 +1067,7 @@ class CanvasDrawer {
 				break;
 
 			case 'ClearOperation':
-				ctx.clearRect(drawingOperation.rectangle.x, drawingOperation.rectangle.y, drawingOperation.rectangle.w, drawingOperation.rectangle.h);
+				ctx.clearRect(drawingOperation.rectangle.x - this.canvasOffset.x, drawingOperation.rectangle.y - this.canvasOffset.y, drawingOperation.rectangle.w, drawingOperation.rectangle.h);
 				this.CheckClearOverlapping(drawingOperation.rectangle.x, drawingOperation.rectangle.y, drawingOperation.rectangle.w, drawingOperation.rectangle.h);
 				break;
 
@@ -1113,7 +1118,7 @@ class CanvasDrawer {
 
 		let rectA = new Rectangle(positionX, positionY, sizeX, sizeY);
 		rectA.Floor();
-		let overlaps = CollisionHandler.GCH.GetOverlaps(this.ClearBoxCollision, OverlapOICheck, CollisionTypeCheck.Overlap);
+		let overlaps = CollisionHandler.GCH.GetOverlaps(this.ClearBoxCollision, CollisionCheckEnum.OverlapsIntersects, CollisionTypeCheck.Overlap);
 
 		//DebugDrawer.AddDebugRectOperation(rectA, 0.016, Color.CSS_COLOR_TABLE.firebrick, true);
 		let rectB = new Rectangle(0, 0, 0, 0);
@@ -1580,17 +1585,22 @@ class CanvasDrawer {
 			return;
 
 		let posCoords = position.Clone();
+		posCoords.x -= 32;
 
 		if (AllCollisions[/** @type {Tile} */(this.selectedSprite).atlas] !== undefined) {
 			this.spritePreviewCanvasCtx.clearRect(0, 0, this.spritePreviewCanvas.width, this.spritePreviewCanvas.height);
 		}
 
+		posCoords.Add(this.canvasOffset);
+
+		const brushOperations = this.Brush.GenerateDrawingOperations(
+			posCoords,
+			this.spritePreviewCanvas,
+			this.atlasController.GetAtlas(/** @type {Tile} */(this.selectedSprite).atlas).GetCanvas()
+		);
+
 		this.AddDrawOperations(
-			this.Brush.GenerateDrawingOperations(
-				Vector2D.Add(posCoords, this.canvasOffset),
-				this.spritePreviewCanvas,
-				this.atlasController.GetAtlas(/** @type {Tile} */(this.selectedSprite).atlas).GetCanvas()
-			),
+			brushOperations,
 			OperationType.previewTerrain,
 			this.Brush.drawState
 		);
@@ -1621,6 +1631,10 @@ class CanvasDrawer {
 
 	handleEvent(e) {
 		switch (e.type) {
+			case 'resize':
+				mouseToAtlasRectMap = {};
+				break;
+
 			case 'click':
 				switch (e.target.id) {
 					case 'save-canvas':
@@ -1697,9 +1711,9 @@ class CanvasDrawer {
 					posCoords.Sub(tempOffsets);
 
 					if (PropEditor.GPEditor.selectedProp === undefined) {
-						this.UpdateSpritePreview(posCoords);
+						//this.UpdateSpritePreview(posCoords);
 					}
-					this.lastAtlasCoords = new Vector2D(atlasCoords.x, atlasCoords.y);
+					this.lastAtlasCoords = gridMousePosition.Clone();// new Vector2D(atlasCoords.x, atlasCoords.y);
 				}
 
 				if (this.isPainting === true) {

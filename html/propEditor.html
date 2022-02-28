@@ -8,6 +8,7 @@
 		box-sizing: content-box;
 		overflow: hidden;
 		visibility: collapse;
+		height: 97vh;
 	}
 
 	.prop-editor-container {
@@ -33,7 +34,7 @@
 		position: relative;
 		width: 100%;
 		height: 80%;
-		overflow-y:auto;
+		overflow-y: auto;
 		background-color: rgb(26, 26, 26);
 		max-width: 960px;
 	}
@@ -54,7 +55,7 @@
 	}
 
 	.prop-editor-selected-prop {
-		display:flex;
+		display: flex;
 		flex-direction: column;
 	}
 
@@ -99,6 +100,19 @@
 	.tree-active {
 		display: block;
 	}
+
+	.prop-editor-custom-data {
+		color: white;
+		font-size: 11px;
+		min-height: 250px;
+		max-height: 250px;
+		overflow-y: auto;
+		border:2px solid grey;
+		margin:3px;
+		padding-left:5px;
+		white-space: pre;
+		max-width: 286px;
+	}
 </style>
 
 <div class="prop-editor" id="prop-editor">
@@ -106,6 +120,7 @@
 		<input type="text" id="prop-editor-selected-prop-name">
 		<input type="number" id="prop-editor-selected-prop-positionx">
 		<input type="number" id="prop-editor-selected-prop-positiony">
+		<div id="prop-editor-selected-prop-custom-data" class="prop-editor-custom-data"></div>
 	</div>
 	<div id="prop-editor-grid" class="prop-editor-grid"></div>
 	<div class="prop-editor-controls">

@@ -795,8 +795,8 @@ class TileMaker {
 					[[2], [3]],
 				]
 			},
-			woodenFloor: {
-				name: 'woodenFloor',
+			woodenFloor2x2: {
+				name: 'woodenFloor2x2',
 				tiles: [
 					new Tile(new Vector2D(0, 12), new Vector2D(11, 42), new Vector2D(32, 32), true, 'victorianmarket', 0, TileType.Prop, TileTerrain.Wood),
 					new Tile(new Vector2D(0, 12), new Vector2D(13, 42), new Vector2D(32, 32), true, 'victorianmarket', 0, TileType.Prop, TileTerrain.Wood),
@@ -819,6 +819,15 @@ class TileMaker {
 				tileLayout: [
 					[[0], [1]],
 					[[2], [3]],
+				]
+			},
+			woodenFloor: {
+				name: 'woodenFloor',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(4, 3), new Vector2D(32, 32), true, 'floors', 0, TileType.Ground, TileTerrain.Wood)
+				],
+				tileLayout: [
+					[[0]],
 				]
 			}
 		};

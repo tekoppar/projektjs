@@ -156,8 +156,9 @@ class DebugDrawer extends Cobject {
 	 * @param {number} lifetime 
 	 * @param {string} color 
 	 * @param {boolean} fillOrOutline 
+	 * @param {number} alpha
 	 */
-	AddDebugRectOperation(rect, lifetime = 5, color = 'purple', fillOrOutline = false) {
+	AddDebugRectOperation(rect, lifetime = 5, color = 'purple', fillOrOutline = false, alpha = 0.5) {
 		if (this.gameDebugCanvas === undefined)
 			return;
 
@@ -168,7 +169,7 @@ class DebugDrawer extends Cobject {
 			false,
 			0,
 			lifetime,
-			1.0,
+			alpha,
 			fillOrOutline
 		));
 	}
@@ -179,9 +180,10 @@ class DebugDrawer extends Cobject {
 	 * @param {number} lifetime 
 	 * @param {string} color 
 	 * @param {boolean} fillOrOutline 
+	 * @param {number} alpha
 	 */
-	static AddDebugRectOperation(rect, lifetime = 5, color = 'purple', fillOrOutline = false) {
-		DebugDrawer._Instance.AddDebugRectOperation(rect, lifetime, color, fillOrOutline);
+	static AddDebugRectOperation(rect, lifetime = 5, color = 'purple', fillOrOutline = false, alpha = 0.5) {
+		DebugDrawer._Instance.AddDebugRectOperation(rect, lifetime, color, fillOrOutline, alpha);
 	}
 
 	/**
@@ -355,8 +357,8 @@ class DebugDrawer extends Cobject {
 					size.y + 2
 				);
 				drawingOperation.drawingCanvas.getContext('2d').clearRect(
-					Math.floor(drawingOperation.position.x - 1),// - this.offset.x),
-					Math.floor(drawingOperation.position.y - 1),// - this.offset.y),
+					Math.floor(drawingOperation.position.x - 1) - this.offset.x,
+					Math.floor(drawingOperation.position.y - 1) - this.offset.y,
 					size.x + 2,
 					size.y + 2
 				);
@@ -437,7 +439,7 @@ class DebugDrawer extends Cobject {
 					);
 				}
 
-				context.globalAlpha = 0.3;
+				//context.globalAlpha = 0.3;
 
 				if (drawingOperation.lifeTime !== -1) {
 					drawingOperation.Tick(delta);
@@ -676,7 +678,7 @@ class DebugDrawer extends Cobject {
 		cameraPosition.OneMinus();
 
 		this.gameDebugCanvasCtx.strokeStyle = Color.CSS_COLOR_TABLE.gray;
-		this.gameDebugCanvasCtx.globalAlpha = 0.5;
+		this.gameDebugCanvasCtx.globalAlpha = 1.0;
 
 		this.gameDebugCanvasCtx.beginPath();
 		for (let y = 0, yl = (CanvasDrawer.GCD.cameraRect.h / size) + 1; y < yl; ++y) {

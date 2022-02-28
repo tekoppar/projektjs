@@ -748,6 +748,14 @@ class Vector {
 
 	/**
 	 * 
+	 * @returns {string}
+	 */
+	 ToString() {
+		return this.x + ', ' + this.y + ', ' + this.z;
+	}
+
+	/**
+	 * 
 	 * @returns {{x:number, y:number, z:number}}
 	 */
 	toJSON() {
@@ -884,6 +892,14 @@ class Vector4D {
 	 */
 	SaveToFile() {
 		return 'new Vector4D(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.a + ')';
+	}
+
+	/**
+	 * 
+	 * @returns {string}
+	 */
+	 ToString() {
+		return this.x + ', ' + this.y + ', ' + this.z + ', ' + this.a;
 	}
 
 	/**
@@ -1124,16 +1140,26 @@ class Matrix {
 		return new Matrix(this.x1, this.y1, this.z1, this.x2, this.y2, this.z2, this.x3, this.y3, this.z3);
 	}
 
-	/*
-	526
-	1?0
-	734
-	*/
-
+	/**
+	 * 
+	 * 5 2 6
+	 * 1 x 0
+	 * 7 3 4
+	 * @param {*} binary 
+	 * @returns 
+	 */
 	static FromBinary(binary) {
 		return new Matrix(binary[5], binary[2], binary[6], binary[1], 1, binary[0], binary[7], binary[3], binary[4]);
 	}
 
+	/**
+	 * 
+	 * 0 1 2
+	 * 3 4 5
+	 * 6 7 8
+	 * @param {*} array 
+	 * @returns 
+	 */
 	static FromArray(array) {
 		return new Matrix(array[0], array[1], array[2], array[3], array[4], array[5], array[6], array[7], array[8]);
 	}
@@ -1338,6 +1364,16 @@ class Rectangle {
 
 	/**
 	 * 
+	 * @param {number} x 
+	 * @param {number} y 
+	 * @returns {boolean}
+	 */
+	InsideGreaterLessXY(x, y) {
+		return x > this.x && x < this.x + this.w && y > this.y && y < this.y + this.h;
+	}
+
+	/**
+	 * 
 	 * @param {Rectangle} rect 
 	 * @returns {boolean}
 	 */
@@ -1383,6 +1419,18 @@ class Rectangle {
 
 	/**
 	 * 
+	 * @param {number} x 
+	 * @param {number} y 
+	 * @param {number} w 
+	 * @param {number} h 
+	 * @returns {boolean}
+	 */
+	 IsCornerInside(x, y, w, h) {
+		return this.InsideGreaterLessXY(x, y) || this.InsideGreaterLessXY(x + w, y) || this.InsideGreaterLessXY(x, y + h) || this.InsideGreaterLessXY(x + w, y + h);
+	}
+
+	/**
+	 * 
 	 * @param {Rectangle} rect 
 	 * @returns {boolean}
 	 */
@@ -1400,6 +1448,14 @@ class Rectangle {
 
 		trueValue = b.IsRectOutside(a);
 		falseValue = a.IsRectOutside(b);
+		console.log(trueValue, falseValue);
+
+		let c = new Rectangle(0, 0, 100, 100);
+		let d = new Rectangle(100, 100, 25, 25);
+		c.UpdateCornersData();
+		d.UpdateCornersData();
+		falseValue = c.IsCornerInside(a.x, a.y, a.w, a.h);
+		trueValue = c.IsCornerInside(d.x, d.y, d.w, d.h);
 		console.log(trueValue, falseValue);
 	}
 
@@ -3938,6 +3994,27 @@ class Color {
 	static RandomColorRGBA() {
 		Color.RandomColorInt = CMath.RandomInt(0, Color.CSS_COLOR_NAMES.length - 1);
 		return Color.CSS_COLOR_TABLE[Color.CSS_COLOR_NAMES[Color.RandomColorInt].toLowerCase()];
+	}
+
+	/**
+	 * 
+	 * @param {number} red 
+	 * @param {number} green 
+	 * @param {number} blue 
+	 * @param {number} alpha 
+	 * @returns {string}
+	 */
+	static ColorValuesToCSS(red, green, blue, alpha) {
+		return 'rgba(' + red + ', ' + green + ', ' + blue + ', ' + alpha + ')';
+	}
+
+	/**
+	 * 
+	 * @param {Color} color 
+	 * @returns {string}
+	 */
+	static ColorToCSS(color) {
+		return 'rgba(' + color.red + ', ' + color.green + ', ' + color.blue + ', ' + color.alpha + ')';
 	}
 
 	static ColorToRGBA(color) {

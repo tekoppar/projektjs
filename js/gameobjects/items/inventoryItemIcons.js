@@ -194,6 +194,7 @@ Object.assign(inventoryItemIcons, {
 	stoneCutter: {sprite: new Vector4D(0, 0, 64, 64), atlasSize: new Vector2D(64, 64), url: 'stoneCutter' + PawnSetupController._AtlasObjectSuffix },
 	planerBench: {sprite: new Vector4D(0, 0, 96, 64), atlasSize: new Vector2D(96, 64), url: 'planerBench' },
 	sawTable: {sprite: new Vector4D(0, 0, 64, 64), atlasSize: new Vector2D(64, 64), url: 'sawTable' },
+	woodenFloor: {sprite: new Vector4D(6, 43, 32, 32), atlasSize: new Vector2D(32, 32), url: 'floors'},
 });
 
 //equippable items

@@ -20,6 +20,7 @@ AtlasLUT.duckWalk = { url: '/content/sprites/animals/duck_walk.png', size: new V
 AtlasLUT.inputLeft = { url: '/content/sprites/ui/inputLeft.png', size: new Vector2D(16, 16), tileSize: new Vector2D(16, 16), name: 'inputLeft' };
 AtlasLUT.inputRight = { url: '/content/sprites/ui/inputRight.png', size: new Vector2D(16, 16), tileSize: new Vector2D(16, 16), name: 'inputRight' };
 AtlasLUT.inputMiddle = { url: '/content/sprites/ui/inputMiddle.png', size: new Vector2D(32, 26), tileSize: new Vector2D(32, 32), name: 'inputMiddle' };
+AtlasLUT.floors = { url: '/content/sprites/Collection/floors.png', size: new Vector2D(1024, 2048), tileSize: new Vector2D(32, 32), name: 'floors' };
 
 let AtlasKeys = Object.keys(AtlasLUT);
 

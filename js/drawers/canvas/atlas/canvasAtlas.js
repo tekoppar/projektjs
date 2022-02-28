@@ -1,4 +1,8 @@
-import { Vector2D, Tile, TileType, TileTerrain, AtlasController, BoxCollision, correctMouse, CMath, LightSystem, CanvasDrawer, BWDrawingType, Color, CollisionHandler, OverlapOverlapsCheck, CollisionTypeCheck } from '../../../internal.js';
+import {
+	Vector2D, Tile, TileType, TileTerrain, AtlasController, BoxCollision,
+	correctMouse, CMath, LightSystem, CanvasDrawer, BWDrawingType, Color,
+	CollisionHandler, CollisionTypeCheck, CollisionCheckEnum
+} from '../../../internal.js';
 
 /**
  * @class
@@ -24,7 +28,7 @@ class CanvasAtlas {
 		/** @type {string} */ this.name = name;
 		/** @type {CanvasDrawer} */ this.CanvasDrawer = CanvasDrawer;
 
-		/** @type {MouseEvent} */ this.mouseStart; 
+		/** @type {MouseEvent} */ this.mouseStart;
 		/** @type {Vector2D} */ this.startDrag;
 		/** @type {Vector2D} */ this.endDrag;
 	}
@@ -315,7 +319,7 @@ class ShadowCanvasOperation {
 		if (this.shadowCanvas === undefined)
 			return;
 
-		let overlaps = CollisionHandler.GCH.GetOverlapsByClassName(bb, 'AmbientLight', OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
+		let overlaps = CollisionHandler.GCH.GetOverlapsByClassName(bb, 'AmbientLight', CollisionCheckEnum.Overlaps, CollisionTypeCheck.Overlap);
 
 		for (let i = 0, l = overlaps.length; i < l; ++i) {
 			let closestPoint = CMath.ClosestPointOnPolygon(bb.boundingBox.GetCornersVector2D(), overlaps[i].collisionOwner.position);

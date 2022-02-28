@@ -6,7 +6,7 @@ class Math3D {
 	}
 
 	/**
-	 * Algorithm to calculate the rotation angle and rotates an array
+	 * Algorithm to calculate the rotation angle and rotates an array in place
 	 * @param {Number} pitch 
 	 * @param {Number} roll 
 	 * @param {Number} yaw  

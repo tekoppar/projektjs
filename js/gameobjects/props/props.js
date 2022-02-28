@@ -246,7 +246,7 @@ class ExtendedProp extends Prop {
 		if (this.realtimeShadow !== undefined) {
 			this.realtimeShadow.position = new Vector2D(this.position.x + (this.realtimeShadow.shadowObject.GetSizeX() - this.size.x) / 2, this.position.y);
 			//this.realtimeShadow.SetPosition(new Vector2D(this.position.x + (this.realtimeShadow.shadowObject.GetSize().x - this.size.x) / 2, this.position.y));
-			this.realtimeShadow.AddShadow(this.drawingOperation.tile);
+			this.realtimeShadow.shadowObject.DrawToShadowCanvas(this.drawingOperation.tile);
 			this.realtimeShadow.UpdateShadow(this.drawingOperation.tile);
 		}
 
@@ -280,7 +280,7 @@ class ExtendedProp extends Prop {
 		if (this.realtimeShadow !== undefined) {
 			this.realtimeShadow.position = new Vector2D(this.position.x + (this.realtimeShadow.shadowObject.GetSizeX() - this.size.x) / 2, this.position.y);
 			//this.realtimeShadow.SetPosition(new Vector2D(this.position.x + (this.realtimeShadow.shadowObject.GetSize().x - this.size.x) / 2, this.position.y));
-			this.realtimeShadow.AddShadow(this.drawingOperation.tile);
+			this.realtimeShadow.shadowObject.DrawToShadowCanvas(this.drawingOperation.tile);
 			this.realtimeShadow.UpdateShadow(this.drawingOperation.tile);
 		}
 		//this.BlockingCollision.UpdateCollision();

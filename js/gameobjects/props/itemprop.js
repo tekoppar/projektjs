@@ -91,7 +91,7 @@ class ItemProp extends ExtendedProp {
 			}
 
 			this.realtimeShadow.SetPosition(new Vector2D(this.position.x + (this.realtimeShadow.shadowObject.GetSizeX() - this.size.x) / 2, this.position.y));
-			this.realtimeShadow.AddShadow(this.drawingOperation.tile);
+			this.realtimeShadow.shadowObject.DrawToShadowCanvas(this.drawingOperation.tile);
 			this.realtimeShadow.UpdateShadow(this.drawingOperation.tile);
 		}
 	}

@@ -218,7 +218,7 @@ export let TileLUT = {
 		},
 		"15": {
 			"6": {"atlas":"terrain","tileType":1,"tileTerrain":4,"transparent":false,"tileULDR":"CornerUpLeft","tileSet":"soilTiledCorner","tilePosition":{"x":6,"y":15},"size":{"x":32,"y":32}},
-			"7": {"atlas":"terrain","tileType":1,"tileTerrain":4,"transparent":false,"tileULDR":"CornerUpRight","tileSet":"soilTiledCorner","tilePosition":{"x":7,"y":15},"size":{"x":32,"y":32}},
+			"7": {"atlas":"terrain","tileType":1,"tileTerrain":9,"transparent":false,"tileULDR":"CornerUpRight","tileSet":"soilTiledCorner","tilePosition":{"x":7,"y":15},"size":{"x":32,"y":32}},
 			"21": {"atlas":"terrain","tileType":0,"tileTerrain":2,"transparent":true,"tileULDR":"Left","tileSet":"waterfall","tilePosition":{"x":21,"y":15},"size":{"x":32,"y":32}},
 			"22": {"atlas":"terrain","tileType":0,"tileTerrain":2,"transparent":false,"tileULDR":"Middle","tileSet":"waterfall","tilePosition":{"x":22,"y":15},"size":{"x":32,"y":32}},
 			"23": {"atlas":"terrain","tileType":0,"tileTerrain":2,"transparent":true,"tileULDR":"Right","tileSet":"waterfall","tilePosition":{"x":23,"y":15},"size":{"x":32,"y":32}},
@@ -357,7 +357,7 @@ export let TileLUT = {
 		"32": {
 			"0": {"atlas":"terrain","tileType":1,"tileTerrain":4,"transparent":false,"tileULDR":"CornerDoubleDLUR","tileSet":"soilTiledDoubleCorner","tilePosition":{"x":0,"y":32},"size":{"x":32,"y":32}},
 			"1": {"atlas":"terrain","tileType":1,"tileTerrain":4,"transparent":false,"tileULDR":"CornerDoubleULDR","tileSet":"soilTiledDoubleCorner","tilePosition":{"x":1,"y":32},"size":{"x":32,"y":32}},
-			"16": {"atlas":"terrain","tileType":0,"tileTerrain":2,"transparent":true,"tileULDR":"CornerDoubleDLUR","tileSet":"waterDirtDoubleCorner","tilePosition":{"x":16,"y":32},"size":{"x":32,"y":32}},
+			"16": {"atlas":"terrain","tileType":0,"tileTerrain":2,"transparent":true,"tileULDR":"CornerDoubleULDR","tileSet":"waterDirtDoubleCorner","tilePosition":{"x":0,"y":0},"size":{"x":32,"y":32}},
 			"20": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"UpLeft","tileSet":"cliffGrass","tilePosition":{"x":20,"y":32},"size":{"x":32,"y":32}},
 			"21": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Up","tileSet":"cliffGrass","tilePosition":{"x":21,"y":32},"size":{"x":32,"y":32}},
 			"22": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"UpRight","tileSet":"cliffGrass","tilePosition":{"x":22,"y":32},"size":{"x":32,"y":32}},
@@ -369,9 +369,9 @@ export let TileLUT = {
 		"33": {
 			"0": {"atlas":"terrain","tileType":1,"tileTerrain":0,"transparent":true,"tileULDR":"CornerDoubleDLUR","tileSet":"grassGreenDoubleCorner","tilePosition":{"x":0,"y":33},"size":{"x":32,"y":32}},
 			"1": {"atlas":"terrain","tileType":1,"tileTerrain":0,"transparent":true,"tileULDR":"CornerDoubleULDR","tileSet":"grassGreenDoubleCorner","tilePosition":{"x":1,"y":33},"size":{"x":32,"y":32}},
-			"14": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Up","tileSet":"cliffGrassAngle","tilePosition":{"x":0,"y":0},"size":{"x":32,"y":32}},
-			"15": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Up","tileSet":"cliffGrassAngle","tilePosition":{"x":0,"y":0},"size":{"x":32,"y":32}},
-			"16": {"atlas":"terrain","tileType":0,"tileTerrain":2,"transparent":true,"tileULDR":"CornerDoubleULDR","tileSet":"waterDirtDoubleCorner","tilePosition":{"x":16,"y":33},"size":{"x":32,"y":32}},
+			"14": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Up","tileSet":"cliffGrassAngle","tilePosition":{"x":14,"y":33},"size":{"x":32,"y":32}},
+			"15": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Up","tileSet":"cliffGrassAngle","tilePosition":{"x":15,"y":33},"size":{"x":32,"y":32}},
+			"16": {"atlas":"terrain","tileType":0,"tileTerrain":2,"transparent":true,"tileULDR":"CornerDoubleDLUR","tileSet":"waterDirtDoubleCorner","tilePosition":{"x":0,"y":0},"size":{"x":32,"y":32}},
 			"20": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Left","tileSet":"cliffGrass","tilePosition":{"x":20,"y":33},"size":{"x":32,"y":32}},
 			"21": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":false,"tileULDR":"Middle","tileSet":"cliffGrass","tilePosition":{"x":21,"y":33},"size":{"x":32,"y":32}},
 			"22": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Right","tileSet":"cliffGrass","tilePosition":{"x":22,"y":33},"size":{"x":32,"y":32}},
@@ -382,6 +382,8 @@ export let TileLUT = {
 			"31": {"atlas":"terrain","tileType":1,"tileTerrain":0,"transparent":false,"tileULDR":"CornerDownRight","tileSet":"grassHoleCorner","tilePosition":{"x":31,"y":33},"size":{"x":32,"y":32}}
 		},
 		"34": {
+			"0": {"atlas":"terrain","tileType":1,"tileTerrain":9,"transparent":true,"tileULDR":"CornerDoubleDLUR","tileSet":"groundCrackedLightBrownDoubleCorner","tilePosition":{"x":0,"y":34},"size":{"x":32,"y":32}},
+			"1": {"atlas":"terrain","tileType":1,"tileTerrain":9,"transparent":true,"tileULDR":"CornerDoubleULDR","tileSet":"groundCrackedLightBrownDoubleCorner","tilePosition":{"x":1,"y":34},"size":{"x":32,"y":32}},
 			"14": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"AngleUpLeft","tileSet":"cliffGrassAngle","tilePosition":{"x":14,"y":34},"size":{"x":32,"y":32}},
 			"15": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"AngleUpRight","tileSet":"cliffGrassAngle","tilePosition":{"x":15,"y":34},"size":{"x":32,"y":32}},
 			"20": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"DownLeft","tileSet":"cliffGrass","tilePosition":{"x":20,"y":34},"size":{"x":32,"y":32}},
@@ -406,8 +408,8 @@ export let TileLUT = {
 			"31": {"atlas":"terrain","tileType":1,"tileTerrain":0,"transparent":false,"tileULDR":"Right","tileSet":"grassHole","tilePosition":{"x":31,"y":35},"size":{"x":32,"y":32}}
 		},
 		"36": {
-			"14": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Middle","tileSet":"cliffGrassAngle","tilePosition":{"x":0,"y":0},"size":{"x":32,"y":32}},
-			"15": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Middle","tileSet":"cliffGrassAngle","tilePosition":{"x":0,"y":0},"size":{"x":32,"y":32}},
+			"14": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Middle","tileSet":"cliffGrassAngle","tilePosition":{"x":14,"y":36},"size":{"x":32,"y":32}},
+			"15": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Middle","tileSet":"cliffGrassAngle","tilePosition":{"x":15,"y":36},"size":{"x":32,"y":32}},
 			"20": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"DownLeft","tileSet":"cliffGrassBottom","tilePosition":{"x":20,"y":36},"size":{"x":32,"y":32}},
 			"21": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Down","tileSet":"cliffGrassBottom","tilePosition":{"x":21,"y":36},"size":{"x":32,"y":32}},
 			"22": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"DownRight","tileSet":"cliffGrassBottom","tilePosition":{"x":22,"y":36},"size":{"x":32,"y":32}},
@@ -416,8 +418,10 @@ export let TileLUT = {
 			"31": {"atlas":"terrain","tileType":1,"tileTerrain":0,"transparent":false,"tileULDR":"DownRight","tileSet":"grassHole","tilePosition":{"x":31,"y":36},"size":{"x":32,"y":32}}
 		},
 		"37": {
-			"14": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Down","tileSet":"cliffGrassAngle","tilePosition":{"x":0,"y":0},"size":{"x":32,"y":32}},
-			"15": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Down","tileSet":"cliffGrassAngle","tilePosition":{"x":0,"y":0},"size":{"x":32,"y":32}}
+			"14": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Down","tileSet":"cliffGrassAngle","tilePosition":{"x":14,"y":37},"size":{"x":32,"y":32}},
+			"15": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"Down","tileSet":"cliffGrassAngle","tilePosition":{"x":15,"y":37},"size":{"x":32,"y":32}},
+			"20": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"CornerDoubleDLUR","tileSet":"cliffGrassDoubleCorner","tilePosition":{"x":20,"y":37},"size":{"x":32,"y":32}},
+			"21": {"atlas":"terrain","tileType":3,"tileTerrain":0,"transparent":true,"tileULDR":"CornerDoubleULDR","tileSet":"cliffGrassDoubleCorner","tilePosition":{"x":21,"y":37},"size":{"x":32,"y":32}}
 		}
 	},
 	"fence": {
@@ -523,6 +527,31 @@ export let TileLUT = {
 			"11": {"atlas":"terrainoutside","tileType":0,"tileTerrain":2,"transparent":true,"tileULDR":"DownLeft","tileSet":"waterRock","tilePosition":{"x":11,"y":37},"size":{"x":32,"y":32}},
 			"12": {"atlas":"terrainoutside","tileType":0,"tileTerrain":2,"transparent":true,"tileULDR":"Down","tileSet":"waterRock","tilePosition":{"x":12,"y":37},"size":{"x":32,"y":32}},
 			"13": {"atlas":"terrainoutside","tileType":0,"tileTerrain":2,"transparent":true,"tileULDR":"DownRight","tileSet":"waterRock","tilePosition":{"x":13,"y":37},"size":{"x":32,"y":32}}
+		}
+	},
+	"floors": {
+		"0": {
+			"4": {"atlas":"floors","tileType":1,"tileTerrain":9,"transparent":false,"tileULDR":"CornerDownRight","tileSet":"floorCarpetPatternRedCorner","tilePosition":{"x":4,"y":0},"size":{"x":32,"y":32}},
+			"5": {"atlas":"floors","tileType":1,"tileTerrain":9,"transparent":false,"tileULDR":"CornerDownLeft","tileSet":"floorCarpetPatternRedCorner","tilePosition":{"x":5,"y":0},"size":{"x":32,"y":32}}
+		},
+		"1": {
+			"4": {"atlas":"floors","tileType":1,"tileTerrain":9,"transparent":false,"tileULDR":"CornerUpRight","tileSet":"floorCarpetPatternRedCorner","tilePosition":{"x":4,"y":1},"size":{"x":32,"y":32}},
+			"5": {"atlas":"floors","tileType":1,"tileTerrain":9,"transparent":false,"tileULDR":"CornerUpLeft","tileSet":"floorCarpetPatternRedCorner","tilePosition":{"x":5,"y":1},"size":{"x":32,"y":32}}
+		},
+		"2": {
+			"3": {"atlas":"floors","tileType":1,"tileTerrain":3,"transparent":false,"tileULDR":"UpLeft","tileSet":"floorCarpetPatternRed","tilePosition":{"x":3,"y":2},"size":{"x":32,"y":32}},
+			"4": {"atlas":"floors","tileType":1,"tileTerrain":3,"transparent":false,"tileULDR":"Up","tileSet":"floorCarpetPatternRed","tilePosition":{"x":4,"y":2},"size":{"x":32,"y":32}},
+			"5": {"atlas":"floors","tileType":1,"tileTerrain":3,"transparent":false,"tileULDR":"UpRight","tileSet":"floorCarpetPatternRed","tilePosition":{"x":5,"y":2},"size":{"x":32,"y":32}}
+		},
+		"3": {
+			"3": {"atlas":"floors","tileType":1,"tileTerrain":3,"transparent":false,"tileULDR":"Left","tileSet":"floorCarpetPatternRed","tilePosition":{"x":3,"y":3},"size":{"x":32,"y":32}},
+			"4": {"atlas":"floors","tileType":1,"tileTerrain":3,"transparent":false,"tileULDR":"Middle","tileSet":"floorCarpetPatternRed","tilePosition":{"x":4,"y":3},"size":{"x":32,"y":32}},
+			"5": {"atlas":"floors","tileType":1,"tileTerrain":3,"transparent":false,"tileULDR":"Right","tileSet":"floorCarpetPatternRed","tilePosition":{"x":5,"y":3},"size":{"x":32,"y":32}}
+		},
+		"4": {
+			"3": {"atlas":"floors","tileType":1,"tileTerrain":3,"transparent":false,"tileULDR":"DownLeft","tileSet":"floorCarpetPatternRed","tilePosition":{"x":3,"y":4},"size":{"x":32,"y":32}},
+			"4": {"atlas":"floors","tileType":1,"tileTerrain":3,"transparent":false,"tileULDR":"Down","tileSet":"floorCarpetPatternRed","tilePosition":{"x":4,"y":4},"size":{"x":32,"y":32}},
+			"5": {"atlas":"floors","tileType":1,"tileTerrain":3,"transparent":false,"tileULDR":"DownRight","tileSet":"floorCarpetPatternRed","tilePosition":{"x":5,"y":4},"size":{"x":32,"y":32}}
 		}
 	}
 };

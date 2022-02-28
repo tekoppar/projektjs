@@ -476,13 +476,13 @@ class Character extends GameObject {
 
 		if (this.realtimeShadow !== undefined) {
 			this.realtimeShadow.position = this.position.Clone();
-			this.realtimeShadow.AddShadow(this.drawingOperation.tile);
-			this.realtimeShadow.AddShadow(this.shadowAttachment.drawingOperation.tile);
+			this.realtimeShadow.shadowObject.DrawToShadowCanvas(this.drawingOperation.tile);
+			this.realtimeShadow.shadowObject.DrawToShadowCanvas(this.shadowAttachment.drawingOperation.tile);
 
 			let keys = Object.keys(this.attachments);
 			for (let i = 0, l = keys.length; i < l; ++i) {
 				if (this.attachments[keys[i]] !== undefined && this.attachments[keys[i]].drawingOperation !== undefined)
-					this.realtimeShadow.AddShadow(this.attachments[keys[i]].drawingOperation.tile);
+					this.realtimeShadow.shadowObject.DrawToShadowCanvas(this.attachments[keys[i]].drawingOperation.tile);
 			}
 
 			this.realtimeShadow.UpdateShadow(this.drawingOperation.tile);

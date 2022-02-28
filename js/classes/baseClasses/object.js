@@ -43,7 +43,7 @@ class Cobject {
 	SetPosition(position) {
 		this.position.Set(position);
 
-		if (this.Children.length > 0) {
+		if (this.Children !== undefined && this.Children.length > 0) {
 			for (let i = 0, l = this.Children.length; i < l; ++i) {
 				this.Children[i].SetPosition(position);
 			}

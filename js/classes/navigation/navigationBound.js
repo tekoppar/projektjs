@@ -61,25 +61,27 @@ class NavigationBounds extends Cobject {
 			//if (collisions[i].collisionOwner !== undefined && collisions[i].collisionOwner instanceof Character)
 			//	continue;
 
-			collisions[i].boundingBox.UpdateCornersData();
-			if (this.polygon.boundingBox.IsRectOverlappingOrInsideF(collisions[i].boundingBox.x, collisions[i].boundingBox.y, collisions[i].boundingBox.w, collisions[i].boundingBox.h) === false)
-				continue;
+			if (collisions[i].boundingBox !== undefined && collisions[i].boundingBox !== null) {
+				collisions[i].boundingBox.UpdateCornersData();
+				if (this.polygon.boundingBox.IsRectOverlappingOrInsideF(collisions[i].boundingBox.x, collisions[i].boundingBox.y, collisions[i].boundingBox.w, collisions[i].boundingBox.h) === false)
+					continue;
 
-			const dlPol = new DLPolygon(collisions[i].GetPoints());
+				const dlPol = new DLPolygon(collisions[i].GetPoints());
 
-			shouldUpdateDLPoly = true;
-			let intersection = this.dlPolygon.Intersection(dlPol);
-			if (intersection !== undefined) {
-				shouldUpdate = true;
-				if (this.dlPolygon.clipState === PolygonClippingResults.PolygonClipped) {
-					this.AddHole(Vector2D.ObjectXYToVector2DArray(intersection[0]));
-					//this.UpdatePolygon(Vector2D.ObjectXYToVector2DArray(intersection[0]));
-				} else {
-					this.AddHole(Vector2D.ObjectXYToVector2DArray(intersection[0]));
+				shouldUpdateDLPoly = true;
+				let intersection = this.dlPolygon.Intersection(dlPol);
+				if (intersection !== undefined) {
+					shouldUpdate = true;
+					if (this.dlPolygon.clipState === PolygonClippingResults.PolygonClipped) {
+						this.AddHole(Vector2D.ObjectXYToVector2DArray(intersection[0]));
+						//this.UpdatePolygon(Vector2D.ObjectXYToVector2DArray(intersection[0]));
+					} else {
+						this.AddHole(Vector2D.ObjectXYToVector2DArray(intersection[0]));
+					}
 				}
 			}
 		}
-		
+
 		if (shouldUpdate)
 			this.UpdateNavigation();
 

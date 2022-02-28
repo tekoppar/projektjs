@@ -62,7 +62,7 @@ class PlayerController extends Controller {
 		this.playerCharacter.inventory.AddItem(new Pickaxe('pickaxe', 0));
 		this.playerCharacter.inventory.AddItem(new Weapon('ironSword', 0));
 		this.playerCharacter.inventory.AddItem(new Seed('cornSeed', 1));
-		this.playerCharacter.inventory.AddItem(new Item('birchLog', 25));
+		this.playerCharacter.inventory.AddItem(new Item('birchLog', 250));
 		this.playerCharacter.inventory.AddItem(new Item('stonePiece', 25));
 		this.playerCharacter.inventory.AddItem(new Item('coalLump', 25));
 		this.playerCharacter.inventory.AddItem(new Item('iron', 25));

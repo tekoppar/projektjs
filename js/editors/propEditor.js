@@ -2,8 +2,8 @@ import {
 	Vector2D, CanvasDrawer, CollisionEditor, PawnSetupParams, TileMaker, Tile,
 	TileType, TileTerrain, EditorState, Cobject, Tree, MasterObject, InputHandler,
 	CollisionHandler, BoxCollision, PolygonCollision, PathOperation, GameObject,
-	AtlasController, AllCollisions, TileMakerEditor, OverlapOverlapsCheck, CollisionTypeCheck, Pawn,
-	 AllBlockingCollisions, PawnSetupController, AllAnimationsList
+	AtlasController, AllCollisions, TileMakerEditor, CollisionTypeCheck, Pawn,
+	AllBlockingCollisions, PawnSetupController, AllAnimationsList, StringUtility
 } from '../internal.js';
 
 /**
@@ -62,8 +62,11 @@ class PropEditor extends Cobject {
 			let tMousePos = MasterObject.MO.playerController.mousePosition.Clone();
 			tMousePos.Add(CanvasDrawer.GCD.canvasOffset);
 
-			if (this.gridAlign)
+			if (this.gridAlign) {
 				tMousePos.SnapToGridF(32);
+				tMousePos.x += 16;
+				tMousePos.y += 32;
+			}
 
 			this.selectedProp.SetPosition(tMousePos);
 			this.selectedPropDrawingOperation.Update(this.selectedProp.GetPosition());
@@ -180,6 +183,21 @@ class PropEditor extends Cobject {
 		if (inputY !== null) {
 			inputY.value = this.selectedProp.position.y.toString();
 		}
+
+		const customData = /** @type {HTMLDivElement} */ (document.getElementById('prop-editor-selected-prop-custom-data'));
+		if (customData !== null) {
+			/*let objectEntries = Object.entries(this.selectedProp);
+
+			let customDataString = '';
+			for (let i = 0, l = objectEntries.length; i < l; ++i) {
+				if (objectEntries[i] !== undefined && objectEntries[i][1]?.ToString !== undefined) {
+					customDataString += objectEntries[i][0] + ': ' + objectEntries[i][1].ToString() + '\r\n';
+				} else
+					customDataString += objectEntries[i][0] + ': ' + objectEntries[i][1] + '\r\n';
+			}*/
+
+			customData.innerText = StringUtility.ObjectToString(this.selectedProp);  // customDataString;
+		}
 	}
 
 	/**
@@ -227,7 +245,7 @@ class PropEditor extends Cobject {
 						this.overlapCollision.CalculateBoundingBox();
 
 						let propClicked = undefined;
-						let overlaps = CollisionHandler.GCH.GetOverlapsByClass(this.overlapCollision, GameObject, OverlapOverlapsCheck, CollisionTypeCheck.Overlap);
+						let overlaps = CollisionHandler.GCH.GetOverlapsByClass(this.overlapCollision, GameObject, CollisionTypeCheck.Overlap, CollisionTypeCheck.Overlap);
 						if (overlaps.length > 0 && overlaps[0].collisionOwner !== undefined) {
 							if (overlaps[0].collisionOwner.GetParent() === undefined)
 								propClicked = overlaps[0].collisionOwner;

@@ -28,6 +28,8 @@ const ObjectClassLUT = {
 	HouseTest: ExtendedProp.prototype,
 	/** @lends {Storage.prototype} */
 	woodenChest: Storage.prototype,
+	/** @lends {ExtendedProp.prototype} */
+	woodenFloor: ExtendedProp.prototype,
 	/** @lends {CraftingStation.prototype} */
 	stoneSmelter: CraftingStation.prototype,
 	/** @lends {CraftingStation.prototype} */
@@ -41,7 +43,7 @@ const ObjectClassLUT = {
 	/** @lends {CraftingStation.prototype} */
 	stoneCutter: CraftingStation.prototype,
 	/** @lends {ExtendedProp.prototype} */
-	woodenFloor: ExtendedProp.prototype,
+	woodenFloor2x2: ExtendedProp.prototype,
 	/** @lends {CraftingStation.prototype} */
 	sawTable: CraftingStation.prototype,
 	/** @lends {ExtendedProp.prototype} */

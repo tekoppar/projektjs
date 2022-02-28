@@ -154,7 +154,7 @@ class MasterObject {
 			fleeControllers.push(fleeController.CloneTree(snowStorms[i]));
 		}
 
-		var duckController = new BehaviourController(duck, new BehaviorTree(
+		/*var duckController = new BehaviourController(duck, new BehaviorTree(
 			[
 				new BehaviorActionMovement(
 					[
@@ -171,7 +171,7 @@ class MasterObject {
 					-2
 				)
 			]
-		));
+		));*/
 
 		var duckController1 = fleeController.CloneTree(duck1);
 		var duckController2 = fleeController.CloneTree(duck2);
@@ -292,8 +292,8 @@ CustomEventHandler.AddListener(shopTest);
 
 /** @type {Character[]} */ let snowStorms = [];
 
-for (let i = 0, l = 4; i < l; ++i) {
-	for (let x = 0, xl = 4; x < xl; ++x) {
+for (let i = 0, l = 2; i < l; ++i) {
+	for (let x = 0, xl = 2; x < xl; ++x) {
 		var newSnowstorm = new Character('maleLight', new Vector2D(32 * 34 + (i * 64), 32 * 18 + (x * 64)), AllAnimationsList.femaleAnimations);
 		newSnowstorm.AddAttachment('clothPantsGreen');
 		newSnowstorm.AddAttachment('maleHairMessy3');

@@ -12,6 +12,7 @@ const BuildingCategory = {
 	Resource: 1,
 	Props: 2,
 	Storage: 3,
+	Floor:4,
 }
 
 BuildingRecipeList.woodenChest = new BuildingRecipe('Wooden Chest', 5, 1, BuildingCategory.Storage, [
@@ -43,6 +44,10 @@ BuildingRecipeList.sawTable = new BuildingRecipe('Saw Table', 5, 1, BuildingCate
 	{ amount: 40, item: ResourceItemList.BirchPlank },
 	{ amount: 15, item: ResourceItemList.IronBar },
 	{ amount: 20, item: ResourceItemList.Nails },
+]);
+
+BuildingRecipeList.woodenFloor = new BuildingRecipe('Wooden Floor', 1, 1, BuildingCategory.Floor, [
+	{ amount: 1, item: ResourceItemList.BirchLog }
 ]);
 
 export { BuildingRecipeList, BuildingCategory };
