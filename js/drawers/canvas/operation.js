@@ -38,7 +38,7 @@ class Operation {
 	 * @param {OperationType} operationType 
 	 */
 	constructor(drawingCanvas, operationType = OperationType.terrain) {
-		/** @type {('Operation'|'TextOperation'|'DrawingOperation'|'RectOperation'|'ClearOperation'|'LightingOperation'|'PathOperation'|'MeshOperation')} */ this.ClassType;
+		/** @type {('Operation'|'TextOperation'|'DrawingOperation'|'RectOperation'|'ClearOperation'|'LightingOperation'|'PathOperation'|'MeshOperation'|'SpriteOperation')} */ this.ClassType;
 		/** @type {Vector2D} */ this.oldPosition = new Vector2D(0, 0);
 		/** @type {boolean} */ this.isVisible = false;
 		/** @type {boolean} */ this.shouldDelete = false;
@@ -305,6 +305,123 @@ class RectOperation extends Operation {
 		/** @type {number} */ this.lifeTime = lifetime;
 		/** @type {number} */ this.alpha = alpha;
 		/** @type {boolean} */ this.fillOrOutline = fillOrOutline;
+	}
+
+	GetDrawIndex() {
+		return this.drawIndex;
+	}
+
+	GetPosition() {
+		return this.position;
+	}
+
+	GetDrawPosition() {
+		return Vector2D.Add(this.position, this.size);
+	}
+
+	GetDrawPositionY() {
+		return this.position.y + this.size.y;
+	}
+
+	GetSize() {
+		return this.size;
+	}
+
+	GetBoundingBox() {
+		return new Rectangle(this.position.x, this.position.y, this.size.x, this.size.y);
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} pos 
+	 */
+	Update(pos) {
+		this.needsToBeRedrawn = true;
+		super.Update(pos === undefined ? this.position : pos);
+	}
+
+	/**
+	 * 
+	 * @param {boolean} state 
+	 */
+	UpdateDrawState(state) {
+		this.needsToBeRedrawn = state;
+		this.updateRects = undefined;
+	}
+
+	/**
+	 * 
+	 * @param {Rectangle} rect 
+	 * @returns {void}
+	 */
+	AddUpdateRect(rect) {
+		if (this.needsToBeRedrawn === false) {
+			if (this.updateRects === undefined)
+				this.updateRects = [];
+
+			for (let i = 0, l = this.updateRects.length; i < l; ++i) {
+				if (this.updateRects[i].GetOverlappingCorners(rect).length >= 4)
+					return;
+			}
+
+			this.updateRects.push(rect);
+		}
+	}
+
+	GetPreviousPosition() {
+		return this.oldPosition === undefined ? this.position : this.oldPosition;
+	}
+
+	DrawState() {
+		return this.needsToBeRedrawn;
+	}
+
+	/**
+	 * 
+	 * @param {number} delta 
+	 */
+	Tick(delta) {
+		this.lifeTime -= delta;
+
+		if (this.lifeTime <= 0) {
+			this.Delete();
+		}
+	}
+}
+
+/**
+ * @class
+ * @constructor
+ * @extends Operation
+ */
+ class SpriteOperation extends Operation {
+
+	/**
+	 * 
+	 * @param {Vector2D} pos 
+	 * @param {Vector2D} tilePosition
+	 * @param {Vector2D} size 
+	 * @param {HTMLCanvasElement} drawingCanvas 
+	 * @param {string} atlas 
+	 * @param {boolean} clear 
+	 * @param {number} drawIndex 
+	 * @param {number} lifetime 
+	 * @param {number} alpha 
+	 */
+	constructor(pos, tilePosition, size = new Vector2D(32, 32), drawingCanvas, atlas, clear, drawIndex = 0, lifetime = -1, alpha = 0.3) {
+		super(drawingCanvas, OperationType.gui);
+
+		/** @type {'SpriteOperation'} */ this.ClassType = 'SpriteOperation';
+		/** @type {Vector2D} */ this.position = pos;
+		/** @type {Vector2D} */ this.tilePosition = tilePosition;
+		/** @type {boolean} */ this.clear = clear;
+		/** @type {Array<Rectangle>} */ this.updateRects = undefined;
+		/** @type {Vector2D} */ this.size = size;
+		/** @type {string} */ this.atlas = atlas;
+		/** @type {number} */ this.drawIndex = drawIndex;
+		/** @type {boolean} */ this.needsToBeRedrawn = true;
+		/** @type {number} */ this.lifeTime = lifetime;
+		/** @type {number} */ this.alpha = alpha;
 	}
 
 	GetDrawIndex() {
@@ -1129,7 +1246,7 @@ class LightingOperation extends Operation {
 }
 
 /**
- * @typedef {DrawingOperation|RectOperation|PathOperation|TextOperation|ClearOperation|LightingOperation|MeshOperation} Operations
+ * @typedef {DrawingOperation|RectOperation|PathOperation|TextOperation|ClearOperation|LightingOperation|MeshOperation|SpriteOperation} Operations
  */
 
-export { Operation, RectOperation, TextOperation, DrawingOperation, OperationType, ClearOperation, PathOperation, MeshOperation, LightingOperation };
+export { Operation, RectOperation, TextOperation, DrawingOperation, OperationType, ClearOperation, PathOperation, MeshOperation, LightingOperation, SpriteOperation };

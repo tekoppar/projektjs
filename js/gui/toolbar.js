@@ -1,4 +1,7 @@
-import { Cobject, MasterObject, InputHandler, UsableItem, Item, ItemStats, CanvasUtility, inventoryItemIcons, AtlasController } from '../internal.js';
+import {
+	Cobject, MasterObject, InputHandler, UsableItem, Item, ItemStats, CanvasUtility,
+	inventoryItemIcons, AtlasController, KeyEnum, InputEnum
+} from '../internal.js';
 
 /**
  * @class
@@ -36,7 +39,11 @@ class GameToolbar extends Cobject {
 	GameBegin() {
 		super.GameBegin();
 
-		InputHandler.GIH.AddListener(GameToolbar.GGT);
+		InputHandler.GIH.AddListener(this, InputEnum.one);
+		InputHandler.GIH.AddListener(this, InputEnum.two);
+		InputHandler.GIH.AddListener(this, InputEnum.three);
+		InputHandler.GIH.AddListener(this, InputEnum.four);
+		InputHandler.GIH.AddListener(this, InputEnum.five);
 	}
 
 	FixedUpdate() {
@@ -77,11 +84,11 @@ class GameToolbar extends Cobject {
 		if (this.activeToolbar !== undefined)
 			this.activeToolbar.classList.remove('toolbar-item-active');
 
-		if (this.activeToolbar == element) {
+		if (this.activeToolbar !== undefined && this.activeToolbar === element) {
 			this.activeToolbar.classList.remove('toolbar-item-active');
 			this.activeToolbar = undefined;
 			MasterObject.MO.playerController.playerCharacter.activeItem = undefined;
-		} else {
+		} else if (element !== undefined) {
 			element.classList.add('toolbar-item-active');
 			this.activeToolbar = element;
 			MasterObject.MO.playerController.playerCharacter.SetActiveItem(this.toolbarItems[element.querySelector('label.toolbar-item-text').innerText - 1]);
@@ -176,22 +183,22 @@ class GameToolbar extends Cobject {
 			case 'input':
 				if (data.eventType == 0) {
 					switch (key) {
-						case '1':
-						case '2':
-						case '3':
-						case '4':
-						case '5':
+						case KeyEnum.one:
+						case KeyEnum.two:
+						case KeyEnum.three:
+						case KeyEnum.four:
+						case KeyEnum.five:
 							if (MasterObject.MO.playerController.playerCharacter.inventory.isVisible === false)
-								this.SetActiveToolbar(this.toolbar.children[key - 1]);
+								this.SetActiveToolbar(this.toolbar.children[InputEnum[key] - 49]);
 							break;
 					}
 				} else if (data.eventType == 3) {
 					switch (key) {
-						case '1':
-						case '2':
-						case '3':
-						case '4':
-						case '5':
+						case KeyEnum.one:
+						case KeyEnum.two:
+						case KeyEnum.three:
+						case KeyEnum.four:
+						case KeyEnum.five:
 							break;
 					}
 				}

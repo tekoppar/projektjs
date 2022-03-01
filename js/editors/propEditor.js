@@ -3,7 +3,8 @@ import {
 	TileType, TileTerrain, EditorState, Cobject, Tree, MasterObject, InputHandler,
 	CollisionHandler, BoxCollision, PolygonCollision, PathOperation, GameObject,
 	AtlasController, AllCollisions, TileMakerEditor, CollisionTypeCheck, Pawn,
-	AllBlockingCollisions, PawnSetupController, AllAnimationsList, StringUtility
+	AllBlockingCollisions, PawnSetupController, AllAnimationsList, StringUtility,
+	KeyEnum, MouseEnum, InputEnum, InputSideEnum
 } from '../internal.js';
 
 /**
@@ -48,7 +49,9 @@ class PropEditor extends Cobject {
 		super.GameBegin();
 		this.SetupHTML();
 
-		InputHandler.GIH.AddListener(this);
+		InputHandler.GIH.AddListener(this, MouseEnum.leftMouse);
+		InputHandler.GIH.AddListener(this, MouseEnum.rightMouse);
+		InputHandler.GIH.AddListener(this, InputEnum.shift, InputSideEnum.Left);
 		this.overlapCollision = new BoxCollision(new Vector2D(0, 0), new Vector2D(4, 4), false, this, false);
 	}
 
@@ -234,7 +237,7 @@ class PropEditor extends Cobject {
 
 		switch (eventType) {
 			case 'input':
-				if (key === 'leftMouse') {
+				if (key === KeyEnum.leftMouse) {
 					if (data.eventType === 0 && this.selectedProp !== undefined && this.selectionState === PropEditorSelectionState.PropSelected)
 						this.selectionState = PropEditorSelectionState.PropMoving;
 
@@ -293,14 +296,14 @@ class PropEditor extends Cobject {
 						this.selectionState = PropEditorSelectionState.PropSelected;
 				}
 
-				if (key === 'leftShift' && data.eventType === 0) {
+				if (key === KeyEnum.shiftLeft && data.eventType === 0) {
 					this.gridAlign = true;
 				}
-				if (key === 'leftShift' && data.eventType === 2) {
+				if (key === KeyEnum.shiftLeft && data.eventType === 2) {
 					this.gridAlign = false;
 				}
 
-				if (key === 'rightMouse' && data.eventType === 2) {
+				if (key === KeyEnum.rightMouse && data.eventType === 2) {
 					if (this.selectedPropHTML !== undefined) {
 						if (this.selectedPropHTML.classList !== undefined && this.selectedPropHTML.classList.contains('prop-editor-grid-selected'))
 							this.selectedPropHTML.classList.remove('prop-editor-grid-selected');

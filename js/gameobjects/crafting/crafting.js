@@ -53,7 +53,7 @@ class Crafting extends Cobject {
 			let craftingNameDiv = this.craftingHTML.querySelector('div.panel-name');
 			craftingNameDiv.innerText = this.craftingName;
 
-			InputHandler.GIH.AddListener(this);
+			//InputHandler.GIH.AddListener(this);
 			this.craftingSetupDone = true;
 		} else
 			window.requestAnimationFrame(() => this.SetupCrafting());

@@ -163,6 +163,9 @@ class AtlasController {
 		this.LoadSpriteAtlas('/content/sprites/Collection/tailor.png', 512, 512, 32, 'tailor');
 		this.hasLoadedAllImages['tailor'] = false;
 
+		this.LoadSpriteAtlas('/content/sprites/Collection/lpc-ship-accessories.png', 512, 1024, 32, 'shipAccessories');
+		this.hasLoadedAllImages['shipAccessories'] = false;
+
 		this.LoadSpriteAtlas('/content/sprites/items/documents.png', 128, 96, 32, 'documents');
 		this.hasLoadedAllImages['documents'] = false;
 

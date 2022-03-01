@@ -56,7 +56,7 @@ export { CanvasAtlas, CanvasAtlasObject, CanvasObject, ShadowCanvasOperation } f
 export { ShadowCanvasObject } from './drawers/canvas/atlas/shadowCanvasObject.js';
 export {
 	Operation, DrawingOperation, OperationType, RectOperation, TextOperation,
-	ClearOperation, PathOperation, LightingOperation, MeshOperation
+	ClearOperation, PathOperation, LightingOperation, MeshOperation, SpriteOperation
 } from './drawers/canvas/operation.js';
 
 export { Cobject } from './classes/baseClasses/object.js';
@@ -79,7 +79,10 @@ export { PropEditor } from './editors/propEditor.js';
 export { TileMakerEditor } from './editors/tileMakerEditor.js'
 
 export { CustomEventHandler } from './eventHandlers/customEvents.js';
-export { InputHandler, InputState } from './eventHandlers/inputEvents.js';
+export {
+	InputHandler, InputState, KeyEnum, InputEnum, InputSideEnum,
+	MouseEnum, ReverseInputEnum, ReverseInputSideEnum, ReverseMouseEnum
+} from './eventHandlers/inputEvents.js';
 
 export { Controller } from './controllers/controller.js';
 export { Camera } from './controllers/camera.js';
@@ -96,7 +99,7 @@ export { BehaviourController } from './controllers/behaviourTree/behaviourContro
 export { GetAtlasTileMatrix } from './drawers/tiles/atlasTileMatrix.js';
 export { TileLUT } from './drawers/tiles/TileLUT.js';
 export { TileMaker } from './drawers/tiles/tilemaker.js';
-export { Tile, TileData, TileType, TileF, TileTerrain } from './drawers/tiles/tile.js';
+export { Tile, TileData, TileType, TileF, TileTerrain, TileULDR } from './drawers/tiles/tile.js';
 
 //export { worldTiles } from './drawers/tiles/worldTiles.js';
 
@@ -144,6 +147,7 @@ export { ItemProp } from './gameobjects/props/itemprop.js';
 
 export { Tree } from './gameobjects/props/resources/tree.js';
 export { Rock } from './gameobjects/props/resources/rock.js';
+export { Wall } from './gameobjects/props/wall.js';
 
 export { Props } from './gameobjects/setups/AllGameObjects.js';
 

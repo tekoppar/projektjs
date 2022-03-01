@@ -346,7 +346,7 @@ class Shop extends Prop {
 	 * @param {boolean} visibility 
 	 */
 	ShowShop(visibility = this.isVisible) {
-		this.shopHTML.style.visibility = (visibility === true ? 'visible' : 'hidden');
+		this.shopHTML.style.display = (visibility === true ? 'flex' : 'none');
 		this.isVisible = !visibility;
 
 		if (this.isVisible == true) {
@@ -354,9 +354,9 @@ class Shop extends Prop {
 			//this.shopHTMLInfo.RemoveSelect();
 			this.SetItemInfoHTML(undefined, ShopItemInfoType.Select);
 			this.SetItemInfoHTML(undefined, ShopItemInfoType.Hovered);
-			InputHandler.GIH.AddListener(this);
+			//InputHandler.GIH.AddListener(this);
 		} else {
-			InputHandler.GIH.RemoveListener(this);
+			//InputHandler.GIH.RemoveListener(this);
 		}
 	}
 

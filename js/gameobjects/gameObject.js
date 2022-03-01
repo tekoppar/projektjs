@@ -1,6 +1,7 @@
 import {
 	Vector2D, Cobject, AtlasController, ObjectType, BoxCollision, ShadowCanvasObject, Collision,
-	PolygonCollision, CanvasDrawer, DrawingOperation, OperationType, Tile, CAnimation, Rectangle, CanvasObject
+	PolygonCollision, CanvasDrawer, DrawingOperation, OperationType, Tile, CAnimation, Rectangle, CanvasObject,
+	AllBlockingCollisions, TileULDR, ArrayUtility
 } from '../internal.js'
 
 /**
@@ -330,6 +331,40 @@ class GameObject extends Pawn {
 			//collision size is inversed, height then width
 			this.drawingOperation.collisionSize = new Vector2D(this.BoxCollision.boundingBox.w, this.BoxCollision.boundingBox.h);
 		}
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D[]} polygonCollision 
+	 */
+	CreateBlockingCollision(polygonCollision) {
+		if (this.BlockingCollision !== undefined) {
+			this.BlockingCollision.Delete();
+		}
+
+		let bb = PolygonCollision.CalculateBoundingBox(polygonCollision);
+
+		this.BlockingCollision = new PolygonCollision(
+			this.BoxCollision.position.Clone(),
+			new Vector2D(bb.w, bb.h),
+			polygonCollision,
+			true,
+			this,
+			true
+		);
+
+		this.BlockingCollision.SetPosition(this.BlockingCollision.position);
+	}
+
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 */
+	 UpdateTile(tile) {
+		this.drawingOperation.tile.tileULDR = tile.tileULDR;
+		this.drawingOperation.tile.ChangeSprite(tile);
+		this.drawingOperation.targetCanvas = AtlasController.GetAtlas(tile.atlas).GetCanvas();
+		this.FlagDrawingUpdate(this.position);
 	}
 
 	/**

@@ -95,7 +95,6 @@ class MasterObject {
 			this.playerController = new PlayerController(new MainCharacter('femaleLight', 'mainP', new Vector2D(534, 570), AllAnimationsList.femaleAnimations));
 			//this.playerController.playerCharacter.AddAttachment('redHair');
 			//this.playerController.playerCharacter.AddAttachment('underDress');
-			InputHandler.GIH.AddListener(this.playerController);
 
 			window.requestAnimationFrame(() => this.GameBegin());
 		} else {
@@ -113,7 +112,6 @@ class MasterObject {
 	GameBegin() {
 		if (this.gameHasBegun === false) {
 			CanvasDrawer.GCD.GameBegin();
-			InputHandler.GIH.AddListener(CanvasDrawer.GCD);
 			LightSystem.SkyLight.Update();
 			new TileMakerEditor();
 

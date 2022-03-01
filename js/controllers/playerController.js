@@ -1,6 +1,7 @@
 import {
 	Vector2D, Hoe, Shovel, Axe, MainCharacter, Weapon, Seed, Controller, CraftingRecipes,
-	Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Item, Building, MovemementDirection, MovementType, EquipabbleItem, ItemStats
+	Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Item, Building, MovemementDirection,
+	MovementType, EquipabbleItem, ItemStats, KeyEnum, InputHandler, InputEnum, InputSideEnum, MouseEnum
 } from '../internal.js';
 
 /**
@@ -32,6 +33,19 @@ class PlayerController extends Controller {
 			pos.y += this.playerCharacter.BoxCollision.size.y * 0.5;
 		}
 		this.playerCamera.SetCameraPosition(pos);
+
+		InputHandler.GIH.AddListener(this, InputEnum.a);
+		InputHandler.GIH.AddListener(this, InputEnum.w);
+		InputHandler.GIH.AddListener(this, InputEnum.s);
+		InputHandler.GIH.AddListener(this, InputEnum.d);
+		InputHandler.GIH.AddListener(this, InputEnum.e);
+		InputHandler.GIH.AddListener(this, InputEnum.shift, InputSideEnum.Left);
+		InputHandler.GIH.AddListener(this, MouseEnum.leftMouse);
+		InputHandler.GIH.AddListener(this, InputEnum.i);
+		InputHandler.GIH.AddListener(this, InputEnum.tab);
+		InputHandler.GIH.AddListener(this, InputEnum.k);
+		InputHandler.GIH.AddListener(this, InputEnum.b);
+		InputHandler.GIH.AddListener(this, InputEnum.c);
 	}
 
 	FixedUpdate() {
@@ -127,15 +141,15 @@ class PlayerController extends Controller {
 				switch (data.eventType) {
 					case 0:
 						switch (key) {
-							case 'a': this.playerCharacter.UpdateDirection(MovemementDirection.x, 1); break;
-							case 'w': this.playerCharacter.UpdateDirection(MovemementDirection.y, 1); break;
-							case 'd': this.playerCharacter.UpdateDirection(MovemementDirection.x, -1); break;
-							case 's': this.playerCharacter.UpdateDirection(MovemementDirection.y, -1); break;
-							case 'e':
+							case KeyEnum.a: this.playerCharacter.UpdateDirection(MovemementDirection.x, 1); break;
+							case KeyEnum.w: this.playerCharacter.UpdateDirection(MovemementDirection.y, 1); break;
+							case KeyEnum.d: this.playerCharacter.UpdateDirection(MovemementDirection.x, -1); break;
+							case KeyEnum.s: this.playerCharacter.UpdateDirection(MovemementDirection.y, -1); break;
+							case KeyEnum.e:
 								this.playerCharacter.Interact();
 								break;
-							case 'leftShift': this.playerCharacter.SetMovement(MovementType.Running, -3); break;
-							case 'leftMouse':
+							case KeyEnum.shiftLeft: this.playerCharacter.SetMovement(MovementType.Running, -3); break;
+							case KeyEnum.leftMouse:
 								if (data.eventType === 0)
 									this.playerCharacter.UseItem(data);
 								break;
@@ -144,52 +158,52 @@ class PlayerController extends Controller {
 
 					case 1:
 						switch (key) {
-							case 'a': this.playerCharacter.UpdateDirection(MovemementDirection.x, 1); break;
-							case 'w': this.playerCharacter.UpdateDirection(MovemementDirection.y, 1); break;
-							case 'd': this.playerCharacter.UpdateDirection(MovemementDirection.x, -1); break;
-							case 's': this.playerCharacter.UpdateDirection(MovemementDirection.y, -1); break;
-							case 'leftShift': this.playerCharacter.SetMovement(MovementType.Running, -3); break;
+							case KeyEnum.a: this.playerCharacter.UpdateDirection(MovemementDirection.x, 1); break;
+							case KeyEnum.w: this.playerCharacter.UpdateDirection(MovemementDirection.y, 1); break;
+							case KeyEnum.d: this.playerCharacter.UpdateDirection(MovemementDirection.x, -1); break;
+							case KeyEnum.s: this.playerCharacter.UpdateDirection(MovemementDirection.y, -1); break;
+							case KeyEnum.shiftLeft: this.playerCharacter.SetMovement(MovementType.Running, -3); break;
 						}
 						break;
 
 					case 2:
 						switch (key) {
-							case 'a':
-							case 'w':
-							case 'd':
-							case 's': this.playerCharacter.StopMovement(); break;
+							case KeyEnum.a:
+							case KeyEnum.w:
+							case KeyEnum.d:
+							case KeyEnum.s: this.playerCharacter.StopMovement(); break;
 
-							case 'i':
-							case 'tab': this.playerCharacter.inventory.ShowInventory(); break;
+							case KeyEnum.i:
+							case KeyEnum.tab: this.playerCharacter.inventory.ShowInventory(); break;
 
-							case 'c':
+							case KeyEnum.c:
 								this.crafting.ShowCrafting();
 								this.crafting.characterUser = this.playerCharacter;
 								break;
 
-							case 'b':
+							case KeyEnum.b:
 								this.building.ShowBuilding();
 								this.building.ShowRecipe();
 								break;
 
-							case 'k': this.playerCharacter.characterAttributes.characterSheet.ShowCharacterSheet(); break;
+							case KeyEnum.k: this.playerCharacter.characterAttributes.characterSheet.ShowCharacterSheet(); break;
 
-							case 'leftShift': this.playerCharacter.SetMovement(MovementType.Walking, -1); break;
+							case KeyEnum.shiftLeft: this.playerCharacter.SetMovement(MovementType.Walking, -1); break;
 						}
 						break;
 
 					case 3:
 						switch (key) {
-							case 'a':
-							case 'w':
-							case 'd':
-							case 's':
+							case KeyEnum.a:
+							case KeyEnum.w:
+							case KeyEnum.d:
+							case KeyEnum.s:
 								this.playerCharacter.StopMovement();
 								break;
 
-							case 'e': this.playerCharacter.StoppedInteracting(); break;
+							case KeyEnum.e: this.playerCharacter.StoppedInteracting(); break;
 
-							case 'leftShift': this.playerCharacter.SetMovement(MovementType.Walking, -1); break;
+							case KeyEnum.shiftLeft: this.playerCharacter.SetMovement(MovementType.Walking, -1); break;
 						}
 						break;
 				}

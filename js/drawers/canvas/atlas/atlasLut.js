@@ -21,6 +21,7 @@ AtlasLUT.inputLeft = { url: '/content/sprites/ui/inputLeft.png', size: new Vecto
 AtlasLUT.inputRight = { url: '/content/sprites/ui/inputRight.png', size: new Vector2D(16, 16), tileSize: new Vector2D(16, 16), name: 'inputRight' };
 AtlasLUT.inputMiddle = { url: '/content/sprites/ui/inputMiddle.png', size: new Vector2D(32, 26), tileSize: new Vector2D(32, 32), name: 'inputMiddle' };
 AtlasLUT.floors = { url: '/content/sprites/Collection/floors.png', size: new Vector2D(1024, 2048), tileSize: new Vector2D(32, 32), name: 'floors' };
+AtlasLUT.walls = { url: '/content/sprites/Collection/walls.png', size: new Vector2D(2048, 3072), tileSize: new Vector2D(32, 32), name: 'walls' };
 
 let AtlasKeys = Object.keys(AtlasLUT);
 

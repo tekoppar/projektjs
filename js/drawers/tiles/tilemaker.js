@@ -829,6 +829,15 @@ class TileMaker {
 				tileLayout: [
 					[[0]],
 				]
+			},
+			woodenWall: {
+				name: 'woodenWall',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(25, 69), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood)
+				],
+				tileLayout: [
+					[[0]],
+				]
 			}
 		};
 

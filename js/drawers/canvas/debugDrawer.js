@@ -1,6 +1,7 @@
 import {
 	BoxCollision, Collision, MeshOperation, PolygonCollision, PathOperation, CollisionHandler,
-	Vector2D, RectOperation, Mesh, Rectangle, Color, Cobject, Polygon, CanvasDrawer, Operation, TextOperation
+	Vector2D, RectOperation, Mesh, Rectangle, Color, Cobject, Polygon, CanvasDrawer, Operation,
+	TextOperation, SpriteOperation, AtlasController
 } from '../../internal.js';
 
 /** @typedef {import('./operation.js').Operations} Operations */
@@ -151,6 +152,47 @@ class DebugDrawer extends Cobject {
 	}
 
 	/**
+	 * 
+	 * @param {Vector2D} position 
+	 * @param {Vector2D} tilePosition
+	 * @param {Vector2D} size 
+	 * @param {string} atlas 
+	 * @param {number} lifetime 
+	 * @param {number} alpha 
+	 * @returns 
+	 */
+	AddSpriteOperation(position, tilePosition, size, atlas, lifetime = 5, alpha = 0.5) {
+		if (this.gameDebugCanvas === undefined)
+			return;
+
+		this.debugOperations.push(new SpriteOperation(
+			position,
+			tilePosition,
+			size,
+			this.gameDebugCanvas,
+			atlas,
+			false,
+			0,
+			lifetime,
+			alpha
+		));
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} position 
+	 * @param {Vector2D} tilePosition
+	 * @param {Vector2D} size 
+	 * @param {string} atlas 
+	 * @param {number} lifetime 
+	 * @param {number} alpha 
+	 * @returns 
+	 */
+	static AddSpriteOperation(position, tilePosition, size, atlas, lifetime = 5, alpha = 0.5) {
+		DebugDrawer._Instance.AddSpriteOperation(position, tilePosition, size, atlas, lifetime, alpha);
+	}
+
+	/**
 	 * Adds a drawing operation for a rectangle
 	 * @param {Rectangle} rect 
 	 * @param {number} lifetime 
@@ -165,7 +207,8 @@ class DebugDrawer extends Cobject {
 		this.debugOperations.push(new RectOperation(
 			new Vector2D(rect.x, rect.y),
 			new Vector2D(rect.w, rect.h),
-			this.gameDebugCanvas, color,
+			this.gameDebugCanvas,
+			color,
 			false,
 			0,
 			lifetime,
@@ -283,6 +326,11 @@ class DebugDrawer extends Cobject {
 					if (tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
 						this.CanvasClear(tObject);
 					break;
+
+				case 'SpriteOperation':
+					if (tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
+						this.CanvasClear(tObject);
+					break;
 			}
 		}
 
@@ -318,6 +366,13 @@ class DebugDrawer extends Cobject {
 						break;
 
 					case 'TextOperation':
+						if (tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
+							this.DrawDebugCanvasOperation(tObject, delta);
+						else if (tObject.lifeTime !== -1)
+							tObject.Tick(delta);
+						break;
+
+					case 'SpriteOperation':
 						if (tObject.DrawState() === true && tObject.oldPosition !== undefined || tObject.shouldDelete === true)
 							this.DrawDebugCanvasOperation(tObject, delta);
 						else if (tObject.lifeTime !== -1)
@@ -399,6 +454,16 @@ class DebugDrawer extends Cobject {
 				drawingOperation.drawingCanvas.getContext('2d').clearRect(
 					Math.floor(drawingOperation.pos.x - 1 - this.offset.x),
 					Math.floor(drawingOperation.pos.y - 1 - this.offset.y - drawingOperation.size),
+					size.x + 2,
+					size.y + 2
+				);
+				break;
+
+			case 'SpriteOperation':
+				size.Set(drawingOperation.GetSize());
+				drawingOperation.drawingCanvas.getContext('2d').clearRect(
+					Math.floor(drawingOperation.position.x - 1) - this.offset.x,
+					Math.floor(drawingOperation.position.y - 1) - this.offset.y,
 					size.x + 2,
 					size.y + 2
 				);
@@ -581,6 +646,31 @@ class DebugDrawer extends Cobject {
 				context.font = drawingOperation.size + 'px ' + drawingOperation.font;
 				context.fillStyle = drawingOperation.color;
 				context.fillText(drawingOperation.text, Math.floor(drawingOperation.pos.x - this.offset.x), Math.floor(drawingOperation.pos.y - this.offset.y));
+
+				if (drawingOperation.lifeTime !== -1) {
+					drawingOperation.Tick(delta);
+
+					if (drawingOperation.lifeTime < 0)
+						return;
+				}
+				break;
+
+			case 'SpriteOperation':
+				context.globalAlpha = 1.0;
+				drawingOperation.UpdateDrawState(true);
+				let sourceCanvas = AtlasController.GetAtlas(drawingOperation.atlas).GetCanvas();
+
+				context.drawImage(
+					sourceCanvas,
+					drawingOperation.tilePosition.x * 32,
+					drawingOperation.tilePosition.y * 32,
+					drawingOperation.size.x,
+					drawingOperation.size.y,
+					drawingOperation.position.x - this.offset.x,
+					drawingOperation.position.y - this.offset.y,
+					drawingOperation.size.x,
+					drawingOperation.size.y,
+				);
 
 				if (drawingOperation.lifeTime !== -1) {
 					drawingOperation.Tick(delta);

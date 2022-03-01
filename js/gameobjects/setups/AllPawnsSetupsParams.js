@@ -19,6 +19,8 @@ PawnSetupParams.woodenChest = ['Wooden Chest', [0.5, 0], undefined, 'woodenChest
 
 PawnSetupParams.woodenFloor = ['Wooden Floor', [0, 0], undefined, 'woodenFloor', { x: 32, y: -32, w: 0, h: -32 }, 'floors', 'floorCarpetPatternRed'];
 
+PawnSetupParams.woodenWall = ['Wooden Wall', [0, 0], undefined, 'woodenWall', { x: 32, y: -32, w: 0, h: -32 }, 'walls', 'wallWoodPlanksBrown'];
+
 PawnSetupParams.stoneSmelter = ['Stone Smelter', [0.5, 0], undefined, 'stoneSmelter', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListSmelter, { x: 64, y: 96, z: 0, a: 96 }];
 PawnSetupParams.anvil = ['Anvil', [0.5, 0], undefined, 'anvil', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListAnvil, { x: 64, y: 32, z: 0, a: 24 }];
 PawnSetupParams.workbench = ['Workbench', [0.5, 0], undefined, 'workbench', CraftingRecipes.CraftingRecipeKeys.CraftingRecipeListWorkbench, { x: 64, y: 64, z: 0, a: 42 }];

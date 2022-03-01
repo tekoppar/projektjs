@@ -1,7 +1,8 @@
 import {
 	Cobject, InputHandler, GUI, BuildingRecipeList, BuildingZone, BuildingCategory, inventoryItemIcons, StringUtility,
 	MasterObject, CanvasDrawer, ObjectClassLUT, AtlasController, CanvasUtility, BuildingRecipe, PawnSetupController,
-	CollisionHandler, CollisionTypeCheck, CollisionCheckEnum, DebugDrawer, Color
+	CollisionHandler, CollisionTypeCheck, CollisionCheckEnum, DebugDrawer, Color, KeyEnum, InputEnum, InputSideEnum,
+	MouseEnum, Vector2D, Rectangle, Collision
 } from '../../internal.js';
 
 /**
@@ -35,6 +36,8 @@ class Building extends Cobject {
 		/** @type {BuildingModeState} */ this.buildingState = BuildingModeState.None;
 		this.selectedBuilding = undefined;
 		this.continuePlacing = false;
+		this.anchorPosition = new Vector2D(0, 0);
+		this.isAnchored = false;
 	}
 
 	SetupBuilding() {
@@ -52,7 +55,10 @@ class Building extends Cobject {
 			document.getElementById('game-gui').appendChild(this.buildingHTML);
 			this.buildingHTML.querySelector('button.building-button-craft').addEventListener('click', this);
 
-			InputHandler.GIH.AddListener(this);
+			InputHandler.GIH.AddListener(this, InputEnum.shift, InputSideEnum.Left);
+			InputHandler.GIH.AddListener(this, InputEnum.alt, InputSideEnum.Left);
+			InputHandler.GIH.AddListener(this, MouseEnum.leftMouse);
+			InputHandler.GIH.AddListener(this, MouseEnum.rightMouse);
 			this.buildingSetupDone = true;
 		} else
 			window.requestAnimationFrame(() => this.SetupBuilding());
@@ -198,6 +204,8 @@ class Building extends Cobject {
 			newZone.GameBegin();
 			newZone.SetPosition(this.selectedBuilding.position);
 
+			newZone.drawingOperation.collisionSize = new Vector2D(0, Math.max(0, this.anchorPosition.y - this.selectedBuilding.position.y + 32));
+
 			this.selectedBuilding.Delete();
 			this.selectedBuilding = undefined;
 			this.buildingState = BuildingModeState.None;
@@ -249,9 +257,19 @@ class Building extends Cobject {
 
 			this.selectedBuilding.SetPosition(tMousePos);
 
-			let overlaps = CollisionHandler.GCH.GetOverlaps(this.selectedBuilding.BoxCollision, CollisionCheckEnum.Inside, CollisionTypeCheck.All);
+			if (this.isAnchored === true) {
+				DebugDrawer.AddDebugRectOperation(new Rectangle(tMousePos.x - 16, this.anchorPosition.y, 32, 1), 0.0016, Color.ColorValuesToCSS(100, 255, 255, 0.75), true, 1);
 
+				for (let i = 0, l = Math.abs(tMousePos.y - this.anchorPosition.y) / 16; i < l; ++i) {
+					DebugDrawer.AddDebugRectOperation(new Rectangle(tMousePos.x - 16,this.anchorPosition.y - (i * 16) - 16, 1, 8), 0.0016, Color.ColorValuesToCSS(100, 255, 255, 0.75), true, 1);
+					DebugDrawer.AddDebugRectOperation(new Rectangle(tMousePos.x + 16,this.anchorPosition.y - (i * 16) - 16, 1, 8), 0.0016, Color.ColorValuesToCSS(100, 255, 255, 0.75), true, 1);
+				}
+			}
+
+			let overlaps = CollisionHandler.GCH.GetOverlaps(this.selectedBuilding.BoxCollision, CollisionCheckEnum.Inside, CollisionTypeCheck.All);
 			if (overlaps.length === 0) {
+				DebugDrawer.AddDebugRectOperation(this.selectedBuilding.BoxCollision.boundingBox, 0.0016, Color.ColorValuesToCSS(0, 255, 0, 0.75), true, 1);
+			} else if (this.isAnchored === true && this.CheckAnchorOverlaps(overlaps) === false) {
 				DebugDrawer.AddDebugRectOperation(this.selectedBuilding.BoxCollision.boundingBox, 0.0016, Color.ColorValuesToCSS(0, 255, 0, 0.75), true, 1);
 			} else {
 				DebugDrawer.AddDebugRectOperation(this.selectedBuilding.BoxCollision.boundingBox, 0.0016, Color.ColorValuesToCSS(255, 0, 0, 0.75), true, 1);
@@ -259,27 +277,70 @@ class Building extends Cobject {
 		}
 	}
 
+	/**
+	 * 
+	 * @param {Collision[]} overlaps 
+	 * @returns {boolean}
+	 */
+	CheckAnchorOverlaps(overlaps) {
+		let returnBool = false;
+		let temp = new Vector2D(this.selectedBuilding.position.x, this.anchorPosition.y + 32);
+
+		for (let i = 0, l = overlaps.length; i < l; ++i) {
+			if (overlaps[i].collisionOwner.position.NearlyEqual(this.selectedBuilding.position) === true) {
+				if (overlaps[i]?.collisionOwner?.drawingOperation.collisionSize !== undefined) {
+					if (overlaps[i].collisionOwner.drawingOperation.collisionSize.y !== 0) {
+						if (temp.NearlyEqualXY(overlaps[i].collisionOwner.position.x, overlaps[i].collisionOwner.position.y + overlaps[i].collisionOwner.drawingOperation.collisionSize.y) === true) {
+							returnBool = true;
+						}
+					} else {
+						returnBool = true;
+					}
+				} else {
+					returnBool = true;
+				}
+			}
+		}
+
+		return returnBool;
+	}
+
 	CEvent(eventType, key, data) {
 		switch (eventType) {
 			case 'input':
-				if (key === 'leftMouse' && data.eventType === 0 && this.selectedBuilding !== undefined && this.buildingState === BuildingModeState.Placing) {
+				if (key === KeyEnum.leftMouse && data.eventType === 0 && this.selectedBuilding !== undefined && this.buildingState === BuildingModeState.Placing) {
 					let overlaps = CollisionHandler.GCH.GetOverlaps(this.selectedBuilding.BoxCollision, CollisionCheckEnum.Inside, CollisionTypeCheck.All);
 
 					if (overlaps.length === 0)
 						this.PlaceBuildingZone();
+					else if (this.isAnchored === true && this.CheckAnchorOverlaps(overlaps) === false)
+						this.PlaceBuildingZone();
 				}
 
 				switch (key) {
-					case 'leftShift':
+					case KeyEnum.shiftLeft:
 						if (data.eventType === 0) {
 							this.continuePlacing = true;
 						} else if (data.eventType === 2) {
 							this.continuePlacing = false;
 						}
 						break;
+
+					case KeyEnum.altLeft:
+						if (data.eventType === 0) {
+							this.anchorPosition.x = MasterObject.MO.playerController.mousePosition.x;
+							this.anchorPosition.y = MasterObject.MO.playerController.mousePosition.y;
+							this.anchorPosition.Add(CanvasDrawer.GCD.canvasOffset);
+							this.anchorPosition.SnapToGridF(32);
+							this.anchorPosition.x += 16;
+							this.anchorPosition.y += 32;
+
+							this.isAnchored = !this.isAnchored;
+						}
+						break;
 				}
 
-				if (key === 'rightMouse' && data.eventType === 2 && this.selectedBuilding !== undefined) {
+				if (key === KeyEnum.rightMouse && data.eventType === 2 && this.selectedBuilding !== undefined) {
 					this.BuildingCancelled();
 				}
 				break;

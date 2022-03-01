@@ -578,6 +578,9 @@ class CollisionHandler {
 			if (quadOverlaps[i].enableCollision === true && (CollisionCheckType !== CollisionTypeCheck.Blocking && CollisionCheckType !== CollisionTypeCheck.All))
 				continue;
 
+			if (overlaps.indexOf(quadOverlaps[i]) !== -1)
+				continue;
+
 			if (collision.collisionOwner !== undefined && quadOverlaps[i].collisionOwner !== undefined) {
 				if (CollisionHandler.CheckCollision(collision, quadOverlaps[i], checkType) === true) {
 					overlaps.push(quadOverlaps[i]);

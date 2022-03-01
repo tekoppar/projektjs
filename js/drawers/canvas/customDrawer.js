@@ -3,7 +3,8 @@ import {
 	BWDrawingType, AllCollisions, CollisionTypeCheck, Polygon, ClearOperation, TileData, InputHandler,
 	CollisionHandler, LightFalloffType, BoxCollision, worldTiles, Brush, BrushDrawState, Shadow2D, TileF,
 	BrushType, RectOperation, PathOperation, TextOperation, DrawingOperation, OperationType, TileLUT,
-	SelectedTileEditor, UIDrawer, MasterObject, Rectangle, LightingOperation, Color, LightSystem, PropEditor, SaveController, Mastertime, CollisionCheckEnum
+	SelectedTileEditor, UIDrawer, MasterObject, Rectangle, LightingOperation, Color, LightSystem,
+	PropEditor, SaveController, Mastertime, CollisionCheckEnum, MouseEnum, KeyEnum
 } from '../../internal.js';
 
 /** @typedef {import('./operation.js').Operations} Operations */
@@ -456,7 +457,7 @@ class CanvasDrawer {
 			this.spritePreviewCanvasCtx.clearRect(0, 0, this.spritePreviewCanvas.width, this.spritePreviewCanvas.height);
 			this.selectedSprite = undefined;
 		} else {
-			if (InputHandler.GIH.inputs['leftCtrl'].state === 0 || InputHandler.GIH.inputs['leftCtrl'].state === 1) {
+			if (InputHandler.GIH.inputs[KeyEnum.ctrlLeft].state === 0 || InputHandler.GIH.inputs[KeyEnum.ctrlLeft].state === 1) {
 				if (this.selectedSprite instanceof Array)
 					this.selectedSprite = [];
 
@@ -530,6 +531,9 @@ class CanvasDrawer {
 	}
 
 	GameBegin() {
+		InputHandler.GIH.AddListener(this, MouseEnum.leftMouse);
+		InputHandler.GIH.AddListener(this, MouseEnum.rightMouse);
+
 		this.DrawTerrain();
 		this.UIDrawer.AddUIElements();
 
@@ -1609,7 +1613,7 @@ class CanvasDrawer {
 	CEvent(eventType, key, data) {
 		switch (eventType) {
 			case 'input':
-				if (key === 'leftMouse' && data.eventType === 0 && this.isPainting === false && this.selectedSprite === undefined) {
+				if (key === KeyEnum.leftMouse && data.eventType === 0 && this.isPainting === false && this.selectedSprite === undefined) {
 					let gridMousePosition = this.mousePosition.Clone();
 					//gridMousePosition.Add(this.canvasOffset);
 					gridMousePosition.ToGrid(32);
@@ -1619,7 +1623,7 @@ class CanvasDrawer {
 					}
 				}
 
-				if (key === 'rightMouse' && data.eventType === 2) {
+				if (key === KeyEnum.rightMouse && data.eventType === 2) {
 					this.spritePreviewCanvasCtx.clearRect(0, 0, this.spritePreviewCanvas.width, this.spritePreviewCanvas.height);
 					this.selectedSprite = undefined;
 
@@ -1660,9 +1664,11 @@ class CanvasDrawer {
 				gridMousePosition1.Add(this.canvasOffset);
 				gridMousePosition1.ToGrid(32);
 
-				let ops1 = this.GetTileAtPosition(gridMousePosition1, false);
-				if (ops1.length > 0 && this.selectedSprite instanceof Tile && this.selectedSprite !== undefined && this.isMouseDown && this.paintingEnabled === false) {
-					TileF.PaintTile(this.selectedSprite, gridMousePosition1);
+				if (e.button === 0) {
+					let ops1 = this.GetTileAtPosition(gridMousePosition1, false);
+					if (ops1.length > 0 && this.selectedSprite instanceof Tile && this.selectedSprite !== undefined && this.isMouseDown && this.paintingEnabled === false) {
+						TileF.PaintTile(this.selectedSprite, gridMousePosition1);
+					}
 				}
 
 				break;

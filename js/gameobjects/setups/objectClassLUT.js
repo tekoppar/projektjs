@@ -1,4 +1,4 @@
-import { Tree, Rock, Shop, ExtendedProp, Storage, CraftingStation } from '../../internal.js';
+import { Tree, Rock, Shop, ExtendedProp, Storage, CraftingStation, Wall } from '../../internal.js';
 
 /**
  * @readonly
@@ -30,6 +30,8 @@ const ObjectClassLUT = {
 	woodenChest: Storage.prototype,
 	/** @lends {ExtendedProp.prototype} */
 	woodenFloor: ExtendedProp.prototype,
+	/** @lends {ExtendedProp.prototype} */
+	woodenWall: Wall.prototype,
 	/** @lends {CraftingStation.prototype} */
 	stoneSmelter: CraftingStation.prototype,
 	/** @lends {CraftingStation.prototype} */

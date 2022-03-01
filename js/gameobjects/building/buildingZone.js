@@ -2,7 +2,7 @@ import {
 	GameObject, Vector2D, BuildingRecipe, ExtendedProp, AllBlockingCollisions, CanvasSprite,
 	CanvasDrawer, inventoryItemIcons, Tile, OperationType, AtlasController, CustomEventHandler,
 	ObjectClassLUT, PolygonCollision, ArrayUtility, PawnSetupController, Mastertime, BuildingCategory,
-	TileF, TileType, PawnSetupParams, TileData, DebugDrawer, Rectangle
+	TileF, TileType, PawnSetupParams, TileData, DebugDrawer, Rectangle, TileULDR
 } from '../../internal.js';
 
 /**
@@ -72,11 +72,11 @@ class BuildingZone extends GameObject {
 		if (ObjectClassLUT[this.buildingRecipe.name] !== undefined) {
 			let finishedBuilding = PawnSetupController.CreateNewObject(this.buildingRecipe.name, false, this.position.Clone());
 
-			if (this.buildingRecipe.category === BuildingCategory.Floor) {
+			if (this.buildingRecipe.category === BuildingCategory.Floor || this.buildingRecipe.category === BuildingCategory.Wall) {
 				let pos = this.position.Clone();
 				pos.DivF(32);
 				pos.Floor();
-				let operations = CanvasDrawer.GCD.GetTileAtPosition(pos, false);
+				//let operations = CanvasDrawer.GCD.GetTileAtPosition(pos, false);
 				let params = PawnSetupParams[this.buildingRecipe.name];
 				let tileData = TileData.GetTileLUT(params[6]).Middle;
 
@@ -85,12 +85,13 @@ class BuildingZone extends GameObject {
 				finishedBuilding.drawingOperation.tile.atlas = tileData.atlas;
 				finishedBuilding.drawingOperation.tile.UpdateTileData();
 
-				for (let i = 0, l = operations.length; i < l; ++i) {
+				TileF.GetPaintedTileData(finishedBuilding);
+				
+				/*for (let i = 0, l = operations.length; i < l; ++i) {
 					if (operations[i].tile.tileType === TileType.Ground) {
-						TileF.GetPaintedTileData(finishedBuilding);
 						//TileF.PaintTile(new Tile(new Vector2D(0, 0), tileData.tilePosition, new Vector2D(32, 32), TileLUT.terrain[18][6].transparent, tileData.atlas), pos);
 					}
-				}
+				}*/
 			}
 		}
 	}

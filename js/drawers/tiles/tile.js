@@ -700,9 +700,7 @@ class TileF {
 				let updatedTileData = TileF.UpdateObjectTile(objects[i].owner, tile.tileSet);
 
 				if (updatedTileData !== undefined) {
-					objects[i].owner.drawingOperation.tile.ChangeSprite(updatedTileData);
-					objects[i].owner.drawingOperation.targetCanvas = AtlasController.GetAtlas(updatedTileData.atlas).GetCanvas();
-					objects[i].owner.FlagDrawingUpdate(objects[i].owner.position);
+					objects[i].owner.UpdateTile(updatedTileData);
 				}
 			}
 		}
@@ -778,7 +776,7 @@ class TileF {
 
 		for (let i = 0, l = nearbyObjects.length; i < l; ++i) {
 			for (let i2 = 0, l2 = offsetTileMatrixArr.length; i2 < l2; ++i2) {
-				if (offsetTileMatrixArr[i2].NearlyEqual(nearbyObjects[i].position)) {
+				if (offsetTileMatrixArr[i2].NearlyEqual(nearbyObjects[i].position) && nearbyObjects[i].collisionOwner.drawingOperation.tile.tileSet === tileSet) {
 					objectTileArr[i2] = nearbyObjects[i].collisionOwner.drawingOperation;
 				}
 			}
@@ -1260,4 +1258,4 @@ class Tile {
 	}
 }
 
-export { Tile, TileData, TileType, TileTerrain, TileF };
+export { Tile, TileData, TileType, TileTerrain, TileF, TileULDR };
