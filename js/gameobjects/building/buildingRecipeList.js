@@ -54,5 +54,15 @@ BuildingRecipeList.woodenFloor = new BuildingRecipe('Wooden Floor', 1, 1, Buildi
 BuildingRecipeList.woodenWall = new BuildingRecipe('Wooden Wall', 1, 1, BuildingCategory.Wall, [
 	{ amount: 1, item: ResourceItemList.BirchLog }
 ]);
+BuildingRecipeList.woodenWallLeftSide = new BuildingRecipe('Wooden Wall Left Side', 1, 1, BuildingCategory.Wall, [
+	{ amount: 1, item: ResourceItemList.BirchLog }
+]);
+BuildingRecipeList.woodenWallRightSide = new BuildingRecipe('Wooden Wall Right Side', 1, 1, BuildingCategory.Wall, [
+	{ amount: 1, item: ResourceItemList.BirchLog }
+]);
+
+BuildingRecipeList.wallMiddle = new BuildingRecipe('Wall Middle', 1, 1, BuildingCategory.Wall, [
+	{ amount: 1, item: ResourceItemList.BirchLog }
+]);
 
 export { BuildingRecipeList, BuildingCategory };

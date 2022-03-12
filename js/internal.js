@@ -96,7 +96,7 @@ export {
 } from './controllers/behaviourTree/behaviorTree.js';
 export { BehaviourController } from './controllers/behaviourTree/behaviourController.js';
 
-export { GetAtlasTileMatrix } from './drawers/tiles/atlasTileMatrix.js';
+export { GetAtlasTileMatrix, ULDR } from './drawers/tiles/atlasTileMatrix.js';
 export { TileLUT } from './drawers/tiles/TileLUT.js';
 export { TileMaker } from './drawers/tiles/tilemaker.js';
 export { Tile, TileData, TileType, TileF, TileTerrain, TileULDR } from './drawers/tiles/tile.js';
@@ -125,7 +125,7 @@ export { CraftingRecipe, CraftingCategory } from './gameobjects/crafting/craftin
 export * as CraftingRecipes from './gameobjects/crafting/allCraftingRecipes.js';
 
 export { BuildingZone } from './gameobjects/building/buildingZone.js';
-export { Building } from './gameobjects/building/building.js';
+export { BuildingMenu } from './gameobjects/building/buildingMenu.js';
 export { BuildingRecipe } from './gameobjects/building/buildingRecipe.js';
 export { BuildingRecipeList, BuildingCategory } from './gameobjects/building/buildingRecipeList.js';
 
@@ -145,9 +145,12 @@ export { Storage } from './gameobjects/props/storage.js';
 export { CraftingStation } from './gameobjects/props/craftingStation.js';
 export { ItemProp } from './gameobjects/props/itemprop.js';
 
+export { Building } from './gameobjects/building/building.js';
+
+export * from './gameobjects/building/buildings.js';
+
 export { Tree } from './gameobjects/props/resources/tree.js';
 export { Rock } from './gameobjects/props/resources/rock.js';
-export { Wall } from './gameobjects/props/wall.js';
 
 export { Props } from './gameobjects/setups/AllGameObjects.js';
 

@@ -35,6 +35,24 @@ AllCollisions.planningTable = [new Vector2D(0, 0), new Vector2D(64, 0), new Vect
 AllCollisions.waterFilledBoat = [new Vector2D(0, 0), new Vector2D(128, 0), new Vector2D(128, 64), new Vector2D(0, 64)];
 AllCollisions.woodenFloor = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(0, 32)];
 AllCollisions.woodenWall = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(0, 32)];
+AllCollisions.woodenWallLeftSide = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(0, 32)];
+AllCollisions.woodenWallRightSide = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(0, 32)];
+
+AllCollisions.woodenWallLeft = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
+AllCollisions.woodenWallMiddle = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
+AllCollisions.woodenWallRight = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
+
+AllCollisions.wallMiddle = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
+AllCollisions.wallLeft = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
+AllCollisions.wallRight = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
+
+AllCollisions.wallTop = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
+AllCollisions.wallTopLeft = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
+AllCollisions.wallTopRight = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
+
+AllCollisions.wallBottom = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
+AllCollisions.wallBottomLeft = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
+AllCollisions.wallBottomRight = [new Vector2D(0, 0), new Vector2D(32, 0), new Vector2D(32, 96), new Vector2D(0, 96)];
 
 AllBlockingCollisions.house1 = [new Vector2D(0, 160), new Vector2D(224, 160), new Vector2D(224, 256), new Vector2D(0, 256)];
 AllBlockingCollisions.HouseTest = [new Vector2D(32, 192), new Vector2D(192, 192), new Vector2D(192, 288), new Vector2D(32, 288)];
@@ -67,5 +85,23 @@ AllBlockingCollisions.stonewall_br_c_lt = [new Vector2D(0, 22), new Vector2D(12,
 AllBlockingCollisions.woodenFloor = [new Vector2D(0, 0), new Vector2D(0, 0), new Vector2D(0, 0), new Vector2D(0, 0)];
 AllBlockingCollisions.woodenWall = [new Vector2D(0, 0), new Vector2D(0, 0), new Vector2D(0, 0), new Vector2D(0, 0)];
 AllBlockingCollisions.wallsBottom = [new Vector2D(0, 20), new Vector2D(32, 20), new Vector2D(32, 26), new Vector2D(0, 26)];
+AllBlockingCollisions.woodenWallLeftSide = [new Vector2D(0, 0), new Vector2D(6, 0), new Vector2D(6, 32), new Vector2D(0, 32)];
+AllBlockingCollisions.woodenWallRightSide = [new Vector2D(26, 0), new Vector2D(32, 0), new Vector2D(32, 32), new Vector2D(26, 32)];
+
+AllBlockingCollisions.woodenWallLeft = [new Vector2D(0, 84), new Vector2D(32, 84), new Vector2D(32, 90), new Vector2D(0, 90)];
+AllBlockingCollisions.woodenWallMiddle = [new Vector2D(0, 84), new Vector2D(32, 84), new Vector2D(32, 90), new Vector2D(0, 90)];
+AllBlockingCollisions.woodenWallRight = [new Vector2D(0, 84), new Vector2D(32, 84), new Vector2D(32, 90), new Vector2D(0, 90)];
+
+AllBlockingCollisions.wallMiddle = [new Vector2D(0, 84), new Vector2D(32, 84), new Vector2D(32, 90), new Vector2D(0, 90)];
+AllBlockingCollisions.wallLeft = [new Vector2D(2, 64), new Vector2D(10, 64), new Vector2D(10, 96), new Vector2D(2, 96)];
+AllBlockingCollisions.wallRight = [new Vector2D(24, 64), new Vector2D(30, 64), new Vector2D(30, 96), new Vector2D(24, 96)];
+
+AllBlockingCollisions.wallTop = [new Vector2D(0, 84), new Vector2D(32, 84), new Vector2D(32, 90), new Vector2D(0, 90)];
+AllBlockingCollisions.wallTopLeft = [new Vector2D(0, 84), new Vector2D(32, 84), new Vector2D(32, 90), new Vector2D(0, 90)];
+AllBlockingCollisions.wallTopRight = [new Vector2D(0, 84), new Vector2D(32, 84), new Vector2D(32, 90), new Vector2D(0, 90)];
+
+AllBlockingCollisions.wallBottom = [new Vector2D(0, 84), new Vector2D(32, 84), new Vector2D(32, 90), new Vector2D(0, 90)];
+AllBlockingCollisions.wallBottomLeft = [new Vector2D(0, 84), new Vector2D(32, 84), new Vector2D(32, 90), new Vector2D(0, 90)];
+AllBlockingCollisions.wallBottomRight = [new Vector2D(0, 84), new Vector2D(32, 84), new Vector2D(32, 90), new Vector2D(0, 90)];
 
 export { AllCollisions, AllBlockingCollisions };

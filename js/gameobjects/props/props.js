@@ -34,7 +34,7 @@ class Prop extends GameObject {
 		} else if (AllAnimationsList.propAnimations[ObjectUtility.DisplayNameToName(name)] !== undefined) {
 			this.animations = AllAnimationsList.propAnimations[ObjectUtility.DisplayNameToName(name)];
 		}
-		
+
 		if (this.animations !== undefined && this.animations.idle !== undefined)
 			this.currentAnimation = this.animations.idle.Clone();
 	}
@@ -193,6 +193,7 @@ class ExtendedProp extends Prop {
 
 		this.BoxCollision.size = size.Clone();
 		this.drawingOperation.collisionSize = size;
+		//this.drawingOperation.tileHeight = size.y / 32;
 
 		if (polygonCollision !== undefined) {
 			this.NewCollision(new PolygonCollision(
@@ -218,7 +219,8 @@ class ExtendedProp extends Prop {
 			polygonCollision = ArrayUtility.CloneObjects(tempArr);
 
 			//if (this.blockingCollisionSize.a !== 0)
-			this.drawingOperation.collisionSize.y = this.blockingCollisionSize.a;
+			if (this.drawingOperation.collisionSize !== undefined)
+				this.drawingOperation.collisionSize.y = this.blockingCollisionSize.a;
 
 			this.BlockingCollision = new PolygonCollision(
 				this.BoxCollision.position.Clone(),

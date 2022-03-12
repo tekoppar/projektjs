@@ -35,8 +35,6 @@ class MasterObject {
 		this.frameStepping = false;
 		this.playerController;
 
-		MasterObject.LogicTests();
-
 		const framestemEnable = document.getElementById('framestep-enable');
 		if (framestemEnable !== null)
 			framestemEnable.addEventListener('mouseup', this);
@@ -175,6 +173,7 @@ class MasterObject {
 		var duckController2 = fleeController.CloneTree(duck2);
 
 		this.CheckFullscreen();
+
 		window.requestAnimationFrame(GlobalLoop);
 	}
 
@@ -219,6 +218,10 @@ class MasterObject {
 
 		if (this.frameStepping === false) {
 			window.requestAnimationFrame(GlobalLoop);
+		}
+
+		if (Mastertime.Frame() === 100) {
+			MasterObject.LogicTests();
 		}
 	}
 

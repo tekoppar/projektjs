@@ -58,8 +58,8 @@ class PropEditor extends Cobject {
 	FixedUpdate() {
 		super.FixedUpdate();
 
-		if (this.selectedPropHTML !== undefined)
-			this.UpdateSpritePreview(this.selectedPropHTML.dataset.propName);
+		//if (this.selectedPropHTML !== undefined)
+			//this.UpdateSpritePreview(this.selectedPropHTML.dataset.propName);
 
 		if (this.selectedProp !== undefined && this.selectionState === PropEditorSelectionState.PropMoving) {
 			let tMousePos = MasterObject.MO.playerController.mousePosition.Clone();

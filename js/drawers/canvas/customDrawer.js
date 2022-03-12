@@ -4,7 +4,7 @@ import {
 	CollisionHandler, LightFalloffType, BoxCollision, worldTiles, Brush, BrushDrawState, Shadow2D, TileF,
 	BrushType, RectOperation, PathOperation, TextOperation, DrawingOperation, OperationType, TileLUT,
 	SelectedTileEditor, UIDrawer, MasterObject, Rectangle, LightingOperation, Color, LightSystem,
-	PropEditor, SaveController, Mastertime, CollisionCheckEnum, MouseEnum, KeyEnum
+	PropEditor, SaveController, Mastertime, CollisionCheckEnum, MouseEnum, KeyEnum, DLPolygon, Logger, PolygonClippingResults
 } from '../../internal.js';
 
 /** @typedef {import('./operation.js').Operations} Operations */
@@ -1134,7 +1134,7 @@ class CanvasDrawer {
 				//rectB.UpdateCornersData();
 
 				if (rectA !== undefined && rectB !== undefined) {
-					let intersection = rectA.GetIntersection(rectB);
+					let intersection = Rectangle.GetIntersection(rectA, rectB);// rectA.OldGetIntersection(rectB);
 
 					if (intersection !== undefined) {
 						intersection.Floor();

@@ -196,6 +196,10 @@ Object.assign(inventoryItemIcons, {
 	sawTable: {sprite: new Vector4D(0, 0, 64, 64), atlasSize: new Vector2D(64, 64), url: 'sawTable' },
 	woodenFloor: {sprite: new Vector4D(6, 43, 32, 32), atlasSize: new Vector2D(32, 32), url: 'floors'},
 	woodenWall: {sprite: new Vector4D(25, 69, 32, 32), atlasSize: new Vector2D(32, 32), url: 'walls'},
+	woodenWallLeftSide: {sprite: new Vector4D(36, 8, 32, 32), atlasSize: new Vector2D(32, 32), url: 'walls'},
+	woodenWallRightSide: {sprite: new Vector4D(38, 8, 32, 32), atlasSize: new Vector2D(32, 32), url: 'walls'},
+
+	wallMiddle: {sprite: new Vector4D(25, 69, 32, 32), atlasSize: new Vector2D(32, 32), url: 'walls'},
 });
 
 //equippable items

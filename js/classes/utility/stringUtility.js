@@ -5,7 +5,13 @@ const ValidObjectToStringClasses = [
 	'DrawingOperation',
 	'BoxCollision',
 	'Collision',
-	'PolygonCollision'
+	'PolygonCollision',
+	'Vector2D',
+	'Rectangle',
+	'BoxCollision',
+	'PolygonCollision',
+	'Vector4D',
+	'Vector'
 ]
 
 /**
@@ -92,7 +98,7 @@ class StringUtility {
 		for (let i = 0, l = keyPairs.length; i < l; ++i) {
 			if (keyPairs[i] !== undefined) {
 				if (keyPairs[i][1] instanceof Object && keyPairs[i][1].constructor.name !== 'Object' && (keyPairs[i][1] instanceof Cobject || keyPairs[i][1].ToString !== undefined || ValidObjectToStringClasses.indexOf(keyPairs[i][1].constructor.name) !== -1)) {
-					if (visitedObjects.indexOf(keyPairs[i][1]) === -1) {
+					if (visitedObjects.indexOf(keyPairs[i][1]) === -1 || ValidObjectToStringClasses.indexOf(keyPairs[i][1].constructor.name) !== -1) {
 						if (keyPairs[i][1].ToString !== undefined) {
 							objectString += '\t'.repeat(depth) + keyPairs[i][0] + ': ' + keyPairs[i][1].ToString() + '\r\n';
 							visitedObjects.push(keyPairs[i][1]);

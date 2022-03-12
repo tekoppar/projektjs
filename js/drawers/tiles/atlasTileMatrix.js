@@ -7,6 +7,7 @@
  * @enum {number}
  */
 const ULDR = {
+	Center: 0x00000000,
 	UpLeft: 0x00001100,
 	Up: 0x00001000,
 	UpRight: 0x00001001,
@@ -32,7 +33,8 @@ const ULDR = {
 	AngleDownLeft: 0x01001001,
 	AngleDownRight: 0x10001100,
 	CornerDoubleULDR: 0x10010000,
-	CornerDoubleDLUR: 0x01100000
+	CornerDoubleDLUR: 0x01100000,
+	CopyNeighbour: 0x11111111,
 }
 
 /**
@@ -44,7 +46,7 @@ const ULDR = {
  * @param {number} middle 
  * @returns {ULDR}
  */
-export function GetAtlasTileMatrix(binary, middle = 0) {
+function GetAtlasTileMatrix(binary, middle = 0) {
 	let first4 = binary.slice(0, 4);
 	let last4 = binary.slice(4);
 
@@ -60,10 +62,10 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 				case '1101':
 				case '1111':
 				case '0111':
-				case '0110':
-				case '1000':
-				case '0010':
-				case '0000':
+				case '0110': return ULDR.Left;
+				case '1000': return ULDR.Up;
+				case '0010': return ULDR.Down;
+				case '0000': return ULDR.CopyNeighbour;
 				case '1110':
 				case '1001':
 				case '1010': return ULDR.Left;
@@ -72,9 +74,9 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 
 		case '0010':
 			switch (last4) {
-				case '0001': return ULDR.UpRight; //changed
-				case '0010':
-				case '0100': return ULDR.Right; //changed
+				case '0001': return ULDR.Up; //changed
+				case '0010': return ULDR.Right;
+				case '0100': return ULDR.Down; //changed
 				case '1000':
 				case '0011':
 				case '1010':
@@ -86,17 +88,17 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 				case '1101':
 				case '1001':
 				case '1111':
-				case '0101': 
-				case '0000': return ULDR.Right; //changed
+				case '0101': return ULDR.Right;
+				case '0000': return ULDR.CopyNeighbour;
 			}
 			break;
 
 		case '0100':
 			switch (last4) {
-				case '1000':
+				case '1000': return ULDR.Left;
 				case '1001':
-				case '1110':
-				case '0001':
+				case '1110': return ULDR.Up;
+				case '0001': return ULDR.Right;
 				case '0010':
 				case '0100':
 				case '0011':
@@ -107,8 +109,8 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 				case '1011':
 				case '0110':
 				case '0111':
-				case '1111':
-				case '0000': return ULDR.Up; //changed
+				case '1111': return ULDR.Up;
+				case '0000': return ULDR.CopyNeighbour; //changed
 			}
 			break;
 
@@ -117,39 +119,40 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 				case '0001':
 				case '1001':
 				case '1000':
-				case '1101':
-				case '0010':
+				case '1101': return ULDR.Down;
+				case '0010': return ULDR.Left;
 				case '0101':
 				case '1100':
-				case '1011':
-				case '0100':
+				case '1011': return ULDR.Down;
+				case '0100': return ULDR.Right;
 				case '0111':
 				case '0011':
 				case '1010': return ULDR.Down; //changed
 				case '0110':
 				case '1110':
-				case '1111':
-				case '0000': return ULDR.Down; //changed
+				case '1111': return ULDR.Down;
+				case '0000': return ULDR.CopyNeighbour; //changed
 			}
 			break;
 
 		case '0011':
 			switch (last4) {
-				case '0100':
+				case '0100': return ULDR.Down;
 				case '1010':
 				case '0101':
-				case '0011':
-				case '0010':
+				case '0011': return ULDR.Middle;
+				case '0010': return ULDR.Down;
 				case '1011':
 				case '1100':
-				case '1101':
-				case '0110':
-				case '1111':
-				case '1000':
-				case '0001':
+				case '1101': return ULDR.Middle;
+				case '0110': return ULDR.Down;
+				case '1111': return ULDR.Middle;
+				case '1000': return ULDR.Up;
+				case '0001': return ULDR.Up;
 				case '0111':
-				case '1110':
-				case '1001': return ULDR.Middle;
+				case '1110': return ULDR.Middle;
+				case '1001': return ULDR.Up;
+				case '0000': return ULDR.CopyNeighbour;
 			}
 			break;
 
@@ -160,14 +163,14 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 				case '0110':
 				case '1100':
 				case '1010': return ULDR.UpRight; //changed
-				case '0101': 
+				case '0101':
 				case '0001': return middle === 0 ? ULDR.Up : ULDR.UpRight;
 				case '0011':
 				case '0111':
 				case '1011':
 				case '1110':
-				case '1111':
-				case '0000':
+				case '1111': return ULDR.Right;
+				case '0000': return ULDR.UpRight;
 				case '1000': return ULDR.Right;//changed
 				case '1001': return middle === 0 ? ULDR.Right : ULDR.UpRight;//changed
 				case '1101': return ULDR.UpRight;
@@ -179,20 +182,19 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 				case '1111':
 				case '0111':
 				case '1011':
-				case '1010':
 				case '1101':
 				case '0011':
 				case '1001':
-				case '1100':
-				case '0100':
-				case '0001':
-				case '0101':
-				case '1000':
-				case '1010':
-				case '0010':
+				case '1100': return ULDR.Middle;
+				case '0100': return ULDR.Right;
+				case '0001': return ULDR.Right;
+				case '0101': return ULDR.Right;
+				case '1000': return ULDR.Left;
+				case '1010': return ULDR.Left;
+				case '0010': return ULDR.Left;
 				case '0110':
-				case '0000':
 				case '1110': return ULDR.Middle;
+				case '0000': return ULDR.CopyNeighbour;
 			}
 			break;
 
@@ -213,8 +215,8 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 				case '1111':
 				case '1000':
 				case '0010':
-				case '0001':
-				case '0000': return ULDR.Middle;
+				case '0001': return ULDR.Middle;
+				case '0000': return ULDR.UpLeft;
 			}
 			break;
 
@@ -234,8 +236,8 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 				case '1111':
 				case '0110': return middle === 0 ? ULDR.Right : ULDR.DownRight; //changed
 				case '1101':
-				case '1100':
-				case '0000': return ULDR.Middle;
+				case '1100': return ULDR.Middle;
+				case '0000': return ULDR.DownRight;
 			}
 			break;
 
@@ -255,8 +257,8 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 				case '1111':
 				case '0010': return middle === 1 ? ULDR.DownLeft : ULDR.Down; //changed
 				case '0101':
-				case '0100':
-				case '0000': return ULDR.Middle;
+				case '0100': return ULDR.Middle;
+				case '0000': return ULDR.DownLeft;
 			}
 			break;
 
@@ -375,8 +377,8 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 				case '1110':
 				case '0111':
 				case '1011':
-				case '1101':
-				case '1111':
+				case '1101': return ULDR.Middle;
+				case '1111': return ULDR.Center;
 				case '0000': return ULDR.Middle;
 			}
 			break;
@@ -384,3 +386,5 @@ export function GetAtlasTileMatrix(binary, middle = 0) {
 
 	return null;
 }
+
+export { GetAtlasTileMatrix, ULDR };

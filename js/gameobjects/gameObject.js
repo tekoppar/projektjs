@@ -75,7 +75,9 @@ class Pawn extends Cobject {
 
 		super.SetPosition(position);
 
-		this.BoxCollision.SetPosition(this.GetPosition());
+		if (this.BoxCollision !== undefined)
+			this.BoxCollision.SetPosition(this.GetPosition());
+			
 		if (this.drawingOperation !== undefined) {
 			this.drawingOperation.tile.position = this.GetPosition();
 			this.drawingOperation.UpdateDrawState(true);
@@ -288,16 +290,18 @@ class GameObject extends Pawn {
 	SetPosition(position) {
 		super.SetPosition(position);
 
-		if (this.BlockingCollision !== undefined) {
+		if (this.BlockingCollision !== undefined && this.BlockingCollision !== null) {
 			this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
 			//this.BlockingCollision.position = this.position.Clone();
-			this.BlockingCollision.position.Sub(
-				new Vector2D(
-					this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5,
-					this.BlockingCollision.size.y - (this.BoxCollision.size.y > 32 ? this.BlockingCollision.size.y : 0)
-				)
-			);
-			this.BlockingCollision.SetPosition(this.BlockingCollision.position);
+			if (this.BlockingCollision.size !== undefined && this.BlockingCollision.size !== null) {
+				this.BlockingCollision.position.Sub(
+					new Vector2D(
+						this.BlockingCollision.size.x + this.BlockingCollision.size.x * 0.5,
+						this.BlockingCollision.size.y - (this.BoxCollision.size.y > 32 ? this.BlockingCollision.size.y : 0)
+					)
+				);
+				this.BlockingCollision.SetPosition(this.BlockingCollision.position);
+			}
 			//this.BlockingCollision.CalculateBoundingBox();
 		}
 	}
@@ -330,6 +334,7 @@ class GameObject extends Pawn {
 			this.BoxCollision.UpdateCollision();
 			//collision size is inversed, height then width
 			this.drawingOperation.collisionSize = new Vector2D(this.BoxCollision.boundingBox.w, this.BoxCollision.boundingBox.h);
+			//this.drawingOperation.tileHeight = this.BoxCollision.boundingBox.h / 32;
 		}
 	}
 
@@ -360,7 +365,7 @@ class GameObject extends Pawn {
 	 * 
 	 * @param {Tile} tile 
 	 */
-	 UpdateTile(tile) {
+	UpdateTile(tile) {
 		this.drawingOperation.tile.tileULDR = tile.tileULDR;
 		this.drawingOperation.tile.ChangeSprite(tile);
 		this.drawingOperation.targetCanvas = AtlasController.GetAtlas(tile.atlas).GetCanvas();

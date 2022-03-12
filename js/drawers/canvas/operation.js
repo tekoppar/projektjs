@@ -531,6 +531,7 @@ class DrawingOperation extends Operation {
 		/** @type {'DrawingOperation'} */ this.ClassType = 'DrawingOperation';
 		/** @type {Object} */ this.owner = owner;
 		/** @type {Tile} */ this.tile = tile;
+		/** @type {number} */ this.tileHeight = 0;
 		/** @type {HTMLCanvasElement} */ this.targetCanvas = targetCanvas;
 		/** @type {Vector2D} */ this.collisionSize = undefined;
 		/** @type {Rectangle[]} */ this.updateRects = undefined;
@@ -674,7 +675,15 @@ class DrawingOperation extends Operation {
 	 * @returns {number}
 	 */
 	GetDrawPositionY() {
-		return this.tile.position.y + (this.collisionSize !== undefined ? this.collisionSize.y : this.tile.size.y);
+		return this.tile.position.y + (this.collisionSize !== undefined ? this.collisionSize.y : this.tile.size.y) + (this.tileHeight * 32);
+	}
+
+	/**
+	 * 
+	 * @returns {number}
+	 */
+	Get3DPositionY() {
+		return this.tile.position.y + (this.tileHeight * 32);
 	}
 
 	/**

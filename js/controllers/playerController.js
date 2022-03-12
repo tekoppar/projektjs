@@ -1,6 +1,6 @@
 import {
 	Vector2D, Hoe, Shovel, Axe, MainCharacter, Weapon, Seed, Controller, CraftingRecipes,
-	Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Item, Building, MovemementDirection,
+	Camera, CanvasDrawer, Minimap, Pickaxe, Crafting, Item, BuildingMenu, MovemementDirection,
 	MovementType, EquipabbleItem, ItemStats, KeyEnum, InputHandler, InputEnum, InputSideEnum, MouseEnum
 } from '../internal.js';
 
@@ -19,7 +19,7 @@ class PlayerController extends Controller {
 
 		/** @type {MainCharacter} */ this.playerCharacter = player;
 		/** @type {Crafting} */ this.crafting = new Crafting(undefined, 'Crafting', CraftingRecipes.CraftingRecipeList);
-		/** @type {Building} */ this.building = new Building();
+		/** @type {BuildingMenu} */ this.building = new BuildingMenu();
 		/** @type {Camera} */ this.playerCamera = new Camera(this, new Vector2D(CanvasDrawer.GCD.mainCanvas.width, CanvasDrawer.GCD.mainCanvas.height));
 		/** @type {Minimap} */ this.minimap = new Minimap(player);
 		this.mouseToAtlasRectMap = {};

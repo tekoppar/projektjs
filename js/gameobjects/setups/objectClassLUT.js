@@ -1,4 +1,4 @@
-import { Tree, Rock, Shop, ExtendedProp, Storage, CraftingStation, Wall } from '../../internal.js';
+import { Tree, Rock, Shop, ExtendedProp, Storage, CraftingStation, Wall, Floor } from '../../internal.js';
 
 /**
  * @readonly
@@ -28,10 +28,43 @@ const ObjectClassLUT = {
 	HouseTest: ExtendedProp.prototype,
 	/** @lends {Storage.prototype} */
 	woodenChest: Storage.prototype,
-	/** @lends {ExtendedProp.prototype} */
-	woodenFloor: ExtendedProp.prototype,
-	/** @lends {ExtendedProp.prototype} */
+	/** @lends {Floor.prototype} */
+	woodenFloor: Floor.prototype,
+	/** @lends {Wall.prototype} */
 	woodenWall: Wall.prototype,
+
+	/** @lends {ExtendedProp.prototype} */
+	woodenWallLeft: ExtendedProp.prototype,
+	/** @lends {Wall.prototype} */
+	woodenWallMiddle: Wall.prototype,
+	/** @lends {Wall.prototype} */
+	woodenWallRight: Wall.prototype,
+
+	/** @lends {Wall.prototype} */
+	wallMiddle: Wall.prototype,
+	/** @lends {Wall.prototype} */
+	wallLeft: Wall.prototype,
+	/** @lends {Wall.prototype} */
+	wallRight: Wall.prototype,
+
+	/** @lends {Wall.prototype} */
+	wallTop: Wall.prototype,
+	/** @lends {Wall.prototype} */
+	wallTopLeft: Wall.prototype,
+	/** @lends {Wall.prototype} */
+	wallTopRight: Wall.prototype,
+
+	/** @lends {Wall.prototype} */
+	wallBottom: Wall.prototype,
+	/** @lends {Wall.prototype} */
+	wallBottomLeft: Wall.prototype,
+	/** @lends {Wall.prototype} */
+	wallBottomRight: Wall.prototype,
+
+	/** @lends {Wall.prototype} */
+	woodenWallLeftSide: Wall.prototype,
+	/** @lends {Wall.prototype} */
+	woodenWallRightSide: Wall.prototype,
 	/** @lends {CraftingStation.prototype} */
 	stoneSmelter: CraftingStation.prototype,
 	/** @lends {CraftingStation.prototype} */

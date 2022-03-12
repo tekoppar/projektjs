@@ -4,6 +4,7 @@ import {
 	ParticleSystem, Rectangle, ColorParticle, ParticleFilters, ParticleGeneratorSettings,
 	ParticleType, AnimationType, BWDrawingType, Item, CAnimation, PlayerController,
 	CharacterAttributes,
+	Mastertime,
 } from '../../internal.js';
 
 const FacingDirection = {
@@ -499,6 +500,8 @@ class Character extends GameObject {
 
 			this.BoxCollision.position = this.GetPosition();
 			this.BoxCollision.position.Add(Vector2D.Mult(this.MovementSpeed, this.Velocity));
+			//let deltaTime = Mastertime.Delta();
+			//this.BoxCollision.position.Add(Vector2D.Mult(this.MovementSpeed, Vector2D.MultF(this.Velocity, deltaTime)));
 
 			this.BlockingCollision.position = this.BoxCollision.GetCenterPosition();
 			this.BoxCollision.position = this.GetPosition();
@@ -512,6 +515,7 @@ class Character extends GameObject {
 			if (CollisionHandler.GCH.CheckCollisions(this.BlockingCollision) === true) {
 				this.previousPosition = this.GetPosition();
 				this.position.Add(Vector2D.Mult(this.MovementSpeed, this.Velocity));
+				//this.position.Add(Vector2D.Mult(this.MovementSpeed, Vector2D.MultF(this.Velocity, deltaTime)));
 				this.SetPosition(this.position);
 				this.UpdateRealTimeShadow();
 			} else {

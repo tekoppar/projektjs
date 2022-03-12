@@ -838,7 +838,181 @@ class TileMaker {
 				tileLayout: [
 					[[0]],
 				]
-			}
+			},
+			woodenWallLeft: {
+				name: 'woodenWallLeft',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(24, 59), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(24, 60), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(24, 61), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood)
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
+			woodenWallMiddle: {
+				name: 'woodenWallMiddle',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(25, 59), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(25, 60), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(25, 61), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood)
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
+			woodenWallRight: {
+				name: 'woodenWallRight',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(26, 59), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(26, 60), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(26, 61), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood)
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
+			woodenWallLeftSide: {
+				name: 'woodenWallLeftSide',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(36, 8), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood)
+				],
+				tileLayout: [
+					[[0]],
+				]
+			},
+			woodenWallRightSide: {
+				name: 'woodenWallRightSide',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(38, 8), new Vector2D(32, 32), true, 'walls', 0, TileType.Ground, TileTerrain.Wood)
+				],
+				tileLayout: [
+					[[0]],
+				]
+			},
+			wallMiddle: {
+				name: 'wallMiddle',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(1, 3), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(1, 4), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(1, 5), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
+			wallLeft: {
+				name: 'wallLeft',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(0, 3), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(0, 4), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(0, 5), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
+			wallRight: {
+				name: 'wallRight',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(2, 3), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(2, 4), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(2, 5), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
+			wallTop: {
+				name: 'wallTop',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(1, 0), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(1, 1), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(1, 2), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
+			wallTopLeft: {
+				name: 'wallTopLeft',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(0, 0), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(0, 1), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(0, 2), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
+			wallTopRight: {
+				name: 'wallTopRight',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(2, 0), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(2, 1), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(2, 2), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
+			wallBottom: {
+				name: 'wallBottom',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(1, 6), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(1, 7), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(1, 8), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
+			wallBottomLeft: {
+				name: 'wallBottomLeft',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(0, 6), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(0, 7), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(0, 8), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
+			wallBottomRight: {
+				name: 'wallBottomRight',
+				tiles: [
+					new Tile(new Vector2D(0, 0), new Vector2D(2, 6), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(2, 7), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+					new Tile(new Vector2D(0, 0), new Vector2D(2, 8), new Vector2D(32, 32), true, 'wallsPremade', 0, TileType.Ground, TileTerrain.Wood),
+				],
+				tileLayout: [
+					[[0]],
+					[[1]],
+					[[2]]
+				]
+			},
 		};
 
 		let keys = Object.keys(TileMaker.CustomTiles);

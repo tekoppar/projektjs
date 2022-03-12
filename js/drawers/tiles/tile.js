@@ -1,5 +1,5 @@
 import {
-	Matrix, Vector2D, CanvasDrawer, TileLUT, AtlasController, GetAtlasTileMatrix, CollisionEditor,
+	Matrix, Vector2D, CanvasDrawer, TileLUT, AtlasController, GetAtlasTileMatrix, ULDR, CollisionEditor,
 	PropEditor, SaveController, DrawingOperation, DebugDrawer, CollisionHandler, GameObject
 } from '../../internal.js';
 
@@ -38,6 +38,7 @@ const TileTerrain = {
  */
 //@ts-ignore
 const TileULDREnum = {
+	0x00000000: 'Center',
 	0x00001100: 'UpLeft',
 	0x00001000: 'Up',
 	0x00001001: 'UpRight',
@@ -93,6 +94,7 @@ const TileULDRLUT = {
 class TileULDR {
 	//UL UR DL DR U L D R
 	/** @type {Object.<number, string>} */ static TileULDR = {
+		0x00000000: 'Center',
 		0x00001100: 'UpLeft',
 		0x00001000: 'Up',
 		0x00001001: 'UpRight',
@@ -111,10 +113,12 @@ class TileULDR {
 		0x01001001: 'AngleDownLeft',
 		0x10001100: 'AngleDownRight',
 		0x01100000: 'CornerDoubleDLUR',
-		0x10010000: 'CornerDoubleULDR'
+		0x10010000: 'CornerDoubleULDR',
+		0x11111111: 'CopyNeighbour',
 	};
 
 	/** @type {Object.<string, number>} */ static TileULDRLUT = {
+		Center: 0x00000000,
 		UpLeft: 0x00001100,
 		Up: 0x00001000,
 		UpRight: 0x00001001,
@@ -134,6 +138,7 @@ class TileULDR {
 		AngleDownRight: 0x10001100,
 		CornerDoubleDLUR: 0x01100000,
 		CornerDoubleULDR: 0x10010000,
+		CopyNeighbour: 0x11111111,
 	};
 
 	/**
@@ -611,9 +616,16 @@ class TileF {
 
 				uldr = TileULDR.Get(Number(GetAtlasTileMatrix(uldr.replace('0x', ''), newTilePaintMatrix.y2)));
 
-				let newTileData;
+				/** @type {Tile} */ let newTileData = undefined;
 				if (uldr !== undefined) {
-					if (uldr.includes('CornerDouble')) {
+					if (uldr === 'CopyNeighbour') {
+						let neighbourTiles = TileF.GetNeighbouringTiles(allTiles[i2].tile, tile.tileSet);
+						let neighbourTilesArr = neighbourTiles.ToArray();
+						let foundTile = neighbourTilesArr.find(element => (element !== undefined && element !== null && element !== allTiles[i2] && element.tile.tileULDR !== 'Middle'));
+						if (foundTile !== undefined) {
+							newTileData = TileData.TileLUTSets[foundTile.tile.tileSet][foundTile.tile.tileULDR];
+						}
+					} else if (uldr.includes('CornerDouble')) {
 						if (TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'] !== undefined && TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'][uldr] !== undefined)
 							newTileData = TileData.TileLUTSets[tile.tileSet + 'DoubleCorner'][uldr];
 					} else if (uldr.includes('Corner')) {
@@ -629,8 +641,8 @@ class TileF {
 					}
 				}
 
-				if (newTileData === undefined) {
-					newTiles.push(TileData.TileLUTSets[tile.tileSet][0x00001111]);
+				if (newTileData === undefined && TileData.TileLUTSets[tile.tileSet] !== undefined) {
+					newTiles.push(TileData.TileLUTSets[tile.tileSet]['Middle']);
 				} else
 					newTiles.push(newTileData);
 
@@ -709,6 +721,7 @@ class TileF {
 	/**
 	 * 
 	 * @param {GameObject} object 
+	 * @param {string} tileSet
 	 */
 	static UpdateObjectTile(object, tileSet) {
 		const tile = object.drawingOperation.tile;
@@ -749,11 +762,26 @@ class TileF {
 	/**
 	 * 
 	 * @param {GameObject} object 
+	 * @param {string} tileSet
+	 * @return {string}
+	 */
+	static GetObjectULDR(object, tileSet) {
+		let objects = TileF.GetNeighbourObjects(object, tileSet);
+
+		let test = TileF.ConstructAtlasObjectTileMatrix(objects);
+		let tempuldr = test.ToBinary();
+		return TileULDR.Get(Number(GetAtlasTileMatrix(tempuldr.replace('0x', ''), 1)));
+	}
+
+	/**
+	 * 
+	 * @param {GameObject} object 
 	 * @param {string} tileSet 
 	 * @returns {DrawingOperation[]}
 	 */
 	static GetNeighbourObjects(object, tileSet) {
 		let nearbyObjects = CollisionHandler.GCH.GetInRangeClassName(object.BoxCollision, object.drawingOperation.tile.size.x * 2, object.constructor.name);
+		nearbyObjects = nearbyObjects.concat(CollisionHandler.GCH.GetInRangeClassName(object.BoxCollision, object.drawingOperation.tile.size.x * 2, 'BuildingZone'));
 
 		let offsetTileMatrix = new Matrix(
 			new Vector2D(-1, -1), new Vector2D(0, -1), new Vector2D(1, -1),
@@ -764,8 +792,8 @@ class TileF {
 		/** @type{Vector2D[]} */ let offsetTileMatrixArr = offsetTileMatrix.ToArray();
 
 		for (let i = 0, l = offsetTileMatrixArr.length; i < l; ++i) {
-			offsetTileMatrixArr[i].x = object.drawingOperation.tile.position.x + (offsetTileMatrixArr[i].x * object.drawingOperation.tile.size.x);
-			offsetTileMatrixArr[i].y = object.drawingOperation.tile.position.y + (offsetTileMatrixArr[i].y * object.drawingOperation.tile.size.y);
+			offsetTileMatrixArr[i].x = object.drawingOperation.tile.position.x + (offsetTileMatrixArr[i].x * 32);
+			offsetTileMatrixArr[i].y = object.drawingOperation.tile.position.y + (offsetTileMatrixArr[i].y * 32);
 		}
 
 		/** @type {DrawingOperation[]} */ let objectTileArr = [
@@ -777,7 +805,11 @@ class TileF {
 		for (let i = 0, l = nearbyObjects.length; i < l; ++i) {
 			for (let i2 = 0, l2 = offsetTileMatrixArr.length; i2 < l2; ++i2) {
 				if (offsetTileMatrixArr[i2].NearlyEqual(nearbyObjects[i].position) && nearbyObjects[i].collisionOwner.drawingOperation.tile.tileSet === tileSet) {
-					objectTileArr[i2] = nearbyObjects[i].collisionOwner.drawingOperation;
+					if (nearbyObjects[i].collisionOwner.drawingOperation.tileHeight === 0 && object.drawingOperation.tileHeight === 0) {
+						objectTileArr[i2] = nearbyObjects[i].collisionOwner.drawingOperation;
+					} else if (object.drawingOperation.Get3DPositionY() === nearbyObjects[i].collisionOwner.drawingOperation.Get3DPositionY()) {
+						objectTileArr[i2] = nearbyObjects[i].collisionOwner.drawingOperation;
+					}
 				}
 			}
 		}
@@ -814,6 +846,20 @@ class TileF {
 		//surroundingTiles.InvertMatrix();
 		surroundingTiles.IsOne(a);
 		//surroundingTiles.InvertMatrix();
+		return surroundingTiles;
+	}
+
+	/**
+	 * 
+	 * @param {Tile} tile 
+	 * @param {string} tileSet 
+	 * @returns {Matrix}
+	 */
+	static GetNeighbouringTiles(tile, tileSet = 'soilTiled') {
+		let surroundingTiles = Matrix.FromArray(TileF.GetSurroundingTiles(tile.position));
+		surroundingTiles = surroundingTiles.Filter(['tile', 'tileSet'], tileSet);
+		//surroundingTiles = surroundingTiles.Filter(['tile', 'tileULDR'], 'Middle');
+
 		return surroundingTiles;
 	}
 
@@ -1100,7 +1146,7 @@ class Tile {
 		/** @type {boolean} */ this.transparent = transparent;
 		/** @type {boolean} */ this.needsToBeRedrawn = true;
 		/** @type {number} */ this.drawIndex = drawIndex;
-		/** @type {number} */ this.tileULDR = TileULDR.TileULDRLUT.Middle;
+		/** @type {(number|string)} */ this.tileULDR = TileULDR.TileULDRLUT.Middle;
 		/** @type {string} */ this.tileSet = 'default';
 
 		this.UpdateTileData();

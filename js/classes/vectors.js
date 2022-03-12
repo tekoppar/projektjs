@@ -1,4 +1,4 @@
-import { CMath, earcut, OpenClosed } from '../internal.js';
+import { CMath, DebugDrawer, earcut, OpenClosed } from '../internal.js';
 
 /**
  * @memberof Number
@@ -750,7 +750,7 @@ class Vector {
 	 * 
 	 * @returns {string}
 	 */
-	 ToString() {
+	ToString() {
 		return this.x + ', ' + this.y + ', ' + this.z;
 	}
 
@@ -898,7 +898,7 @@ class Vector4D {
 	 * 
 	 * @returns {string}
 	 */
-	 ToString() {
+	ToString() {
 		return this.x + ', ' + this.y + ', ' + this.z + ', ' + this.a;
 	}
 
@@ -1323,6 +1323,23 @@ class Rectangle {
 			return null;
 	}
 
+	/**
+	 * 
+	 * @param {number} aX 
+	 * @param {number} aY 
+	 * @param {number} bX 
+	 * @param {number} bY 
+	 * @returns {Rectangle}
+	 */
+	static RectangleFromTwoPoints(aX, aY, bX, bY) {
+		let xMin = Math.min(aX, bX);
+		let yMin = Math.min(aY, bY);
+		let xMax = Math.max(aX, bX);
+		let yMax = Math.max(aY, bY);
+
+		return new Rectangle(xMin, yMin, xMax - xMin, yMax - yMin);
+	}
+
 	RelativeComponents(b) {
 		this.UpdateCornersData();
 		b.UpdateCornersData(true);
@@ -1425,7 +1442,7 @@ class Rectangle {
 	 * @param {number} h 
 	 * @returns {boolean}
 	 */
-	 IsCornerInside(x, y, w, h) {
+	IsCornerInside(x, y, w, h) {
 		return this.InsideGreaterLessXY(x, y) || this.InsideGreaterLessXY(x + w, y) || this.InsideGreaterLessXY(x, y + h) || this.InsideGreaterLessXY(x + w, y + h);
 	}
 
@@ -1457,6 +1474,46 @@ class Rectangle {
 		falseValue = c.IsCornerInside(a.x, a.y, a.w, a.h);
 		trueValue = c.IsCornerInside(d.x, d.y, d.w, d.h);
 		console.log(trueValue, falseValue);
+
+		let e = new Rectangle(0, 0, 100, 100);
+		let f = new Rectangle(-50, -50, 100, 100);
+		let intersection = Rectangle.GetIntersection(e, f);
+		console.log(intersection);
+
+		if (intersection !== undefined) {
+			DebugDrawer.AddDebugRectOperation(e, 25, 'red', true, 1.0);
+			DebugDrawer.AddDebugRectOperation(f, 25, 'purple', true, 1.0);
+			DebugDrawer.AddDebugRectOperation(intersection, 25, 'green', false, 1.0);
+		}
+	}
+
+	/**
+	 * 
+	 * @param {Rectangle} a 
+	 * @param {Rectangle} b 
+	 * @returns {Rectangle}
+	 */
+	static GetIntersection(a, b) {
+		const minX = Math.max(Math.min(a.x, b.x), Math.min(a.x + a.w, b.x + b.w));
+		const maxX = Math.min(Math.max(a.x, b.x), Math.max(a.x + a.w, b.x + b.w));
+		const minY = Math.max(Math.min(a.y, b.y), Math.min(a.y + a.h, b.y + b.h));
+		const maxY = Math.min(Math.max(a.y, b.y), Math.max(a.y + a.h, b.y + b.h));
+
+		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+	}
+
+	/**
+	 * 
+	 * @param {Rectangle} a
+	 * @returns {Rectangle}
+	 */
+	 GetIntersection(a) {
+		const minX = Math.max(Math.min(this.x, a.x), Math.min(this.x + this.w, a.x + a.w));
+		const maxX = Math.min(Math.max(this.x, a.x), Math.max(this.x + this.w, a.x + a.w));
+		const minY = Math.max(Math.min(this.y, a.y), Math.min(this.y + this.h, a.y + a.h));
+		const maxY = Math.min(Math.max(this.y, a.y), Math.max(this.y + this.h, a.y + a.h));
+
+		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
 	}
 
 	/**
@@ -1695,7 +1752,7 @@ class Rectangle {
 	 * @param {Rectangle} a 
 	 * @returns {Rectangle}
 	 */
-	GetIntersection(a) {
+	OldGetIntersection(a) {
 		let insideCorners = [];
 		this.GetOverlappingCornersPassBy(a, insideCorners);
 
@@ -2858,6 +2915,20 @@ class Line {
 			return undefined;
 
 		return new Vector2D(a.x + (abX * pointF), a.y + (abY * pointF));
+	}
+
+	/**
+	 * 
+	 * @param {Vector2D} a 
+	 * @param {Vector2D} b 
+	 * @param {Vector2D} position 
+	 * @returns {number}
+	 */
+	static DistanceAlongLine(a, b, position) {
+		let abX = b.x - a.x,
+			abY = b.y - a.y;
+
+		return ((position.x - a.x) * abX + (position.y - a.y) * abY) / ((abX * abX) + (abY * abY));
 	}
 
 	/**

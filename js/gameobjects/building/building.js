@@ -1,302 +1,135 @@
 import {
-	Cobject, InputHandler, GUI, BuildingRecipeList, BuildingZone, BuildingCategory, inventoryItemIcons, StringUtility,
-	MasterObject, CanvasDrawer, ObjectClassLUT, AtlasController, CanvasUtility, BuildingRecipe, PawnSetupController,
-	CollisionHandler, CollisionTypeCheck, CollisionCheckEnum, DebugDrawer, Color, KeyEnum, InputEnum, InputSideEnum,
-	MouseEnum, Vector2D, Rectangle, Collision
+	ExtendedProp, Tile, AtlasController, Vector4D, Vector2D, BuildingCategory, CollisionHandler,
+	CollisionCheckEnum, CollisionTypeCheck, Collision, BuildingZone, BuildingRecipe, TileF, GameObject
 } from '../../internal.js';
-
-/**
- * @readonly
- * @enum {number}
- */
-const BuildingModeState = {
-	None: 0,
-	Selecting: 1,
-	Placing: 2,
-}
 
 /**
  * @class
  * @constructor
- * @extends Cobject
+ * @extends ExtendedProp
  */
-class Building extends Cobject {
-	constructor(owner) {
-		super();
-		//this.building = {};
-		this.characterOwner = owner;
-		/** @type {boolean} */ this.isVisible = false;
-		this.buildingHTML;
-		this.buildingHTMLList;
-		/** @type {boolean} */ this.didBuildingChange = false;
-		/** @type {boolean} */ this.buildingSetupDone = false;
-		/** @type {BuildingRecipe} */ this.buildingRecipe = undefined;
-		/** @type {number} */ this.buildingTime = 0;
-		/** @type {boolean} */ this.isBuilding = false;
-		/** @type {BuildingModeState} */ this.buildingState = BuildingModeState.None;
-		this.selectedBuilding = undefined;
-		this.continuePlacing = false;
-		this.anchorPosition = new Vector2D(0, 0);
-		this.isAnchored = false;
-	}
+class Building extends ExtendedProp {
 
-	SetupBuilding() {
-		if (document.getElementById('building-panel') !== null) {
-			this.buildingHTML = GUI.CreateContainer();
-			this.buildingHTML.classList.add('center-absolute');
+	/**
+	 * Creates a new ExtendedProp
+	 * @param {string} name 
+	 * @param {Vector2D} position 
+	 * @param {*} animations 
+	 * @param {string} canvasName 
+	 * @param {(Vector4D|Object)} blockingCollisionSize 
+	 * @param {BuildingCategory} category
+	 */
+	constructor(name, position, animations, canvasName, blockingCollisionSize = new Vector4D(16, 16, 0, 0), category) {
+		super(name, position, animations, canvasName, blockingCollisionSize);
 
-			let template = document.getElementById('building-panel');
-			//@ts-ignore
-			let clone = template.content.cloneNode(true);
-			this.buildingHTMLList = clone.querySelector('div.building-item-list');
-			this.buildingHTMLList.addEventListener('click', this);
-
-			this.buildingHTML.appendChild(clone);
-			document.getElementById('game-gui').appendChild(this.buildingHTML);
-			this.buildingHTML.querySelector('button.building-button-craft').addEventListener('click', this);
-
-			InputHandler.GIH.AddListener(this, InputEnum.shift, InputSideEnum.Left);
-			InputHandler.GIH.AddListener(this, InputEnum.alt, InputSideEnum.Left);
-			InputHandler.GIH.AddListener(this, MouseEnum.leftMouse);
-			InputHandler.GIH.AddListener(this, MouseEnum.rightMouse);
-			this.buildingSetupDone = true;
-		} else
-			window.requestAnimationFrame(() => this.SetupBuilding());
-	}
-
-	SetupCategories() {
-		this.buildingHTMLList.innerHTML = '';
-
-		let keys = Object.keys(BuildingCategory);
-
-		for (let i = 0, l = keys.length; i < l; ++i) {
-			let categoryEl = document.createElement('div');
-			categoryEl.id = 'building-' + keys[i];
-			categoryEl.className = 'building-category-container';
-			let labelEl = document.createElement('label');
-			labelEl.innerText = StringUtility.NameToDisplayName(keys[i]);
-			labelEl.className = 'category-name';
-			categoryEl.appendChild(labelEl);
-
-			this.buildingHTMLList.appendChild(categoryEl);
-		}
-	}
-
-	DisplayBuilding() {
-		let keys = Object.keys(BuildingRecipeList);
-
-		this.SetupCategories();
-		let categoryNames = Object.keys(BuildingCategory);
-		for (let i = 0, l = keys.length; i < l; ++i) {
-			let template = document.getElementById('building-panel-item');
-			//@ts-ignore
-			let clone = template.content.cloneNode(true);
-
-			if (BuildingRecipeList[keys[i]] !== null) {
-				let recipe = BuildingRecipeList[keys[i]];
-
-				if (inventoryItemIcons[keys[i]] === undefined)
-					continue;
-
-				PawnSetupController.GetNewImage(keys[i]);
-
-				let div = /** @type {HTMLDivElement} */ (clone.querySelector('div.inventory-item'));
-				let image = CanvasUtility.CanvasPortionToImage(
-					inventoryItemIcons[keys[i]].sprite.x * 32,
-					inventoryItemIcons[keys[i]].sprite.y * 32,
-					inventoryItemIcons[keys[i]].sprite.z,
-					inventoryItemIcons[keys[i]].sprite.a,
-					AtlasController.GetAtlas(inventoryItemIcons[keys[i]].url)
-				);
-				image.removeAttribute('height');
-				image.removeAttribute('width');
-				div.appendChild(image);
-
-				div.dataset.buildingItem = keys[i];
-				document.getElementById('building-' + categoryNames[recipe.category]).appendChild(clone);
-			}
-		}
-
-		this.didBuildingChange = false;
+		/** @type {BuildingCategory} */ this.category = category;
 	}
 
 	/**
 	 * 
-	 * @param {string} buildingKey 
+	 * @param {Tile} tile 
 	 */
-	ShowRecipe(buildingKey = undefined) {
-		if (this.buildingRecipe !== undefined && buildingKey !== undefined) {
-			let itemNameDiv = this.buildingHTML.querySelector('div.building-item-name');
-			itemNameDiv.innerText = this.buildingRecipe.displayName;
-
-			let container = this.buildingHTML.querySelector('div.frame-circle');
-			let image = CanvasUtility.CanvasPortionToImage(inventoryItemIcons[buildingKey].sprite.x * 32, inventoryItemIcons[buildingKey].sprite.y * 32, inventoryItemIcons[buildingKey].sprite.z, inventoryItemIcons[buildingKey].sprite.a, AtlasController.GetAtlas(inventoryItemIcons[buildingKey].url));
-			image.classList.add('building-item-sprite');
-			container.innerHTML = '';
-			image.removeAttribute('height');
-			image.removeAttribute('width');
-			container.appendChild(image);
-
-			let template = document.getElementById('building-panel-resource'),
-				itemResourcesDiv = this.buildingHTML.querySelector('div.building-item-resources');
-			itemResourcesDiv.innerHTML = '';
-
-			for (let i = 0, l = this.buildingRecipe.resourceList.length; i < l; ++i) {
-				//@ts-ignore
-				let clone = template.content.cloneNode(true);
-
-				let text = '';
-
-				if (this.characterOwner.inventory !== undefined) {
-					text += this.characterOwner.inventory.GetItemAmount(this.buildingRecipe.resourceList[i].item.resource) + '/' + this.buildingRecipe.resourceList[i].amount;
-					text += ' - ' + this.buildingRecipe.resourceList[i].item.name;
-				}
-
-				clone.querySelector('label.building-item-text').innerText = text;
-
-				let div = clone.querySelector('div.inventory-item-32');
-				let resourceImage = CanvasUtility.CanvasPortionToImage(inventoryItemIcons[this.buildingRecipe.resourceList[i].item.resource].sprite.x * 32, inventoryItemIcons[this.buildingRecipe.resourceList[i].item.resource].sprite.y * 32, inventoryItemIcons[this.buildingRecipe.resourceList[i].item.resource].sprite.z, inventoryItemIcons[this.buildingRecipe.resourceList[i].item.resource].sprite.a, AtlasController.GetAtlas(inventoryItemIcons[this.buildingRecipe.resourceList[i].item.resource].url));
-				resourceImage.classList.add('inventory-item-sprite-32');
-				resourceImage.removeAttribute('height');
-				resourceImage.removeAttribute('width');
-				div.appendChild(resourceImage);
-
-				itemResourcesDiv.appendChild(clone);
-			}
-
-			this.didBuildingChange = true;
-		}
+	UpdateTile(tile) {
+		this.drawingOperation.tile.tileULDR = tile.tileULDR;
+		this.drawingOperation.tile.ChangeSprite(tile);
+		this.drawingOperation.targetCanvas = AtlasController.GetAtlas(tile.atlas).GetCanvas();
+		this.FlagDrawingUpdate(this.position);
 	}
 
-	ShowBuilding(visibility = !this.isVisible) {
-		this.buildingHTML.style.display = (visibility === true ? 'flex' : 'none');
-		this.isVisible = visibility;
-		this.didBuildingChange = true;
+	/**
+	 * 
+	 * @param {GameObject} building 
+	 * @returns {string}
+	 */
+	static GetBuildingULDR(building) {
+		let uldr = TileF.GetObjectULDR(building, building.drawingOperation.tile.tileSet);
 
-		if (this.buildingState !== BuildingModeState.Placing) {
-			if (this.isVisible)
-				this.buildingState = BuildingModeState.Selecting;
-			else
-				this.buildingState = BuildingModeState.None;
-		}
-	}
-
-	CraftItem() {
-		if (this.buildingRecipe !== undefined) {
-			for (let i = 0, l = this.buildingRecipe.resourceList.length; i < l; ++i) {
-				if (this.characterOwner.inventory.HasItemAmount(this.buildingRecipe.resourceList[i].item.resource, this.buildingRecipe.resourceList[i].amount) === false) {
-					return;
-				}
-			}
-
-			for (let i = 0, l = this.buildingRecipe.resourceList.length; i < l; ++i) {
-				this.characterOwner.inventory.RemoveAmount(this.buildingRecipe.resourceList[i].item.resource, this.buildingRecipe.resourceList[i].amount);
-			}
-
-			this.isBuilding = true;
-			this.ShowRecipe();
-		}
-	}
-
-	PlaceBuildingZone() {
-		if (this.selectedBuilding !== undefined) {
-			let newZone = new BuildingZone(PawnSetupController.GetAtlasName(this.buildingRecipe.name), this.selectedBuilding.GetPosition().Clone(), this.selectedBuilding, this.buildingRecipe);
-			newZone.GameBegin();
-			newZone.SetPosition(this.selectedBuilding.position);
-
-			newZone.drawingOperation.collisionSize = new Vector2D(0, Math.max(0, this.anchorPosition.y - this.selectedBuilding.position.y + 32));
-
-			this.selectedBuilding.Delete();
-			this.selectedBuilding = undefined;
-			this.buildingState = BuildingModeState.None;
-			this.ShowBuilding(false);
-
-			if (this.continuePlacing === true) {
-				this.buildingState = BuildingModeState.Selecting;
-				this.SetupPlacingBuilding(false);
-			}
-		}
-	}
-
-	BuildingCancelled() {
-		if (this.selectedBuilding !== undefined) {
-			this.selectedBuilding.Delete();
-			this.selectedBuilding = undefined;
-			this.buildingState = BuildingModeState.Selecting;
-			this.ShowBuilding(true);
-		}
-	}
-
-	SetupPlacingBuilding(toggleMenu = !this.isVisible) {
-		if (this.buildingRecipe !== undefined && this.buildingState === BuildingModeState.Selecting) {
-			this.buildingState = BuildingModeState.Placing;
-			this.ShowBuilding(toggleMenu);
-			this.SetupBuildingPawn();
-		}
-	}
-
-	SetupBuildingPawn() {
-		if (ObjectClassLUT[this.buildingRecipe.name] !== undefined) {
-			this.selectedBuilding = PawnSetupController.CreateNewObject(this.buildingRecipe.name, true);
-		}
-	}
-
-	FixedUpdate() {
-		if (this.didBuildingChange === true && this.buildingSetupDone === true) {
-			this.DisplayBuilding();
-		}
-
-		super.FixedUpdate();
-
-		if (this.selectedBuilding !== undefined && this.buildingState === BuildingModeState.Placing) {
-			let tMousePos = MasterObject.MO.playerController.mousePosition.Clone();
-			tMousePos.Add(CanvasDrawer.GCD.canvasOffset);
-			tMousePos.SnapToGridF(32);
-			tMousePos.x += 16;
-			tMousePos.y += 32;
-
-			this.selectedBuilding.SetPosition(tMousePos);
-
-			if (this.isAnchored === true) {
-				DebugDrawer.AddDebugRectOperation(new Rectangle(tMousePos.x - 16, this.anchorPosition.y, 32, 1), 0.0016, Color.ColorValuesToCSS(100, 255, 255, 0.75), true, 1);
-
-				for (let i = 0, l = Math.abs(tMousePos.y - this.anchorPosition.y) / 16; i < l; ++i) {
-					DebugDrawer.AddDebugRectOperation(new Rectangle(tMousePos.x - 16,this.anchorPosition.y - (i * 16) - 16, 1, 8), 0.0016, Color.ColorValuesToCSS(100, 255, 255, 0.75), true, 1);
-					DebugDrawer.AddDebugRectOperation(new Rectangle(tMousePos.x + 16,this.anchorPosition.y - (i * 16) - 16, 1, 8), 0.0016, Color.ColorValuesToCSS(100, 255, 255, 0.75), true, 1);
-				}
-			}
-
-			let overlaps = CollisionHandler.GCH.GetOverlaps(this.selectedBuilding.BoxCollision, CollisionCheckEnum.Inside, CollisionTypeCheck.All);
-			if (overlaps.length === 0) {
-				DebugDrawer.AddDebugRectOperation(this.selectedBuilding.BoxCollision.boundingBox, 0.0016, Color.ColorValuesToCSS(0, 255, 0, 0.75), true, 1);
-			} else if (this.isAnchored === true && this.CheckAnchorOverlaps(overlaps) === false) {
-				DebugDrawer.AddDebugRectOperation(this.selectedBuilding.BoxCollision.boundingBox, 0.0016, Color.ColorValuesToCSS(0, 255, 0, 0.75), true, 1);
+		if (uldr === 'CopyNeighbour') {
+			let neighbouringObjects = TileF.GetNeighbourObjects(building, building.drawingOperation.tile.tileSet);
+			let foundTile = neighbouringObjects.find(element => (element !== undefined && element !== null && element.owner !== this && element.tile.tileULDR !== 'Middle'));
+			
+			if (foundTile !== undefined) {
+				return /** @type {string} */ (foundTile.tile.tileULDR);
 			} else {
-				DebugDrawer.AddDebugRectOperation(this.selectedBuilding.BoxCollision.boundingBox, 0.0016, Color.ColorValuesToCSS(255, 0, 0, 0.75), true, 1);
+				return 'Middle';
 			}
+		} else
+			return uldr;
+	}
+
+	/**
+	 * 
+	 * @param {string} uldr 
+	 * @returns {string}
+	 */
+	static ULDRToBuilding(uldr) {
+		switch (uldr) {
+			case 'Center': return undefined;
+
+			case 'UpLeft': return 'wallTopLeft';
+			case 'Up': return 'wallTop';
+			case 'UpRight': return 'wallTopRight';
+
+			case 'Left': return 'wallLeft';
+			case 'Middle': return 'wallMiddle';
+			case 'Right': return 'wallRight';
+
+			case 'DownLeft': return 'wallBottomLeft';
+			case 'Down': return 'wallBottom';
+			case 'DownRight': return 'wallBottomRight';
+		}
+
+		return 'wallMiddle';
+	}
+
+	/**
+	 * 
+	 * @param {BuildingZone} building 
+	 * @param {BuildingRecipe} buildingRecipe
+	 * @param {boolean} isAnchored
+	 * @returns 
+	 */
+	static CheckOverlap(building, buildingRecipe, isAnchored) {
+		let overlaps = CollisionHandler.GCH.GetOverlaps(building.BoxCollision, CollisionCheckEnum.Inside, CollisionTypeCheck.All),
+			doesOverlap = false;
+
+		for (let i = 0, l = overlaps.length; i < l; ++i) {
+			if (overlaps[i].collisionOwner instanceof Building) {
+				if (buildingRecipe.category !== BuildingCategory.Floor && overlaps[i].collisionOwner.category !== BuildingCategory.Floor)
+					doesOverlap = true;
+				if (buildingRecipe.category === BuildingCategory.Floor && overlaps[i].collisionOwner.category === BuildingCategory.Floor)
+					doesOverlap = true;
+			} else if (overlaps[i].collisionOwner instanceof BuildingZone) {
+				if (buildingRecipe.category !== BuildingCategory.Floor && overlaps[i].collisionOwner.buildingRecipe.category !== BuildingCategory.Floor)
+					doesOverlap = true;
+				if (buildingRecipe.category === BuildingCategory.Floor && overlaps[i].collisionOwner.buildingRecipe.category === BuildingCategory.Floor)
+					doesOverlap = true;
+			} else {
+				doesOverlap = true;
+			}
+		}
+
+		if (doesOverlap === false) {
+			return false;
+		} else if (isAnchored === true && Building.CheckAnchorOverlaps(overlaps, building) === false) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 
 	/**
 	 * 
 	 * @param {Collision[]} overlaps 
+	 * @param {BuildingZone} building
 	 * @returns {boolean}
 	 */
-	CheckAnchorOverlaps(overlaps) {
+	static CheckAnchorOverlaps(overlaps, building) {
 		let returnBool = false;
-		let temp = new Vector2D(this.selectedBuilding.position.x, this.anchorPosition.y + 32);
 
 		for (let i = 0, l = overlaps.length; i < l; ++i) {
-			if (overlaps[i].collisionOwner.position.NearlyEqual(this.selectedBuilding.position) === true) {
-				if (overlaps[i]?.collisionOwner?.drawingOperation.collisionSize !== undefined) {
-					if (overlaps[i].collisionOwner.drawingOperation.collisionSize.y !== 0) {
-						if (temp.NearlyEqualXY(overlaps[i].collisionOwner.position.x, overlaps[i].collisionOwner.position.y + overlaps[i].collisionOwner.drawingOperation.collisionSize.y) === true) {
-							returnBool = true;
-						}
-					} else {
-						returnBool = true;
-					}
-				} else {
+			if (overlaps[i].collisionOwner.position.NearlyEqual(building.position) === true) {
+				if (building.drawingOperation.Get3DPositionY() === overlaps[i].collisionOwner.drawingOperation.Get3DPositionY()) {
 					returnBool = true;
 				}
 			}
@@ -305,66 +138,16 @@ class Building extends Cobject {
 		return returnBool;
 	}
 
-	CEvent(eventType, key, data) {
-		switch (eventType) {
-			case 'input':
-				if (key === KeyEnum.leftMouse && data.eventType === 0 && this.selectedBuilding !== undefined && this.buildingState === BuildingModeState.Placing) {
-					let overlaps = CollisionHandler.GCH.GetOverlaps(this.selectedBuilding.BoxCollision, CollisionCheckEnum.Inside, CollisionTypeCheck.All);
-
-					if (overlaps.length === 0)
-						this.PlaceBuildingZone();
-					else if (this.isAnchored === true && this.CheckAnchorOverlaps(overlaps) === false)
-						this.PlaceBuildingZone();
-				}
-
-				switch (key) {
-					case KeyEnum.shiftLeft:
-						if (data.eventType === 0) {
-							this.continuePlacing = true;
-						} else if (data.eventType === 2) {
-							this.continuePlacing = false;
-						}
-						break;
-
-					case KeyEnum.altLeft:
-						if (data.eventType === 0) {
-							this.anchorPosition.x = MasterObject.MO.playerController.mousePosition.x;
-							this.anchorPosition.y = MasterObject.MO.playerController.mousePosition.y;
-							this.anchorPosition.Add(CanvasDrawer.GCD.canvasOffset);
-							this.anchorPosition.SnapToGridF(32);
-							this.anchorPosition.x += 16;
-							this.anchorPosition.y += 32;
-
-							this.isAnchored = !this.isAnchored;
-						}
-						break;
-				}
-
-				if (key === KeyEnum.rightMouse && data.eventType === 2 && this.selectedBuilding !== undefined) {
-					this.BuildingCancelled();
-				}
-				break;
-
-			case 'use':
-				if (key !== undefined && data.eventType === 2) {
-					this.ShowBuilding();
-					this.ShowRecipe();
-				}
-		}
-	}
-
-	handleEvent(e) {
-		switch (e.type) {
-			case 'click':
-				if (e.target.classList.contains('building-button-craft') && this.buildingState === BuildingModeState.Selecting) {
-					this.SetupPlacingBuilding();
-				} else {
-					if (this.buildingState !== BuildingModeState.Placing)
-						this.buildingRecipe = BuildingRecipeList[e.target.dataset.buildingItem];
-					this.ShowRecipe(e.target.dataset.buildingItem);
-				}
-				break;
-		}
+	/**
+	 * 
+	 * @param {Vector2D[]} polygonCollision 
+	 * @param {Vector2D} position 
+	 * @param {Vector2D} size 
+	 * @param {Vector2D} tilePosition 
+	 * @param {boolean} createShadow 
+	 */
+	GameBegin(polygonCollision = undefined, position = new Vector2D(this.position.x, this.position.y), size = new Vector2D(0, 0), tilePosition = new Vector2D(0, 0), createShadow = false) {
+		super.GameBegin(polygonCollision, position, size, tilePosition, createShadow);
 	}
 }
 
